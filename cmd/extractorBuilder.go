@@ -25,10 +25,11 @@ func tailLineToString(lines chan *tail.Line) chan string {
 }
 
 func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
-	follow := c.Bool("follow")
+	follow := c.GlobalBool("follow")
 	config := extractor.Config{
-		Posix: c.Bool("posix"),
-		Regex: c.String("match"),
+		Posix:   c.GlobalBool("posix"),
+		Regex:   c.GlobalString("match"),
+		Extract: c.GlobalString("extract"),
 	}
 
 	source := c.Args().First()
