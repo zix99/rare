@@ -3,13 +3,15 @@ package cmd
 import (
 	"fmt"
 
+	"reblurb/pkg/aggregation"
+
 	"github.com/urfave/cli"
 )
 
 func histoFunction(c *cli.Context) error {
 	fmt.Println("Howdy")
 
-	format := c.String("extract")
+	counter := aggregation.NewCounter()
 
 	extractor := buildExtractorFromArguments(c)
 	for {
@@ -17,11 +19,7 @@ func histoFunction(c *cli.Context) error {
 		if !more {
 			break
 		}
-		if format != "" {
-			//fmt.Println(buildStringFromGroups(match.Groups, format))
-		} else {
-			fmt.Println(match)
-		}
+		counter.Inc(match.Extracted)
 	}
 	return nil
 }

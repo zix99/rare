@@ -13,7 +13,7 @@ type MatchCounter struct {
 	matches map[string]*MatchItem
 }
 
-func New() *MatchCounter {
+func NewCounter() *MatchCounter {
 	return &MatchCounter{
 		matches: make(map[string]*MatchItem),
 	}
@@ -43,8 +43,8 @@ func (s *MatchCounter) Iter() chan MatchPair {
 				close(c)
 				return
 			}
-			close(c)
 		}
+		close(c)
 	}()
 	return c
 }
