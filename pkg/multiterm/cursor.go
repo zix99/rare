@@ -24,7 +24,7 @@ func moveUp(n int) {
 }
 
 func hideCursor() {
-	fmt.Print(escape("[?251"))
+	fmt.Print(escape("[?25l"))
 }
 
 func showCursor() {
@@ -33,4 +33,8 @@ func showCursor() {
 
 func eraseRemainingLine() {
 	fmt.Print(escape("[0K"))
+}
+
+func ResetCursor() {
+	showCursor()
 }

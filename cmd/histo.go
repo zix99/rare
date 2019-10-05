@@ -49,6 +49,7 @@ func histoFunction(c *cli.Context) error {
 	}
 	writeOutput(writer, counter, topItems)
 	fmt.Println()
+	multiterm.ResetCursor()
 	done <- true
 	return nil
 }

@@ -54,8 +54,10 @@ func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 	if needsRefresh {
 		s.format = fmt.Sprintf("%%-%ds    %%-10d  %%s", s.textSpacing)
 		for idx, item := range s.items {
-			progress := item.val * int64(len(progressSlice)) / s.maxVal
-			s.writer.WriteForLine(idx, s.format, item.key, item.val, progressSlice[:progress])
+			if item.val > 0 {
+				progress := item.val * int64(len(progressSlice)) / s.maxVal
+				s.writer.WriteForLine(idx, s.format, item.key, item.val, progressSlice[:progress])
+			}
 		}
 	} else {
 		progress := val * int64(len(progressSlice)) / s.maxVal
