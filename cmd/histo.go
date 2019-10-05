@@ -47,9 +47,13 @@ func histoFunction(c *cli.Context) error {
 		counter.Inc(match.Extracted)
 		mux.Unlock()
 	}
+
 	writeOutput(writer, counter, topItems)
 	fmt.Println()
+	fmt.Printf("Matched: %d / %d\n", extractor.MatchedLines(), extractor.ReadLines())
+	fmt.Printf("Groups:  %d\n", counter.GroupCount())
 	multiterm.ResetCursor()
+
 	done <- true
 	return nil
 }

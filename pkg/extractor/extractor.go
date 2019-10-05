@@ -36,6 +36,14 @@ func buildRegex(s string, posix bool) *regexp.Regexp {
 	return regexp.MustCompile(s)
 }
 
+func (s *Extractor) ReadLines() uint64 {
+	return s.readLines
+}
+
+func (s *Extractor) MatchedLines() uint64 {
+	return s.matchedLines
+}
+
 func (s *Extractor) processLineSync(line string) {
 	s.readLines++
 	matches := s.regex.FindAllStringSubmatch(line, -1)

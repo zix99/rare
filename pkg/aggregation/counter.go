@@ -23,6 +23,10 @@ func NewCounter() *MatchCounter {
 	}
 }
 
+func (s *MatchCounter) GroupCount() int {
+	return len(s.matches)
+}
+
 func (s *MatchCounter) Inc(element string) {
 	item := s.matches[element]
 	if item == nil {
