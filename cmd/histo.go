@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"reblurb/pkg/aggregation"
-	"reblurb/pkg/multiterm"
+	"rare/pkg/aggregation"
+	"rare/pkg/multiterm"
 	"sync"
 	"time"
 

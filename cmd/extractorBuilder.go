@@ -3,7 +3,7 @@ package cmd
 import (
 	"log"
 	"os"
-	"reblurb/pkg/extractor"
+	"rare/pkg/extractor"
 
 	"github.com/hpcloud/tail"
 	"github.com/urfave/cli"

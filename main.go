@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"reblurb/cmd"
+	"rare/cmd"
 
 	"github.com/urfave/cli"
 )

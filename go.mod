@@ -1,4 +1,4 @@
-module reblurb
+module rare
 
 go 1.13
 
