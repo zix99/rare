@@ -1,5 +1,7 @@
 package aggregation
 
+import "sort"
+
 type MatchItem struct {
 	count int64
 }
@@ -47,4 +49,23 @@ func (s *MatchCounter) Iter() chan MatchPair {
 		close(c)
 	}()
 	return c
+}
+
+func (s *MatchCounter) Items() []MatchPair {
+	items := make([]MatchPair, 0, len(s.matches))
+	for key, val := range s.matches {
+		items = append(items, MatchPair{
+			Item: *val,
+			Name: key,
+		})
+	}
+	return items
+}
+
+func (s *MatchCounter) ItemsTop(count int) []MatchPair {
+	items := s.Items()
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].Item.count > items[j].Item.count
+	})
+	return items[:count]
 }
