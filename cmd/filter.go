@@ -24,7 +24,7 @@ func filterFunction(c *cli.Context) error {
 	return nil
 }
 
-// HistogramCommand Exported command
+// FilterCommand Exported command
 func FilterCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "filter",
