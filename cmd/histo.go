@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/signal"
 	"rare/pkg/aggregation"
 	"rare/pkg/multiterm"
 	"sync"
@@ -38,19 +39,26 @@ func histoFunction(c *cli.Context) error {
 		}
 	}()
 
+	exitSignal := make(chan os.Signal)
+	signal.Notify(exitSignal, os.Interrupt)
 	extractor := buildExtractorFromArguments(c)
-	for {
-		match, more := <-extractor.ReadChan
-		if !more {
-			break
+	PROCESSING_LOOP: for {
+		select {
+		case <-exitSignal:
+			break PROCESSING_LOOP
+		case match, more := <-extractor.ReadChan:
+			if !more {
+				break PROCESSING_LOOP
+			}
+			mux.Lock()
+			counter.Inc(match.Extracted)
+			mux.Unlock()
 		}
-		mux.Lock()
-		counter.Inc(match.Extracted)
-		mux.Unlock()
 	}
 
 	writeOutput(writer, counter, topItems)
 	fmt.Println()
+
 	writeExtractorSummary(extractor)
 	fmt.Fprintf(os.Stderr, "Groups:  %d\n", counter.GroupCount())
 	multiterm.ResetCursor()
