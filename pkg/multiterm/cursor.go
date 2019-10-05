@@ -22,3 +22,15 @@ func moveUpf(n int) string {
 func moveUp(n int) {
 	fmt.Print(moveUpf(n))
 }
+
+func hideCursor() {
+	fmt.Print(escape("[?251"))
+}
+
+func showCursor() {
+	fmt.Print(escape("[?25h"))
+}
+
+func eraseRemainingLine() {
+	fmt.Print(escape("[0K"))
+}

@@ -78,3 +78,7 @@ func (s *MatchCounter) ItemsTop(count int) []MatchPair {
 	})
 	return minSlice(items, count)
 }
+
+func (s *MatchItem) Count() int64 {
+	return s.count
+}

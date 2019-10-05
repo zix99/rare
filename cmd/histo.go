@@ -12,7 +12,7 @@ import (
 func writeOutput(writer *multiterm.TermWriter, counter *aggregation.MatchCounter, count int) {
 	items := counter.ItemsTop(count)
 	for idx, match := range items {
-		writer.WriteForLine(idx, "%s %d", match.Name, match.Item)
+		writer.WriteForLine(idx, "%-32v %d", match.Name, match.Item.Count())
 	}
 }
 
@@ -22,6 +22,7 @@ func histoFunction(c *cli.Context) error {
 	writer := multiterm.New(topItems)
 	done := make(chan bool)
 
+	// TODO: Async safety
 	go func() {
 		for {
 			select {
