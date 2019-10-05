@@ -1,6 +1,8 @@
 package aggregation
 
-import "sort"
+import (
+	"sort"
+)
 
 type MatchItem struct {
 	count int64
@@ -62,10 +64,17 @@ func (s *MatchCounter) Items() []MatchPair {
 	return items
 }
 
+func minSlice(items []MatchPair, count int) []MatchPair {
+	if len(items) < count {
+		return items
+	}
+	return items[:count]
+}
+
 func (s *MatchCounter) ItemsTop(count int) []MatchPair {
 	items := s.Items()
 	sort.Slice(items, func(i, j int) bool {
 		return items[i].Item.count > items[j].Item.count
 	})
-	return items[:count]
+	return minSlice(items, count)
 }

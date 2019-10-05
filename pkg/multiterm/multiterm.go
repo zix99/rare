@@ -2,7 +2,6 @@ package multiterm
 
 import (
 	"fmt"
-	"time"
 )
 
 type TermWriter struct {
@@ -33,6 +32,4 @@ func (s *TermWriter) WriteForLine(line int, format string, args ...interface{}) 
 
 	fmt.Print("\r")
 	fmt.Printf(format, args...)
-
-	time.Sleep(1 * time.Second)
 }

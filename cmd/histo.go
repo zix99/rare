@@ -2,16 +2,36 @@ package cmd
 
 import (
 	"fmt"
-
 	"reblurb/pkg/aggregation"
+	"reblurb/pkg/multiterm"
+	"time"
 
 	"github.com/urfave/cli"
 )
 
-func histoFunction(c *cli.Context) error {
-	fmt.Println("Howdy")
+func writeOutput(writer *multiterm.TermWriter, counter *aggregation.MatchCounter, count int) {
+	items := counter.ItemsTop(count)
+	for idx, match := range items {
+		writer.WriteForLine(idx, "%s %d", match.Name, match.Item)
+	}
+}
 
+func histoFunction(c *cli.Context) error {
+	const topItems = 5
 	counter := aggregation.NewCounter()
+	writer := multiterm.New(topItems)
+	done := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case <-done:
+				return
+			case <-time.After(50 * time.Millisecond):
+				writeOutput(writer, counter, topItems)
+			}
+		}
+	}()
 
 	extractor := buildExtractorFromArguments(c)
 	for {
@@ -21,6 +41,9 @@ func histoFunction(c *cli.Context) error {
 		}
 		counter.Inc(match.Extracted)
 	}
+	writeOutput(writer, counter, topItems)
+	fmt.Println()
+	done <- true
 	return nil
 }
 

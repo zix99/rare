@@ -31,6 +31,7 @@ func main() {
 		cli.StringFlag{
 			Name:  "match,m",
 			Usage: "Regex to create match groups to summarize on",
+			Value: ".*",
 		},
 		cli.StringFlag{
 			Name:  "extract,e",
