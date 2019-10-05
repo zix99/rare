@@ -20,9 +20,11 @@ func writeOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounte
 }
 
 func histoFunction(c *cli.Context) error {
-	const topItems = 5
+	topItems := c.Int("n")
+
 	counter := aggregation.NewCounter()
 	writer := multiterm.NewHistogram(topItems)
+	writer.ShowBar = c.Bool("bars")
 	done := make(chan bool)
 	var mux sync.Mutex
 
@@ -42,7 +44,8 @@ func histoFunction(c *cli.Context) error {
 	exitSignal := make(chan os.Signal)
 	signal.Notify(exitSignal, os.Interrupt)
 	extractor := buildExtractorFromArguments(c)
-	PROCESSING_LOOP: for {
+PROCESSING_LOOP:
+	for {
 		select {
 		case <-exitSignal:
 			break PROCESSING_LOOP
@@ -76,6 +79,15 @@ func HistogramCommand() *cli.Command {
 		Aliases:   []string{"histogram"},
 		ShortName: "h",
 		ArgsUsage: "<-|filename>",
-		Flags:     buildExtractorFlags(),
+		Flags: buildExtractorFlags(
+			cli.BoolFlag{
+				Name:  "bars,b",
+				Usage: "Display bars as part of histogram",
+			},
+			cli.IntFlag{
+				Name:  "num,n",
+				Usage: "Number of elements to display",
+				Value: 5,
+			}),
 	}
 }

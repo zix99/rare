@@ -52,16 +52,30 @@ func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 	}
 
 	if needsRefresh {
-		s.format = fmt.Sprintf("%%-%ds    %%-10d  %%s", s.textSpacing)
+		s.rebuildFormatString()
 		for idx, item := range s.items {
 			if item.val > 0 {
-				progress := item.val * int64(len(progressSlice)) / s.maxVal
-				s.writer.WriteForLine(idx, s.format, item.key, item.val, progressSlice[:progress])
+				s.writeLine(idx, item.key, item.val)
 			}
 		}
 	} else {
+		s.writeLine(line, key, val)
+	}
+}
+
+func (s *HistoWriter) rebuildFormatString() {
+	if s.ShowBar {
+		s.format = fmt.Sprintf("%%-%ds    %%-10d %%s", s.textSpacing)
+	} else {
+		s.format = fmt.Sprintf("%%-%ds    %%-10d", s.textSpacing)
+	}
+}
+
+func (s *HistoWriter) writeLine(line int, key string, val int64) {
+	if s.ShowBar {
 		progress := val * int64(len(progressSlice)) / s.maxVal
 		s.writer.WriteForLine(line, s.format, key, val, progressSlice[:progress])
+	} else {
+		s.writer.WriteForLine(line, s.format, key, val)
 	}
-
 }
