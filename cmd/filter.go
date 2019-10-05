@@ -7,8 +7,6 @@ import (
 )
 
 func filterFunction(c *cli.Context) error {
-	fmt.Println("Howdy")
-
 	writeLines := c.Bool("line")
 
 	extractor := buildExtractorFromArguments(c)
