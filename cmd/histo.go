@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reblurb/pkg/aggregation"
 	"reblurb/pkg/multiterm"
+	"sync"
 	"time"
 
 	"github.com/urfave/cli"
@@ -21,15 +22,17 @@ func histoFunction(c *cli.Context) error {
 	counter := aggregation.NewCounter()
 	writer := multiterm.New(topItems)
 	done := make(chan bool)
+	var mux sync.Mutex
 
-	// TODO: Async safety
 	go func() {
 		for {
 			select {
 			case <-done:
 				return
-			case <-time.After(50 * time.Millisecond):
+			case <-time.After(100 * time.Millisecond):
+				mux.Lock()
 				writeOutput(writer, counter, topItems)
+				mux.Unlock()
 			}
 		}
 	}()
@@ -40,7 +43,9 @@ func histoFunction(c *cli.Context) error {
 		if !more {
 			break
 		}
+		mux.Lock()
 		counter.Inc(match.Extracted)
+		mux.Unlock()
 	}
 	writeOutput(writer, counter, topItems)
 	fmt.Println()
