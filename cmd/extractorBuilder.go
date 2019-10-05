@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"rare/pkg/extractor"
@@ -25,11 +26,11 @@ func tailLineToString(lines chan *tail.Line) chan string {
 }
 
 func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
-	follow := c.GlobalBool("follow")
+	follow := c.Bool("follow")
 	config := extractor.Config{
-		Posix:   c.GlobalBool("posix"),
-		Regex:   c.GlobalString("match"),
-		Extract: c.GlobalString("extract"),
+		Posix:   c.Bool("posix"),
+		Regex:   c.String("match"),
+		Extract: c.String("extract"),
 	}
 
 	source := c.Args().First()
@@ -50,4 +51,31 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 
 		return extractor.NewExtractorReader(file, &config)
 	}
+}
+
+func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
+	flags := []cli.Flag{
+		cli.BoolFlag{
+			Name:  "follow,f",
+			Usage: "Read appended data as file grows",
+		},
+		cli.BoolFlag{
+			Name:  "posix,p",
+			Usage: "Compile regex as against posix standard",
+		},
+		cli.StringFlag{
+			Name:  "match,m",
+			Usage: "Regex to create match groups to summarize on",
+			Value: ".*",
+		},
+		cli.StringFlag{
+			Name:  "extract,e",
+			Usage: "Comparisons to extract",
+		},
+	}
+	return append(flags, additionalFlags...)
+}
+
+func writeExtractorSummary(extractor *extractor.Extractor) {
+	fmt.Fprintf(os.Stderr, "Matched: %d / %d\n", extractor.MatchedLines(), extractor.ReadLines())
 }

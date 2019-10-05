@@ -21,6 +21,7 @@ func filterFunction(c *cli.Context) error {
 			fmt.Println(match.Extracted)
 		}
 	}
+	writeExtractorSummary(extractor)
 	return nil
 }
 
@@ -31,11 +32,11 @@ func FilterCommand() *cli.Command {
 		Usage:     "Filter incoming results with search criteria, and output raw matches",
 		Action:    filterFunction,
 		ArgsUsage: "<-|filename>",
-		Flags: []cli.Flag{
+		Flags: buildExtractorFlags(
 			cli.BoolFlag{
 				Name:  "line,l",
 				Usage: "Output line numbers",
 			},
-		},
+		),
 	}
 }

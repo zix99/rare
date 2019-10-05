@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"rare/pkg/aggregation"
 	"rare/pkg/multiterm"
 	"sync"
@@ -50,8 +51,8 @@ func histoFunction(c *cli.Context) error {
 
 	writeOutput(writer, counter, topItems)
 	fmt.Println()
-	fmt.Printf("Matched: %d / %d\n", extractor.MatchedLines(), extractor.ReadLines())
-	fmt.Printf("Groups:  %d\n", counter.GroupCount())
+	writeExtractorSummary(extractor)
+	fmt.Fprintf(os.Stderr, "Groups:  %d\n", counter.GroupCount())
 	multiterm.ResetCursor()
 
 	done <- true
@@ -67,6 +68,6 @@ func HistogramCommand() *cli.Command {
 		Aliases:   []string{"histogram"},
 		ShortName: "h",
 		ArgsUsage: "<-|filename>",
-		Flags:     []cli.Flag{},
+		Flags:     buildExtractorFlags(),
 	}
 }
