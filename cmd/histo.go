@@ -10,17 +10,17 @@ import (
 	"github.com/urfave/cli"
 )
 
-func writeOutput(writer *multiterm.TermWriter, counter *aggregation.MatchCounter, count int) {
+func writeOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounter, count int) {
 	items := counter.ItemsTop(count)
 	for idx, match := range items {
-		writer.WriteForLine(idx, "%-32v %d", match.Name, match.Item.Count())
+		writer.WriteForLine(idx, match.Name, match.Item.Count())
 	}
 }
 
 func histoFunction(c *cli.Context) error {
 	const topItems = 5
 	counter := aggregation.NewCounter()
-	writer := multiterm.New(topItems)
+	writer := multiterm.NewHistogram(topItems)
 	done := make(chan bool)
 	var mux sync.Mutex
 
@@ -29,7 +29,7 @@ func histoFunction(c *cli.Context) error {
 			select {
 			case <-done:
 				return
-			case <-time.After(100 * time.Millisecond):
+			case <-time.After(50 * time.Millisecond):
 				mux.Lock()
 				writeOutput(writer, counter, topItems)
 				mux.Unlock()
