@@ -25,6 +25,10 @@ $ rare -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3})' -e '$3 $1' h access.log
 
 ## Numerical Aggregats (aggr)
 
+# Roadmap
+
+ * Bucketing and ranging
+
 # License
 
     Copyright (C) 2019  Christopher LaPointe

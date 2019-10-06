@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"compress/gzip"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"rare/pkg/extractor"
@@ -44,9 +46,19 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 		return extractor.NewExtractor(tailLineToString(tail.Lines), &config)
 	} else { // Read (no-follow) source file(s)
+		var file io.Reader
 		file, err := os.Open(source)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		if c.Bool("gunzip") {
+			zfile, err := gzip.NewReader(file)
+			if err != nil {
+				log.Printf("Gunzip error: %v", err)
+			} else {
+				file = zfile
+			}
 		}
 
 		return extractor.NewExtractorReader(file, &config)
@@ -71,6 +83,10 @@ func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 		cli.StringFlag{
 			Name:  "extract,e",
 			Usage: "Comparisons to extract",
+		},
+		cli.BoolFlag{
+			Name:  "gunzip,z",
+			Usage: "Attempt to decompress file when reading",
 		},
 	}
 	return append(flags, additionalFlags...)
