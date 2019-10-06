@@ -58,6 +58,7 @@ PROCESSING_LOOP:
 			mux.Unlock()
 		}
 	}
+	done <- true
 
 	writeOutput(writer, counter, topItems)
 	fmt.Println()
@@ -66,7 +67,6 @@ PROCESSING_LOOP:
 	fmt.Fprintf(os.Stderr, "Groups:  %d\n", counter.GroupCount())
 	multiterm.ResetCursor()
 
-	done <- true
 	return nil
 }
 
