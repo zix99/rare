@@ -12,6 +12,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+var stderrLog = log.New(os.Stderr, "[Log] ", 0)
+
 func tailLineToString(lines chan *tail.Line) chan string {
 	output := make(chan string)
 	go func() {
@@ -29,6 +31,7 @@ func tailLineToString(lines chan *tail.Line) chan string {
 
 func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	follow := c.Bool("follow")
+	gunzip := c.Bool("gunzip")
 	config := extractor.Config{
 		Posix:   c.Bool("posix"),
 		Regex:   c.String("match"),
@@ -41,21 +44,25 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		return extractor.NewExtractorReader(os.Stdin, &config)
 	} else if follow { // Read from source file
 		tail, err := tail.TailFile(source, tail.Config{Follow: true})
+
 		if err != nil {
-			log.Fatal("Unable to open file: ", err)
+			stderrLog.Fatal("Unable to open file: ", err)
+		}
+		if gunzip {
+			stderrLog.Println("Cannot combine -f and -z")
 		}
 		return extractor.NewExtractor(tailLineToString(tail.Lines), &config)
 	} else { // Read (no-follow) source file(s)
 		var file io.Reader
 		file, err := os.Open(source)
 		if err != nil {
-			log.Fatal(err)
+			stderrLog.Fatal(err)
 		}
 
-		if c.Bool("gunzip") {
+		if gunzip {
 			zfile, err := gzip.NewReader(file)
 			if err != nil {
-				log.Printf("Gunzip error: %v", err)
+				stderrLog.Printf("Gunzip error: %v", err)
 			} else {
 				file = zfile
 			}
