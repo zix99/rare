@@ -1,6 +1,7 @@
 package extractor
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -14,6 +15,7 @@ type CompiledKeyBuilder struct {
 	stages []KeyBuilderStage
 }
 
+// NewKeyBuilder creates a new KeyBuilder
 func NewKeyBuilder() *KeyBuilder {
 	kb := &KeyBuilder{
 		functions: make(map[string]KeyBuilderFunction),
@@ -22,13 +24,14 @@ func NewKeyBuilder() *KeyBuilder {
 	return kb
 }
 
+// Funcs appends a map of functions to be used by the parser
 func (s *KeyBuilder) Funcs(funcs map[string]KeyBuilderFunction) {
 	for k, f := range funcs {
 		s.functions[k] = f
 	}
 }
 
-// NewKeyBuilder builds a new key-builder
+// Compile builds a new key-builder
 func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
 	kb := &CompiledKeyBuilder{
 		stages: make([]KeyBuilderStage, 0),
@@ -49,11 +52,15 @@ func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
 			inStatement = true
 		} else if r == '}' && inStatement {
 			keywords := strings.Split(sb.String(), " ")
-			if len(keywords) == 1 {
+			if len(keywords) == 1 { // Simple variable keyword like "{1}"
 				kb.stages = append(kb.stages, stageSimpleVariable(keywords[0]))
-			} else {
+			} else { // Complex function like "{add 1 2}"
 				f := s.functions[keywords[0]]
-				kb.stages = append(kb.stages, f(keywords[1:]))
+				if f != nil {
+					kb.stages = append(kb.stages, f(keywords[1:]))
+				} else {
+					kb.stages = append(kb.stages, kfError(fmt.Sprintf("Err:%s", keywords[0])))
+				}
 			}
 
 			sb.Reset()
