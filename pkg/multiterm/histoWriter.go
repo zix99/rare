@@ -1,7 +1,6 @@
 package multiterm
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -15,7 +14,6 @@ type HistoWriter struct {
 	maxVal      int64
 	textSpacing int
 	items       []histoPair
-	format      string
 
 	ShowBar bool
 }
@@ -35,15 +33,15 @@ func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 	if line > len(s.items) {
 		return
 	}
-	needsRefresh := false
+	needsFullRefresh := false
 
 	if len(key) > s.textSpacing {
 		s.textSpacing = len(key)
-		needsRefresh = true
+		needsFullRefresh = true
 	}
 	if val > s.maxVal {
 		s.maxVal = val
-		needsRefresh = true
+		needsFullRefresh = true
 	}
 
 	s.items[line] = histoPair{
@@ -51,8 +49,7 @@ func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 		val: val,
 	}
 
-	if needsRefresh {
-		s.rebuildFormatString()
+	if needsFullRefresh {
 		for idx, item := range s.items {
 			if item.val > 0 {
 				s.writeLine(idx, item.key, item.val)
@@ -63,19 +60,11 @@ func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 	}
 }
 
-func (s *HistoWriter) rebuildFormatString() {
-	if s.ShowBar {
-		s.format = fmt.Sprintf("%%-%ds    %%-10d %%s", s.textSpacing)
-	} else {
-		s.format = fmt.Sprintf("%%-%ds    %%-10d", s.textSpacing)
-	}
-}
-
 func (s *HistoWriter) writeLine(line int, key string, val int64) {
 	if s.ShowBar {
 		progress := val * int64(len(progressSlice)) / s.maxVal
-		s.writer.WriteForLine(line, s.format, key, val, progressSlice[:progress])
+		s.writer.WriteForLine(line, "%-[4]*[1]s    %-10[2]d %[3]s", key, val, progressSlice[:progress], s.textSpacing)
 	} else {
-		s.writer.WriteForLine(line, s.format, key, val)
+		s.writer.WriteForLine(line, "%-[3]*[1]s    %-10[2]d", key, val, s.textSpacing)
 	}
 }
