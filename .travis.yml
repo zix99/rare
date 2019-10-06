@@ -1,15 +1,22 @@
 language: go
-
 go:
-  - "1.13"
-
+- '1.13'
 before_install:
- - go get github.com/mitchellh/gox
-
+- go get github.com/mitchellh/gox
 install:
- - go get -t -v ./...
-
+- go get -t -v ./...
 script:
- - go vet $(go list ./... | grep -v /vendor/)
- - go test -v ./...
- - gox -os="linux darwin windows" -arch="amd64" -output="out/rare.." -verbose ./...
+- go vet $(go list ./... | grep -v /vendor/)
+- go test -v ./...
+- gox -os="linux darwin windows" -arch="amd64" -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
+  -verbose ./...
+deploy:
+  provider: releases
+  api_key:
+    secure: LQLwkHYbNlwll6vFfvu1CLTs0r5jUoXKP2LMqGBmmaSdWsLl7J+SQbWqi+De9LEL7r7JDSzAzfge8U9frAcIIQIYSEgVjJrMGCjbD7N+NyuKheGme/eXCKO9t3wQUywxGHpumg+nfh3P2eUUlnI2p0pLHRSBGxeAWUc+GACS+Dp24o4Stg6HLjVJQsQRB2ASpR269opr+GNLJEVvPWR189jYHvLKU9336iP3/D3mWPEIHB/q22hlHDkLNQMtqRnlQaA93mBmvZBKgFH+1GB6T9qW6fsy/HQc8wk/gJgXTuNARL0tjOhlmNjeDHvFf8lfRWcSFa99LVle/Pwseot+DMxouiZ+ho81LITufjCUoxdy8Dm27iGkYOg57fTKQBh9kbG3Fh5Ysiv+XnOgiDP2MxCkbmyW28YdT0wxhSXGxieQvYnMhDwOwmCFzHly7IKmEetsw67/Ydx3tuQ3fnnJ7xKI8E/9+XOFMQVLKYeiWvKRPPMohKeEX+G137lBSKS/oTu6VT3id1ZGFLxjuz/0WYoVV8kCfa1L0zacboNZsuklQgUXGE5uaiAdcTk36ZlItiqkrqequUxq9UE0eJuwGUswHr1pSOTt5B4D1u2B+q4wh08q5bBEyFOBdVeUyrutZlRXX41Gkii/PpnUP555BweUoCg1BXyVAD1zEBkJA+M=
+  file_glob: true
+  file: dist/*
+  skip_cleanup: true
+  on:
+    repo: zix99/rare
+    tags: true

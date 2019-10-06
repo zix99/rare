@@ -1,5 +1,7 @@
 # rare
 
+[![Build Status](https://travis-ci.org/zix99/rare.svg?branch=master)](https://travis-ci.org/zix99/rare)
+
 A file scan/regex extractor and realtime summarizor.
 
 Supports various CLI-based graphing and metric formats.

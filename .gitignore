@@ -2,3 +2,4 @@
 *.log
 main
 rare
+dist/
