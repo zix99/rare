@@ -9,7 +9,7 @@ Supports various CLI-based graphing and metric formats.
 ## Extract status codes from nginx logs
 
 ```bash
-$ rare -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3})' -e '$3 $1' h access.log
+$ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3})' -e '{3} {1}' access.log
 200 GET                          160663
 404 GET                          857
 304 GET                          53

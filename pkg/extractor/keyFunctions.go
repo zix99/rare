@@ -1,14 +1,29 @@
 package extractor
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
+
+func kfError(msg string) KeyBuilderStage {
+	errMessage := fmt.Sprintf("<%s>", msg)
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		return errMessage
+	})
+}
 
 func kfBucket(args []string) KeyBuilderStage {
-	index, _ := strconv.Atoi(args[0])
-	bucketSize, _ := strconv.Atoi(args[1])
+	index, err1 := strconv.Atoi(args[0])
+	bucketSize, err2 := strconv.Atoi(args[1])
+
+	if err1 != nil || err2 != nil {
+		return kfError("Invalid bucket arg")
+	}
+
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(context.GetMatch(index))
 		if err != nil {
-			return "<ERROR>"
+			return "<BUCKET-ERROR>"
 		}
 		return strconv.Itoa((val / bucketSize) * bucketSize)
 	})

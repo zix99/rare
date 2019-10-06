@@ -11,8 +11,7 @@ type KeyBuilder struct {
 
 // CompiledKeyBuilder represents the compiled key-builder
 type CompiledKeyBuilder struct {
-	stages  []KeyBuilderStage
-	builder *KeyBuilder
+	stages []KeyBuilderStage
 }
 
 func NewKeyBuilder() *KeyBuilder {
@@ -32,8 +31,7 @@ func (s *KeyBuilder) Funcs(funcs map[string]KeyBuilderFunction) {
 // NewKeyBuilder builds a new key-builder
 func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
 	kb := &CompiledKeyBuilder{
-		stages:  make([]KeyBuilderStage, 0),
-		builder: s,
+		stages: make([]KeyBuilderStage, 0),
 	}
 
 	inStatement := false

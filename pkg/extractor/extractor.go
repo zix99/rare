@@ -27,6 +27,7 @@ type Extractor struct {
 	readLines    uint64
 	matchedLines uint64
 	config       Config
+	keyBuilder   *CompiledKeyBuilder
 }
 
 func buildRegex(s string, posix bool) *regexp.Regexp {
@@ -51,10 +52,13 @@ func (s *Extractor) processLineSync(line string) {
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
 		s.matchedLines++
+		context := KeyBuilderContextArray{
+			Elements: matches[0],
+		}
 		s.ReadChan <- &Match{
 			Line:        line,
 			Groups:      matches[0],
-			Extracted:   buildStringFromGroups(matches[0], s.config.Extract),
+			Extracted:   s.keyBuilder.BuildKey(&context),
 			LineNumber:  s.readLines,
 			MatchNumber: s.matchedLines,
 		}
@@ -64,9 +68,10 @@ func (s *Extractor) processLineSync(line string) {
 // Create an extractor from an input channel
 func NewExtractor(input chan string, config *Config) *Extractor {
 	extractor := Extractor{
-		ReadChan: make(chan *Match, 5),
-		regex:    buildRegex(config.Regex, config.Posix),
-		config:   *config,
+		ReadChan:   make(chan *Match, 5),
+		regex:      buildRegex(config.Regex, config.Posix),
+		keyBuilder: NewKeyBuilder().Compile(config.Extract),
+		config:     *config,
 	}
 
 	go func() {
