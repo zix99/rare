@@ -12,8 +12,13 @@ import (
 	"github.com/urfave/cli"
 )
 
-func writeOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool) {
-	items := counter.ItemsSorted(count, reverse)
+func writeOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool, sortByKey bool) {
+	var items []aggregation.MatchPair
+	if sortByKey {
+		items = counter.ItemsSortedByKey(count, reverse)
+	} else {
+		items = counter.ItemsSorted(count, reverse)
+	}
 	for idx, match := range items {
 		writer.WriteForLine(idx, match.Name, match.Item.Count())
 	}
@@ -23,6 +28,7 @@ func histoFunction(c *cli.Context) error {
 	var (
 		topItems    = c.Int("n")
 		reverseSort = c.Bool("reverse")
+		sortByKey   = c.Bool("sk")
 	)
 
 	counter := aggregation.NewCounter()
@@ -38,7 +44,7 @@ func histoFunction(c *cli.Context) error {
 				return
 			case <-time.After(50 * time.Millisecond):
 				mux.Lock()
-				writeOutput(writer, counter, topItems, reverseSort)
+				writeOutput(writer, counter, topItems, reverseSort, sortByKey)
 				mux.Unlock()
 			}
 		}
@@ -63,7 +69,7 @@ PROCESSING_LOOP:
 	}
 	done <- true
 
-	writeOutput(writer, counter, topItems, reverseSort)
+	writeOutput(writer, counter, topItems, reverseSort, sortByKey)
 	fmt.Println()
 
 	writeExtractorSummary(extractor)

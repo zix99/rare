@@ -89,6 +89,20 @@ func (s *MatchCounter) ItemsSorted(count int, reverse bool) []MatchPair {
 	return minSlice(items, count)
 }
 
+func (s *MatchCounter) ItemsSortedByKey(count int, reverse bool) []MatchPair {
+	items := s.Items()
+	if reverse {
+		sort.Slice(items, func(i, j int) bool {
+			return items[i].Name > items[j].Name
+		})
+	} else {
+		sort.Slice(items, func(i, j int) bool {
+			return items[i].Name < items[j].Name
+		})
+	}
+	return minSlice(items, count)
+}
+
 func (s *MatchCounter) ItemsTop(count int) []MatchPair {
 	return s.ItemsSorted(count, false)
 }
