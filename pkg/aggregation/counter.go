@@ -75,12 +75,22 @@ func minSlice(items []MatchPair, count int) []MatchPair {
 	return items[:count]
 }
 
-func (s *MatchCounter) ItemsTop(count int) []MatchPair {
+func (s *MatchCounter) ItemsSorted(count int, reverse bool) []MatchPair {
 	items := s.Items()
-	sort.Slice(items, func(i, j int) bool {
-		return items[i].Item.count > items[j].Item.count
-	})
+	if reverse {
+		sort.Slice(items, func(i, j int) bool {
+			return items[i].Item.count < items[j].Item.count
+		})
+	} else {
+		sort.Slice(items, func(i, j int) bool {
+			return items[i].Item.count > items[j].Item.count
+		})
+	}
 	return minSlice(items, count)
+}
+
+func (s *MatchCounter) ItemsTop(count int) []MatchPair {
+	return s.ItemsSorted(count, false)
 }
 
 func (s *MatchItem) Count() int64 {

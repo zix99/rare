@@ -12,15 +12,18 @@ import (
 	"github.com/urfave/cli"
 )
 
-func writeOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounter, count int) {
-	items := counter.ItemsTop(count)
+func writeOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool) {
+	items := counter.ItemsSorted(count, reverse)
 	for idx, match := range items {
 		writer.WriteForLine(idx, match.Name, match.Item.Count())
 	}
 }
 
 func histoFunction(c *cli.Context) error {
-	topItems := c.Int("n")
+	var (
+		topItems    = c.Int("n")
+		reverseSort = c.Bool("reverse")
+	)
 
 	counter := aggregation.NewCounter()
 	writer := multiterm.NewHistogram(topItems)
@@ -35,7 +38,7 @@ func histoFunction(c *cli.Context) error {
 				return
 			case <-time.After(50 * time.Millisecond):
 				mux.Lock()
-				writeOutput(writer, counter, topItems)
+				writeOutput(writer, counter, topItems, reverseSort)
 				mux.Unlock()
 			}
 		}
@@ -60,7 +63,7 @@ PROCESSING_LOOP:
 	}
 	done <- true
 
-	writeOutput(writer, counter, topItems)
+	writeOutput(writer, counter, topItems, reverseSort)
 	fmt.Println()
 
 	writeExtractorSummary(extractor)
@@ -88,6 +91,14 @@ func HistogramCommand() *cli.Command {
 				Name:  "num,n",
 				Usage: "Number of elements to display",
 				Value: 5,
+			},
+			cli.BoolFlag{
+				Name:  "reverse",
+				Usage: "Reverses the display sort-order",
+			},
+			cli.BoolFlag{
+				Name:  "sortkey,sk",
+				Usage: "Sort by key, rather than value",
 			}),
 	}
 }
