@@ -3,7 +3,6 @@ package extractor
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // KeyBuilderContext defines how to get information during run-time
@@ -43,22 +42,5 @@ func stageError(msg string) KeyBuilderStage {
 	errMessage := fmt.Sprintf("<%s>", msg)
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		return errMessage
-	})
-}
-
-// TODO: This can exist on compiled func
-func stageJoin(stages []KeyBuilderStage) KeyBuilderStage {
-	if len(stages) == 0 {
-		return stageError("Empty")
-	}
-	if len(stages) == 1 {
-		return stages[0]
-	}
-	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		var sb strings.Builder
-		for _, stage := range stages {
-			sb.WriteString(stage(context))
-		}
-		return sb.String()
 	})
 }

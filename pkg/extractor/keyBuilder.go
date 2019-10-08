@@ -65,7 +65,7 @@ func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
 					if f != nil {
 						compiledArgs := make([]KeyBuilderStage, 0)
 						for _, arg := range args[1:] {
-							compiled := stageJoin(s.Compile(arg).stages)
+							compiled := s.Compile(arg).joinStages()
 							compiledArgs = append(compiledArgs, compiled)
 						}
 						kb.stages = append(kb.stages, f(compiledArgs))
@@ -98,4 +98,20 @@ func (s *CompiledKeyBuilder) BuildKey(context KeyBuilderContext) string {
 	}
 
 	return sb.String()
+}
+
+func (s *CompiledKeyBuilder) joinStages() KeyBuilderStage {
+	if len(s.stages) == 0 {
+		return stageError("Empty")
+	}
+	if len(s.stages) == 1 {
+		return s.stages[0]
+	}
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		var sb strings.Builder
+		for _, stage := range s.stages {
+			sb.WriteString(stage(context))
+		}
+		return sb.String()
+	})
 }
