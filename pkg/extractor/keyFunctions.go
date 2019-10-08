@@ -4,19 +4,21 @@ import (
 	"strconv"
 )
 
-func kfBucket(args []string) KeyBuilderStage {
-	index, err1 := strconv.Atoi(args[0])
-	bucketSize, err2 := strconv.Atoi(args[1])
+// KeyBuilderFunction defines a helper function at runtime
+type KeyBuilderFunction func([]KeyBuilderStage) KeyBuilderStage
 
-	if err1 != nil || err2 != nil {
-		return stageError("Invalid bucket arg")
-	}
-
+func kfBucket(args []KeyBuilderStage) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		val, err := strconv.Atoi(context.GetMatch(index))
+		val, err := strconv.Atoi(args[0](context))
 		if err != nil {
 			return "<BUCKET-ERROR>"
 		}
+
+		bucketSize, err := strconv.Atoi(args[1](context))
+		if err != nil {
+			return "<BUCKET-SIZE>"
+		}
+
 		return strconv.Itoa((val / bucketSize) * bucketSize)
 	})
 }

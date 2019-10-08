@@ -57,15 +57,20 @@ func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
 		} else if r == '}' && inStatement > 0 {
 			inStatement--
 			if inStatement == 0 {
-				keywords := strings.Split(sb.String(), " ")
-				if len(keywords) == 1 { // Simple variable keyword like "{1}"
-					kb.stages = append(kb.stages, stageSimpleVariable(keywords[0]))
+				args := splitTokenizedArguments(sb.String())
+				if len(args) == 1 { // Simple variable keyword like "{1}"
+					kb.stages = append(kb.stages, stageSimpleVariable(args[0]))
 				} else { // Complex function like "{add 1 2}"
-					f := s.functions[keywords[0]]
+					f := s.functions[args[0]]
 					if f != nil {
-						kb.stages = append(kb.stages, f(keywords[1:]))
+						compiledArgs := make([]KeyBuilderStage, 0)
+						for _, arg := range args[1:] {
+							compiled := stageJoin(s.Compile(arg).stages)
+							compiledArgs = append(compiledArgs, compiled)
+						}
+						kb.stages = append(kb.stages, f(compiledArgs))
 					} else {
-						kb.stages = append(kb.stages, stageError(fmt.Sprintf("Err:%s", keywords[0])))
+						kb.stages = append(kb.stages, stageError(fmt.Sprintf("Err:%s", args[0])))
 					}
 				}
 
