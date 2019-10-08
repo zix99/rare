@@ -1,6 +1,9 @@
 package extractor
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 // Space-separated tokenizer that respects escaping,
 // quotes, and token symbol {}
@@ -25,10 +28,10 @@ func splitTokenizedArguments(s string) []string {
 		} else if r == '}' {
 			tokenDepth--
 			sb.WriteRune(r)
-		} else if r == ' ' && sb.Len() > 0 && tokenDepth == 0 && !quoted {
+		} else if unicode.IsSpace(r) && sb.Len() > 0 && tokenDepth == 0 && !quoted {
 			args = append(args, sb.String())
 			sb.Reset()
-		} else if r != ' ' || quoted || tokenDepth > 0 {
+		} else if !unicode.IsSpace(r) || quoted || tokenDepth > 0 {
 			sb.WriteRune(r)
 		}
 	}

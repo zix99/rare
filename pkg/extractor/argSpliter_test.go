@@ -30,3 +30,13 @@ func TestMultiSpaces(t *testing.T) {
 	tokens := splitTokenizedArguments("a   b \"c \"  e")
 	assert.Equal(t, []string{"a", "b", "c ", "e"}, tokens)
 }
+
+func TestTabSplit(t *testing.T) {
+	tokens := splitTokenizedArguments("a\tb")
+	assert.Equal(t, []string{"a", "b"}, tokens)
+}
+
+func TestEscaping(t *testing.T) {
+	tokens := splitTokenizedArguments("a \\\"b c")
+	assert.Equal(t, []string{"a", "\"b", "c"}, tokens)
+}
