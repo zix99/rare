@@ -59,7 +59,7 @@ func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
 				if f != nil {
 					kb.stages = append(kb.stages, f(keywords[1:]))
 				} else {
-					kb.stages = append(kb.stages, kfError(fmt.Sprintf("Err:%s", keywords[0])))
+					kb.stages = append(kb.stages, stageError(fmt.Sprintf("Err:%s", keywords[0])))
 				}
 			}
 

@@ -1,6 +1,9 @@
 package extractor
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 // KeyBuilderContext defines how to get information during run-time
 type KeyBuilderContext interface {
@@ -35,5 +38,12 @@ func stageSimpleVariable(s string) KeyBuilderStage {
 	index, _ := strconv.Atoi(s)
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		return context.GetMatch(index)
+	})
+}
+
+func stageError(msg string) KeyBuilderStage {
+	errMessage := fmt.Sprintf("<%s>", msg)
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		return errMessage
 	})
 }
