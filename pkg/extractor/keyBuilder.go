@@ -104,7 +104,7 @@ func (s *CompiledKeyBuilder) BuildKey(context KeyBuilderContext) string {
 
 func (s *CompiledKeyBuilder) joinStages() KeyBuilderStage {
 	if len(s.stages) == 0 {
-		return stageError("Empty")
+		return stageLiteral("")
 	}
 	if len(s.stages) == 1 {
 		return s.stages[0]
