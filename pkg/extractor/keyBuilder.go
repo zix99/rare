@@ -48,8 +48,10 @@ func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
 			sb.WriteRune(runes[i])
 		} else if r == '{' {
 			if inStatement == 0 { // starting a new token
-				kb.stages = append(kb.stages, stageLiteral(sb.String()))
-				sb.Reset()
+				if sb.Len() > 0 {
+					kb.stages = append(kb.stages, stageLiteral(sb.String()))
+					sb.Reset()
+				}
 			} else {
 				sb.WriteRune(r)
 			}
