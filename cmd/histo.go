@@ -7,6 +7,7 @@ import (
 	"rare/pkg/aggregation"
 	"rare/pkg/multiterm"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/urfave/cli"
@@ -35,7 +36,10 @@ func histoFunction(c *cli.Context) error {
 	writer := multiterm.NewHistogram(topItems)
 	writer.ShowBar = c.Bool("bars")
 	done := make(chan bool)
+
 	var mux sync.Mutex
+	var hasUpdates atomic.Value
+	hasUpdates.Store(false)
 
 	go func() {
 		for {
@@ -43,9 +47,12 @@ func histoFunction(c *cli.Context) error {
 			case <-done:
 				return
 			case <-time.After(50 * time.Millisecond):
-				mux.Lock()
-				writeOutput(writer, counter, topItems, reverseSort, sortByKey)
-				mux.Unlock()
+				if hasUpdates.Load().(bool) {
+					hasUpdates.Store(false)
+					mux.Lock()
+					writeOutput(writer, counter, topItems, reverseSort, sortByKey)
+					mux.Unlock()
+				}
 			}
 		}
 	}()
@@ -64,6 +71,7 @@ PROCESSING_LOOP:
 			}
 			mux.Lock()
 			counter.Inc(match.Extracted)
+			hasUpdates.Store(true)
 			mux.Unlock()
 		}
 	}
