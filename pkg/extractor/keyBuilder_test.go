@@ -46,6 +46,12 @@ func TestBucketing(t *testing.T) {
 	assert.Equal(t, "120 is bucketed", key)
 }
 
+func TestDeepKeys(t *testing.T) {
+	kb := NewKeyBuilder().Compile("{{1} b} is bucketed")
+	key := kb.BuildKey(&testContext)
+	assert.Equal(t, "<Err:{1}> is bucketed", key)
+}
+
 func BenchmarkSimpleReplacement(b *testing.B) {
 	kb := NewKeyBuilder().Compile("{0} is awesome")
 	for n := 0; n < b.N; n++ {

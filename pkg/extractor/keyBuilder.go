@@ -37,40 +37,48 @@ func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
 		stages: make([]KeyBuilderStage, 0),
 	}
 
-	inStatement := false
+	inStatement := 0
 	var sb strings.Builder
 	runes := []rune(template)
 	for i := 0; i < len(runes); i++ {
 		r := runes[i]
 
 		if r == '\\' { // Escape
-			sb.WriteRune(runes[i+1])
 			i++
+			sb.WriteRune(runes[i])
 		} else if r == '{' {
-			kb.stages = append(kb.stages, stageLiteral(sb.String()))
-			sb.Reset()
-			inStatement = true
-		} else if r == '}' && inStatement {
-			keywords := strings.Split(sb.String(), " ")
-			if len(keywords) == 1 { // Simple variable keyword like "{1}"
-				kb.stages = append(kb.stages, stageSimpleVariable(keywords[0]))
-			} else { // Complex function like "{add 1 2}"
-				f := s.functions[keywords[0]]
-				if f != nil {
-					kb.stages = append(kb.stages, f(keywords[1:]))
-				} else {
-					kb.stages = append(kb.stages, stageError(fmt.Sprintf("Err:%s", keywords[0])))
-				}
+			if inStatement == 0 { // starting a new token
+				kb.stages = append(kb.stages, stageLiteral(sb.String()))
+				sb.Reset()
+			} else {
+				sb.WriteRune(r)
 			}
+			inStatement++
+		} else if r == '}' && inStatement > 0 {
+			inStatement--
+			if inStatement == 0 {
+				keywords := strings.Split(sb.String(), " ")
+				if len(keywords) == 1 { // Simple variable keyword like "{1}"
+					kb.stages = append(kb.stages, stageSimpleVariable(keywords[0]))
+				} else { // Complex function like "{add 1 2}"
+					f := s.functions[keywords[0]]
+					if f != nil {
+						kb.stages = append(kb.stages, f(keywords[1:]))
+					} else {
+						kb.stages = append(kb.stages, stageError(fmt.Sprintf("Err:%s", keywords[0])))
+					}
+				}
 
-			sb.Reset()
-			inStatement = false
+				sb.Reset()
+			} else {
+				sb.WriteRune(r)
+			}
 		} else {
 			sb.WriteRune(r)
 		}
 	}
 
-	if sb.Len() > 0 && !inStatement {
+	if sb.Len() > 0 && inStatement == 0 {
 		kb.stages = append(kb.stages, stageLiteral(sb.String()))
 	}
 
