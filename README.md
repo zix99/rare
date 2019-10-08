@@ -25,7 +25,7 @@ This shows an example of how to bucket the values into size of `1000`. In this c
 sense to see the histogram by number of bytes, but we might want to know the ratio of various orders-of-magnitudes.
 
 ```sh
-$ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3}) (\d+)' -e "{bucket 4 10000}" -n 10 access.log -b
+$ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3}) (\d+)' -e "{bucket {4} 10000}" -n 10 access.log -b
 0                   144239     ||||||||||||||||||||||||||||||||||||||||||||||||||
 190000              2599       
 10000               1290       

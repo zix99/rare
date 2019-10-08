@@ -13,9 +13,6 @@ type KeyBuilderContext interface {
 // KeyBuilderStage is a stage within the compiled builder
 type KeyBuilderStage func(KeyBuilderContext) string
 
-// KeyBuilderFunction defines a helper function at runtime
-type KeyBuilderFunction func([]string) KeyBuilderStage
-
 // KeyBuilderContextArray is a simple implementation of context with an array of elements
 type KeyBuilderContextArray struct {
 	Elements []string
