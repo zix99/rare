@@ -3,6 +3,7 @@ package extractor
 import (
 	"bufio"
 	"io"
+	"rare/pkg/expressions"
 	"regexp"
 	"strings"
 )
@@ -27,7 +28,7 @@ type Extractor struct {
 	readLines    uint64
 	matchedLines uint64
 	config       Config
-	keyBuilder   *CompiledKeyBuilder
+	keyBuilder   *expressions.CompiledKeyBuilder
 }
 
 func buildRegex(s string, posix bool) *regexp.Regexp {
@@ -52,7 +53,7 @@ func (s *Extractor) processLineSync(line string) {
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
 		s.matchedLines++
-		context := KeyBuilderContextArray{
+		context := expressions.KeyBuilderContextArray{
 			Elements: matches[0],
 		}
 		s.ReadChan <- &Match{
@@ -70,7 +71,7 @@ func NewExtractor(input chan string, config *Config) *Extractor {
 	extractor := Extractor{
 		ReadChan:   make(chan *Match, 5),
 		regex:      buildRegex(config.Regex, config.Posix),
-		keyBuilder: NewKeyBuilder().Compile(config.Extract),
+		keyBuilder: expressions.NewKeyBuilder().Compile(config.Extract),
 		config:     *config,
 	}
 
