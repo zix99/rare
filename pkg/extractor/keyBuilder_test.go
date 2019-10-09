@@ -1,7 +1,9 @@
 package extractor
 
 import (
+	"bytes"
 	"testing"
+	"text/template"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -61,5 +63,13 @@ func BenchmarkSimpleReplacement(b *testing.B) {
 	kb := NewKeyBuilder().Compile("{0} is awesome")
 	for n := 0; n < b.N; n++ {
 		kb.BuildKey(&testContext)
+	}
+}
+
+func BenchmarkGoTextTemplate(b *testing.B) {
+	kb, _ := template.New("test").Parse("{a} is awesome")
+	for n := 0; n < b.N; n++ {
+		var buf bytes.Buffer
+		kb.Execute(&buf, nil)
 	}
 }
