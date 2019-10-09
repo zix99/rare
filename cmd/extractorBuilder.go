@@ -90,6 +90,7 @@ func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 		cli.StringFlag{
 			Name:  "extract,e",
 			Usage: "Comparisons to extract",
+			Value: "{0}",
 		},
 		cli.BoolFlag{
 			Name:  "gunzip,z",
