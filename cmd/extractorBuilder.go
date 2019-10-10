@@ -38,12 +38,10 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		Extract: c.String("extract"),
 	}
 
-	source := c.Args().First()
-
-	if source == "" || source == "-" { // Read from stdin
+	if c.NArg() == 0 || c.Args().First() == "-" { // Read from stdin
 		return extractor.New(extractor.ConvertReaderToStringChan(os.Stdin), &config)
 	} else if follow { // Read from source file
-		tail, err := tail.TailFile(source, tail.Config{Follow: true})
+		tail, err := tail.TailFile(c.Args().First(), tail.Config{Follow: true})
 
 		if err != nil {
 			stderrLog.Fatal("Unable to open file: ", err)
@@ -54,7 +52,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		return extractor.New(tailLineToString(tail.Lines), &config)
 	} else { // Read (no-follow) source file(s)
 		var file io.Reader
-		file, err := os.Open(source)
+		file, err := os.Open(c.Args().First())
 		if err != nil {
 			stderrLog.Fatal(err)
 		}
