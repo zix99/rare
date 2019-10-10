@@ -7,6 +7,8 @@ import (
 	"sync"
 )
 
+type semiLock struct{}
+
 // CombineChannels combines multiple string channels into a single (unordered)
 //  string channel
 func CombineChannels(channels ...chan string) chan string {
@@ -17,12 +19,19 @@ func CombineChannels(channels ...chan string) chan string {
 		return channels[0]
 	}
 
-	out := make(chan string, 2)
+	const concurrentReaders = 2
+
+	out := make(chan string, concurrentReaders)
 	var wg sync.WaitGroup
+
+	// Reading from too many files in parallel can trash
+	// Limit the number of concurrent readers
+	semi := make(chan semiLock, concurrentReaders)
 
 	for _, c := range channels {
 		wg.Add(1)
 		go func(subchan chan string) {
+			semi <- semiLock{}
 			for {
 				s, more := <-subchan
 				if !more {
@@ -30,6 +39,7 @@ func CombineChannels(channels ...chan string) chan string {
 				}
 				out <- s
 			}
+			<-semi
 			wg.Done()
 		}(c)
 	}
