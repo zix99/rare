@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"rare/pkg/extractor"
+	"runtime"
 
 	"github.com/hpcloud/tail"
 	"github.com/urfave/cli"
@@ -57,6 +58,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		Posix:   c.Bool("posix"),
 		Regex:   c.String("match"),
 		Extract: c.String("extract"),
+		Workers: c.Int("workers"),
 	}
 
 	if c.NArg() == 0 || c.Args().First() == "-" { // Read from stdin
@@ -122,6 +124,11 @@ func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 		cli.BoolFlag{
 			Name:  "gunzip,z",
 			Usage: "Attempt to decompress file when reading",
+		},
+		cli.IntFlag{
+			Name:  "workers,w",
+			Usage: "Set number of data processors",
+			Value: runtime.NumCPU()/2 + 1,
 		},
 	}
 	return append(flags, additionalFlags...)

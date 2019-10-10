@@ -3,6 +3,8 @@ package extractor
 import (
 	"rare/pkg/expressions"
 	"regexp"
+	"sync"
+	"sync/atomic"
 )
 
 type Match struct {
@@ -17,6 +19,7 @@ type Config struct {
 	Posix   bool
 	Regex   string
 	Extract string
+	Workers int
 }
 
 type Extractor struct {
@@ -43,13 +46,14 @@ func (s *Extractor) MatchedLines() uint64 {
 	return s.matchedLines
 }
 
+// async safe
 func (s *Extractor) processLineSync(line string) {
-	s.readLines++
+	lineNum := atomic.AddUint64(&s.readLines, 1)
 	matches := s.regex.FindAllStringSubmatch(line, -1)
 
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
-		s.matchedLines++
+		matchNum := atomic.AddUint64(&s.matchedLines, 1)
 		context := expressions.KeyBuilderContextArray{
 			Elements: matches[0],
 		}
@@ -57,8 +61,8 @@ func (s *Extractor) processLineSync(line string) {
 			Line:        line,
 			Groups:      matches[0],
 			Extracted:   s.keyBuilder.BuildKey(&context),
-			LineNumber:  s.readLines,
-			MatchNumber: s.matchedLines,
+			LineNumber:  lineNum,
+			MatchNumber: matchNum,
 		}
 	}
 }
@@ -72,16 +76,33 @@ func New(input chan string, config *Config) *Extractor {
 		config:     *config,
 	}
 
-	go func() {
-		for {
-			s, more := <-input
-			if !more {
-				break
+	var wg sync.WaitGroup
+
+	for i := 0; i < config.getWorkerCount(); i++ {
+		wg.Add(1)
+		go func() {
+			for {
+				s, more := <-input
+				if !more {
+					break
+				}
+				extractor.processLineSync(s)
 			}
-			extractor.processLineSync(s)
-		}
+			wg.Done()
+		}()
+	}
+
+	go func() {
+		wg.Wait()
 		close(extractor.ReadChan)
 	}()
 
 	return &extractor
+}
+
+func (s *Config) getWorkerCount() int {
+	if s.Workers <= 0 {
+		return 2
+	}
+	return s.Workers
 }
