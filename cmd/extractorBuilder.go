@@ -60,15 +60,21 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	if c.NArg() == 0 || c.Args().First() == "-" { // Read from stdin
 		return extractor.New(extractor.ConvertReaderToStringChan(os.Stdin), &config)
 	} else if follow { // Read from source file
-		tail, err := tail.TailFile(c.Args().First(), tail.Config{Follow: true})
-
-		if err != nil {
-			stderrLog.Fatal("Unable to open file: ", err)
-		}
 		if gunzip {
 			stderrLog.Println("Cannot combine -f and -z")
 		}
-		return extractor.New(tailLineToChan(tail.Lines), &config)
+
+		tailChannels := make([]chan string, 0)
+		for _, filename := range c.Args() {
+			tail, err := tail.TailFile(filename, tail.Config{Follow: true})
+
+			if err != nil {
+				stderrLog.Fatal("Unable to open file: ", err)
+			}
+			tailChannels = append(tailChannels, tailLineToChan(tail.Lines))
+		}
+
+		return extractor.New(extractor.CombineChannels(tailChannels...), &config)
 	} else { // Read (no-follow) source file(s)
 		readChannels := make([]chan string, 0)
 		for _, filename := range c.Args() {
