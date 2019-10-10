@@ -14,7 +14,7 @@ import (
 
 var stderrLog = log.New(os.Stderr, "[Log] ", 0)
 
-func tailLineToString(lines chan *tail.Line) chan string {
+func tailLineToChan(lines chan *tail.Line) chan string {
 	output := make(chan string)
 	go func() {
 		for {
@@ -27,6 +27,25 @@ func tailLineToString(lines chan *tail.Line) chan string {
 		close(output)
 	}()
 	return output
+}
+
+func openFileToChan(filename string, gunzip bool) (chan string, error) {
+	var file io.Reader
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	if gunzip {
+		zfile, err := gzip.NewReader(file)
+		if err != nil {
+			stderrLog.Printf("Gunzip error: %v", err)
+		} else {
+			file = zfile
+		}
+	}
+
+	return extractor.ConvertReaderToStringChan(file), nil
 }
 
 func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
@@ -49,24 +68,14 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		if gunzip {
 			stderrLog.Println("Cannot combine -f and -z")
 		}
-		return extractor.New(tailLineToString(tail.Lines), &config)
+		return extractor.New(tailLineToChan(tail.Lines), &config)
 	} else { // Read (no-follow) source file(s)
-		var file io.Reader
-		file, err := os.Open(c.Args().First())
+		fchan, err := openFileToChan(c.Args().First(), gunzip)
 		if err != nil {
 			stderrLog.Fatal(err)
 		}
 
-		if gunzip {
-			zfile, err := gzip.NewReader(file)
-			if err != nil {
-				stderrLog.Printf("Gunzip error: %v", err)
-			} else {
-				file = zfile
-			}
-		}
-
-		return extractor.New(extractor.ConvertReaderToStringChan(file), &config)
+		return extractor.New(fchan, &config)
 	}
 }
 
