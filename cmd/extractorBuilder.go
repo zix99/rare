@@ -49,7 +49,9 @@ func openFileToChan(filename string, gunzip bool) (chan string, error) {
 }
 
 func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
-	follow := c.Bool("follow")
+	follow := c.Bool("follow") || c.Bool("reopen")
+	followReopen := c.Bool("reopen")
+	followPoll := c.Bool("poll")
 	gunzip := c.Bool("gunzip")
 	config := extractor.Config{
 		Posix:   c.Bool("posix"),
@@ -66,7 +68,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 
 		tailChannels := make([]chan string, 0)
 		for _, filename := range c.Args() {
-			tail, err := tail.TailFile(filename, tail.Config{Follow: true})
+			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
 			if err != nil {
 				stderrLog.Fatal("Unable to open file: ", err)
@@ -96,6 +98,14 @@ func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 			Usage: "Read appended data as file grows",
 		},
 		cli.BoolFlag{
+			Name:  "reopen,F",
+			Usage: "Same as -f, but will reopen recreated files",
+		},
+		cli.BoolFlag{
+			Name:  "poll",
+			Usage: "When following a file, poll for changes rather than using inotify",
+		},
+		cli.BoolFlag{
 			Name:  "posix,p",
 			Usage: "Compile regex as against posix standard",
 		},
@@ -106,7 +116,7 @@ func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  "extract,e",
-			Usage: "Comparisons to extract",
+			Usage: "Expression that will generate the key to group by",
 			Value: "{0}",
 		},
 		cli.BoolFlag{
