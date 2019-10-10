@@ -70,12 +70,16 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 		return extractor.New(tailLineToChan(tail.Lines), &config)
 	} else { // Read (no-follow) source file(s)
-		fchan, err := openFileToChan(c.Args().First(), gunzip)
-		if err != nil {
-			stderrLog.Fatal(err)
+		readChannels := make([]chan string, 0)
+		for _, filename := range c.Args() {
+			fchan, err := openFileToChan(filename, gunzip)
+			if err != nil {
+				stderrLog.Fatal(err)
+			}
+			readChannels = append(readChannels, fchan)
 		}
 
-		return extractor.New(fchan, &config)
+		return extractor.New(extractor.CombineChannels(readChannels...), &config)
 	}
 }
 
