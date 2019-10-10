@@ -41,7 +41,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	source := c.Args().First()
 
 	if source == "" || source == "-" { // Read from stdin
-		return extractor.NewExtractorReader(os.Stdin, &config)
+		return extractor.New(extractor.ConvertReaderToStringChan(os.Stdin), &config)
 	} else if follow { // Read from source file
 		tail, err := tail.TailFile(source, tail.Config{Follow: true})
 
@@ -51,7 +51,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		if gunzip {
 			stderrLog.Println("Cannot combine -f and -z")
 		}
-		return extractor.NewExtractor(tailLineToString(tail.Lines), &config)
+		return extractor.New(tailLineToString(tail.Lines), &config)
 	} else { // Read (no-follow) source file(s)
 		var file io.Reader
 		file, err := os.Open(source)
@@ -68,7 +68,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			}
 		}
 
-		return extractor.NewExtractorReader(file, &config)
+		return extractor.New(extractor.ConvertReaderToStringChan(file), &config)
 	}
 }
 

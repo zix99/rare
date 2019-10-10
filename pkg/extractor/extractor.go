@@ -1,11 +1,8 @@
 package extractor
 
 import (
-	"bufio"
-	"io"
 	"rare/pkg/expressions"
 	"regexp"
-	"strings"
 )
 
 type Match struct {
@@ -67,7 +64,7 @@ func (s *Extractor) processLineSync(line string) {
 }
 
 // Create an extractor from an input channel
-func NewExtractor(input chan string, config *Config) *Extractor {
+func New(input chan string, config *Config) *Extractor {
 	extractor := Extractor{
 		ReadChan:   make(chan *Match, 5),
 		regex:      buildRegex(config.Regex, config.Posix),
@@ -87,23 +84,4 @@ func NewExtractor(input chan string, config *Config) *Extractor {
 	}()
 
 	return &extractor
-}
-
-// Create an extractor for an io.Reader
-func NewExtractorReader(reader io.Reader, config *Config) *Extractor {
-	input := make(chan string)
-
-	bufReader := bufio.NewReader(reader)
-	go func() {
-		for {
-			line, err := bufReader.ReadString('\n')
-			if err == io.EOF {
-				break
-			}
-			input <- strings.TrimSuffix(line, "\n")
-		}
-		close(input)
-	}()
-
-	return NewExtractor(input, config)
 }
