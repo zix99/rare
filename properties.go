@@ -1,3 +1,4 @@
 package main
 
-const version = "0.1.0"
+var buildSha = ""
+var version = "devel"

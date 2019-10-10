@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -12,7 +13,7 @@ import (
 func main() {
 	app := cli.NewApp()
 
-	app.Version = version
+	app.Version = fmt.Sprintf("%s, %s", version, buildSha)
 
 	app.Commands = []cli.Command{
 		*cmd.FilterCommand(),
