@@ -8,12 +8,7 @@ install:
 script:
 - go vet $(go list ./... | grep -v /vendor/)
 - go test -v ./...
-- |
-  gox -os="linux darwin windows"
-  -arch="amd64"
-  -ldflags "main.version=0.1.${TRAVIS_BUILD_NUMBER} main.buildSha=$(git rev-list -1 HEAD)"
-  -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
-  -verbose ./...
+- gox -os="linux darwin windows" -arch="amd64" -ldflags "main.version=0.1.${TRAVIS_BUILD_NUMBER} main.buildSha=$(git rev-list -1 HEAD)" -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}" -verbose ./...
 deploy:
   provider: releases
   api_key:
