@@ -31,7 +31,7 @@ func tailLineToChan(lines chan *tail.Line) chan string {
 }
 
 func openFileToChan(filename string, gunzip bool) (chan string, error) {
-	var file io.Reader
+	var file io.ReadCloser
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err

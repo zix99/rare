@@ -54,11 +54,12 @@ func CombineChannels(channels ...chan string) chan string {
 
 // ConvertReaderToStringChan converts an io.reader to a string channel
 //  where it's separated by a new-line
-func ConvertReaderToStringChan(reader io.Reader) chan string {
+func ConvertReaderToStringChan(reader io.ReadCloser) chan string {
 	out := make(chan string)
 
 	bufReader := bufio.NewReader(reader)
 	go func() {
+		defer reader.Close()
 		for {
 			line, err := bufReader.ReadString('\n')
 			if err == io.EOF {
