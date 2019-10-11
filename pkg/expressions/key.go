@@ -22,7 +22,7 @@ func (s *KeyBuilderContextArray) GetMatch(idx int) string {
 	if idx >= 0 && idx < len(s.Elements) {
 		return s.Elements[idx]
 	}
-	return "<OOB>"
+	return ErrorOutOfBounds
 }
 
 func stageLiteral(s string) KeyBuilderStage {
