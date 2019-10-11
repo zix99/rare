@@ -1,4 +1,4 @@
 package main
 
-var buildSha = ""
+var buildSha = "head"
 var version = "devel"
