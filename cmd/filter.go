@@ -31,7 +31,7 @@ func FilterCommand() *cli.Command {
 		Name:      "filter",
 		Usage:     "Filter incoming results with search criteria, and output raw matches",
 		Action:    filterFunction,
-		ArgsUsage: "<-|filename>",
+		ArgsUsage: "<-|filename|glob...>",
 		Flags: buildExtractorFlags(
 			cli.BoolFlag{
 				Name:  "line,l",

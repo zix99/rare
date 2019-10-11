@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"rare/pkg/extractor"
 	"runtime"
 
@@ -40,13 +41,26 @@ func openFileToChan(filename string, gunzip bool) (chan string, error) {
 	if gunzip {
 		zfile, err := gzip.NewReader(file)
 		if err != nil {
-			stderrLog.Printf("Gunzip error: %v", err)
+			stderrLog.Printf("Gunzip error: %v\n", err)
 		} else {
 			file = zfile
 		}
 	}
 
 	return extractor.ConvertReaderToStringChan(file), nil
+}
+
+func globExpand(paths []string) []string {
+	out := make([]string, 0)
+	for _, path := range paths {
+		expanded, err := filepath.Glob(path)
+		if err != nil {
+			stderrLog.Printf("Path error: %v\n", err)
+		} else {
+			out = append(out, expanded...)
+		}
+	}
+	return out
 }
 
 func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
@@ -69,7 +83,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 
 		tailChannels := make([]chan string, 0)
-		for _, filename := range c.Args() {
+		for _, filename := range globExpand(c.Args()) {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
 			if err != nil {
@@ -81,7 +95,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		return extractor.New(extractor.CombineChannels(tailChannels...), &config)
 	} else { // Read (no-follow) source file(s)
 		readChannels := make([]chan string, 0)
-		for _, filename := range c.Args() {
+		for _, filename := range globExpand(c.Args()) {
 			fchan, err := openFileToChan(filename, gunzip)
 			if err != nil {
 				stderrLog.Fatal(err)

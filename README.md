@@ -6,6 +6,12 @@ A file scan/regex extractor and realtime summarizor.
 
 Supports various CLI-based graphing and metric formats.
 
+# Features
+
+ * File glob expansions (eg `/var/log/**` or `/var/log/*/*.log`)
+ * Optional gzip decompression (with `-z`)
+ * Following `-f` or re-open following `-F` (use `--poll` to poll)
+
 # Example
 
 ## Extract status codes from nginx logs
