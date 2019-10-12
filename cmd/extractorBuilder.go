@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"compress/gzip"
 	"fmt"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"path/filepath"
 	"rare/pkg/extractor"
 	"runtime"
+	"sync"
 
 	"github.com/hpcloud/tail"
 	"github.com/urfave/cli"
@@ -31,7 +33,7 @@ func tailLineToChan(lines chan *tail.Line) chan string {
 	return output
 }
 
-func openFileToChan(filename string, gunzip bool) (chan string, error) {
+func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	var file io.ReadCloser
 	file, err := os.Open(filename)
 	if err != nil {
@@ -41,13 +43,50 @@ func openFileToChan(filename string, gunzip bool) (chan string, error) {
 	if gunzip {
 		zfile, err := gzip.NewReader(file)
 		if err != nil {
-			stderrLog.Printf("Gunzip error: %v\n", err)
+			stderrLog.Printf("Gunzip error for file %s: %v\n", filename, err)
 		} else {
 			file = zfile
 		}
 	}
 
-	return extractor.ConvertReaderToStringChan(file), nil
+	return file, nil
+}
+
+func openFilesToChan(filenames []string, gunzip bool, concurrency int) chan string {
+	out := make(chan string, 128)
+	sema := make(chan struct{}, concurrency)
+	var wg sync.WaitGroup
+
+	for _, filename := range filenames {
+		wg.Add(1)
+		go func(goFilename string) {
+			sema <- struct{}{}
+			var file io.ReadCloser
+			file, err := openFileToReader(goFilename, gunzip)
+			if err != nil {
+				stderrLog.Printf("Error opening file %s: %v\n", goFilename, err)
+				return
+			}
+			defer file.Close()
+
+			scanner := bufio.NewScanner(file)
+			bigBuf := make([]byte, 512*1024)
+			scanner.Buffer(bigBuf, len(bigBuf))
+
+			for scanner.Scan() {
+				out <- scanner.Text()
+			}
+			<-sema
+			wg.Done()
+		}(filename)
+	}
+
+	go func() {
+		wg.Wait()
+		close(out)
+	}()
+
+	return out
 }
 
 func globExpand(paths []string) []string {
@@ -67,6 +106,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	follow := c.Bool("follow") || c.Bool("reopen")
 	followReopen := c.Bool("reopen")
 	followPoll := c.Bool("poll")
+	concurrentReaders := c.Int("readers")
 	gunzip := c.Bool("gunzip")
 	config := extractor.Config{
 		Posix:   c.Bool("posix"),
@@ -94,16 +134,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 
 		return extractor.New(extractor.CombineChannels(tailChannels...), &config)
 	} else { // Read (no-follow) source file(s)
-		readChannels := make([]chan string, 0)
-		for _, filename := range globExpand(c.Args()) {
-			fchan, err := openFileToChan(filename, gunzip)
-			if err != nil {
-				stderrLog.Fatal(err)
-			}
-			readChannels = append(readChannels, fchan)
-		}
-
-		return extractor.New(extractor.CombineChannels(readChannels...), &config)
+		return extractor.New(openFilesToChan(globExpand(c.Args()), gunzip, concurrentReaders), &config)
 	}
 }
 
@@ -143,6 +174,11 @@ func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 			Name:  "workers,w",
 			Usage: "Set number of data processors",
 			Value: runtime.NumCPU()/2 + 1,
+		},
+		cli.IntFlag{
+			Name:  "readers,wr",
+			Usage: "Sets the number of concurrent readers (Infinite when -f)",
+			Value: 3,
 		},
 	}
 	return append(flags, additionalFlags...)

@@ -18,19 +18,12 @@ func CombineChannels(channels ...chan string) chan string {
 		return channels[0]
 	}
 
-	const concurrentReaders = 2
-
-	out := make(chan string, concurrentReaders)
+	out := make(chan string)
 	var wg sync.WaitGroup
-
-	// Reading from too many files in parallel can trash
-	// Limit the number of concurrent readers
-	semi := make(chan semiLock, concurrentReaders)
 
 	for _, c := range channels {
 		wg.Add(1)
 		go func(subchan chan string) {
-			semi <- semiLock{}
 			for {
 				s, more := <-subchan
 				if !more {
@@ -38,7 +31,6 @@ func CombineChannels(channels ...chan string) chan string {
 				}
 				out <- s
 			}
-			<-semi
 			wg.Done()
 		}(c)
 	}
