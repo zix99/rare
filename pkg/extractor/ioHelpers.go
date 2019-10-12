@@ -3,7 +3,6 @@ package extractor
 import (
 	"bufio"
 	"io"
-	"strings"
 	"sync"
 )
 
@@ -56,16 +55,14 @@ func CombineChannels(channels ...chan string) chan string {
 //  where it's separated by a new-line
 func ConvertReaderToStringChan(reader io.ReadCloser) chan string {
 	out := make(chan string)
+	scanner := bufio.NewScanner(reader)
+	bigBuf := make([]byte, 512*1024)
+	scanner.Buffer(bigBuf, len(bigBuf))
 
-	bufReader := bufio.NewReader(reader)
 	go func() {
 		defer reader.Close()
-		for {
-			line, err := bufReader.ReadString('\n')
-			if err == io.EOF {
-				break
-			}
-			out <- strings.TrimSuffix(line, "\n")
+		for scanner.Scan() {
+			out <- scanner.Text()
 		}
 		close(out)
 	}()
