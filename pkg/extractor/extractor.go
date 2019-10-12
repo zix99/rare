@@ -10,6 +10,7 @@ import (
 type Match struct {
 	Line        string
 	Groups      []string
+	Indices     []int
 	Extracted   string
 	LineNumber  uint64
 	MatchNumber uint64
@@ -46,20 +47,31 @@ func (s *Extractor) MatchedLines() uint64 {
 	return s.matchedLines
 }
 
+func indexToSlices(s string, indexMatches []int) []string {
+	strings := make([]string, len(indexMatches)/2)
+	for i := 0; i < len(indexMatches)/2; i++ {
+		strings[i] = s[indexMatches[i*2]:indexMatches[i*2+1]]
+	}
+	return strings
+}
+
 // async safe
 func (s *Extractor) processLineSync(line string) {
 	lineNum := atomic.AddUint64(&s.readLines, 1)
-	matches := s.regex.FindAllStringSubmatch(line, -1)
+	matches := s.regex.FindStringSubmatchIndex(line)
 
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
 		matchNum := atomic.AddUint64(&s.matchedLines, 1)
+		slices := indexToSlices(line, matches)
+
 		context := expressions.KeyBuilderContextArray{
-			Elements: matches[0],
+			Elements: slices,
 		}
 		s.ReadChan <- &Match{
 			Line:        line,
-			Groups:      matches[0],
+			Groups:      slices,
+			Indices:     matches,
 			Extracted:   s.keyBuilder.BuildKey(&context),
 			LineNumber:  lineNum,
 			MatchNumber: matchNum,

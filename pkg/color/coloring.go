@@ -1,5 +1,9 @@
 package color
 
+import (
+	"strings"
+)
+
 const (
 	escapeCode     = "\x1b"
 	foregroundCode = "[3"
@@ -17,4 +21,26 @@ const (
 	Cyan              = escapeCode + "[36m"
 )
 
-var groupColors = [...]string{Red, Green, Yellow, Blue, Magenta, Cyan}
+var Enabled = true
+
+var groupColors = [...]ColorCode{Red, Green, Yellow, Blue, Magenta, Cyan}
+
+func Wrap(color ColorCode, s string) string {
+	if !Enabled {
+		return s
+	}
+
+	var sb strings.Builder
+	sb.Grow(len(s) + 8)
+	sb.WriteString(string(color))
+	sb.WriteString(s)
+	sb.WriteString(string(Reset))
+	return sb.String()
+}
+
+func ColorCodeGroups(s string, groups []string) string {
+	if !Enabled {
+		return s
+	}
+	return s
+}
