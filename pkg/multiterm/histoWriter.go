@@ -64,8 +64,14 @@ func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 func (s *HistoWriter) writeLine(line int, key string, val int64) {
 	if s.ShowBar {
 		progress := val * int64(len(progressSlice)) / s.maxVal
-		s.writer.WriteForLine(line, "%-[4]*[1]s    %-10[2]d %[3]s", color.Wrap(color.Yellow, key), val, color.Wrap(color.Blue, progressSlice[:progress]), s.textSpacing)
+		s.writer.WriteForLine(line, "%[1]s    %-10[2]d %[3]s",
+			color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.textSpacing),
+			val,
+			color.Wrap(color.Blue, progressSlice[:progress]),
+			s.textSpacing)
 	} else {
-		s.writer.WriteForLine(line, "%-[3]*[1]s    %-10[2]d", key, val, s.textSpacing)
+		s.writer.WriteForLine(line, "%[1]s    %-10[2]d",
+			color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.textSpacing),
+			val)
 	}
 }

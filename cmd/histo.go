@@ -47,7 +47,7 @@ func histoFunction(c *cli.Context) error {
 			select {
 			case <-done:
 				return
-			case <-time.After(50 * time.Millisecond):
+			case <-time.After(100 * time.Millisecond):
 				if hasUpdates.Load().(bool) {
 					hasUpdates.Store(false)
 					mux.Lock()
