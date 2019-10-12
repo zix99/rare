@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"rare/cmd"
+	"rare/pkg/color"
 
 	"github.com/urfave/cli"
 )
@@ -26,6 +27,14 @@ func main() {
     This program comes with ABSOLUTELY NO WARRANTY.
     This is free software, and you are welcome to redistribute it
 	under certain conditions`
+
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:        "nocolor,nc",
+			Usage:       "Disables color output",
+			Destination: &color.Disabled,
+		},
+	}
 
 	app.Commands = []cli.Command{
 		*cmd.FilterCommand(),

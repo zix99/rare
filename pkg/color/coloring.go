@@ -22,13 +22,13 @@ const (
 )
 
 // Enabled controls whether or not coloring is applied
-var Enabled = true
+var Disabled = false
 
 var groupColors = [...]ColorCode{Red, Green, Yellow, Blue, Magenta, Cyan}
 
 // Wrap surroungs a string with a color (if enabled)
 func Wrap(color ColorCode, s string) string {
-	if !Enabled {
+	if Disabled {
 		return s
 	}
 
@@ -43,7 +43,7 @@ func Wrap(color ColorCode, s string) string {
 // WrapIndices color-codes by group pairs (regex-style)
 //  [aStart, aEnd, bStart, bEnd...]
 func WrapIndices(s string, groups []int) string {
-	if !Enabled {
+	if Disabled {
 		return s
 	}
 	if len(groups) == 0 || len(groups)%2 != 0 {
