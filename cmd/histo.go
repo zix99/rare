@@ -60,12 +60,13 @@ func histoFunction(c *cli.Context) error {
 	exitSignal := make(chan os.Signal)
 	signal.Notify(exitSignal, os.Interrupt)
 	extractor := buildExtractorFromArguments(c)
+	readChan := extractor.ReadChan()
 PROCESSING_LOOP:
 	for {
 		select {
 		case <-exitSignal:
 			break PROCESSING_LOOP
-		case match, more := <-extractor.ReadChan:
+		case match, more := <-readChan:
 			if !more {
 				break PROCESSING_LOOP
 			}

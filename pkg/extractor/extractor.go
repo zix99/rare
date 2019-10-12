@@ -24,7 +24,7 @@ type Config struct {
 }
 
 type Extractor struct {
-	ReadChan     chan *Match
+	readChan     chan *Match
 	regex        *regexp.Regexp
 	readLines    uint64
 	matchedLines uint64
@@ -45,6 +45,10 @@ func (s *Extractor) ReadLines() uint64 {
 
 func (s *Extractor) MatchedLines() uint64 {
 	return s.matchedLines
+}
+
+func (s *Extractor) ReadChan() <-chan *Match {
+	return s.readChan
 }
 
 func indexToSlices(s string, indexMatches []int) []string {
@@ -68,7 +72,7 @@ func (s *Extractor) processLineSync(line string) {
 		context := expressions.KeyBuilderContextArray{
 			Elements: slices,
 		}
-		s.ReadChan <- &Match{
+		s.readChan <- &Match{
 			Line:        line,
 			Groups:      slices,
 			Indices:     matches,
@@ -79,10 +83,10 @@ func (s *Extractor) processLineSync(line string) {
 	}
 }
 
-// Create an extractor from an input channel
-func New(input chan string, config *Config) *Extractor {
+// New an extractor from an input channel
+func New(input <-chan string, config *Config) *Extractor {
 	extractor := Extractor{
-		ReadChan:   make(chan *Match, 5),
+		readChan:   make(chan *Match, 5),
 		regex:      buildRegex(config.Regex, config.Posix),
 		keyBuilder: expressions.NewKeyBuilder().Compile(config.Extract),
 		config:     *config,
@@ -106,7 +110,7 @@ func New(input chan string, config *Config) *Extractor {
 
 	go func() {
 		wg.Wait()
-		close(extractor.ReadChan)
+		close(extractor.readChan)
 	}()
 
 	return &extractor

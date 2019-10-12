@@ -18,7 +18,7 @@ import (
 
 var stderrLog = log.New(os.Stderr, "[Log] ", 0)
 
-func tailLineToChan(lines chan *tail.Line) chan string {
+func tailLineToChan(lines chan *tail.Line) <-chan string {
 	output := make(chan string)
 	go func() {
 		for {
@@ -52,7 +52,7 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	return file, nil
 }
 
-func openFilesToChan(filenames []string, gunzip bool, concurrency int) chan string {
+func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan string {
 	out := make(chan string, 128)
 	sema := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
@@ -122,7 +122,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			stderrLog.Println("Cannot combine -f and -z")
 		}
 
-		tailChannels := make([]chan string, 0)
+		tailChannels := make([]<-chan string, 0)
 		for _, filename := range globExpand(c.Args()) {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 

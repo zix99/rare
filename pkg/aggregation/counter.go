@@ -38,7 +38,7 @@ func (s *MatchCounter) Inc(element string) {
 	item.count++
 }
 
-func (s *MatchCounter) Iter() chan MatchPair {
+func (s *MatchCounter) Iter() <-chan MatchPair {
 	c := make(chan MatchPair)
 	go func() {
 		for key, value := range s.matches {

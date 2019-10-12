@@ -13,8 +13,9 @@ func filterFunction(c *cli.Context) error {
 	customExtractor := c.IsSet("extract")
 
 	extractor := buildExtractorFromArguments(c)
+	readChan := extractor.ReadChan()
 	for {
-		match, more := <-extractor.ReadChan
+		match, more := <-readChan
 		if !more {
 			break
 		}
