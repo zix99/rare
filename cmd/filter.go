@@ -10,6 +10,7 @@ import (
 
 func filterFunction(c *cli.Context) error {
 	writeLines := c.Bool("line")
+	customExtractor := c.IsSet("extract")
 
 	extractor := buildExtractorFromArguments(c)
 	for {
@@ -20,7 +21,11 @@ func filterFunction(c *cli.Context) error {
 		if writeLines {
 			fmt.Printf("%d: ", match.LineNumber)
 		}
-		fmt.Println(color.WrapIndices(match.Line, match.Indices[2:]))
+		if !customExtractor {
+			fmt.Println(color.WrapIndices(match.Line, match.Indices[2:]))
+		} else {
+			fmt.Println(match.Extracted)
+		}
 	}
 	writeExtractorSummary(extractor)
 	return nil
