@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 
+	"rare/pkg/color"
+
 	"github.com/urfave/cli"
 )
 
@@ -16,10 +18,9 @@ func filterFunction(c *cli.Context) error {
 			break
 		}
 		if writeLines {
-			fmt.Printf("%d: %s\n", match.LineNumber, match.Extracted)
-		} else {
-			fmt.Println(match.Extracted)
+			fmt.Printf("%d: ", match.LineNumber)
 		}
+		fmt.Println(color.WrapIndices(match.Line, match.Indices[2:]))
 	}
 	writeExtractorSummary(extractor)
 	return nil
