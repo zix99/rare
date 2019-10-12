@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"rare/pkg/color"
 	"rare/pkg/extractor"
 	"runtime"
 	"sync"
@@ -185,5 +186,7 @@ func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 }
 
 func writeExtractorSummary(extractor *extractor.Extractor) {
-	fmt.Fprintf(os.Stderr, "Matched: %d / %d\n", extractor.MatchedLines(), extractor.ReadLines())
+	fmt.Fprintf(os.Stderr, "Matched: %s / %s\n",
+		color.Wrapi(color.BrightGreen, extractor.MatchedLines()),
+		color.Wrapi(color.BrightWhite, extractor.ReadLines()))
 }

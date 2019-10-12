@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"rare/pkg/aggregation"
+	"rare/pkg/color"
 	"rare/pkg/multiterm"
 	"sync"
 	"sync/atomic"
@@ -82,7 +83,7 @@ PROCESSING_LOOP:
 	fmt.Println()
 
 	writeExtractorSummary(extractor)
-	fmt.Fprintf(os.Stderr, "Groups:  %d\n", counter.GroupCount())
+	fmt.Fprintf(os.Stderr, "Groups:  %s\n", color.Wrapf(color.BrightWhite, "%d", counter.GroupCount()))
 	multiterm.ResetCursor()
 
 	return nil

@@ -1,6 +1,7 @@
 package color
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -12,13 +13,23 @@ const (
 type ColorCode string
 
 const (
-	Reset   ColorCode = escapeCode + "[0m"
-	Red               = escapeCode + "[31m"
-	Green             = escapeCode + "[32m"
-	Yellow            = escapeCode + "[33m"
-	Blue              = escapeCode + "[34m"
-	Magenta           = escapeCode + "[35m"
-	Cyan              = escapeCode + "[36m"
+	Reset         ColorCode = escapeCode + "[0m"
+	Black                   = escapeCode + "[30m"
+	Red                     = escapeCode + "[31m"
+	Green                   = escapeCode + "[32m"
+	Yellow                  = escapeCode + "[33m"
+	Blue                    = escapeCode + "[34m"
+	Magenta                 = escapeCode + "[35m"
+	Cyan                    = escapeCode + "[36m"
+	White                   = escapeCode + "[37m"
+	BrightBlack             = escapeCode + "[30;1m"
+	BrightRed               = escapeCode + "[31;1m"
+	BrightGreen             = escapeCode + "[32;1m"
+	BrightYellow            = escapeCode + "[33;1m"
+	BrightBlue              = escapeCode + "[34;1m"
+	BrightMagenta           = escapeCode + "[35;1m"
+	BrightCyan              = escapeCode + "[36;1m"
+	BrightWhite             = escapeCode + "[37;1m"
 )
 
 // Enabled controls whether or not coloring is applied
@@ -36,8 +47,18 @@ func Wrap(color ColorCode, s string) string {
 	sb.Grow(len(s) + 8)
 	sb.WriteString(string(color))
 	sb.WriteString(s)
-	sb.WriteString(string(Reset))
+	if len(s) < len(Reset) || s[len(s)-len(Reset):] != string(Reset) {
+		sb.WriteString(string(Reset))
+	}
 	return sb.String()
+}
+
+func Wrapf(color ColorCode, s string, args ...interface{}) string {
+	return Wrap(color, fmt.Sprintf(s, args...))
+}
+
+func Wrapi(color ColorCode, s interface{}) string {
+	return Wrap(color, fmt.Sprintf("%v", s))
 }
 
 // WrapIndices color-codes by group pairs (regex-style)
