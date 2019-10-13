@@ -30,9 +30,12 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
-			Name:        "nocolor,nc",
-			Usage:       "Disables color output",
-			Destination: &color.Disabled,
+			Name:  "nocolor,nc",
+			Usage: "Disables color output",
+		},
+		cli.BoolFlag{
+			Name:  "color",
+			Usage: "Force-enable color output",
 		},
 	}
 
@@ -40,6 +43,15 @@ func main() {
 		*cmd.FilterCommand(),
 		*cmd.HistogramCommand(),
 	}
+
+	app.Before = cli.BeforeFunc(func(c *cli.Context) error {
+		if c.Bool("nocolor") {
+			color.Enabled = false
+		} else if c.Bool("color") {
+			color.Enabled = true
+		}
+		return nil
+	})
 
 	err := app.Run(os.Args)
 	if err != nil {
