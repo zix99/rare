@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func helpFunction(c *cli.Context) error {
+func docsFunction(c *cli.Context) error {
 	box := packr.New("Help Docs", "../docs")
 
 	docname := c.Args().First()
@@ -27,11 +27,11 @@ func helpFunction(c *cli.Context) error {
 	return nil
 }
 
-func HelpCommand() *cli.Command {
+func DocsCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "docs",
 		Usage:     "Access help documentation",
 		ArgsUsage: "[doc]",
-		Action:    helpFunction,
+		Action:    docsFunction,
 	}
 }
