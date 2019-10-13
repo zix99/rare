@@ -42,6 +42,7 @@ func main() {
 	app.Commands = []cli.Command{
 		*cmd.FilterCommand(),
 		*cmd.HistogramCommand(),
+		*cmd.DocsCommand(),
 	}
 
 	app.Before = cli.BeforeFunc(func(c *cli.Context) error {
