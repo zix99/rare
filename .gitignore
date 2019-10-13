@@ -4,5 +4,4 @@ main
 rare
 dist/
 testdata/
-packrd/
-cmd/cmd-packr.go
+*-packr.go
