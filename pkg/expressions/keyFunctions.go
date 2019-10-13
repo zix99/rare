@@ -166,6 +166,7 @@ func stringHelper(equation func(string, string) string) KeyBuilderFunction {
 	})
 }
 
+// {and a b c ...}
 func kfAnd(args []KeyBuilderStage) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		for _, arg := range args {
@@ -177,12 +178,64 @@ func kfAnd(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
+// {or a b c ...}
 func kfOr(args []KeyBuilderStage) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		for _, arg := range args {
 			if arg(context) != "" {
 				return "1"
 			}
+		}
+		return ""
+	})
+}
+
+// {like string contains}
+func kfLike(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		if len(args) != 2 {
+			return ErrorArgCount
+		}
+
+		val := args[0](context)
+		contains := args[1](context)
+
+		if strings.Contains(val, contains) {
+			return val
+		}
+		return ""
+	})
+}
+
+// {prefix string prefix}
+func kfPrefix(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		if len(args) != 2 {
+			return ErrorArgCount
+		}
+
+		val := args[0](context)
+		contains := args[1](context)
+
+		if strings.HasPrefix(val, contains) {
+			return val
+		}
+		return ""
+	})
+}
+
+// {suffix string suffix}
+func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		if len(args) != 2 {
+			return ErrorArgCount
+		}
+
+		val := args[0](context)
+		contains := args[1](context)
+
+		if strings.HasSuffix(val, contains) {
+			return val
 		}
 		return ""
 	})
@@ -209,11 +262,14 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 		}
 		return ""
 	}),
-	"not": KeyBuilderFunction(kfNot),
-	"lt":  arithmaticEqualityHelper(func(a, b int) bool { return a < b }),
-	"gt":  arithmaticEqualityHelper(func(a, b int) bool { return a > b }),
-	"lte": arithmaticEqualityHelper(func(a, b int) bool { return a <= b }),
-	"gte": arithmaticEqualityHelper(func(a, b int) bool { return a >= b }),
-	"and": KeyBuilderFunction(kfAnd),
-	"or":  KeyBuilderFunction(kfOr),
+	"not":    KeyBuilderFunction(kfNot),
+	"lt":     arithmaticEqualityHelper(func(a, b int) bool { return a < b }),
+	"gt":     arithmaticEqualityHelper(func(a, b int) bool { return a > b }),
+	"lte":    arithmaticEqualityHelper(func(a, b int) bool { return a <= b }),
+	"gte":    arithmaticEqualityHelper(func(a, b int) bool { return a >= b }),
+	"and":    KeyBuilderFunction(kfAnd),
+	"or":     KeyBuilderFunction(kfOr),
+	"like":   KeyBuilderFunction(kfLike),
+	"prefix": KeyBuilderFunction(kfPrefix),
+	"suffix": KeyBuilderFunction(kfSuffix),
 }
