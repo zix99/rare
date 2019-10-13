@@ -10,6 +10,18 @@ import (
 // KeyBuilderFunction defines a helper function at runtime
 type KeyBuilderFunction func([]KeyBuilderStage) KeyBuilderStage
 
+func kfCoalesce(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		for _, arg := range args {
+			val := arg(context)
+			if val != "" {
+				return val
+			}
+		}
+		return ""
+	})
+}
+
 func kfBucket(args []KeyBuilderStage) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		if len(args) != 2 {
@@ -68,7 +80,7 @@ func kfExpBucket(args []KeyBuilderStage) KeyBuilderStage {
 
 func Truthy(s string) bool {
 	s = strings.TrimSpace(s)
-	if s == "" || s == "0" {
+	if s == "" {
 		return false
 	}
 	return true
@@ -112,6 +124,31 @@ func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
 	})
 }
 
+// Checks equality, and returns truthy if equals, and empty if not
+func arithmaticEqualityHelper(test func(int, int) bool) KeyBuilderFunction {
+	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
+		return KeyBuilderStage(func(context KeyBuilderContext) string {
+			if len(args) != 2 {
+				return ErrorArgCount
+			}
+
+			left, err := strconv.Atoi(args[0](context))
+			if err != nil {
+				return ErrorType
+			}
+			right, err := strconv.Atoi(args[1](context))
+			if err != nil {
+				return ErrorType
+			}
+
+			if test(left, right) {
+				return "1"
+			}
+			return ""
+		})
+	})
+}
+
 func stringHelper(equation func(string, string) string) KeyBuilderFunction {
 	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -130,6 +167,7 @@ func stringHelper(equation func(string, string) string) KeyBuilderFunction {
 }
 
 var defaultFunctions = map[string]KeyBuilderFunction{
+	"coalesce":  KeyBuilderFunction(kfCoalesce),
 	"bucket":    KeyBuilderFunction(kfBucket),
 	"expbucket": KeyBuilderFunction(kfExpBucket),
 	"bytesize":  KeyBuilderFunction(kfBytesize),
@@ -150,16 +188,8 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 		return ""
 	}),
 	"not": KeyBuilderFunction(kfNot),
-	"le": arithmaticHelperi(func(a, b int) int {
-		if a < b {
-			return 1
-		}
-		return 0
-	}),
-	"ge": arithmaticHelperi(func(a, b int) int {
-		if a > b {
-			return 1
-		}
-		return 0
-	}),
+	"lt":  arithmaticEqualityHelper(func(a, b int) bool { return a < b }),
+	"gt":  arithmaticEqualityHelper(func(a, b int) bool { return a > b }),
+	"lte": arithmaticEqualityHelper(func(a, b int) bool { return a <= b }),
+	"gte": arithmaticEqualityHelper(func(a, b int) bool { return a >= b }),
 }
