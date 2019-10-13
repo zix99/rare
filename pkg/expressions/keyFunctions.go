@@ -166,6 +166,28 @@ func stringHelper(equation func(string, string) string) KeyBuilderFunction {
 	})
 }
 
+func kfAnd(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		for _, arg := range args {
+			if arg(context) == "" {
+				return ""
+			}
+		}
+		return "1"
+	})
+}
+
+func kfOr(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		for _, arg := range args {
+			if arg(context) != "" {
+				return "1"
+			}
+		}
+		return ""
+	})
+}
+
 var defaultFunctions = map[string]KeyBuilderFunction{
 	"coalesce":  KeyBuilderFunction(kfCoalesce),
 	"bucket":    KeyBuilderFunction(kfBucket),
@@ -192,4 +214,6 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 	"gt":  arithmaticEqualityHelper(func(a, b int) bool { return a > b }),
 	"lte": arithmaticEqualityHelper(func(a, b int) bool { return a <= b }),
 	"gte": arithmaticEqualityHelper(func(a, b int) bool { return a >= b }),
+	"and": KeyBuilderFunction(kfAnd),
+	"or":  KeyBuilderFunction(kfOr),
 }
