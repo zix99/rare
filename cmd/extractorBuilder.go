@@ -116,6 +116,11 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		Workers: c.Int("workers"),
 	}
 
+	ignoreSlice := c.StringSlice("ignore")
+	if ignoreSlice != nil && len(ignoreSlice) > 0 {
+		config.Ignore = extractor.NewIgnoreExpressions(ignoreSlice)
+	}
+
 	if c.NArg() == 0 || c.Args().First() == "-" { // Read from stdin
 		return extractor.New(extractor.ConvertReaderToStringChan(os.Stdin), &config)
 	} else if follow { // Read from source file
@@ -181,12 +186,20 @@ func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 			Usage: "Sets the number of concurrent readers (Infinite when -f)",
 			Value: 3,
 		},
+		cli.StringSliceFlag{
+			Name:  "ignore,i",
+			Usage: "Ignore a match given a truthy expression (Can have multiple)",
+		},
 	}
 	return append(flags, additionalFlags...)
 }
 
 func writeExtractorSummary(extractor *extractor.Extractor) {
-	fmt.Fprintf(os.Stderr, "Matched: %s / %s\n",
+	fmt.Fprintf(os.Stderr, "Matched: %s / %s",
 		color.Wrapi(color.BrightGreen, extractor.MatchedLines()),
 		color.Wrapi(color.BrightWhite, extractor.ReadLines()))
+	if extractor.IgnoredLines() > 0 {
+		fmt.Fprintf(os.Stderr, " (Ignored: %s)", color.Wrapi(color.Red, extractor.IgnoredLines()))
+	}
+	fmt.Fprintf(os.Stderr, "\n")
 }

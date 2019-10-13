@@ -16,11 +16,13 @@ type Match struct {
 	MatchNumber uint64
 }
 
+// Config for the extractor
 type Config struct {
-	Posix   bool
-	Regex   string
-	Extract string
-	Workers int
+	Posix   bool      // Posix parse regex
+	Regex   string    // Regex to find matches
+	Extract string    // Extract these values from regex (expression)
+	Workers int       // Workers to parse regex
+	Ignore  IgnoreSet // Ignore these truthy expressions
 }
 
 type Extractor struct {
@@ -28,8 +30,10 @@ type Extractor struct {
 	regex        *regexp.Regexp
 	readLines    uint64
 	matchedLines uint64
+	ignoredLines uint64
 	config       Config
 	keyBuilder   *expressions.CompiledKeyBuilder
+	ignore       IgnoreSet
 }
 
 func buildRegex(s string, posix bool) *regexp.Regexp {
@@ -45,6 +49,10 @@ func (s *Extractor) ReadLines() uint64 {
 
 func (s *Extractor) MatchedLines() uint64 {
 	return s.matchedLines
+}
+
+func (s *Extractor) IgnoredLines() uint64 {
+	return s.ignoredLines
 }
 
 func (s *Extractor) ReadChan() <-chan *Match {
@@ -66,19 +74,23 @@ func (s *Extractor) processLineSync(line string) {
 
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
-		matchNum := atomic.AddUint64(&s.matchedLines, 1)
 		slices := indexToSlices(line, matches)
+		if s.ignore == nil || !s.ignore.IgnoreMatch(slices...) {
+			matchNum := atomic.AddUint64(&s.matchedLines, 1)
 
-		context := expressions.KeyBuilderContextArray{
-			Elements: slices,
-		}
-		s.readChan <- &Match{
-			Line:        line,
-			Groups:      slices,
-			Indices:     matches,
-			Extracted:   s.keyBuilder.BuildKey(&context),
-			LineNumber:  lineNum,
-			MatchNumber: matchNum,
+			context := expressions.KeyBuilderContextArray{
+				Elements: slices,
+			}
+			s.readChan <- &Match{
+				Line:        line,
+				Groups:      slices,
+				Indices:     matches,
+				Extracted:   s.keyBuilder.BuildKey(&context),
+				LineNumber:  lineNum,
+				MatchNumber: matchNum,
+			}
+		} else {
+			atomic.AddUint64(&s.ignoredLines, 1)
 		}
 	}
 }
@@ -90,6 +102,7 @@ func New(input <-chan string, config *Config) *Extractor {
 		regex:      buildRegex(config.Regex, config.Posix),
 		keyBuilder: expressions.NewKeyBuilder().Compile(config.Extract),
 		config:     *config,
+		ignore:     config.Ignore,
 	}
 
 	var wg sync.WaitGroup

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 )
 
 // KeyBuilderFunction defines a helper function at runtime
@@ -65,6 +66,27 @@ func kfExpBucket(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
+func Truthy(s string) bool {
+	s = strings.TrimSpace(s)
+	if s == "" || s == "0" {
+		return false
+	}
+	return true
+}
+
+func kfNot(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		if len(args) != 1 {
+			return ErrorArgCount
+		}
+		if Truthy(args[0](context)) {
+			return ""
+		}
+		return "1"
+	})
+}
+
+// Simple helper that will take 2 or more integers, and apply an operation
 func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
 	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -90,6 +112,23 @@ func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
 	})
 }
 
+func stringHelper(equation func(string, string) string) KeyBuilderFunction {
+	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
+		return KeyBuilderStage(func(context KeyBuilderContext) string {
+			if len(args) < 2 {
+				return ErrorArgCount
+			}
+
+			val := args[0](context)
+			for i := 1; i < len(args); i++ {
+				val = equation(val, args[i](context))
+			}
+
+			return val
+		})
+	})
+}
+
 var defaultFunctions = map[string]KeyBuilderFunction{
 	"bucket":    KeyBuilderFunction(kfBucket),
 	"expbucket": KeyBuilderFunction(kfExpBucket),
@@ -98,4 +137,29 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 	"subi":      arithmaticHelperi(func(a, b int) int { return a - b }),
 	"multi":     arithmaticHelperi(func(a, b int) int { return a * b }),
 	"divi":      arithmaticHelperi(func(a, b int) int { return a / b }),
+	"eq": stringHelper(func(a, b string) string {
+		if a == b {
+			return a
+		}
+		return ""
+	}),
+	"neq": stringHelper(func(a, b string) string {
+		if a != b {
+			return a
+		}
+		return ""
+	}),
+	"not": KeyBuilderFunction(kfNot),
+	"le": arithmaticHelperi(func(a, b int) int {
+		if a < b {
+			return 1
+		}
+		return 0
+	}),
+	"ge": arithmaticHelperi(func(a, b int) int {
+		if a > b {
+			return 1
+		}
+		return 0
+	}),
 }
