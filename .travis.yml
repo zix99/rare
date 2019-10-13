@@ -11,6 +11,7 @@ script:
 - go test -v ./...
 - packr2
 - cat cmd/cmd-packr.go packrd/*
+- env
 - gox -os="linux darwin windows"
   -arch="amd64"
   -ldflags "-X main.version=${TRAVIS_TAG:-devel} -X main.buildSha=$(git rev-list -1 HEAD)"
