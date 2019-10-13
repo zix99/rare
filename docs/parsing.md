@@ -33,3 +33,15 @@ If you want it to only output the matched portion, you can add `-e "{0}"`
 
 Lastly, lets say we want to ignore all paths that equal "/", we could do that by adding
 an ignore pattern: `-i {eq {1} /}`
+
+## Histograms
+
+Histograms are like filters, but rather than outputting every match, it will
+create an aggregated count based on the extracted expression.
+
+So, with the same example as above, if we extract the method and url, we will
+get something that will count based on keys.
+
+```bash
+rare histogram -m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+)' -e '{1} {2}' -b access.log
+```
