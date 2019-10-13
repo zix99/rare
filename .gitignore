@@ -5,3 +5,4 @@ rare
 dist/
 testdata/
 packrd/
+cmd/cmd-packr.go
