@@ -86,3 +86,15 @@ Uses truthy logic and applies `and` or `or` to the values.
 
 and: All arguments need to be truthy
 or:  At least one argument needs to be truthy
+
+## Like, Prefix, Suffix
+
+Syntax: `{like val contains}`, `{prefix val startsWith}`, `{suffix val endsWith}`
+
+Truthy check if a value contains a sub-value, starts with, or ends with
+
+## Format
+
+Syntax: `{format "%s" ...}`
+
+Formats a string based on `fmt.Sprintf`

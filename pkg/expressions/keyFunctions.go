@@ -241,6 +241,24 @@ func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
+// {format str args...}
+// just like fmt.Sprintf
+func kfFormat(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		if len(args) < 1 {
+			return ErrorArgCount
+		}
+		format := args[0](context)
+
+		printArgs := make([]interface{}, len(args)-1)
+		for idx, stage := range args[1:] {
+			printArgs[idx] = stage(context)
+		}
+
+		return fmt.Sprintf(format, printArgs...)
+	})
+}
+
 var defaultFunctions = map[string]KeyBuilderFunction{
 	"coalesce":  KeyBuilderFunction(kfCoalesce),
 	"bucket":    KeyBuilderFunction(kfBucket),
@@ -272,4 +290,5 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 	"like":   KeyBuilderFunction(kfLike),
 	"prefix": KeyBuilderFunction(kfPrefix),
 	"suffix": KeyBuilderFunction(kfSuffix),
+	"format": KeyBuilderFunction(kfFormat),
 }
