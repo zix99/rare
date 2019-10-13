@@ -24,8 +24,6 @@ func WriteMarkdownToTerm(out io.Writer, reader io.Reader) {
 			headerDepth = strings.Count(line, "#") - 1
 			headerColor := headerColors[headerDepth%len(headerColors)]
 			fmt.Fprintf(out, "%s%s\n", strings.Repeat(" ", headerDepth), color.Wrap(color.Bold, color.Wrap(headerColor, line)))
-		} else if strings.Contains(line, "```") {
-
 		} else {
 			line = rSymbol.ReplaceAllStringFunc(line, func(match string) string {
 				return color.Wrap(color.BrightWhite, match)
