@@ -21,7 +21,7 @@ The basic syntax structure is as follows:
 
 ### Parsing an nginx access.log file
 
-`rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+).*" (\d{3}) (\d+)' -e "{1} {2} {bytesize {bucket {4} 10000}}" -i "{lt {4} {multi 1024 1024}}" -b access.log`
+Command: `rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+).*" (\d{3}) (\d+)' -e "{1} {2} {bytesize {bucket {4} 10000}}" -i "{lt {4} {multi 1024 1024}}" -b access.log`
 
 The above parses the method `{1}`, url `{2}`, status `{3}`, and response size `{4}` in the regex.
 

@@ -31,6 +31,9 @@ const (
 	BrightMagenta           = escapeCode + "[35;1m"
 	BrightCyan              = escapeCode + "[36;1m"
 	BrightWhite             = escapeCode + "[37;1m"
+
+	Bold      = escapeCode + "[1m"
+	Underline = escapeCode + "[4m"
 )
 
 // Enabled controls whether or not coloring is applied

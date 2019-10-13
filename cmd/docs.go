@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"rare/pkg/markdowncli"
 	"strings"
 
 	"github.com/gobuffalo/packr/v2"
@@ -20,7 +22,12 @@ func docsFunction(c *cli.Context) error {
 		}
 
 	} else if box.Has(docname + ".md") {
-		fmt.Println(box.FindString(docname + ".md"))
+		file, err := box.Resolve(docname + ".md")
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			markdowncli.WriteMarkdownToTerm(os.Stdout, file)
+		}
 	} else {
 		fmt.Printf("Error: No such doc %s\n", docname)
 	}
