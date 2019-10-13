@@ -13,12 +13,12 @@ import (
 func docsFunction(c *cli.Context) error {
 	box := packr.New("Help Docs", "../docs")
 
-	docname := c.Args().First()
+	docname := strings.ToLower(c.Args().First())
 
 	if docname == "" || docname == "list" {
 		fmt.Println("Available Docs:")
 		for _, name := range box.List() {
-			fmt.Printf("  %s\n", strings.TrimSuffix(name, ".md"))
+			fmt.Printf("  %s\n", strings.Title(strings.TrimSuffix(name, ".md")))
 		}
 
 	} else if box.Has(docname + ".md") {
