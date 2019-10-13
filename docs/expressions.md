@@ -31,4 +31,56 @@ It extracts the `<method> <url> <bytesize bucketed to 10k>`. It will ignore `-i`
 
 ## Coalesce
 
+Syntax: `{coalesce ...}`
+
+Evaluates arguments in-order, chosing the first non-empty result.
+
 ## Bucket
+
+Syntax: `{bucket intVal bucketSize}`
+
+Given a value, create equal-sized buckets and place each value in those buckets
+
+## ExpBucket
+
+Syntax: `{expbucket intVal}`
+
+Create exponentially (base-10) increase buckets.
+
+## ByteSize
+
+Syntax: `{bytesize intVal}`
+
+Create a human-readable byte-size format (eg 1024 = 1KB)
+
+## SumI, SubI, MultI, DivI
+
+Syntax: `{sumi ...}`, `{subi ...}`, `{multi ...}`, `{divi ...}`
+
+Evaluates using operator from left to right. Requires at least 2 arguments.
+
+Eg: `{sumi 1 2 3}` will result in `6`
+
+## Equals, NotEquals, Not
+
+Syntax: `{eq a b}`, `{neq a b}`, `{not a}`
+
+Uses truthy-logic to evaluate equality.
+eq:  If a == b,  will return "1", otherwise ""
+neq: If a != b,  will return "1", otherwise ""
+not: If a == "", will return "1", otherwise ""
+
+## LessThan, GreaterThan, LessThanEqual, GreaterThanEqual
+
+Syntax: `{lt a b}`, `{gt a b}`, `{lte a b}`, `{gte a b}`
+
+Uses truthy-logic to compare two integers.
+
+## And, Or
+
+Syntax: `{and ...}`, `{or ...}`
+
+Uses truthy logic and applies `and` or `or` to the values.
+
+and: All arguments need to be truthy
+or:  At least one argument needs to be truthy
