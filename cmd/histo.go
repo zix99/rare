@@ -35,6 +35,7 @@ func histoFunction(c *cli.Context) error {
 
 	counter := aggregation.NewCounter()
 	writer := multiterm.NewHistogram(topItems)
+	defer multiterm.ResetCursor()
 	writer.ShowBar = c.Bool("bars")
 	done := make(chan bool)
 
@@ -84,7 +85,6 @@ PROCESSING_LOOP:
 
 	writeExtractorSummary(extractor)
 	fmt.Fprintf(os.Stderr, "Groups:  %s\n", color.Wrapf(color.BrightWhite, "%d", counter.GroupCount()))
-	multiterm.ResetCursor()
 
 	return nil
 }
