@@ -11,6 +11,16 @@ Supports various CLI-based graphing and metric formats.
  * File glob expansions (eg `/var/log/**` or `/var/log/*/*.log`)
  * Optional gzip decompression (with `-z`)
  * Following `-f` or re-open following `-F` (use `--poll` to poll)
+ * Ignoring lines that match an expression
+ * Aggregating and realtime summary (Don't have to wait for all data to be scanned)
+ * Multi-threaded reading, parsing, and aggregation
+ * Color-coded outputs (optionally)
+ * Pipes (stdin for reading, stdout will disable color)
+
+
+# Docs
+
+All documentation may be found here, in the [docs/](docs/) folder, and by running `rare docs` (embedded docs/ folder)
 
 # Example
 
