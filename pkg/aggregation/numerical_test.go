@@ -7,7 +7,7 @@ import (
 )
 
 func TestSimpleNumericalAggregation(t *testing.T) {
-	aggr := NewNumericalAggregator()
+	aggr := NewNumericalAggregator(&NumericalConfig{})
 	aggr.Sample(5)
 	aggr.Sample(10)
 	aggr.Sample(15)
@@ -16,6 +16,7 @@ func TestSimpleNumericalAggregation(t *testing.T) {
 	assert.Equal(t, 10.0, aggr.Mean())
 	assert.Equal(t, 5.0, aggr.Min())
 	assert.Equal(t, 15.0, aggr.Max())
+	assert.InEpsilon(t, 4.08248, aggr.StdDev(), 0.001)
 
 	data := aggr.Analyze()
 
@@ -25,7 +26,7 @@ func TestSimpleNumericalAggregation(t *testing.T) {
 }
 
 func TestSimpleMode(t *testing.T) {
-	aggr := NewNumericalAggregator()
+	aggr := NewNumericalAggregator(&NumericalConfig{})
 	aggr.Sample(5)
 	aggr.Sample(10)
 	aggr.Sample(15)
