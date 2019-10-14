@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"rare/pkg/color"
 	"rare/pkg/extractor"
+	"rare/pkg/humanize"
 	"runtime"
 	"sync"
 
@@ -198,10 +199,10 @@ func BuildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 
 func WriteExtractorSummary(extractor *extractor.Extractor) {
 	fmt.Fprintf(os.Stderr, "Matched: %s / %s",
-		color.Wrapi(color.BrightGreen, extractor.MatchedLines()),
-		color.Wrapi(color.BrightWhite, extractor.ReadLines()))
+		color.Wrapi(color.BrightGreen, humanize.Hi(extractor.MatchedLines())),
+		color.Wrapi(color.BrightWhite, humanize.Hi(extractor.ReadLines())))
 	if extractor.IgnoredLines() > 0 {
-		fmt.Fprintf(os.Stderr, " (Ignored: %s)", color.Wrapi(color.Red, extractor.IgnoredLines()))
+		fmt.Fprintf(os.Stderr, " (Ignored: %s)", color.Wrapi(color.Red, humanize.Hi(extractor.IgnoredLines())))
 	}
 	fmt.Fprintf(os.Stderr, "\n")
 }

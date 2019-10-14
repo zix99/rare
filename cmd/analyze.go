@@ -3,25 +3,33 @@ package cmd
 import (
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
+	"rare/pkg/color"
 	"rare/pkg/extractor"
+	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 	"strconv"
 
 	"github.com/urfave/cli"
 )
 
+func humanf(arg interface{}) string {
+	return color.Wrap(color.BrightWhite, humanize.Hf(arg))
+}
+
 func writeAggrOutput(writer *multiterm.TermWriter, aggr *aggregation.MatchNumerical) {
-	writer.WriteForLine(0, "Samples: %d", aggr.Count())
-	writer.WriteForLine(1, "Mean:    %f", aggr.Mean())
-	writer.WriteForLine(2, "Min:     %f", aggr.Min())
-	writer.WriteForLine(3, "Max:     %f", aggr.Max())
+	writer.WriteForLine(0, "Samples:  %v", color.Wrap(color.BrightWhite, humanize.Hi(aggr.Count())))
+	writer.WriteForLine(1, "Mean:     %v", humanf(aggr.Mean()))
+	writer.WriteForLine(2, "Min:      %v", humanf(aggr.Min()))
+	writer.WriteForLine(3, "Max:      %v", humanf(aggr.Max()))
+
+	writer.WriteForLine(4, "")
 
 	data := aggr.Analyze()
-	writer.WriteForLine(5, "Median:   %f", data.Median())
-	writer.WriteForLine(6, "Mode:     %f", data.Mode())
-	writer.WriteForLine(7, "P90:      %f", data.Quantile(0.9))
-	writer.WriteForLine(8, "P99:      %f", data.Quantile(0.99))
-	writer.WriteForLine(9, "P99.9:    %f", data.Quantile(0.999))
+	writer.WriteForLine(5, "Median:   %v", humanf(data.Median()))
+	writer.WriteForLine(6, "Mode:     %v", humanf(data.Mode()))
+	writer.WriteForLine(7, "P90:      %v", humanf(data.Quantile(0.9)))
+	writer.WriteForLine(8, "P99:      %v", humanf(data.Quantile(0.99)))
+	writer.WriteForLine(9, "P99.9:    %v", humanf(data.Quantile(0.999)))
 }
 
 func analyzeFunction(c *cli.Context) error {
