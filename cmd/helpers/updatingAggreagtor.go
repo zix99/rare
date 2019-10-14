@@ -11,6 +11,11 @@ import (
 	"time"
 )
 
+// RunAggregationLoop is a helper that takes care of output sync
+// And the main async loops for you, it has two inputs (in addition to the extractor)
+//   matchProcessor - to process a match
+//   writeOutput - triggered after a delay, only if there's an update
+// The two functions are guaranteed to never happen at the same time
 func RunAggregationLoop(ext *extractor.Extractor, matchProcessor func(*extractor.Match), writeOutput func()) {
 
 	defer multiterm.ResetCursor()
@@ -53,8 +58,8 @@ PROCESSING_LOOP:
 			}
 			outputMutex.Lock()
 			matchProcessor(match)
-			hasUpdates.Store(true)
 			outputMutex.Unlock()
+			hasUpdates.Store(true)
 		}
 	}
 	outputDone <- true
