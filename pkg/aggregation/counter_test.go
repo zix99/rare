@@ -8,7 +8,7 @@ import (
 
 func TestBasicAddition(t *testing.T) {
 	val := NewCounter()
-	val.Inc("test")
+	val.Sample("test")
 	items := val.Items()
 
 	assert.Equal(t, 1, len(items), "Expected length 1")
@@ -26,12 +26,12 @@ func collectChan(c chan interface{}) []interface{} {
 
 func TestInOrderItems(t *testing.T) {
 	val := NewCounter()
-	val.Inc("test")
-	val.Inc("abc")
-	val.Inc("abc")
-	val.Inc("test")
-	val.Inc("abc")
-	val.Inc("qq")
+	val.Sample("test")
+	val.Sample("abc")
+	val.Sample("abc")
+	val.Sample("test")
+	val.Sample("abc")
+	val.Sample("qq")
 
 	items := val.ItemsTop(2)
 
@@ -42,9 +42,9 @@ func TestInOrderItems(t *testing.T) {
 
 func TestIteration(t *testing.T) {
 	val := NewCounter()
-	val.Inc("a")
-	val.Inc("b")
-	val.Inc("c")
+	val.Sample("a")
+	val.Sample("b")
+	val.Sample("c")
 
 	total := 0
 	for range val.Iter() {

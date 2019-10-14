@@ -5,7 +5,6 @@ import (
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
-	"rare/pkg/extractor"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 	"strconv"
@@ -61,12 +60,7 @@ func analyzeFunction(c *cli.Context) error {
 
 	ext := BuildExtractorFromArguments(c)
 
-	RunAggregationLoop(ext, func(match *extractor.Match) {
-		val, err := strconv.ParseFloat(match.Extracted, 64)
-		if err == nil {
-			aggr.Sample(val)
-		}
-	}, func() {
+	RunAggregationLoop(ext, aggr, func() {
 		writeAggrOutput(writer, aggr, extra, quantiles)
 	})
 

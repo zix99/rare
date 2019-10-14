@@ -8,9 +8,9 @@ import (
 
 func TestSimpleNumericalAggregation(t *testing.T) {
 	aggr := NewNumericalAggregator(&NumericalConfig{})
-	aggr.Sample(5)
-	aggr.Sample(10)
-	aggr.Sample(15)
+	aggr.Samplef(5)
+	aggr.Samplef(10)
+	aggr.Samplef(15)
 
 	assert.Equal(t, uint64(3), aggr.Count())
 	assert.Equal(t, 10.0, aggr.Mean())
@@ -27,12 +27,12 @@ func TestSimpleNumericalAggregation(t *testing.T) {
 
 func TestSimpleMode(t *testing.T) {
 	aggr := NewNumericalAggregator(&NumericalConfig{})
-	aggr.Sample(5)
-	aggr.Sample(10)
-	aggr.Sample(15)
-	aggr.Sample(5)
-	aggr.Sample(10)
-	aggr.Sample(5)
+	aggr.Samplef(5)
+	aggr.Samplef(10)
+	aggr.Samplef(15)
+	aggr.Samplef(5)
+	aggr.Samplef(10)
+	aggr.Samplef(5)
 
 	data := aggr.Analyze()
 	assert.Equal(t, 5.0, data.Mode())

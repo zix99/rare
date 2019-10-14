@@ -28,7 +28,7 @@ func (s *MatchCounter) GroupCount() int {
 	return len(s.matches)
 }
 
-func (s *MatchCounter) Inc(element string) {
+func (s *MatchCounter) Sample(element string) {
 	item := s.matches[element]
 	if item == nil {
 		item = &MatchItem{

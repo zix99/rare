@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"rare/pkg/aggregation"
 	"rare/pkg/extractor"
 	"rare/pkg/multiterm"
 	"sync"
@@ -16,7 +17,7 @@ import (
 //   matchProcessor - to process a match
 //   writeOutput - triggered after a delay, only if there's an update
 // The two functions are guaranteed to never happen at the same time
-func RunAggregationLoop(ext *extractor.Extractor, matchProcessor func(*extractor.Match), writeOutput func()) {
+func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggregator, writeOutput func()) {
 
 	defer multiterm.ResetCursor()
 
@@ -57,7 +58,7 @@ PROCESSING_LOOP:
 				break PROCESSING_LOOP
 			}
 			outputMutex.Lock()
-			matchProcessor(match)
+			aggregator.Sample(match.Extracted)
 			outputMutex.Unlock()
 			hasUpdates.Store(true)
 		}

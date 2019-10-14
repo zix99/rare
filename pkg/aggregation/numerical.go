@@ -3,6 +3,7 @@ package aggregation
 import (
 	"math"
 	"sort"
+	"strconv"
 )
 
 type StatisticalAnalysis struct {
@@ -14,12 +15,13 @@ type NumericalConfig struct {
 }
 
 type MatchNumerical struct {
-	samples uint64
-	sum     float64
-	values  []float64
-	min     float64
-	max     float64
-	config  *NumericalConfig
+	samples     uint64
+	sum         float64
+	values      []float64
+	min         float64
+	max         float64
+	parseErrors uint64
+	config      *NumericalConfig
 }
 
 func NewNumericalAggregator(config *NumericalConfig) *MatchNumerical {
@@ -31,7 +33,7 @@ func NewNumericalAggregator(config *NumericalConfig) *MatchNumerical {
 	}
 }
 
-func (s *MatchNumerical) Sample(val float64) {
+func (s *MatchNumerical) Samplef(val float64) {
 	s.samples++
 	s.sum += val
 	s.values = append(s.values, val)
@@ -41,6 +43,15 @@ func (s *MatchNumerical) Sample(val float64) {
 	}
 	if val > s.max {
 		s.max = val
+	}
+}
+
+func (s *MatchNumerical) Sample(element string) {
+	val, err := strconv.ParseFloat(element, 64)
+	if err != nil {
+		s.parseErrors++
+	} else {
+		s.Samplef(val)
 	}
 }
 

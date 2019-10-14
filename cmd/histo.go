@@ -6,7 +6,6 @@ import (
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
-	"rare/pkg/extractor"
 	"rare/pkg/multiterm"
 
 	"github.com/urfave/cli"
@@ -37,9 +36,7 @@ func histoFunction(c *cli.Context) error {
 
 	ext := BuildExtractorFromArguments(c)
 
-	RunAggregationLoop(ext, func(match *extractor.Match) {
-		counter.Inc(match.Extracted)
-	}, func() {
+	RunAggregationLoop(ext, counter, func() {
 		writeOutput(writer, counter, topItems, reverseSort, sortByKey)
 	})
 
