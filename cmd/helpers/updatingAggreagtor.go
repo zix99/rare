@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func RunAggregationLoop(extractor *extractor.Extractor, matchProcessor func(*extractor.Match), writeOutput func()) {
+func RunAggregationLoop(ext *extractor.Extractor, matchProcessor func(*extractor.Match), writeOutput func()) {
 
 	defer multiterm.ResetCursor()
 
@@ -41,7 +41,7 @@ func RunAggregationLoop(extractor *extractor.Extractor, matchProcessor func(*ext
 	// Processing data from extractor
 	exitSignal := make(chan os.Signal)
 	signal.Notify(exitSignal, os.Interrupt)
-	reader := extractor.ReadChan()
+	reader := ext.ReadChan()
 PROCESSING_LOOP:
 	for {
 		select {
