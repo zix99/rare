@@ -1,4 +1,4 @@
-package cmd
+package helpers
 
 import (
 	"bufio"
@@ -16,6 +16,8 @@ import (
 	"github.com/hpcloud/tail"
 	"github.com/urfave/cli"
 )
+
+const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
 var stderrLog = log.New(os.Stderr, "[Log] ", 0)
 
@@ -103,7 +105,7 @@ func globExpand(paths []string) []string {
 	return out
 }
 
-func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
+func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	follow := c.Bool("follow") || c.Bool("reopen")
 	followReopen := c.Bool("reopen")
 	followPoll := c.Bool("poll")
@@ -144,7 +146,7 @@ func buildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	}
 }
 
-func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
+func BuildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 	flags := []cli.Flag{
 		cli.BoolFlag{
 			Name:  "follow,f",
@@ -194,7 +196,7 @@ func buildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 	return append(flags, additionalFlags...)
 }
 
-func writeExtractorSummary(extractor *extractor.Extractor) {
+func WriteExtractorSummary(extractor *extractor.Extractor) {
 	fmt.Fprintf(os.Stderr, "Matched: %s / %s",
 		color.Wrapi(color.BrightGreen, extractor.MatchedLines()),
 		color.Wrapi(color.BrightWhite, extractor.ReadLines()))
