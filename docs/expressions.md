@@ -98,3 +98,12 @@ Truthy check if a value contains a sub-value, starts with, or ends with
 Syntax: `{format "%s" ...}`
 
 Formats a string based on `fmt.Sprintf`
+
+## Humanize Number (Add Commas)
+
+Syntax: `{hf val}`, `{hi val}`
+
+hf: Float
+hi: Int
+
+Formats a number based with appropriate placement of commas and decimals

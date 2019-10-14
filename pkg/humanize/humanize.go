@@ -34,3 +34,10 @@ func Hf(arg interface{}) string {
 	}
 	return printer.Sprintf("%.[2]*[1]f", arg, Decimals)
 }
+
+func Hfd(arg interface{}, decimals int) string {
+	if !Enabled {
+		return fmt.Sprintf("%f", arg)
+	}
+	return printer.Sprintf("%.[2]*[1]f", arg, decimals)
+}

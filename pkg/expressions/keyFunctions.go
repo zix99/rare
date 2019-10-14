@@ -3,6 +3,7 @@ package expressions
 import (
 	"fmt"
 	"math"
+	"rare/pkg/humanize"
 	"strconv"
 	"strings"
 )
@@ -259,6 +260,32 @@ func kfFormat(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
+func kfHumanizeInt(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		if len(args) != 1 {
+			return ErrorArgCount
+		}
+		val, err := strconv.Atoi(args[0](context))
+		if err != nil {
+			return ErrorType
+		}
+		return humanize.Hi(val)
+	})
+}
+
+func kfHumanizeFloat(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		if len(args) != 1 {
+			return ErrorArgCount
+		}
+		val, err := strconv.ParseFloat(args[0](context), 64)
+		if err != nil {
+			return ErrorType
+		}
+		return humanize.Hf(val)
+	})
+}
+
 var defaultFunctions = map[string]KeyBuilderFunction{
 	"coalesce":  KeyBuilderFunction(kfCoalesce),
 	"bucket":    KeyBuilderFunction(kfBucket),
@@ -291,4 +318,6 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 	"prefix": KeyBuilderFunction(kfPrefix),
 	"suffix": KeyBuilderFunction(kfSuffix),
 	"format": KeyBuilderFunction(kfFormat),
+	"hi":     KeyBuilderFunction(kfHumanizeInt),
+	"hf":     KeyBuilderFunction(kfHumanizeFloat),
 }
