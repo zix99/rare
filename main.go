@@ -7,6 +7,7 @@ import (
 
 	"rare/cmd"
 	"rare/pkg/color"
+	"rare/pkg/humanize"
 
 	"github.com/urfave/cli"
 )
@@ -34,6 +35,10 @@ func main() {
 			Usage: "Disables color output",
 		},
 		cli.BoolFlag{
+			Name:  "noformat,nf",
+			Usage: "Disable number formatting",
+		},
+		cli.BoolFlag{
 			Name:  "color",
 			Usage: "Force-enable color output",
 		},
@@ -51,6 +56,9 @@ func main() {
 			color.Enabled = false
 		} else if c.Bool("color") {
 			color.Enabled = true
+		}
+		if c.Bool("noformat") {
+			humanize.Enabled = false
 		}
 		return nil
 	})
