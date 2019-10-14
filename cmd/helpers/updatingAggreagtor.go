@@ -62,5 +62,5 @@ PROCESSING_LOOP:
 	writeOutput()
 	fmt.Println()
 
-	WriteExtractorSummary(extractor)
+	WriteExtractorSummary(ext)
 }
