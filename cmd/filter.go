@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"rare/pkg/color"
+	. "rare/cmd/helpers"
 
 	"github.com/urfave/cli"
 )
@@ -12,7 +13,7 @@ func filterFunction(c *cli.Context) error {
 	writeLines := c.Bool("line")
 	customExtractor := c.IsSet("extract")
 
-	extractor := buildExtractorFromArguments(c)
+	extractor := BuildExtractorFromArguments(c)
 	readChan := extractor.ReadChan()
 	for {
 		match, more := <-readChan
@@ -28,7 +29,7 @@ func filterFunction(c *cli.Context) error {
 			fmt.Println(match.Extracted)
 		}
 	}
-	writeExtractorSummary(extractor)
+	WriteExtractorSummary(extractor)
 	return nil
 }
 
@@ -39,7 +40,7 @@ func FilterCommand() *cli.Command {
 		Usage:     "Filter incoming results with search criteria, and output raw matches",
 		Action:    filterFunction,
 		ArgsUsage: "<-|filename|glob...>",
-		Flags: buildExtractorFlags(
+		Flags: BuildExtractorFlags(
 			cli.BoolFlag{
 				Name:  "line,l",
 				Usage: "Output line numbers",

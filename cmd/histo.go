@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
 	"rare/pkg/multiterm"
@@ -61,7 +62,7 @@ func histoFunction(c *cli.Context) error {
 
 	exitSignal := make(chan os.Signal)
 	signal.Notify(exitSignal, os.Interrupt)
-	extractor := buildExtractorFromArguments(c)
+	extractor := BuildExtractorFromArguments(c)
 	readChan := extractor.ReadChan()
 PROCESSING_LOOP:
 	for {
@@ -83,7 +84,7 @@ PROCESSING_LOOP:
 	writeOutput(writer, counter, topItems, reverseSort, sortByKey)
 	fmt.Println()
 
-	writeExtractorSummary(extractor)
+	WriteExtractorSummary(extractor)
 	fmt.Fprintf(os.Stderr, "Groups:  %s\n", color.Wrapf(color.BrightWhite, "%d", counter.GroupCount()))
 
 	return nil
@@ -98,7 +99,7 @@ func HistogramCommand() *cli.Command {
 		Aliases:   []string{"histogram"},
 		ShortName: "h",
 		ArgsUsage: "<-|filename|glob...>",
-		Flags: buildExtractorFlags(
+		Flags: BuildExtractorFlags(
 			cli.BoolFlag{
 				Name:  "bars,b",
 				Usage: "Display bars as part of histogram",

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/multiterm"
 	"strconv"
@@ -32,7 +33,7 @@ func analyzeFunction(c *cli.Context) error {
 
 	var mux sync.Mutex
 
-	extractor := buildExtractorFromArguments(c)
+	extractor := BuildExtractorFromArguments(c)
 	done := make(chan bool)
 
 	go func() {
@@ -67,7 +68,7 @@ func analyzeFunction(c *cli.Context) error {
 	writeAggrOutput(writer, aggr)
 	fmt.Println()
 
-	writeExtractorSummary(extractor)
+	WriteExtractorSummary(extractor)
 
 	return nil
 }
@@ -78,7 +79,7 @@ func AnalyzeCommand() *cli.Command {
 		Usage:     "Numerical analysis on a set of filtered data",
 		Action:    analyzeFunction,
 		ArgsUsage: "<-|filename|glob...>",
-		Flags: buildExtractorFlags(
+		Flags: BuildExtractorFlags(
 			cli.BoolFlag{
 				Name:  "extra",
 				Usage: "Displays extra analysis on the data (Requires more memory and cpu)",
