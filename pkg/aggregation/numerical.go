@@ -6,10 +6,7 @@ import (
 )
 
 type StatisticalAnalysis struct {
-	Mean   float64
-	Median float64
-	Mode   float64
-	StdDev float64
+	orderedValues []float64
 }
 
 type MatchNumerical struct {
@@ -60,13 +57,43 @@ func (s *MatchNumerical) Mean() float64 {
 func (s *MatchNumerical) Analyze() *StatisticalAnalysis {
 	sort.Float64s(s.values)
 
-	out := &StatisticalAnalysis{}
-	if s.samples > 0 {
-		out.Mean = s.Mean()
-		out.Median = s.values[len(s.values)/2]
-		out.Mode = -1
-
+	out := &StatisticalAnalysis{
+		orderedValues: s.values[0:len(s.values)],
 	}
 
 	return out
+}
+
+func (s *StatisticalAnalysis) Median() float64 {
+	return s.orderedValues[len(s.orderedValues)/2]
+}
+
+func (s *StatisticalAnalysis) Mode() float64 {
+	// We can take advantage of the fact that we know the data
+	// here is ordered by counting the max recurrences
+	maxObserved := 0
+	maxValue := 0.0
+
+	currObserved := 0
+	currValue := 0.0
+
+	for i := 0; i < len(s.orderedValues); i++ {
+		val := s.orderedValues[i]
+		if val != currValue {
+			currValue = val
+			currObserved = 0
+		}
+		currObserved++
+
+		if currObserved > maxObserved {
+			maxValue = currValue
+			maxObserved = currObserved
+		}
+	}
+	return maxValue
+}
+
+func (s *StatisticalAnalysis) Quantile(p float64) float64 {
+	idx := int(float64(len(s.orderedValues)) * p)
+	return s.orderedValues[idx]
 }
