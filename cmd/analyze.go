@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
+	"os"
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
@@ -63,6 +65,10 @@ func analyzeFunction(c *cli.Context) error {
 	RunAggregationLoop(ext, aggr, func() {
 		writeAggrOutput(writer, aggr, extra, quantiles)
 	})
+
+	if aggr.ParseErrors() > 0 {
+		fmt.Fprint(os.Stderr, color.Wrapf(color.Red, "Parse Errors: %v", humanize.Hi(aggr.ParseErrors())))
+	}
 
 	return nil
 }

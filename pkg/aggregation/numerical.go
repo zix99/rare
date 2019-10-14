@@ -55,6 +55,10 @@ func (s *MatchNumerical) Sample(element string) {
 	}
 }
 
+func (s *MatchNumerical) ParseErrors() uint64 {
+	return s.parseErrors
+}
+
 func (s *MatchNumerical) Count() uint64 {
 	return s.samples
 }
@@ -72,6 +76,9 @@ func (s *MatchNumerical) Mean() float64 {
 }
 
 func (s *MatchNumerical) StdDev() float64 {
+	if s.samples == 0 {
+		return 0.0
+	}
 	mean := s.Mean()
 	diffSum := 0.0
 	for _, v := range s.values {
@@ -96,10 +103,16 @@ func (s *MatchNumerical) Analyze() *StatisticalAnalysis {
 }
 
 func (s *StatisticalAnalysis) Median() float64 {
+	if len(s.orderedValues) == 0 {
+		return 0.0
+	}
 	return s.orderedValues[len(s.orderedValues)/2]
 }
 
 func (s *StatisticalAnalysis) Mode() float64 {
+	if len(s.orderedValues) == 0 {
+		return 0.0
+	}
 	// We can take advantage of the fact that we know the data
 	// here is ordered by counting the max recurrences
 	maxObserved := 0
@@ -125,6 +138,9 @@ func (s *StatisticalAnalysis) Mode() float64 {
 }
 
 func (s *StatisticalAnalysis) Quantile(p float64) float64 {
+	if len(s.orderedValues) == 0 {
+		return 0.0
+	}
 	idx := int(float64(len(s.orderedValues)) * p)
 	return s.orderedValues[idx]
 }
