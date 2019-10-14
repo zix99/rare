@@ -15,7 +15,7 @@ Supports various CLI-based graphing and metric formats.
  * Aggregating and realtime summary (Don't have to wait for all data to be scanned)
  * Multi-threaded reading, parsing, and aggregation
  * Color-coded outputs (optionally)
- * Pipes (stdin for reading, stdout will disable color)
+ * Pipe support (stdin for reading, stdout will disable color) eg. `tail -f | rare ...`
 
 
 # Docs
@@ -99,9 +99,27 @@ OPTIONS:
    --line, -l                 Output line numbers
 ```
 
-# Roadmap
+## Numerical Analysis
 
- * Bucketing and ranging
+This command will extract a number from logs and run basic analysis on that number (Such as mean, median, mode, and quantiles).
+
+Example:
+
+```bash
+$ go run *.go --color analyze -m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+).*" (\d{3}) (\d+)' -e "{4}" testdata/access.log 
+Samples:  161,622
+Mean:     2,566,283.9616
+Min:      0.0000
+Max:      1,198,677,592.0000
+
+Median:   1,021.0000
+Mode:     1,021.0000
+P90:      19,506.0000
+P99:      64,757,808.0000
+P99.9:    395,186,166.0000
+Matched: 161,622 / 161,622
+```
+
 
 # License
 
