@@ -60,6 +60,16 @@ func (s *MatchNumerical) Mean() float64 {
 	return s.sum / float64(s.samples)
 }
 
+func (s *MatchNumerical) StdDev() float64 {
+	mean := s.Mean()
+	diffSum := 0.0
+	for _, v := range s.values {
+		diffSum += (v - mean) * (v - mean)
+	}
+	diffMean := diffSum / float64(s.samples)
+	return math.Sqrt(diffMean)
+}
+
 func (s *MatchNumerical) Analyze() *StatisticalAnalysis {
 	if s.config.Reverse {
 		sort.Sort(sort.Reverse(sort.Float64Slice(s.values)))

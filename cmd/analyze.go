@@ -29,8 +29,9 @@ func writeAggrOutput(writer *multiterm.TermWriter, aggr *aggregation.MatchNumeri
 		data := aggr.Analyze()
 		writer.WriteForLine(5, "Median:   %v", humanf(data.Median()))
 		writer.WriteForLine(6, "Mode:     %v", humanf(data.Mode()))
+		writer.WriteForLine(7, "StdDev:   %v", humanf(aggr.StdDev()))
 		for idx, q := range quantiles {
-			writer.WriteForLine(8+idx, "P%02.4f:      %v", q, humanf(data.Quantile(q/100.0)))
+			writer.WriteForLine(8+idx, "P%02.4f: %v", q, humanf(data.Quantile(q/100.0)))
 		}
 	}
 }
