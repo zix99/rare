@@ -17,6 +17,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+const DefaultArgumentDescriptor = "<-|filename|glob...>"
+
 var stderrLog = log.New(os.Stderr, "[Log] ", 0)
 
 func tailLineToChan(lines chan *tail.Line) <-chan string {

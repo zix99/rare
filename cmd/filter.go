@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"rare/pkg/color"
 	. "rare/cmd/helpers"
+	"rare/pkg/color"
 
 	"github.com/urfave/cli"
 )
@@ -39,7 +39,7 @@ func FilterCommand() *cli.Command {
 		Name:      "filter",
 		Usage:     "Filter incoming results with search criteria, and output raw matches",
 		Action:    filterFunction,
-		ArgsUsage: "<-|filename|glob...>",
+		ArgsUsage: DefaultArgumentDescriptor,
 		Flags: BuildExtractorFlags(
 			cli.BoolFlag{
 				Name:  "line,l",

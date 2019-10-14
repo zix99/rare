@@ -98,7 +98,7 @@ func HistogramCommand() *cli.Command {
 		Action:    histoFunction,
 		Aliases:   []string{"histogram"},
 		ShortName: "h",
-		ArgsUsage: "<-|filename|glob...>",
+		ArgsUsage: DefaultArgumentDescriptor,
 		Flags: BuildExtractorFlags(
 			cli.BoolFlag{
 				Name:  "bars,b",

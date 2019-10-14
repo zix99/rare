@@ -78,7 +78,7 @@ func AnalyzeCommand() *cli.Command {
 		Name:      "analyze",
 		Usage:     "Numerical analysis on a set of filtered data",
 		Action:    analyzeFunction,
-		ArgsUsage: "<-|filename|glob...>",
+		ArgsUsage: DefaultArgumentDescriptor,
 		Flags: BuildExtractorFlags(
 			cli.BoolFlag{
 				Name:  "extra",
