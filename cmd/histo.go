@@ -3,14 +3,11 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"os/signal"
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
+	"rare/pkg/extractor"
 	"rare/pkg/multiterm"
-	"sync"
-	"sync/atomic"
-	"time"
 
 	"github.com/urfave/cli"
 )
@@ -36,55 +33,16 @@ func histoFunction(c *cli.Context) error {
 
 	counter := aggregation.NewCounter()
 	writer := multiterm.NewHistogram(topItems)
-	defer multiterm.ResetCursor()
 	writer.ShowBar = c.Bool("bars")
-	done := make(chan bool)
 
-	var mux sync.Mutex
-	var hasUpdates atomic.Value
-	hasUpdates.Store(false)
+	ext := BuildExtractorFromArguments(c)
 
-	go func() {
-		for {
-			select {
-			case <-done:
-				return
-			case <-time.After(100 * time.Millisecond):
-				if hasUpdates.Load().(bool) {
-					hasUpdates.Store(false)
-					mux.Lock()
-					writeOutput(writer, counter, topItems, reverseSort, sortByKey)
-					mux.Unlock()
-				}
-			}
-		}
-	}()
+	RunAggregationLoop(ext, func(match *extractor.Match) {
+		counter.Inc(match.Extracted)
+	}, func() {
+		writeOutput(writer, counter, topItems, reverseSort, sortByKey)
+	})
 
-	exitSignal := make(chan os.Signal)
-	signal.Notify(exitSignal, os.Interrupt)
-	extractor := BuildExtractorFromArguments(c)
-	readChan := extractor.ReadChan()
-PROCESSING_LOOP:
-	for {
-		select {
-		case <-exitSignal:
-			break PROCESSING_LOOP
-		case match, more := <-readChan:
-			if !more {
-				break PROCESSING_LOOP
-			}
-			mux.Lock()
-			counter.Inc(match.Extracted)
-			hasUpdates.Store(true)
-			mux.Unlock()
-		}
-	}
-	done <- true
-
-	writeOutput(writer, counter, topItems, reverseSort, sortByKey)
-	fmt.Println()
-
-	WriteExtractorSummary(extractor)
 	fmt.Fprintf(os.Stderr, "Groups:  %s\n", color.Wrapf(color.BrightWhite, "%d", counter.GroupCount()))
 
 	return nil
