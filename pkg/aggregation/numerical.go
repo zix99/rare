@@ -9,19 +9,25 @@ type StatisticalAnalysis struct {
 	orderedValues []float64
 }
 
+type NumericalConfig struct {
+	Reverse bool
+}
+
 type MatchNumerical struct {
 	samples uint64
 	sum     float64
 	values  []float64
 	min     float64
 	max     float64
+	config  *NumericalConfig
 }
 
-func NewNumericalAggregator() *MatchNumerical {
+func NewNumericalAggregator(config *NumericalConfig) *MatchNumerical {
 	return &MatchNumerical{
 		values: make([]float64, 0),
 		min:    math.MaxFloat64,
 		max:    -math.MaxFloat64,
+		config: config,
 	}
 }
 
@@ -55,7 +61,11 @@ func (s *MatchNumerical) Mean() float64 {
 }
 
 func (s *MatchNumerical) Analyze() *StatisticalAnalysis {
-	sort.Float64s(s.values)
+	if s.config.Reverse {
+		sort.Sort(sort.Reverse(sort.Float64Slice(s.values)))
+	} else {
+		sort.Float64s(s.values)
+	}
 
 	out := &StatisticalAnalysis{
 		orderedValues: s.values[0:len(s.values)],
