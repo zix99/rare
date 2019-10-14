@@ -96,11 +96,16 @@ func (s *Extractor) processLineSync(line string) {
 }
 
 // New an extractor from an input channel
-func New(input <-chan string, config *Config) *Extractor {
+func New(input <-chan string, config *Config) (*Extractor, error) {
+	compiledExpression, err := expressions.NewKeyBuilder().Compile(config.Extract)
+	if err != nil {
+		return nil, err
+	}
+
 	extractor := Extractor{
 		readChan:   make(chan *Match, 5),
 		regex:      buildRegex(config.Regex, config.Posix),
-		keyBuilder: expressions.NewKeyBuilder().Compile(config.Extract),
+		keyBuilder: compiledExpression,
 		config:     *config,
 		ignore:     config.Ignore,
 	}
@@ -126,7 +131,7 @@ func New(input <-chan string, config *Config) *Extractor {
 		close(extractor.readChan)
 	}()
 
-	return &extractor
+	return &extractor, nil
 }
 
 func (s *Config) getWorkerCount() int {

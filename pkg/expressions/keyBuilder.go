@@ -1,6 +1,7 @@
 package expressions
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -32,7 +33,7 @@ func (s *KeyBuilder) Funcs(funcs map[string]KeyBuilderFunction) {
 }
 
 // Compile builds a new key-builder
-func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
+func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 	kb := &CompiledKeyBuilder{
 		stages: make([]KeyBuilderStage, 0),
 	}
@@ -67,8 +68,11 @@ func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
 					if f != nil {
 						compiledArgs := make([]KeyBuilderStage, 0)
 						for _, arg := range args[1:] {
-							compiled := s.Compile(arg).joinStages()
-							compiledArgs = append(compiledArgs, compiled)
+							compiled, err := s.Compile(arg)
+							if err != nil {
+								return nil, err
+							}
+							compiledArgs = append(compiledArgs, compiled.joinStages())
 						}
 						kb.stages = append(kb.stages, f(compiledArgs))
 					} else {
@@ -85,11 +89,15 @@ func (s *KeyBuilder) Compile(template string) *CompiledKeyBuilder {
 		}
 	}
 
-	if sb.Len() > 0 && inStatement == 0 {
+	if inStatement != 0 {
+		return nil, errors.New("Non-terminated statement in expression")
+	}
+
+	if sb.Len() > 0 {
 		kb.stages = append(kb.stages, stageLiteral(sb.String()))
 	}
 
-	return kb
+	return kb, nil
 }
 
 func (s *CompiledKeyBuilder) BuildKey(context KeyBuilderContext) string {

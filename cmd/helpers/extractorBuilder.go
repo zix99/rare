@@ -121,11 +121,19 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 
 	ignoreSlice := c.StringSlice("ignore")
 	if ignoreSlice != nil && len(ignoreSlice) > 0 {
-		config.Ignore = extractor.NewIgnoreExpressions(ignoreSlice)
+		ignoreExp, err := extractor.NewIgnoreExpressions(ignoreSlice)
+		if err != nil {
+			log.Panicln(err)
+		}
+		config.Ignore = ignoreExp
 	}
 
 	if c.NArg() == 0 || c.Args().First() == "-" { // Read from stdin
-		return extractor.New(extractor.ConvertReaderToStringChan(os.Stdin), &config)
+		ret, err := extractor.New(extractor.ConvertReaderToStringChan(os.Stdin), &config)
+		if err != nil {
+			log.Panicln(err)
+		}
+		return ret
 	} else if follow { // Read from source file
 		if gunzip {
 			stderrLog.Println("Cannot combine -f and -z")
@@ -141,9 +149,17 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			tailChannels = append(tailChannels, tailLineToChan(tail.Lines))
 		}
 
-		return extractor.New(extractor.CombineChannels(tailChannels...), &config)
+		ret, err := extractor.New(extractor.CombineChannels(tailChannels...), &config)
+		if err != nil {
+			log.Panicln(err)
+		}
+		return ret
 	} else { // Read (no-follow) source file(s)
-		return extractor.New(openFilesToChan(globExpand(c.Args()), gunzip, concurrentReaders), &config)
+		ret, err := extractor.New(openFilesToChan(globExpand(c.Args()), gunzip, concurrentReaders), &config)
+		if err != nil {
+			log.Panicln(err)
+		}
+		return ret
 	}
 }
 

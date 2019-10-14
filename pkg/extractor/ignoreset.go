@@ -13,20 +13,23 @@ type ExpressionIgnoreSet struct {
 	expressions []*expressions.CompiledKeyBuilder
 }
 
-func NewIgnoreExpressions(expSet []string) IgnoreSet {
+func NewIgnoreExpressions(expSet []string) (IgnoreSet, error) {
 	if expSet == nil {
-		return nil
+		return nil, nil
 	}
 	igSet := &ExpressionIgnoreSet{
 		expressions: make([]*expressions.CompiledKeyBuilder, 0),
 	}
 
 	for _, exp := range expSet {
-		compiled := expressions.NewKeyBuilder().Compile(exp)
+		compiled, err := expressions.NewKeyBuilder().Compile(exp)
+		if err != nil {
+			return nil, err
+		}
 		igSet.expressions = append(igSet.expressions, compiled)
 	}
 
-	return igSet
+	return igSet, nil
 }
 
 func (s *ExpressionIgnoreSet) IgnoreMatch(matchSet ...string) bool {
