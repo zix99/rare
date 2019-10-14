@@ -2,6 +2,7 @@ package multiterm
 
 import (
 	"rare/pkg/color"
+	"rare/pkg/humanize"
 	"strings"
 )
 
@@ -64,14 +65,14 @@ func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 func (s *HistoWriter) writeLine(line int, key string, val int64) {
 	if s.ShowBar {
 		progress := val * int64(len(progressSlice)) / s.maxVal
-		s.writer.WriteForLine(line, "%[1]s    %-10[2]d %[3]s",
+		s.writer.WriteForLine(line, "%[1]s    %-10[2]s %[3]s",
 			color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.textSpacing),
-			val,
+			humanize.Hi(val),
 			color.Wrap(color.Blue, progressSlice[:progress]),
 			s.textSpacing)
 	} else {
-		s.writer.WriteForLine(line, "%[1]s    %-10[2]d",
+		s.writer.WriteForLine(line, "%[1]s    %-10[2]s",
 			color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.textSpacing),
-			val)
+			humanize.Hi(val))
 	}
 }
