@@ -13,18 +13,6 @@ type KeyBuilderContext interface {
 // KeyBuilderStage is a stage within the compiled builder
 type KeyBuilderStage func(KeyBuilderContext) string
 
-// KeyBuilderContextArray is a simple implementation of context with an array of elements
-type KeyBuilderContextArray struct {
-	Elements []string
-}
-
-func (s *KeyBuilderContextArray) GetMatch(idx int) string {
-	if idx >= 0 && idx < len(s.Elements) {
-		return s.Elements[idx]
-	}
-	return ""
-}
-
 func stageLiteral(s string) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		return s

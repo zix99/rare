@@ -24,10 +24,10 @@ func kfCoalesce(args []KeyBuilderStage) KeyBuilderStage {
 }
 
 func kfBucket(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 2 {
+		return stageError(ErrorArgCount)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		if len(args) != 2 {
-			return ErrorArgCount
-		}
 		val, err := strconv.Atoi(args[0](context))
 		if err != nil {
 			return ErrorBucket
@@ -45,10 +45,10 @@ func kfBucket(args []KeyBuilderStage) KeyBuilderStage {
 var byteSizes = [...]string{"B", "KB", "MB", "GB", "TB", "PB"}
 
 func kfBytesize(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) < 1 {
+		return stageError(ErrorArgCount)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		if len(args) < 1 {
-			return ErrorArgCount
-		}
 		val, err := strconv.Atoi(args[0](context))
 		if err != nil {
 			return ErrorType
@@ -65,10 +65,10 @@ func kfBytesize(args []KeyBuilderStage) KeyBuilderStage {
 }
 
 func kfExpBucket(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 1 {
+		return stageError(ErrorArgCount)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		if len(args) != 1 {
-			return ErrorArgCount
-		}
 		val, err := strconv.Atoi(args[0](context))
 		if err != nil {
 			return ErrorType
@@ -88,10 +88,10 @@ func Truthy(s string) bool {
 }
 
 func kfNot(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 1 {
+		return stageError(ErrorArgCount)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		if len(args) != 1 {
-			return ErrorArgCount
-		}
 		if Truthy(args[0](context)) {
 			return ""
 		}
@@ -102,11 +102,10 @@ func kfNot(args []KeyBuilderStage) KeyBuilderStage {
 // Simple helper that will take 2 or more integers, and apply an operation
 func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
 	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
+		if len(args) < 2 {
+			return stageError(ErrorArgCount)
+		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
-			if len(args) < 2 {
-				return ErrorArgCount
-			}
-
 			final, err := strconv.Atoi(args[0](context))
 			if err != nil {
 				return ErrorType
@@ -128,11 +127,10 @@ func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
 // Checks equality, and returns truthy if equals, and empty if not
 func arithmaticEqualityHelper(test func(int, int) bool) KeyBuilderFunction {
 	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
+		if len(args) != 2 {
+			return stageError(ErrorArgCount)
+		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
-			if len(args) != 2 {
-				return ErrorArgCount
-			}
-
 			left, err := strconv.Atoi(args[0](context))
 			if err != nil {
 				return ErrorType
@@ -152,11 +150,10 @@ func arithmaticEqualityHelper(test func(int, int) bool) KeyBuilderFunction {
 
 func stringHelper(equation func(string, string) string) KeyBuilderFunction {
 	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
+		if len(args) < 2 {
+			return stageError(ErrorArgCount)
+		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
-			if len(args) < 2 {
-				return ErrorArgCount
-			}
-
 			val := args[0](context)
 			for i := 1; i < len(args); i++ {
 				val = equation(val, args[i](context))
@@ -193,11 +190,10 @@ func kfOr(args []KeyBuilderStage) KeyBuilderStage {
 
 // {like string contains}
 func kfLike(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 2 {
+		return stageError(ErrorArgCount)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		if len(args) != 2 {
-			return ErrorArgCount
-		}
-
 		val := args[0](context)
 		contains := args[1](context)
 
@@ -210,11 +206,10 @@ func kfLike(args []KeyBuilderStage) KeyBuilderStage {
 
 // {prefix string prefix}
 func kfPrefix(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 2 {
+		return stageError(ErrorArgCount)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		if len(args) != 2 {
-			return ErrorArgCount
-		}
-
 		val := args[0](context)
 		contains := args[1](context)
 
@@ -227,11 +222,10 @@ func kfPrefix(args []KeyBuilderStage) KeyBuilderStage {
 
 // {suffix string suffix}
 func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 2 {
+		return stageError(ErrorArgCount)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		if len(args) != 2 {
-			return ErrorArgCount
-		}
-
 		val := args[0](context)
 		contains := args[1](context)
 
@@ -245,10 +239,10 @@ func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
 // {format str args...}
 // just like fmt.Sprintf
 func kfFormat(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) < 1 {
+		return stageError(ErrorArgCount)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		if len(args) < 1 {
-			return ErrorArgCount
-		}
 		format := args[0](context)
 
 		printArgs := make([]interface{}, len(args)-1)
@@ -261,10 +255,10 @@ func kfFormat(args []KeyBuilderStage) KeyBuilderStage {
 }
 
 func kfHumanizeInt(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 1 {
+		return stageError(ErrorArgCount)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		if len(args) != 1 {
-			return ErrorArgCount
-		}
 		val, err := strconv.Atoi(args[0](context))
 		if err != nil {
 			return ErrorType
@@ -274,10 +268,10 @@ func kfHumanizeInt(args []KeyBuilderStage) KeyBuilderStage {
 }
 
 func kfHumanizeFloat(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 1 {
+		return stageError(ErrorArgCount)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		if len(args) != 1 {
-			return ErrorArgCount
-		}
 		val, err := strconv.ParseFloat(args[0](context), 64)
 		if err != nil {
 			return ErrorType
