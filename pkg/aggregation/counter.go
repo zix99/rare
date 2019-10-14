@@ -2,6 +2,7 @@ package aggregation
 
 import (
 	"sort"
+	"strconv"
 )
 
 type MatchItem struct {
@@ -99,14 +100,22 @@ func (s *MatchCounter) ItemsSorted(count int, reverse bool) []MatchPair {
 
 func (s *MatchCounter) ItemsSortedByKey(count int, reverse bool) []MatchPair {
 	items := s.Items()
+
+	smartKeySort := func(i, j int) bool {
+		num0, err0 := strconv.ParseFloat(items[i].Name, 64)
+		num1, err1 := strconv.ParseFloat(items[j].Name, 64)
+		if err0 != nil || err1 != nil {
+			return items[i].Name < items[j].Name
+		}
+		return num0 < num1
+	}
+
 	if reverse {
 		sort.Slice(items, func(i, j int) bool {
-			return items[i].Name > items[j].Name
+			return !smartKeySort(i, j)
 		})
 	} else {
-		sort.Slice(items, func(i, j int) bool {
-			return items[i].Name < items[j].Name
-		})
+		sort.Slice(items, smartKeySort)
 	}
 	return minSlice(items, count)
 }
