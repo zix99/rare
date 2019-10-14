@@ -1,13 +1,11 @@
 package cmd
 
 import (
-	"fmt"
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
+	"rare/pkg/extractor"
 	"rare/pkg/multiterm"
 	"strconv"
-	"sync"
-	"time"
 
 	"github.com/urfave/cli"
 )
@@ -31,44 +29,16 @@ func analyzeFunction(c *cli.Context) error {
 	writer := multiterm.New(10)
 	defer multiterm.ResetCursor()
 
-	var mux sync.Mutex
+	ext := BuildExtractorFromArguments(c)
 
-	extractor := BuildExtractorFromArguments(c)
-	done := make(chan bool)
-
-	go func() {
-		for {
-			select {
-			case <-done:
-				return
-			case <-time.After(100 * time.Millisecond):
-				mux.Lock()
-				writeAggrOutput(writer, aggr)
-				mux.Unlock()
-			}
-		}
-	}()
-
-	readChan := extractor.ReadChan()
-	for {
-		match, more := <-readChan
-		if !more {
-			break
-		}
-
+	RunAggregationLoop(ext, func(match *extractor.Match) {
 		val, err := strconv.ParseFloat(match.Extracted, 64)
 		if err == nil {
-			mux.Lock()
 			aggr.Sample(val)
-			mux.Unlock()
 		}
-	}
-	done <- true
-
-	writeAggrOutput(writer, aggr)
-	fmt.Println()
-
-	WriteExtractorSummary(extractor)
+	}, func() {
+		writeAggrOutput(writer, aggr)
+	})
 
 	return nil
 }
