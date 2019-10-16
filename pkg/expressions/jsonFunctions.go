@@ -9,6 +9,6 @@ func kfJson(args []KeyBuilderStage) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		json := args[0](context)
 		expression := args[1](context)
-		return gjson.Get(json, expression).Str
+		return gjson.Get(json, expression).String()
 	})
 }
