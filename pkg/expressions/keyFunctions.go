@@ -314,4 +314,5 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 	"format": KeyBuilderFunction(kfFormat),
 	"hi":     KeyBuilderFunction(kfHumanizeInt),
 	"hf":     KeyBuilderFunction(kfHumanizeFloat),
+	"json":   KeyBuilderFunction(kfJson),
 }

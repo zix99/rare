@@ -8,6 +8,7 @@ require (
 	github.com/mdempsky/gocode v0.0.0-20190203001940-7fb65232883f // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.4.0
+	github.com/tidwall/gjson v1.3.2
 	github.com/urfave/cli v1.22.1
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
 	golang.org/x/sys v0.0.0-20191010194322-b09406accb47 // indirect

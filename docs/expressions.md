@@ -107,3 +107,11 @@ hf: Float
 hi: Int
 
 Formats a number based with appropriate placement of commas and decimals
+
+## Json
+
+Syntax: `{json field expression}`
+
+Extract a JSON value based on the expression statement from [gjson](https://github.com/tidwall/gjson)
+
+See: [json](json.md) for more information.

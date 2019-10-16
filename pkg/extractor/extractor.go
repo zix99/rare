@@ -76,18 +76,23 @@ func (s *Extractor) processLineSync(line string) {
 	if len(matches) > 0 {
 		slices := indexToSlices(line, matches)
 		if s.ignore == nil || !s.ignore.IgnoreMatch(slices...) {
-			matchNum := atomic.AddUint64(&s.matchedLines, 1)
-
 			context := expressions.KeyBuilderContextArray{
 				Elements: slices,
 			}
-			s.readChan <- &Match{
-				Line:        line,
-				Groups:      slices,
-				Indices:     matches,
-				Extracted:   s.keyBuilder.BuildKey(&context),
-				LineNumber:  lineNum,
-				MatchNumber: matchNum,
+			extractedKey := s.keyBuilder.BuildKey(&context)
+
+			if len(extractedKey) > 0 {
+				matchNum := atomic.AddUint64(&s.matchedLines, 1)
+				s.readChan <- &Match{
+					Line:        line,
+					Groups:      slices,
+					Indices:     matches,
+					Extracted:   extractedKey,
+					LineNumber:  lineNum,
+					MatchNumber: matchNum,
+				}
+			} else {
+				atomic.AddUint64(&s.ignoredLines, 1)
 			}
 		} else {
 			atomic.AddUint64(&s.ignoredLines, 1)
