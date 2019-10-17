@@ -6,6 +6,8 @@ A file scan/regex extractor and realtime summarizor.
 
 Supports various CLI-based graphing and metric formats.
 
+![rare gif](images/rare.gif)
+
 # Features
 
  * File glob expansions (eg `/var/log/**` or `/var/log/*/*.log`)
