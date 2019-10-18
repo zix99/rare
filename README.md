@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/zix99/rare.svg?branch=master)](https://travis-ci.org/zix99/rare)
 
-A file scan/regex extractor and realtime summarizor.
+A file scanner/regex extractor and realtime summarizor.
 
 Supports various CLI-based graphing and metric formats.
 
@@ -10,6 +10,7 @@ Supports various CLI-based graphing and metric formats.
 
 # Features
 
+ * Multiple summary formats including: filter (like grep), histogram, and numerical analysis
  * File glob expansions (eg `/var/log/**` or `/var/log/*/*.log`)
  * Optional gzip decompression (with `-z`)
  * Following `-f` or re-open following `-F` (use `--poll` to poll)
