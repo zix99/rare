@@ -17,7 +17,7 @@ be using an example nginx log for our example.
 
 Nginx log line looks like this:
 
-```bash
+```log
 10.20.30.40 - - [14/Apr/2016:18:13:29 +0200] "GET / HTTP/1.1" 206 101 "-" "curl/7.43.0"
 ```
 
