@@ -5,13 +5,10 @@ import (
 	"fmt"
 	"io"
 	"rare/pkg/color"
-	"regexp"
 	"strings"
 )
 
 var headerColors = []color.ColorCode{color.Green, color.BrightBlue, color.Yellow, color.BrightMagenta}
-
-var rSymbol = regexp.MustCompile("`(.*?)`")
 
 const (
 	tokenCode   = "```"
@@ -49,10 +46,11 @@ func WriteMarkdownToTerm(out io.Writer, reader io.Reader) {
 		} else {
 			if isCodeBlock {
 				line = color.Wrap(color.BrightMagenta, line)
+			} else {
+				for _, replacer := range regexReplacement {
+					line = replacer.match.ReplaceAllStringFunc(line, replacer.process)
+				}
 			}
-			line = rSymbol.ReplaceAllStringFunc(line, func(match string) string {
-				return color.Wrap(color.BrightWhite, match)
-			})
 			fmt.Fprintf(out, "%s%s\n", strings.Repeat(" ", headerDepth+1), line)
 		}
 	}
