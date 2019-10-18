@@ -27,7 +27,7 @@ func tailLineToChan(lines chan *tail.Line) <-chan string {
 	go func() {
 		for {
 			line := <-lines
-			if line.Err != nil {
+			if line == nil || line.Err != nil {
 				break
 			}
 			output <- line.Text
