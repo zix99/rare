@@ -22,17 +22,17 @@ func stringComparator(equation func(string, string) string) KeyBuilderFunction {
 }
 
 // Checks equality, and returns truthy if equals, and empty if not
-func arithmaticEqualityHelper(test func(int, int) bool) KeyBuilderFunction {
+func arithmaticEqualityHelper(test func(float64, float64) bool) KeyBuilderFunction {
 	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
 		if len(args) != 2 {
 			return stageError(ErrorArgCount)
 		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
-			left, err := strconv.Atoi(args[0](context))
+			left, err := strconv.ParseFloat(args[0](context), 64)
 			if err != nil {
 				return ErrorType
 			}
-			right, err := strconv.Atoi(args[1](context))
+			right, err := strconv.ParseFloat(args[1](context), 64)
 			if err != nil {
 				return ErrorType
 			}
