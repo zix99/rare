@@ -5,11 +5,6 @@ import (
 	"strconv"
 )
 
-// KeyBuilderContext defines how to get information during run-time
-type KeyBuilderContext interface {
-	GetMatch(idx int) string
-}
-
 // KeyBuilderStage is a stage within the compiled builder
 type KeyBuilderStage func(KeyBuilderContext) string
 
