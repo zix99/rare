@@ -13,18 +13,27 @@ import (
 	"github.com/urfave/cli"
 )
 
+func minColSlice(count int, cols []string) []string {
+	if len(cols) < count {
+		return cols
+	}
+	return cols[:count]
+}
+
 func tabulateFunction(c *cli.Context) error {
 	var (
-		delim = c.String("delim")
+		delim   = c.String("delim")
+		numRows = c.Int("num")
+		numCols = c.Int("cols")
 	)
 
 	counter := aggregation.NewTable(delim)
-	writer := multiterm.New(10)
+	writer := multiterm.New(numRows)
 
 	ext := BuildExtractorFromArguments(c)
 
 	RunAggregationLoop(ext, counter, func() {
-		cols := counter.Columns()
+		cols := minColSlice(numCols, counter.Columns())
 		writer.WriteForLine(0, "name\t"+strings.Join(cols, "\t"))
 		for idx, row := range counter.OrderedRows() {
 			var sb strings.Builder
@@ -53,8 +62,18 @@ func TabulateCommand() *cli.Command {
 		Flags: BuildExtractorFlags(
 			cli.StringFlag{
 				Name:  "delim",
-				Usage: "Character to tabulate on",
-				Value: " ",
+				Usage: "Character to tabulate on. Use {tab} helper by default",
+				Value: "\t",
+			},
+			cli.IntFlag{
+				Name:  "num,n",
+				Usage: "Number of elements to display",
+				Value: 20,
+			},
+			cli.IntFlag{
+				Name:  "cols",
+				Usage: "Number of columns to display",
+				Value: 10,
 			},
 		),
 	}

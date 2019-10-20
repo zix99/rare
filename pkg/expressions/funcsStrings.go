@@ -104,3 +104,18 @@ func kfBytesize(args []KeyBuilderStage) KeyBuilderStage {
 		return fmt.Sprintf("%d %s", val, byteSizes[labelIdx])
 	})
 }
+
+func kfTab(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) == 0 {
+		return stageLiteral("")
+	}
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		var sb strings.Builder
+		sb.WriteString(args[0](context))
+		for _, arg := range args[1:] {
+			sb.WriteRune('\t')
+			sb.WriteString(arg(context))
+		}
+		return sb.String()
+	})
+}

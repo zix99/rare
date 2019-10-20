@@ -108,6 +108,14 @@ hi: Int
 
 Formats a number based with appropriate placement of commas and decimals
 
+## Tab
+
+Syntax: `{tab a b c ...}`
+
+Concatenates the values of the arguments separated by a table character.
+
+Good for tabulate output separation.
+
 ## Json
 
 Syntax: `{json field expression}`
