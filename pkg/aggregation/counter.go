@@ -39,6 +39,10 @@ func (s *MatchCounter) Sample(element string) {
 	item.count++
 }
 
+func (s *MatchCounter) ParseErrors() uint64 {
+	return 0
+}
+
 func (s *MatchCounter) Iter() <-chan MatchPair {
 	c := make(chan MatchPair)
 	go func() {

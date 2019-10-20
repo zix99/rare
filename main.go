@@ -48,6 +48,7 @@ func main() {
 		*cmd.FilterCommand(),
 		*cmd.HistogramCommand(),
 		*cmd.AnalyzeCommand(),
+		*cmd.TabulateCommand(),
 		*cmd.DocsCommand(),
 	}
 

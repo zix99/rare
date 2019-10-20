@@ -70,7 +70,7 @@ func analyzeFunction(c *cli.Context) error {
 	})
 
 	if aggr.ParseErrors() > 0 {
-		fmt.Fprint(os.Stderr, color.Wrapf(color.Red, "Parse Errors: %v", humanize.Hi(aggr.ParseErrors())))
+		fmt.Fprint(os.Stderr, color.Wrapf(color.Red, "Parse Errors: %v\n", humanize.Hi(aggr.ParseErrors())))
 	}
 
 	return nil
