@@ -34,6 +34,9 @@ func writeAggrOutput(writer *multiterm.TermWriter, aggr *aggregation.MatchNumeri
 		for idx, q := range quantiles {
 			writer.WriteForLine(8+idx, "P%02.4f: %v", q, humanf(data.Quantile(q/100.0)))
 		}
+		writer.WriteForLine(8+len(quantiles), GetReadFileString())
+	} else {
+		writer.WriteForLine(4, GetReadFileString())
 	}
 }
 

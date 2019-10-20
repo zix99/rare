@@ -21,6 +21,8 @@ func writeOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounte
 	for idx, match := range items {
 		writer.WriteForLine(idx, match.Name, match.Item.Count())
 	}
+	writer.InnerWriter().GoToBottom(0)
+	writer.InnerWriter().WriteAtCursor(GetReadFileString())
 }
 
 func histoFunction(c *cli.Context) error {

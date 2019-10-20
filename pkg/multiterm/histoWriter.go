@@ -31,6 +31,10 @@ func NewHistogram(maxLines int) *HistoWriter {
 
 var progressSlice string = strings.Repeat("|", 50)
 
+func (s *HistoWriter) InnerWriter() *TermWriter {
+	return s.writer
+}
+
 func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 	if line > len(s.items) {
 		return

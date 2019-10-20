@@ -63,6 +63,7 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan st
 
 	for _, filename := range filenames {
 		wg.Add(1)
+		IncSourceCount()
 		go func(goFilename string) {
 			sema <- struct{}{}
 			var file io.ReadCloser
@@ -72,6 +73,7 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan st
 				return
 			}
 			defer file.Close()
+			StartFileReading(goFilename)
 
 			scanner := bufio.NewScanner(file)
 			bigBuf := make([]byte, 512*1024)
@@ -82,6 +84,7 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan st
 			}
 			<-sema
 			wg.Done()
+			StopFileReading(goFilename)
 		}(filename)
 	}
 
@@ -133,6 +136,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		if err != nil {
 			log.Panicln(err)
 		}
+		StartFileReading("<stdin>")
 		return ret
 	} else if follow { // Read from source file
 		if gunzip {
@@ -147,6 +151,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 				stderrLog.Fatal("Unable to open file: ", err)
 			}
 			tailChannels = append(tailChannels, tailLineToChan(tail.Lines))
+			StartFileReading(filename)
 		}
 
 		ret, err := extractor.New(extractor.CombineChannels(tailChannels...), &config)

@@ -30,6 +30,16 @@ func (s *TermWriter) WriteForLine(line int, format string, args ...interface{}) 
 		s.cursorHidden = true
 	}
 
+	s.GoTo(line)
+
+	s.WriteAtCursor(format, args...)
+}
+
+func (s *TermWriter) GoToBottom(rel int) {
+	s.GoTo(s.maxLines + rel)
+}
+
+func (s *TermWriter) GoTo(line int) {
 	for i := s.cursor; i < line; i++ {
 		fmt.Print("\n")
 		s.cursor++
@@ -40,6 +50,9 @@ func (s *TermWriter) WriteForLine(line int, format string, args ...interface{}) 
 	}
 
 	fmt.Print("\r")
+}
+
+func (s *TermWriter) WriteAtCursor(format string, args ...interface{}) {
 	fmt.Printf(format, args...)
 	if s.ClearLine {
 		eraseRemainingLine()
