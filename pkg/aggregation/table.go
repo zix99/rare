@@ -1,7 +1,6 @@
 package aggregation
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -47,7 +46,6 @@ func (s *TableAggregator) Sample(ele string) {
 		}
 	} else {
 		s.errors++
-		fmt.Println(ele)
 	}
 }
 
