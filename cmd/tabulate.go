@@ -21,9 +21,10 @@ func minColSlice(count int, cols []string) []string {
 
 func tabulateFunction(c *cli.Context) error {
 	var (
-		delim   = c.String("delim")
-		numRows = c.Int("num")
-		numCols = c.Int("cols")
+		delim      = c.String("delim")
+		numRows    = c.Int("num")
+		numCols    = c.Int("cols")
+		sortByKeys = c.Bool("sortkey")
 	)
 
 	counter := aggregation.NewTable(delim)
@@ -34,7 +35,15 @@ func tabulateFunction(c *cli.Context) error {
 	RunAggregationLoop(ext, counter, func() {
 		cols := minColSlice(numCols, append([]string{""}, counter.OrderedColumns()...))
 		writer.WriteRow(0, cols...)
-		for idx, row := range counter.OrderedRows() {
+
+		var rows []*aggregation.TableRow
+		if sortByKeys {
+			rows = counter.OrderedRowsByName()
+		} else {
+			rows = counter.OrderedRows()
+		}
+
+		for idx, row := range rows {
 			rowVals := make([]string, len(cols)+1)
 			rowVals[0] = row.Name()
 			for idx, colName := range cols[1:] {
@@ -72,6 +81,10 @@ func TabulateCommand() *cli.Command {
 				Name:  "cols",
 				Usage: "Number of columns to display",
 				Value: 10,
+			},
+			cli.BoolFlag{
+				Name:  "sortkey,sk",
+				Usage: "Sort rows by key name rather than by values",
 			},
 		),
 	}
