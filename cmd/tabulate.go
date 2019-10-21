@@ -32,7 +32,7 @@ func tabulateFunction(c *cli.Context) error {
 	ext := BuildExtractorFromArguments(c)
 
 	RunAggregationLoop(ext, counter, func() {
-		cols := minColSlice(numCols, counter.OrderedColumns())
+		cols := minColSlice(numCols, append([]string{""}, counter.OrderedColumns()...))
 		writer.WriteRow(0, cols...)
 		for idx, row := range counter.OrderedRows() {
 			rowVals := make([]string, len(cols)+1)
