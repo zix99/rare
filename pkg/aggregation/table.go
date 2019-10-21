@@ -65,6 +65,10 @@ func (s *TableAggregator) SampleItem(colKey, rowKey string, inc int64) {
 	row.sum += inc
 }
 
+func (s *TableAggregator) ColumnCount() int {
+	return len(s.cols)
+}
+
 func (s *TableAggregator) Columns() []string {
 	keys := make([]string, 0, len(s.cols))
 	for k := range s.cols {
@@ -86,6 +90,10 @@ func (s *TableAggregator) OrderedColumns() []string {
 	})
 
 	return keys
+}
+
+func (s *TableAggregator) RowCount() int {
+	return len(s.rows)
 }
 
 func (s *TableAggregator) Rows() []*TableRow {

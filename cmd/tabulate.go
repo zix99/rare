@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
+	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 
@@ -40,6 +43,10 @@ func tabulateFunction(c *cli.Context) error {
 			writer.WriteRow(1+idx, rowVals...)
 		}
 	})
+
+	fmt.Fprintf(os.Stderr, "Rows: %s; Cols: %s\n",
+		color.Wrapi(color.Yellow, counter.RowCount()),
+		color.Wrapi(color.BrightBlue, counter.ColumnCount()))
 
 	return nil
 }
