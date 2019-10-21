@@ -5,7 +5,9 @@ import (
 	"os"
 	"os/signal"
 	"rare/pkg/aggregation"
+	"rare/pkg/color"
 	"rare/pkg/extractor"
+	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 	"sync"
 	"sync/atomic"
@@ -69,4 +71,7 @@ PROCESSING_LOOP:
 	fmt.Println()
 
 	WriteExtractorSummary(ext)
+	if aggregator.ParseErrors() > 0 {
+		fmt.Fprint(os.Stderr, color.Wrapf(color.Red, "Parse Errors: %v\n", humanize.Hi(aggregator.ParseErrors())))
+	}
 }

@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
-	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 
@@ -43,10 +40,6 @@ func tabulateFunction(c *cli.Context) error {
 			writer.WriteRow(1+idx, rowVals...)
 		}
 	})
-
-	if counter.ParseErrors() > 0 {
-		fmt.Fprint(os.Stderr, color.Wrapf(color.Red, "Parse Errors: %v\n", humanize.Hi(counter.ParseErrors())))
-	}
 
 	return nil
 }
