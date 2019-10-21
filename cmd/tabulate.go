@@ -8,7 +8,6 @@ import (
 	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
-	"strings"
 
 	"github.com/urfave/cli"
 )
@@ -28,21 +27,20 @@ func tabulateFunction(c *cli.Context) error {
 	)
 
 	counter := aggregation.NewTable(delim)
-	writer := multiterm.New(numRows)
+	writer := multiterm.NewTable(numCols, numRows)
 
 	ext := BuildExtractorFromArguments(c)
 
 	RunAggregationLoop(ext, counter, func() {
-		cols := minColSlice(numCols, counter.Columns())
-		writer.WriteForLine(0, "name\t"+strings.Join(cols, "\t"))
+		cols := minColSlice(numCols, counter.OrderedColumns())
+		writer.WriteRow(0, cols...)
 		for idx, row := range counter.OrderedRows() {
-			var sb strings.Builder
-			sb.WriteString(row.Name())
-			for _, colName := range cols {
-				sb.WriteRune('\t')
-				sb.WriteString(humanize.Hi(row.Value(colName)))
+			rowVals := make([]string, len(cols)+1)
+			rowVals[0] = row.Name()
+			for idx, colName := range cols {
+				rowVals[1+idx] = humanize.Hi(row.Value(colName))
 			}
-			writer.WriteForLine(1+idx, sb.String())
+			writer.WriteRow(1+idx, rowVals...)
 		}
 	})
 
