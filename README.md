@@ -123,6 +123,37 @@ P99.9:    395,186,166.0000
 Matched: 161,622 / 161,622
 ```
 
+## Tabulate
+
+Create a 2D view (table) of data extracted from a file. Expression needs to yield a two dimensions separated by a tab.  Can either use `\t` or the `{tab a b}` helper.  First element is the column name, followed by the row name.
+
+```bash
+$ rare tabulate -m "(\d{3}) (\d+)" -e "{tab {1} {bucket {2} 100000}}" -sk access.log
+
+         200      404      304      403      301      206      
+0        153,271  860      53       14       12       2                 
+1000000  796      0        0        0        0        0                 
+2000000  513      0        0        0        0        0                 
+7000000  262      0        0        0        0        0                 
+4000000  257      0        0        0        0        0                 
+6000000  221      0        0        0        0        0                 
+5000000  218      0        0        0        0        0                 
+9000000  206      0        0        0        0        0                 
+3000000  202      0        0        0        0        0                 
+10000000 201      0        0        0        0        0                 
+11000000 190      0        0        0        0        0                 
+21000000 142      0        0        0        0        0                 
+15000000 138      0        0        0        0        0                 
+8000000  137      0        0        0        0        0                 
+22000000 123      0        0        0        0        0                 
+14000000 121      0        0        0        0        0                 
+16000000 110      0        0        0        0        0                 
+17000000 99       0        0        0        0        0                 
+34000000 91       0        0        0        0        0                 
+Matched: 161,622 / 161,622
+Rows: 223; Cols: 6
+```
+
 
 # License
 
