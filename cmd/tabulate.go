@@ -37,7 +37,7 @@ func tabulateFunction(c *cli.Context) error {
 		for idx, row := range counter.OrderedRows() {
 			rowVals := make([]string, len(cols)+1)
 			rowVals[0] = row.Name()
-			for idx, colName := range cols {
+			for idx, colName := range cols[1:] {
 				rowVals[1+idx] = humanize.Hi(row.Value(colName))
 			}
 			writer.WriteRow(1+idx, rowVals...)
