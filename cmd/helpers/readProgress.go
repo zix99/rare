@@ -42,7 +42,7 @@ func min(a, b int) int {
 
 func GetReadFileString() string {
 	var sb strings.Builder
-	const maxFilesToWrite = 2
+	const maxFilesToWrite = 1
 
 	activeReadMutex.Lock()
 	if sourceCount > 1 && readCount != sourceCount {
