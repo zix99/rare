@@ -63,6 +63,7 @@ func tabulateFunction(c *cli.Context) error {
 func TabulateCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "tabulate",
+		Aliases:   []string{"table"},
 		Usage:     "Create a 2D summarizing table of extracted data",
 		Action:    tabulateFunction,
 		ArgsUsage: DefaultArgumentDescriptor,
