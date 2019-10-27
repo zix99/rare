@@ -2,6 +2,7 @@ package multiterm
 
 import (
 	"fmt"
+	"os"
 )
 
 type TermWriter struct {
@@ -53,7 +54,7 @@ func (s *TermWriter) GoTo(line int) {
 }
 
 func (s *TermWriter) WriteAtCursor(format string, args ...interface{}) {
-	fmt.Printf(format, args...)
+	WriteLineNoWrap(os.Stdout, fmt.Sprintf(format, args...))
 	if s.ClearLine {
 		eraseRemainingLine()
 	}

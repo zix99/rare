@@ -50,10 +50,11 @@ func histoFunction(c *cli.Context) error {
 // HistogramCommand Exported command
 func HistogramCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "histogram",
+		Name:      "histo",
 		Usage:     "Summarize results by extracting them to a histogram",
 		Action:    histoFunction,
-		Aliases:   []string{"histo"},
+		Aliases:   []string{"histogram"},
+		ShortName: "h",
 		ArgsUsage: DefaultArgumentDescriptor,
 		Flags: BuildExtractorFlags(
 			cli.BoolFlag{
