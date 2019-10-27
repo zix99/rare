@@ -51,6 +51,7 @@ func tabulateFunction(c *cli.Context) error {
 			}
 			writer.WriteRow(1+idx, rowVals...)
 		}
+		writer.InnerWriter().WriteForLine(1+len(rows), GetReadFileString())
 	})
 
 	fmt.Fprintf(os.Stderr, "Rows: %s; Cols: %s\n",

@@ -30,6 +30,10 @@ func NewTable(maxCols, maxRows int) *TableWriter {
 	}
 }
 
+func (s *TableWriter) InnerWriter() *TermWriter {
+	return s.term
+}
+
 func (s *TableWriter) WriteRow(rowNum int, cols ...string) {
 	if rowNum >= s.maxRows {
 		return
