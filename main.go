@@ -8,6 +8,7 @@ import (
 	"rare/cmd"
 	"rare/pkg/color"
 	"rare/pkg/humanize"
+	"rare/pkg/multiterm"
 
 	"github.com/urfave/cli"
 )
@@ -42,6 +43,10 @@ func main() {
 			Name:  "color",
 			Usage: "Force-enable color output",
 		},
+		cli.BoolFlag{
+			Name:  "notrim",
+			Usage: "By default, rare will trim output text for in-place updates. Setting this flag will disable that",
+		},
 	}
 
 	app.Commands = []cli.Command{
@@ -60,6 +65,9 @@ func main() {
 		}
 		if c.Bool("noformat") {
 			humanize.Enabled = false
+		}
+		if c.Bool("notrim") {
+			multiterm.AutoTrim = false
 		}
 		return nil
 	})

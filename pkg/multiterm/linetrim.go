@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+var AutoTrim = true
+
 const defaultRows, defaultCols = 24, 80
 
 func getTermRowsCols() (int, int) {
@@ -36,16 +38,33 @@ func getTermRowsCols() (int, int) {
 var computedRows, computedCols = 0, 0
 
 func init() {
-	computedRows, computedCols = getTermRowsCols()
+	if _, ok := os.LookupEnv("TERM"); ok {
+		computedRows, computedCols = getTermRowsCols()
+	} else {
+		AutoTrim = false
+	}
+}
+
+func TermRows() int {
+	return computedRows
+}
+
+func TermCols() int {
+	return computedCols
 }
 
 func WriteLineNoWrap(out io.Writer, s string) {
+	if !AutoTrim {
+		out.Write([]byte(s))
+		return
+	}
 	runes := []rune(s)
 
 	visibleRunes := 0
 	i := 0
-	for i < len(runes) && visibleRunes < computedCols-2 {
-		if i == '\x1b' {
+	for i < len(runes) && visibleRunes < computedCols {
+		if runes[i] == '\x1b' {
+			// parse colors
 			for runes[i] != 'm' && i < len(runes)-1 {
 				i++
 			}
