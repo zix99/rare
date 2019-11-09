@@ -101,7 +101,7 @@ func kfBytesize(args []KeyBuilderStage) KeyBuilderStage {
 			labelIdx++
 		}
 
-		return fmt.Sprintf("%d %s", val, byteSizes[labelIdx])
+		return strconv.Itoa(val) + " " + byteSizes[labelIdx]
 	})
 }
 
