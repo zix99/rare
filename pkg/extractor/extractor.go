@@ -26,7 +26,7 @@ type Config struct {
 }
 
 type Extractor struct {
-	readChan     chan *Match
+	readChan     chan []Match
 	regex        *regexp.Regexp
 	readLines    uint64
 	matchedLines uint64
@@ -55,7 +55,7 @@ func (s *Extractor) IgnoredLines() uint64 {
 	return s.ignoredLines
 }
 
-func (s *Extractor) ReadChan() <-chan *Match {
+func (s *Extractor) ReadChan() <-chan []Match {
 	return s.readChan
 }
 
@@ -68,7 +68,7 @@ func indexToSlices(s string, indexMatches []int) []string {
 }
 
 // async safe
-func (s *Extractor) processLineSync(line string) {
+func (s *Extractor) processLineSync(line string) *Match {
 	lineNum := atomic.AddUint64(&s.readLines, 1)
 	matches := s.regex.FindStringSubmatchIndex(line)
 
@@ -83,7 +83,7 @@ func (s *Extractor) processLineSync(line string) {
 
 			if len(extractedKey) > 0 {
 				matchNum := atomic.AddUint64(&s.matchedLines, 1)
-				s.readChan <- &Match{
+				return &Match{
 					Line:        line,
 					Groups:      slices,
 					Indices:     matches,
@@ -91,24 +91,25 @@ func (s *Extractor) processLineSync(line string) {
 					LineNumber:  lineNum,
 					MatchNumber: matchNum,
 				}
-			} else {
-				atomic.AddUint64(&s.ignoredLines, 1)
 			}
+
+			atomic.AddUint64(&s.ignoredLines, 1)
 		} else {
 			atomic.AddUint64(&s.ignoredLines, 1)
 		}
 	}
+	return nil
 }
 
 // New an extractor from an input channel
-func New(input <-chan string, config *Config) (*Extractor, error) {
+func New(inputBatch <-chan []string, config *Config) (*Extractor, error) {
 	compiledExpression, err := expressions.NewKeyBuilder().Compile(config.Extract)
 	if err != nil {
 		return nil, err
 	}
 
 	extractor := Extractor{
-		readChan:   make(chan *Match, 5),
+		readChan:   make(chan []Match, 5),
 		regex:      buildRegex(config.Regex, config.Posix),
 		keyBuilder: compiledExpression,
 		config:     *config,
@@ -121,11 +122,25 @@ func New(input <-chan string, config *Config) (*Extractor, error) {
 		wg.Add(1)
 		go func() {
 			for {
-				s, more := <-input
+				batch, more := <-inputBatch
 				if !more {
 					break
 				}
-				extractor.processLineSync(s)
+
+				var matchBatch []Match
+				for _, s := range batch {
+					match := extractor.processLineSync(s)
+					if match != nil {
+						if matchBatch == nil {
+							// Initialize to expected cap (only if we have any matches)
+							matchBatch = make([]Match, 0, len(batch))
+						}
+						matchBatch = append(matchBatch, *match)
+					}
+				}
+				if len(matchBatch) > 0 {
+					extractor.readChan <- matchBatch
+				}
 			}
 			wg.Done()
 		}()

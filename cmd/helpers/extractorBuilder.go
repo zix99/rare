@@ -22,15 +22,16 @@ const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
 var stderrLog = log.New(os.Stderr, "[Log] ", 0)
 
-func tailLineToChan(lines chan *tail.Line) <-chan string {
-	output := make(chan string)
+func tailLineToChan(lines chan *tail.Line) <-chan []string {
+	output := make(chan []string)
 	go func() {
 		for {
 			line := <-lines
 			if line == nil || line.Err != nil {
 				break
 			}
-			output <- line.Text
+			// Don't batch when tailing files
+			output <- []string{line.Text}
 		}
 		close(output)
 	}()
@@ -56,8 +57,8 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	return file, nil
 }
 
-func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan string {
-	out := make(chan string, 128)
+func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize int) <-chan []string {
+	out := make(chan []string, 128)
 	sema := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
 	wg.Add(len(filenames))
@@ -82,9 +83,8 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan st
 				bigBuf := make([]byte, 512*1024)
 				scanner.Buffer(bigBuf, len(bigBuf))
 
-				for scanner.Scan() {
-					out <- scanner.Text()
-				}
+				extractor.SyncScannerToBatchChannel(scanner, batchSize, out)
+
 				<-sema
 				wg.Done()
 				StopFileReading(goFilename)
@@ -120,6 +120,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	followPoll := c.Bool("poll")
 	concurrentReaders := c.Int("readers")
 	gunzip := c.Bool("gunzip")
+	batchSize := c.Int("batch")
 	config := extractor.Config{
 		Posix:   c.Bool("posix"),
 		Regex:   c.String("match"),
@@ -136,8 +137,12 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		config.Ignore = ignoreExp
 	}
 
+	if batchSize < 1 {
+		stderrLog.Fatalf("Batch size must be >= 1, is %d\n", batchSize)
+	}
+
 	if c.NArg() == 0 || c.Args().First() == "-" { // Read from stdin
-		ret, err := extractor.New(extractor.ConvertReaderToStringChan(os.Stdin), &config)
+		ret, err := extractor.New(extractor.ConvertReaderToStringChan(os.Stdin, batchSize), &config)
 		if err != nil {
 			log.Panicln(err)
 		}
@@ -148,7 +153,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			stderrLog.Println("Cannot combine -f and -z")
 		}
 
-		tailChannels := make([]<-chan string, 0)
+		tailChannels := make([]<-chan []string, 0)
 		for _, filename := range globExpand(c.Args()) {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
@@ -165,7 +170,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 		return ret
 	} else { // Read (no-follow) source file(s)
-		ret, err := extractor.New(openFilesToChan(globExpand(c.Args()), gunzip, concurrentReaders), &config)
+		ret, err := extractor.New(openFilesToChan(globExpand(c.Args()), gunzip, concurrentReaders, batchSize), &config)
 		if err != nil {
 			log.Panicln(err)
 		}
@@ -204,6 +209,11 @@ func BuildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 		cli.BoolFlag{
 			Name:  "gunzip,z",
 			Usage: "Attempt to decompress file when reading",
+		},
+		cli.IntFlag{
+			Name:  "batch",
+			Usage: "Specifies io batching size. Set to 1 for immediate input",
+			Value: 1000,
 		},
 		cli.IntFlag{
 			Name:  "workers,w",

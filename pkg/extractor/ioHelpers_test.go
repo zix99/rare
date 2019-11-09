@@ -7,14 +7,14 @@ import (
 )
 
 func TestCombiningChannels(t *testing.T) {
-	c1 := make(chan string)
-	c2 := make(chan string)
+	c1 := make(chan []string)
+	c2 := make(chan []string)
 
 	combined := CombineChannels(c1, c2)
-	c1 <- "a"
-	c2 <- "b"
-	assert.Equal(t, "a", <-combined)
-	assert.Equal(t, "b", <-combined)
+	c1 <- []string{"a"}
+	c2 <- []string{"b"}
+	assert.Equal(t, []string{"a"}, <-combined)
+	assert.Equal(t, []string{"b"}, <-combined)
 
 	close(c1)
 	close(c2)

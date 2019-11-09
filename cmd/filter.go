@@ -16,17 +16,19 @@ func filterFunction(c *cli.Context) error {
 	extractor := BuildExtractorFromArguments(c)
 	readChan := extractor.ReadChan()
 	for {
-		match, more := <-readChan
+		matchBatch, more := <-readChan
 		if !more {
 			break
 		}
-		if writeLines {
-			fmt.Printf("%d: ", match.LineNumber)
-		}
-		if !customExtractor {
-			fmt.Println(color.WrapIndices(match.Line, match.Indices[2:]))
-		} else {
-			fmt.Println(match.Extracted)
+		for _, match := range matchBatch {
+			if writeLines {
+				fmt.Printf("%d: ", match.LineNumber)
+			}
+			if !customExtractor {
+				fmt.Println(color.WrapIndices(match.Line, match.Indices[2:]))
+			} else {
+				fmt.Println(match.Extracted)
+			}
 		}
 	}
 	WriteExtractorSummary(extractor)
