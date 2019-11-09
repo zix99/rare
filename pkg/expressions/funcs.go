@@ -1,5 +1,8 @@
 package expressions
 
+// KeyBuilderFunction defines a helper function at runtime
+type KeyBuilderFunction func([]KeyBuilderStage) KeyBuilderStage
+
 var defaultFunctions = map[string]KeyBuilderFunction{
 	"coalesce":  KeyBuilderFunction(kfCoalesce),
 	"bucket":    KeyBuilderFunction(kfBucket),

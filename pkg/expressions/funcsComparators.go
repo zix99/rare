@@ -38,9 +38,9 @@ func arithmaticEqualityHelper(test func(float64, float64) bool) KeyBuilderFuncti
 			}
 
 			if test(left, right) {
-				return "1"
+				return TruthyVal
 			}
-			return ""
+			return FalsyVal
 		})
 	})
 }
@@ -51,9 +51,9 @@ func kfNot(args []KeyBuilderStage) KeyBuilderStage {
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		if Truthy(args[0](context)) {
-			return ""
+			return FalsyVal
 		}
-		return "1"
+		return TruthyVal
 	})
 }
 
@@ -61,11 +61,11 @@ func kfNot(args []KeyBuilderStage) KeyBuilderStage {
 func kfAnd(args []KeyBuilderStage) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		for _, arg := range args {
-			if arg(context) == "" {
-				return ""
+			if arg(context) == FalsyVal {
+				return FalsyVal
 			}
 		}
-		return "1"
+		return TruthyVal
 	})
 }
 
@@ -73,11 +73,11 @@ func kfAnd(args []KeyBuilderStage) KeyBuilderStage {
 func kfOr(args []KeyBuilderStage) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		for _, arg := range args {
-			if arg(context) != "" {
-				return "1"
+			if arg(context) != FalsyVal {
+				return TruthyVal
 			}
 		}
-		return ""
+		return FalsyVal
 	})
 }
 
@@ -93,6 +93,6 @@ func kfLike(args []KeyBuilderStage) KeyBuilderStage {
 		if strings.Contains(val, contains) {
 			return val
 		}
-		return ""
+		return FalsyVal
 	})
 }

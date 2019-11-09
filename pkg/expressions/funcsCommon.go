@@ -5,9 +5,6 @@ import (
 	"strconv"
 )
 
-// KeyBuilderFunction defines a helper function at runtime
-type KeyBuilderFunction func([]KeyBuilderStage) KeyBuilderStage
-
 func kfCoalesce(args []KeyBuilderStage) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		for _, arg := range args {
