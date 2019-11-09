@@ -11,8 +11,8 @@ var activeReadMutex sync.Mutex
 var sourceCount = 0
 var readCount = 0
 
-func IncSourceCount() {
-	sourceCount++
+func IncSourceCount(delta int) {
+	sourceCount += delta
 }
 
 func StartFileReading(source string) {

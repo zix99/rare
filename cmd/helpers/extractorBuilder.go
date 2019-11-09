@@ -60,34 +60,39 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan st
 	out := make(chan string, 128)
 	sema := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
+	wg.Add(len(filenames))
+	IncSourceCount(len(filenames))
 
-	for _, filename := range filenames {
-		wg.Add(1)
-		IncSourceCount()
-		go func(goFilename string) {
+	// Load as many files as the sema allows
+	go func() {
+		for _, filename := range filenames {
 			sema <- struct{}{}
-			var file io.ReadCloser
-			file, err := openFileToReader(goFilename, gunzip)
-			if err != nil {
-				stderrLog.Printf("Error opening file %s: %v\n", goFilename, err)
-				return
-			}
-			defer file.Close()
-			StartFileReading(goFilename)
 
-			scanner := bufio.NewScanner(file)
-			bigBuf := make([]byte, 512*1024)
-			scanner.Buffer(bigBuf, len(bigBuf))
+			go func(goFilename string) {
+				var file io.ReadCloser
+				file, err := openFileToReader(goFilename, gunzip)
+				if err != nil {
+					stderrLog.Printf("Error opening file %s: %v\n", goFilename, err)
+					return
+				}
+				defer file.Close()
+				StartFileReading(goFilename)
 
-			for scanner.Scan() {
-				out <- scanner.Text()
-			}
-			<-sema
-			wg.Done()
-			StopFileReading(goFilename)
-		}(filename)
-	}
+				scanner := bufio.NewScanner(file)
+				bigBuf := make([]byte, 512*1024)
+				scanner.Buffer(bigBuf, len(bigBuf))
 
+				for scanner.Scan() {
+					out <- scanner.Text()
+				}
+				<-sema
+				wg.Done()
+				StopFileReading(goFilename)
+			}(filename)
+		}
+	}()
+
+	// Wait on all files, and close chan
 	go func() {
 		wg.Wait()
 		close(out)
