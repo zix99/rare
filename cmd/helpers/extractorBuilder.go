@@ -30,7 +30,8 @@ func tailLineToChan(lines chan *tail.Line) <-chan []string {
 			if line == nil || line.Err != nil {
 				break
 			}
-			output <- []string{line.Text} // TODO: Batching
+			// Don't batch when tailing files
+			output <- []string{line.Text}
 		}
 		close(output)
 	}()
@@ -56,7 +57,7 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	return file, nil
 }
 
-func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan []string {
+func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize int) <-chan []string {
 	out := make(chan []string, 128)
 	sema := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
@@ -82,9 +83,18 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan []
 				bigBuf := make([]byte, 512*1024)
 				scanner.Buffer(bigBuf, len(bigBuf))
 
+				batch := make([]string, 0, batchSize)
 				for scanner.Scan() {
-					out <- []string{scanner.Text()} // TODO: Batching
+					batch = append(batch, scanner.Text())
+					if len(batch) >= batchSize {
+						out <- batch
+						batch = make([]string, 0, batchSize)
+					}
 				}
+				if len(batch) > 0 {
+					out <- batch
+				}
+
 				<-sema
 				wg.Done()
 				StopFileReading(goFilename)
@@ -120,6 +130,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	followPoll := c.Bool("poll")
 	concurrentReaders := c.Int("readers")
 	gunzip := c.Bool("gunzip")
+	batchSize := c.Int("batch")
 	config := extractor.Config{
 		Posix:   c.Bool("posix"),
 		Regex:   c.String("match"),
@@ -134,6 +145,10 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			log.Panicln(err)
 		}
 		config.Ignore = ignoreExp
+	}
+
+	if batchSize < 1 {
+		stderrLog.Fatalf("Batch size must be >= 1, is %d\n", batchSize)
 	}
 
 	if c.NArg() == 0 || c.Args().First() == "-" { // Read from stdin
@@ -165,7 +180,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 		return ret
 	} else { // Read (no-follow) source file(s)
-		ret, err := extractor.New(openFilesToChan(globExpand(c.Args()), gunzip, concurrentReaders), &config)
+		ret, err := extractor.New(openFilesToChan(globExpand(c.Args()), gunzip, concurrentReaders, batchSize), &config)
 		if err != nil {
 			log.Panicln(err)
 		}
@@ -204,6 +219,11 @@ func BuildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 		cli.BoolFlag{
 			Name:  "gunzip,z",
 			Usage: "Attempt to decompress file when reading",
+		},
+		cli.IntFlag{
+			Name:  "batch",
+			Usage: "Specifies io batching size. Set to 1 for immediate input",
+			Value: 1000,
 		},
 		cli.IntFlag{
 			Name:  "workers,w",
