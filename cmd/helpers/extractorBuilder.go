@@ -122,10 +122,11 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	gunzip := c.Bool("gunzip")
 	batchSize := c.Int("batch")
 	config := extractor.Config{
-		Posix:   c.Bool("posix"),
-		Regex:   c.String("match"),
-		Extract: c.String("extract"),
-		Workers: c.Int("workers"),
+		Posix:     c.Bool("posix"),
+		Regex:     c.String("match"),
+		Extract:   c.String("extract"),
+		Workers:   c.Int("workers"),
+		BatchSize: batchSize,
 	}
 
 	ignoreSlice := c.StringSlice("ignore")

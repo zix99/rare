@@ -18,15 +18,16 @@ type Match struct {
 
 // Config for the extractor
 type Config struct {
-	Posix   bool      // Posix parse regex
-	Regex   string    // Regex to find matches
-	Extract string    // Extract these values from regex (expression)
-	Workers int       // Workers to parse regex
-	Ignore  IgnoreSet // Ignore these truthy expressions
+	Posix     bool      // Posix parse regex
+	Regex     string    // Regex to find matches
+	Extract   string    // Extract these values from regex (expression)
+	Workers   int       // Workers to parse regex
+	BatchSize int       // Size of each read batch
+	Ignore    IgnoreSet // Ignore these truthy expressions
 }
 
 type Extractor struct {
-	readChan     chan *Match
+	readChan     chan []Match
 	regex        *regexp.Regexp
 	readLines    uint64
 	matchedLines uint64
@@ -55,7 +56,7 @@ func (s *Extractor) IgnoredLines() uint64 {
 	return s.ignoredLines
 }
 
-func (s *Extractor) ReadChan() <-chan *Match {
+func (s *Extractor) ReadChan() <-chan []Match {
 	return s.readChan
 }
 
@@ -68,7 +69,7 @@ func indexToSlices(s string, indexMatches []int) []string {
 }
 
 // async safe
-func (s *Extractor) processLineSync(line string) {
+func (s *Extractor) processLineSync(line string) *Match {
 	lineNum := atomic.AddUint64(&s.readLines, 1)
 	matches := s.regex.FindStringSubmatchIndex(line)
 
@@ -83,7 +84,7 @@ func (s *Extractor) processLineSync(line string) {
 
 			if len(extractedKey) > 0 {
 				matchNum := atomic.AddUint64(&s.matchedLines, 1)
-				s.readChan <- &Match{
+				return &Match{
 					Line:        line,
 					Groups:      slices,
 					Indices:     matches,
@@ -91,13 +92,14 @@ func (s *Extractor) processLineSync(line string) {
 					LineNumber:  lineNum,
 					MatchNumber: matchNum,
 				}
-			} else {
-				atomic.AddUint64(&s.ignoredLines, 1)
 			}
+
+			atomic.AddUint64(&s.ignoredLines, 1)
 		} else {
 			atomic.AddUint64(&s.ignoredLines, 1)
 		}
 	}
+	return nil
 }
 
 // New an extractor from an input channel
@@ -108,7 +110,7 @@ func New(inputBatch <-chan []string, config *Config) (*Extractor, error) {
 	}
 
 	extractor := Extractor{
-		readChan:   make(chan *Match, 5),
+		readChan:   make(chan []Match, 5),
 		regex:      buildRegex(config.Regex, config.Posix),
 		keyBuilder: compiledExpression,
 		config:     *config,
@@ -125,8 +127,20 @@ func New(inputBatch <-chan []string, config *Config) (*Extractor, error) {
 				if !more {
 					break
 				}
+
+				matchBatch := make([]Match, 0, config.BatchSize)
 				for _, s := range batch {
-					extractor.processLineSync(s)
+					match := extractor.processLineSync(s)
+					if match != nil {
+						matchBatch = append(matchBatch, *match)
+						if len(matchBatch) >= config.BatchSize {
+							extractor.readChan <- matchBatch
+							matchBatch = make([]Match, 0, config.BatchSize)
+						}
+					}
+				}
+				if len(matchBatch) > 0 {
+					extractor.readChan <- matchBatch
 				}
 			}
 			wg.Done()

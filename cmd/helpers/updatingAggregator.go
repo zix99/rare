@@ -55,12 +55,14 @@ PROCESSING_LOOP:
 		select {
 		case <-exitSignal:
 			break PROCESSING_LOOP
-		case match, more := <-reader:
+		case matchBatch, more := <-reader:
 			if !more {
 				break PROCESSING_LOOP
 			}
 			outputMutex.Lock()
-			aggregator.Sample(match.Extracted)
+			for _, match := range matchBatch {
+				aggregator.Sample(match.Extracted)
+			}
 			outputMutex.Unlock()
 			hasUpdates.Store(true)
 		}
