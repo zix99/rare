@@ -47,6 +47,10 @@ func main() {
 			Name:  "notrim",
 			Usage: "By default, rare will trim output text for in-place updates. Setting this flag will disable that",
 		},
+		cli.StringFlag{
+			Name:  "profile",
+			Usage: "Write application profiling information as part of execution. Specify base-name",
+		},
 	}
 
 	app.Commands = []cli.Command{
@@ -68,6 +72,20 @@ func main() {
 		}
 		if c.Bool("notrim") {
 			multiterm.AutoTrim = false
+		}
+
+		// Profiling
+		if c.IsSet("profile") {
+			basename := c.String("profile")
+			startProfiler(basename)
+		}
+
+		return nil
+	})
+
+	app.After = cli.AfterFunc(func(c *cli.Context) error {
+		if c.IsSet("profile") {
+			stopProfile()
 		}
 		return nil
 	})
