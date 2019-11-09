@@ -101,7 +101,7 @@ func (s *Extractor) processLineSync(line string) {
 }
 
 // New an extractor from an input channel
-func New(input <-chan string, config *Config) (*Extractor, error) {
+func New(inputBatch <-chan []string, config *Config) (*Extractor, error) {
 	compiledExpression, err := expressions.NewKeyBuilder().Compile(config.Extract)
 	if err != nil {
 		return nil, err
@@ -121,11 +121,13 @@ func New(input <-chan string, config *Config) (*Extractor, error) {
 		wg.Add(1)
 		go func() {
 			for {
-				s, more := <-input
+				batch, more := <-inputBatch
 				if !more {
 					break
 				}
-				extractor.processLineSync(s)
+				for _, s := range batch {
+					extractor.processLineSync(s)
+				}
 			}
 			wg.Done()
 		}()

@@ -22,15 +22,15 @@ const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
 var stderrLog = log.New(os.Stderr, "[Log] ", 0)
 
-func tailLineToChan(lines chan *tail.Line) <-chan string {
-	output := make(chan string)
+func tailLineToChan(lines chan *tail.Line) <-chan []string {
+	output := make(chan []string)
 	go func() {
 		for {
 			line := <-lines
 			if line == nil || line.Err != nil {
 				break
 			}
-			output <- line.Text
+			output <- []string{line.Text} // TODO: Batching
 		}
 		close(output)
 	}()
@@ -56,8 +56,8 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	return file, nil
 }
 
-func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan string {
-	out := make(chan string, 128)
+func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan []string {
+	out := make(chan []string, 128)
 	sema := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
 	wg.Add(len(filenames))
@@ -83,7 +83,7 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int) <-chan st
 				scanner.Buffer(bigBuf, len(bigBuf))
 
 				for scanner.Scan() {
-					out <- scanner.Text()
+					out <- []string{scanner.Text()} // TODO: Batching
 				}
 				<-sema
 				wg.Done()
@@ -148,7 +148,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			stderrLog.Println("Cannot combine -f and -z")
 		}
 
-		tailChannels := make([]<-chan string, 0)
+		tailChannels := make([]<-chan []string, 0)
 		for _, filename := range globExpand(c.Args()) {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
