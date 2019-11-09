@@ -45,7 +45,7 @@ func CombineChannels(channels ...<-chan []string) <-chan []string {
 
 // ConvertReaderToStringChan converts an io.reader to a string channel
 //  where it's separated by a new-line
-func ConvertReaderToStringChan(reader io.ReadCloser) <-chan []string {
+func ConvertReaderToStringChan(reader io.ReadCloser, batchSize int) <-chan []string {
 	out := make(chan []string)
 	scanner := bufio.NewScanner(reader)
 	bigBuf := make([]byte, 512*1024)
@@ -53,11 +53,24 @@ func ConvertReaderToStringChan(reader io.ReadCloser) <-chan []string {
 
 	go func() {
 		defer reader.Close()
-		for scanner.Scan() {
-			out <- []string{scanner.Text()} // TODO: Batching
-		}
+		SyncScannerToBatchChannel(scanner, batchSize, out)
 		close(out)
 	}()
 
 	return out
+}
+
+// SyncScannerToBatchChannel reads a scanner into []string chunks and writes to an output channel
+func SyncScannerToBatchChannel(scanner *bufio.Scanner, batchSize int, out chan<- []string) {
+	batch := make([]string, 0, batchSize)
+	for scanner.Scan() {
+		batch = append(batch, scanner.Text())
+		if len(batch) >= batchSize {
+			out <- batch
+			batch = make([]string, 0, batchSize)
+		}
+	}
+	if len(batch) > 0 {
+		out <- batch
+	}
 }

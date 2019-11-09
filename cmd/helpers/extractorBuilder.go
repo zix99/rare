@@ -83,17 +83,7 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize
 				bigBuf := make([]byte, 512*1024)
 				scanner.Buffer(bigBuf, len(bigBuf))
 
-				batch := make([]string, 0, batchSize)
-				for scanner.Scan() {
-					batch = append(batch, scanner.Text())
-					if len(batch) >= batchSize {
-						out <- batch
-						batch = make([]string, 0, batchSize)
-					}
-				}
-				if len(batch) > 0 {
-					out <- batch
-				}
+				extractor.SyncScannerToBatchChannel(scanner, batchSize, out)
 
 				<-sema
 				wg.Done()
@@ -152,7 +142,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	}
 
 	if c.NArg() == 0 || c.Args().First() == "-" { // Read from stdin
-		ret, err := extractor.New(extractor.ConvertReaderToStringChan(os.Stdin), &config)
+		ret, err := extractor.New(extractor.ConvertReaderToStringChan(os.Stdin, batchSize), &config)
 		if err != nil {
 			log.Panicln(err)
 		}
