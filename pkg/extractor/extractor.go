@@ -18,12 +18,11 @@ type Match struct {
 
 // Config for the extractor
 type Config struct {
-	Posix     bool      // Posix parse regex
-	Regex     string    // Regex to find matches
-	Extract   string    // Extract these values from regex (expression)
-	Workers   int       // Workers to parse regex
-	BatchSize int       // Size of each read batch
-	Ignore    IgnoreSet // Ignore these truthy expressions
+	Posix   bool      // Posix parse regex
+	Regex   string    // Regex to find matches
+	Extract string    // Extract these values from regex (expression)
+	Workers int       // Workers to parse regex
+	Ignore  IgnoreSet // Ignore these truthy expressions
 }
 
 type Extractor struct {
@@ -128,15 +127,15 @@ func New(inputBatch <-chan []string, config *Config) (*Extractor, error) {
 					break
 				}
 
-				matchBatch := make([]Match, 0, config.BatchSize)
+				var matchBatch []Match
 				for _, s := range batch {
 					match := extractor.processLineSync(s)
 					if match != nil {
-						matchBatch = append(matchBatch, *match)
-						if len(matchBatch) >= config.BatchSize {
-							extractor.readChan <- matchBatch
-							matchBatch = make([]Match, 0, config.BatchSize)
+						if matchBatch == nil {
+							// Initialize to expected cap (only if we have any matches)
+							matchBatch = make([]Match, 0, len(batch))
 						}
+						matchBatch = append(matchBatch, *match)
 					}
 				}
 				if len(matchBatch) > 0 {
