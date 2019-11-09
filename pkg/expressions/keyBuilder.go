@@ -101,6 +101,13 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 }
 
 func (s *CompiledKeyBuilder) BuildKey(context KeyBuilderContext) string {
+	if len(s.stages) == 0 {
+		return ""
+	}
+	if len(s.stages) == 1 {
+		return s.stages[0](context)
+	}
+
 	var sb strings.Builder
 
 	for _, stage := range s.stages {
