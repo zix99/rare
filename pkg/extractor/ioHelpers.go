@@ -6,8 +6,6 @@ import (
 	"sync"
 )
 
-type semiLock struct{}
-
 // CombineChannels combines multiple string channels into a single (unordered)
 //  string channel
 func CombineChannels(channels ...<-chan []string) <-chan []string {
