@@ -13,6 +13,7 @@ import (
 	"rare/pkg/readahead"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/hpcloud/tail"
 	"github.com/urfave/cli"
@@ -22,16 +23,29 @@ const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
 var stderrLog = log.New(os.Stderr, "[Log] ", 0)
 
-func tailLineToChan(lines chan *tail.Line) <-chan []extractor.BString {
+func tailLineToChan(lines chan *tail.Line, batchSize int) <-chan []extractor.BString {
 	output := make(chan []extractor.BString)
 	go func() {
+		batch := make([]extractor.BString, 0, batchSize)
+	MAIN_LOOP:
 		for {
-			line := <-lines
-			if line == nil || line.Err != nil {
-				break
+			select {
+			case line := <-lines:
+				if line == nil || line.Err != nil {
+					break MAIN_LOOP
+				}
+				batch = append(batch, extractor.BString(line.Text))
+				if len(batch) >= batchSize {
+					output <- batch
+					batch = make([]extractor.BString, 0, batchSize)
+				}
+			case <-time.After(1000 * time.Millisecond):
+				// Since we're tailing, if we haven't received any line in a bit, lets flush what we have
+				if len(batch) > 0 {
+					output <- batch
+					batch = make([]extractor.BString, 0, batchSize)
+				}
 			}
-			// Don't batch when tailing files
-			output <- []extractor.BString{[]byte(line.Text)}
 		}
 		close(output)
 	}()
@@ -157,7 +171,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			if err != nil {
 				stderrLog.Fatal("Unable to open file: ", err)
 			}
-			tailChannels = append(tailChannels, tailLineToChan(tail.Lines))
+			tailChannels = append(tailChannels, tailLineToChan(tail.Lines, batchSize))
 			StartFileReading(filename)
 		}
 
