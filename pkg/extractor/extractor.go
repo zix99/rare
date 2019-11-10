@@ -5,9 +5,13 @@ import (
 	"regexp"
 	"sync"
 	"sync/atomic"
+	"unsafe"
 )
 
+type BString []byte
+
 type Match struct {
+	bLine       BString // Keep the pointer around next to line
 	Line        string
 	Groups      []string
 	Indices     []int
@@ -68,13 +72,14 @@ func indexToSlices(s string, indexMatches []int) []string {
 }
 
 // async safe
-func (s *Extractor) processLineSync(line string) *Match {
+func (s *Extractor) processLineSync(line BString) *Match {
 	lineNum := atomic.AddUint64(&s.readLines, 1)
-	matches := s.regex.FindStringSubmatchIndex(line)
+	matches := s.regex.FindSubmatchIndex(line)
 
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
-		slices := indexToSlices(line, matches)
+		lineStringPtr := *(*string)(unsafe.Pointer(&line))
+		slices := indexToSlices(lineStringPtr, matches)
 		if s.ignore == nil || !s.ignore.IgnoreMatch(slices...) {
 			context := expressions.KeyBuilderContextArray{
 				Elements: slices,
@@ -84,7 +89,8 @@ func (s *Extractor) processLineSync(line string) *Match {
 			if len(extractedKey) > 0 {
 				matchNum := atomic.AddUint64(&s.matchedLines, 1)
 				return &Match{
-					Line:        line,
+					bLine:       line,
+					Line:        lineStringPtr,
 					Groups:      slices,
 					Indices:     matches,
 					Extracted:   extractedKey,
@@ -102,7 +108,7 @@ func (s *Extractor) processLineSync(line string) *Match {
 }
 
 // New an extractor from an input channel
-func New(inputBatch <-chan []string, config *Config) (*Extractor, error) {
+func New(inputBatch <-chan []BString, config *Config) (*Extractor, error) {
 	compiledExpression, err := expressions.NewKeyBuilder().Compile(config.Extract)
 	if err != nil {
 		return nil, err
