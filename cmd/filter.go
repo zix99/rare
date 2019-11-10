@@ -40,6 +40,7 @@ func FilterCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "filter",
 		Usage:     "Filter incoming results with search criteria, and output raw matches",
+		ShortName: "f",
 		Action:    filterFunction,
 		ArgsUsage: DefaultArgumentDescriptor,
 		Flags: BuildExtractorFlags(
