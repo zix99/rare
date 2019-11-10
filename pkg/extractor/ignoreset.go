@@ -13,7 +13,7 @@ type ExpressionIgnoreSet struct {
 	expressions []*expressions.CompiledKeyBuilder
 }
 
-func NewIgnoreExpressions(expSet []string) (IgnoreSet, error) {
+func NewIgnoreExpressions(expSet ...string) (IgnoreSet, error) {
 	if expSet == nil {
 		return nil, nil
 	}
