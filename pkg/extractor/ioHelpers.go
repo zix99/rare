@@ -58,13 +58,8 @@ func ConvertReaderToStringChan(reader io.ReadCloser, batchSize int) <-chan []BSt
 
 func SyncReadAheadToBatchChannel(readahead *readahead.ReadAhead, batchSize int, out chan<- []BString) {
 	batch := make([]BString, 0, batchSize)
-	for {
-		b := readahead.ReadLine()
-		if b == nil {
-			break
-		}
-
-		batch = append(batch, b)
+	for readahead.Scan() {
+		batch = append(batch, readahead.Bytes())
 		if len(batch) >= batchSize {
 			out <- batch
 			batch = make([]BString, 0, batchSize)

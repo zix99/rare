@@ -15,6 +15,11 @@ which limits the amount the data needs to be copied around
 Initial benchmarks shows a 8% savings over Scanner
 */
 
+type LineScanner interface {
+	Scan() bool
+	Bytes() []byte
+}
+
 type ReadAhead struct {
 	r         io.Reader
 	maxBufLen int
@@ -22,6 +27,8 @@ type ReadAhead struct {
 	buf    []byte
 	offset int
 	eof    bool
+
+	token []byte
 }
 
 // dropCR drops a terminal \r from the data.
@@ -49,7 +56,7 @@ func New(reader io.Reader, maxBufLen int) *ReadAhead {
 	}
 }
 
-func (s *ReadAhead) ReadLine() []byte {
+func (s *ReadAhead) Scan() bool {
 	const averageLineLen = 512
 
 	if !s.eof && (s.buf == nil || s.offset > len(s.buf)-averageLineLen) {
@@ -89,7 +96,8 @@ func (s *ReadAhead) ReadLine() []byte {
 		if relIndex >= 0 {
 			start := s.offset
 			s.offset += relIndex + 1
-			return dropCR(s.buf[start : start+relIndex])
+			s.token = dropCR(s.buf[start : start+relIndex])
+			return true
 		}
 
 		// No new line, so either:
@@ -100,7 +108,8 @@ func (s *ReadAhead) ReadLine() []byte {
 			if s.eof && s.offset < len(s.buf) {
 				ret := s.buf[s.offset:]
 				s.offset = len(s.buf)
-				return ret
+				s.token = ret
+				return true
 			} else if !s.eof {
 				// Not enough in buffer to find next new-line.. need to fill until finding
 				oldbuf := s.buf
@@ -114,8 +123,21 @@ func (s *ReadAhead) ReadLine() []byte {
 					s.eof = true
 				}
 			} else {
-				return nil
+				s.token = nil
+				return false
 			}
 		}
 	}
+}
+
+func (s *ReadAhead) Bytes() []byte {
+	return s.token
+}
+
+// ReadLine is shorthand for Scan() Token()
+func (s *ReadAhead) ReadLine() []byte {
+	if !s.Scan() {
+		return nil
+	}
+	return s.token
 }
