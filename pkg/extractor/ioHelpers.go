@@ -1,7 +1,6 @@
 package extractor
 
 import (
-	"bufio"
 	"io"
 	"rare/pkg/readahead"
 	"sync"
@@ -45,38 +44,16 @@ func CombineChannels(channels ...<-chan []BString) <-chan []BString {
 // ConvertReaderToStringChan converts an io.reader to a string channel
 //  where it's separated by a new-line
 func ConvertReaderToStringChan(reader io.ReadCloser, batchSize int) <-chan []BString {
-	// TODO: Use new readahead
 	out := make(chan []BString)
-	scanner := bufio.NewScanner(reader)
-	bigBuf := make([]byte, 512*1024)
-	scanner.Buffer(bigBuf, len(bigBuf))
+	ra := readahead.New(reader, 128*1024)
 
 	go func() {
 		defer reader.Close()
-		SyncScannerToBatchChannel(scanner, batchSize, out)
+		SyncReadAheadToBatchChannel(ra, batchSize, out)
 		close(out)
 	}()
 
 	return out
-}
-
-// SyncScannerToBatchChannel reads a scanner into []string chunks and writes to an output channel
-func SyncScannerToBatchChannel(scanner *bufio.Scanner, batchSize int, out chan<- []BString) {
-	batch := make([]BString, 0, batchSize)
-	for scanner.Scan() {
-		b := scanner.Bytes()
-		cb := make(BString, len(b))
-		copy(cb, b)
-
-		batch = append(batch, cb)
-		if len(batch) >= batchSize {
-			out <- batch
-			batch = make([]BString, 0, batchSize)
-		}
-	}
-	if len(batch) > 0 {
-		out <- batch
-	}
 }
 
 func SyncReadAheadToBatchChannel(readahead *readahead.ReadAhead, batchSize int, out chan<- []BString) {
