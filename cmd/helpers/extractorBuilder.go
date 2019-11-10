@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"bufio"
 	"compress/gzip"
 	"fmt"
 	"io"
@@ -11,6 +10,7 @@ import (
 	"rare/pkg/color"
 	"rare/pkg/extractor"
 	"rare/pkg/humanize"
+	"rare/pkg/readahead"
 	"runtime"
 	"sync"
 
@@ -22,8 +22,8 @@ const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
 var stderrLog = log.New(os.Stderr, "[Log] ", 0)
 
-func tailLineToChan(lines chan *tail.Line) <-chan []string {
-	output := make(chan []string)
+func tailLineToChan(lines chan *tail.Line) <-chan []extractor.BString {
+	output := make(chan []extractor.BString)
 	go func() {
 		for {
 			line := <-lines
@@ -31,7 +31,7 @@ func tailLineToChan(lines chan *tail.Line) <-chan []string {
 				break
 			}
 			// Don't batch when tailing files
-			output <- []string{line.Text}
+			output <- []extractor.BString{[]byte(line.Text)}
 		}
 		close(output)
 	}()
@@ -57,8 +57,8 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	return file, nil
 }
 
-func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize int) <-chan []string {
-	out := make(chan []string, 128)
+func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize int) <-chan []extractor.BString {
+	out := make(chan []extractor.BString, 128)
 	sema := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
 	wg.Add(len(filenames))
@@ -79,11 +79,8 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize
 				defer file.Close()
 				StartFileReading(goFilename)
 
-				scanner := bufio.NewScanner(file)
-				bigBuf := make([]byte, 512*1024)
-				scanner.Buffer(bigBuf, len(bigBuf))
-
-				extractor.SyncScannerToBatchChannel(scanner, batchSize, out)
+				ra := readahead.New(file, 128*1024)
+				extractor.SyncReadAheadToBatchChannel(ra, batchSize, out)
 
 				<-sema
 				wg.Done()
@@ -153,7 +150,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			stderrLog.Println("Cannot combine -f and -z")
 		}
 
-		tailChannels := make([]<-chan []string, 0)
+		tailChannels := make([]<-chan []extractor.BString, 0)
 		for _, filename := range globExpand(c.Args()) {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 

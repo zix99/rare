@@ -1,14 +1,14 @@
 package extractor
 
 import (
-	"bufio"
 	"io"
+	"rare/pkg/readahead"
 	"sync"
 )
 
 // CombineChannels combines multiple string channels into a single (unordered)
 //  string channel
-func CombineChannels(channels ...<-chan []string) <-chan []string {
+func CombineChannels(channels ...<-chan []BString) <-chan []BString {
 	if channels == nil {
 		return nil
 	}
@@ -16,12 +16,12 @@ func CombineChannels(channels ...<-chan []string) <-chan []string {
 		return channels[0]
 	}
 
-	out := make(chan []string)
+	out := make(chan []BString)
 	var wg sync.WaitGroup
 
 	for _, c := range channels {
 		wg.Add(1)
-		go func(subchan <-chan []string) {
+		go func(subchan <-chan []BString) {
 			for {
 				s, more := <-subchan
 				if !more {
@@ -43,29 +43,26 @@ func CombineChannels(channels ...<-chan []string) <-chan []string {
 
 // ConvertReaderToStringChan converts an io.reader to a string channel
 //  where it's separated by a new-line
-func ConvertReaderToStringChan(reader io.ReadCloser, batchSize int) <-chan []string {
-	out := make(chan []string)
-	scanner := bufio.NewScanner(reader)
-	bigBuf := make([]byte, 512*1024)
-	scanner.Buffer(bigBuf, len(bigBuf))
+func ConvertReaderToStringChan(reader io.ReadCloser, batchSize int) <-chan []BString {
+	out := make(chan []BString)
+	ra := readahead.New(reader, 128*1024)
 
 	go func() {
 		defer reader.Close()
-		SyncScannerToBatchChannel(scanner, batchSize, out)
+		SyncReadAheadToBatchChannel(ra, batchSize, out)
 		close(out)
 	}()
 
 	return out
 }
 
-// SyncScannerToBatchChannel reads a scanner into []string chunks and writes to an output channel
-func SyncScannerToBatchChannel(scanner *bufio.Scanner, batchSize int, out chan<- []string) {
-	batch := make([]string, 0, batchSize)
-	for scanner.Scan() {
-		batch = append(batch, scanner.Text())
+func SyncReadAheadToBatchChannel(readahead *readahead.ReadAhead, batchSize int, out chan<- []BString) {
+	batch := make([]BString, 0, batchSize)
+	for readahead.Scan() {
+		batch = append(batch, readahead.Bytes())
 		if len(batch) >= batchSize {
 			out <- batch
-			batch = make([]string, 0, batchSize)
+			batch = make([]BString, 0, batchSize)
 		}
 	}
 	if len(batch) > 0 {
