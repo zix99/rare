@@ -40,6 +40,9 @@ func maxi(a, b int) int {
 }
 
 func New(reader io.Reader, maxBufLen int) *ReadAhead {
+	if maxBufLen <= 0 {
+		panic("Buf length must be > 0")
+	}
 	return &ReadAhead{
 		r:         reader,
 		maxBufLen: maxBufLen,
