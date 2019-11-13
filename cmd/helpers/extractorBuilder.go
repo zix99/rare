@@ -22,6 +22,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	concurrentReaders := c.Int("readers")
 	gunzip := c.Bool("gunzip")
 	batchSize := c.Int("batch")
+	recursive := c.Bool("recursive")
 	config := extractor.Config{
 		Posix:   c.Bool("posix"),
 		Regex:   c.String("match"),
@@ -57,7 +58,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 
 		tailChannels := make([]<-chan []extractor.BString, 0)
-		for _, filename := range globExpand(fileglobs) {
+		for _, filename := range globExpand(fileglobs, recursive) {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
 			if err != nil {
@@ -73,7 +74,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 		return ret
 	} else { // Read (no-follow) source file(s)
-		ret, err := extractor.New(openFilesToChan(globExpand(fileglobs), gunzip, concurrentReaders, batchSize), &config)
+		ret, err := extractor.New(openFilesToChan(globExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize), &config)
 		if err != nil {
 			log.Panicln(err)
 		}
@@ -131,6 +132,10 @@ func BuildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 		cli.StringSliceFlag{
 			Name:  "ignore,i",
 			Usage: "Ignore a match given a truthy expression (Can have multiple)",
+		},
+		cli.BoolFlag{
+			Name:  "recursive,R",
+			Usage: "Makes any path passed in that is a directory apply recursively",
 		},
 	}
 	return append(flags, additionalFlags...)

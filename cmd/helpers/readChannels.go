@@ -102,14 +102,33 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize
 	return out
 }
 
-func globExpand(paths []string) []string {
+func isDir(path string) bool {
+	if fi, err := os.Stat(path); err == nil && fi.IsDir() {
+		return true
+	}
+	return false
+}
+
+func globExpand(paths []string, recursive bool) []string {
 	out := make([]string, 0)
-	for _, path := range paths {
-		expanded, err := filepath.Glob(path)
-		if err != nil {
-			stderrLog.Printf("Path error: %v\n", err)
+	for _, p := range paths {
+		if recursive && isDir(p) {
+			filepath.Walk(p, func(walkPath string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if !info.IsDir() {
+					out = append(out, walkPath)
+				}
+				return nil
+			})
 		} else {
-			out = append(out, expanded...)
+			expanded, err := filepath.Glob(p)
+			if err != nil {
+				stderrLog.Printf("Path error: %v\n", err)
+			} else {
+				out = append(out, expanded...)
+			}
 		}
 	}
 	return out
