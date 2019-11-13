@@ -55,13 +55,7 @@ func main() {
 		},
 	}
 
-	app.Commands = []cli.Command{
-		*cmd.FilterCommand(),
-		*cmd.HistogramCommand(),
-		*cmd.AnalyzeCommand(),
-		*cmd.TabulateCommand(),
-		*cmd.DocsCommand(),
-	}
+	app.Commands = cmd.GetSupportedCommands()
 
 	app.Before = cli.BeforeFunc(func(c *cli.Context) error {
 		if c.Bool("nocolor") {

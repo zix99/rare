@@ -36,7 +36,7 @@ func filterFunction(c *cli.Context) error {
 }
 
 // FilterCommand Exported command
-func FilterCommand() *cli.Command {
+func filterCommand() *cli.Command {
 	return AdaptCommandForExtractor(cli.Command{
 		Name:      "filter",
 		Usage:     "Filter incoming results with search criteria, and output raw matches",

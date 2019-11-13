@@ -61,7 +61,7 @@ func tabulateFunction(c *cli.Context) error {
 	return nil
 }
 
-func TabulateCommand() *cli.Command {
+func tabulateCommand() *cli.Command {
 	return AdaptCommandForExtractor(cli.Command{
 		Name:      "tabulate",
 		Aliases:   []string{"table"},

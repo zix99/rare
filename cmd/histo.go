@@ -48,7 +48,7 @@ func histoFunction(c *cli.Context) error {
 }
 
 // HistogramCommand Exported command
-func HistogramCommand() *cli.Command {
+func histogramCommand() *cli.Command {
 	return AdaptCommandForExtractor(cli.Command{
 		Name:      "histogram",
 		Usage:     "Summarize results by extracting them to a histogram",

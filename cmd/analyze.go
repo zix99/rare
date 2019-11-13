@@ -70,7 +70,7 @@ func analyzeFunction(c *cli.Context) error {
 	return nil
 }
 
-func AnalyzeCommand() *cli.Command {
+func analyzeCommand() *cli.Command {
 	return AdaptCommandForExtractor(cli.Command{
 		Name:      "analyze",
 		ShortName: "a",

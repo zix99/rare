@@ -34,7 +34,7 @@ func docsFunction(c *cli.Context) error {
 	return nil
 }
 
-func DocsCommand() *cli.Command {
+func docsCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "docs",
 		Usage:     "Access help documentation",
