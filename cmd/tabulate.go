@@ -67,7 +67,10 @@ func tabulateCommand() *cli.Command {
 		Aliases:   []string{"table"},
 		ShortName: "t",
 		Usage:     "Create a 2D summarizing table of extracted data",
-		Action:    tabulateFunction,
+		Description: `Summarizes the extracted data as a 2D data table.
+		The key is provided in the expression, and should be separated by a tab \t
+		character or via {tab a b} Where a is the row header, and b is the column`,
+		Action: tabulateFunction,
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "delim",

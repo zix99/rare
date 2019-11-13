@@ -50,8 +50,13 @@ func histoFunction(c *cli.Context) error {
 // HistogramCommand Exported command
 func histogramCommand() *cli.Command {
 	return AdaptCommandForExtractor(cli.Command{
-		Name:      "histogram",
-		Usage:     "Summarize results by extracting them to a histogram",
+		Name:  "histogram",
+		Usage: "Summarize results by extracting them to a histogram",
+		Description: `Generates a live-updating histogram of the extracted information from a file
+		Each line in the file will be matched, any the matching part extracted
+		as a key and counted.
+		If an extraction expression is provided with -e, that will be used
+		as the key instead`,
 		Action:    histoFunction,
 		Aliases:   []string{"histo"},
 		ShortName: "h",

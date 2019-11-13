@@ -135,7 +135,7 @@ func getExtractorFlags() []cli.Flag {
 		},
 		cli.BoolFlag{
 			Name:  "recursive,R",
-			Usage: "Makes any path passed in that is a directory apply recursively",
+			Usage: "Recursively walk a non-globbing path and search for plain-files",
 		},
 	}
 }
