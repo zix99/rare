@@ -30,6 +30,8 @@ func main() {
     This is free software, and you are welcome to redistribute it
 	under certain conditions`
 
+	app.UseShortOptionHandling = true
+
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "nocolor,nc",
