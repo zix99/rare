@@ -152,7 +152,9 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		stderrLog.Fatalf("Batch size must be >= 1, is %d\n", batchSize)
 	}
 
-	if c.NArg() == 0 || c.Args().First() == "-" { // Read from stdin
+	fileglobs := c.Args()
+
+	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
 		ret, err := extractor.New(extractor.ConvertReaderToStringChan(os.Stdin, batchSize), &config)
 		if err != nil {
 			log.Panicln(err)
@@ -165,7 +167,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 
 		tailChannels := make([]<-chan []extractor.BString, 0)
-		for _, filename := range globExpand(c.Args()) {
+		for _, filename := range globExpand(fileglobs) {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
 			if err != nil {
@@ -181,7 +183,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 		return ret
 	} else { // Read (no-follow) source file(s)
-		ret, err := extractor.New(openFilesToChan(globExpand(c.Args()), gunzip, concurrentReaders, batchSize), &config)
+		ret, err := extractor.New(openFilesToChan(globExpand(fileglobs), gunzip, concurrentReaders, batchSize), &config)
 		if err != nil {
 			log.Panicln(err)
 		}
