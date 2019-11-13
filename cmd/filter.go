@@ -37,17 +37,16 @@ func filterFunction(c *cli.Context) error {
 
 // FilterCommand Exported command
 func FilterCommand() *cli.Command {
-	return &cli.Command{
+	return AdaptCommandForExtractor(cli.Command{
 		Name:      "filter",
 		Usage:     "Filter incoming results with search criteria, and output raw matches",
 		ShortName: "f",
 		Action:    filterFunction,
-		ArgsUsage: DefaultArgumentDescriptor,
-		Flags: BuildExtractorFlags(
+		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "line,l",
 				Usage: "Output line numbers",
 			},
-		),
-	}
+		},
+	})
 }

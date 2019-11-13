@@ -62,13 +62,13 @@ func tabulateFunction(c *cli.Context) error {
 }
 
 func TabulateCommand() *cli.Command {
-	return &cli.Command{
+	return AdaptCommandForExtractor(cli.Command{
 		Name:      "tabulate",
 		Aliases:   []string{"table"},
+		ShortName: "t",
 		Usage:     "Create a 2D summarizing table of extracted data",
 		Action:    tabulateFunction,
-		ArgsUsage: DefaultArgumentDescriptor,
-		Flags: BuildExtractorFlags(
+		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "delim",
 				Usage: "Character to tabulate on. Use {tab} helper by default",
@@ -88,6 +88,6 @@ func TabulateCommand() *cli.Command {
 				Name:  "sortkey,sk",
 				Usage: "Sort rows by key name rather than by values",
 			},
-		),
-	}
+		},
+	})
 }

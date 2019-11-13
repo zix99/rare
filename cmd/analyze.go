@@ -71,12 +71,12 @@ func analyzeFunction(c *cli.Context) error {
 }
 
 func AnalyzeCommand() *cli.Command {
-	return &cli.Command{
+	return AdaptCommandForExtractor(cli.Command{
 		Name:      "analyze",
+		ShortName: "a",
 		Usage:     "Numerical analysis on a set of filtered data",
 		Action:    analyzeFunction,
-		ArgsUsage: DefaultArgumentDescriptor,
-		Flags: BuildExtractorFlags(
+		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "extra",
 				Usage: "Displays extra analysis on the data (Requires more memory and cpu)",
@@ -90,6 +90,6 @@ func AnalyzeCommand() *cli.Command {
 				Usage: "Adds a quantile to the output set. Requires --extra",
 				Value: &cli.StringSlice{"90", "99", "99.9"},
 			},
-		),
-	}
+		},
+	})
 }

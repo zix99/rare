@@ -82,8 +82,8 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	}
 }
 
-func BuildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
-	flags := []cli.Flag{
+func getExtractorFlags() []cli.Flag {
+	return []cli.Flag{
 		cli.BoolFlag{
 			Name:  "follow,f",
 			Usage: "Read appended data as file grows",
@@ -138,7 +138,14 @@ func BuildExtractorFlags(additionalFlags ...cli.Flag) []cli.Flag {
 			Usage: "Makes any path passed in that is a directory apply recursively",
 		},
 	}
-	return append(flags, additionalFlags...)
+}
+
+func AdaptCommandForExtractor(command cli.Command) *cli.Command {
+	command.Flags = append(getExtractorFlags(), command.Flags...)
+	if command.ArgsUsage == "" {
+		command.ArgsUsage = DefaultArgumentDescriptor
+	}
+	return &command
 }
 
 func WriteExtractorSummary(extractor *extractor.Extractor) {

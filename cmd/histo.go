@@ -49,14 +49,14 @@ func histoFunction(c *cli.Context) error {
 
 // HistogramCommand Exported command
 func HistogramCommand() *cli.Command {
-	return &cli.Command{
-		Name:      "histo",
+	return AdaptCommandForExtractor(cli.Command{
+		Name:      "histogram",
 		Usage:     "Summarize results by extracting them to a histogram",
 		Action:    histoFunction,
-		Aliases:   []string{"histogram"},
+		Aliases:   []string{"histo"},
 		ShortName: "h",
 		ArgsUsage: DefaultArgumentDescriptor,
-		Flags: BuildExtractorFlags(
+		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "bars,b",
 				Usage: "Display bars as part of histogram",
@@ -73,6 +73,7 @@ func HistogramCommand() *cli.Command {
 			cli.BoolFlag{
 				Name:  "sortkey,sk",
 				Usage: "Sort by key, rather than value",
-			}),
-	}
+			},
+		},
+	})
 }
