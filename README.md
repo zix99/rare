@@ -154,6 +154,86 @@ Matched: 161,622 / 161,622
 Rows: 223; Cols: 6
 ```
 
+# Performance Benchmarking
+
+I know there are different solutions, and rare accomplishes summarization in a way
+that grep, awk, etc can't, however I think it's worth analyzing the performance of this
+tool vs standard tools to show that it's at least as good.
+
+It's worth noting that in many of these results rare is just as fast, but part
+of that reason is that it consumes CPU in a more efficient way (go is great at parallelization).
+So take that into account, for better or worse.
+
+All tests were done on ~200MB of gzip'd nginx logs spread acorss 10 files.
+
+Each program was run 3 times and the last time was taken (to make sure things were cached equally).
+
+## zcat & grep
+
+```
+$ time zcat testdata/* | grep -Poa '" (\d{3})' | wc -l
+1131354
+
+real	0m0.990s
+user	0m1.480s
+sys	0m0.080s
+
+$ time zcat testdata/* | grep -Poa '" 200' > /dev/null
+
+real	0m1.136s
+user	0m1.644s
+sys	0m0.044s
+```
+
+I believe the largest holdup here is the fact that zcat will pass all the data to grep via a synchronous pipe, whereas
+rare can process everything in async batches.  Using `pigz` instead didn't yield different results, but on single-file
+results they did perform comparibly.
+
+## Silver Searcher (ag)
+
+```
+$ ag --version
+ag version 0.31.0
+
+Features:
+  +jit +lzma +zlib
+
+$ time ag -z '" (\d{3})' testdata/* | wc -l
+1131354
+
+real	0m3.944s
+user	0m3.904s
+sys	0m0.152s
+```
+
+## rare
+
+```
+$ rare -v
+rare version 0.1.16, 11ca2bfc4ad35683c59929a74ad023cc762a29ae
+
+$ time rare filter -m '" (\d{3})' -e "{1}" -z testdata/* | wc -l
+Matched: 1,131,354 / 3,638,594
+1131354
+
+real	0m0.927s
+user	0m1.764s
+sys	0m1.144s
+
+$ time rare histo -m '" (\d{3})' -e "{1}" -z testdata/*
+200                 1,124,767 
+404                 6,020     
+304                 371       
+403                 98        
+301                 84        
+
+Matched: 1,131,354 / 3,638,594
+Groups:  6
+
+real	0m0.284s
+user	0m1.648s
+sys	0m0.048s
+```
 
 # License
 
