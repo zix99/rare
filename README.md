@@ -25,6 +25,8 @@ Supports various CLI-based graphing and metric formats.
 
 All documentation may be found here, in the [docs/](docs/) folder, and by running `rare docs` (embedded docs/ folder)
 
+You can also see a dump of the CLI options at [cli-help.md](cli-help.md)
+
 # Example
 
 ## Extract status codes from nginx logs
