@@ -56,6 +56,16 @@ func main() {
 	}
 
 	app.Commands = cmd.GetSupportedCommands()
+	app.Commands = append(app.Commands, cli.Command{
+		Name:   "_gendoc",
+		Hidden: true,
+		Usage:  "Generates documentation",
+		Action: func(c *cli.Context) error {
+			text, _ := c.App.ToMarkdown()
+			fmt.Print(text)
+			return nil
+		},
+	})
 
 	app.Before = cli.BeforeFunc(func(c *cli.Context) error {
 		if c.Bool("nocolor") {
