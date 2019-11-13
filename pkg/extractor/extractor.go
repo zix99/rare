@@ -14,7 +14,7 @@ type Match struct {
 	bLine       BString // Keep the pointer around next to line
 	Line        string
 	Groups      []string
-	Indices     []int
+	Indices     []int // match indices as returned by regexp
 	Extracted   string
 	LineNumber  uint64
 	MatchNumber uint64
