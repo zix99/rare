@@ -14,8 +14,8 @@ func TestCombiningChannels(t *testing.T) {
 
 	combined := CombineChannels(c1, c2)
 	c1 <- []BString{BString("a")}
-	c2 <- []BString{BString("b")}
 	assert.Equal(t, []BString{BString("a")}, <-combined)
+	c2 <- []BString{BString("b")}
 	assert.Equal(t, []BString{BString("b")}, <-combined)
 
 	close(c1)

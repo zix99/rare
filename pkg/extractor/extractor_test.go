@@ -46,7 +46,7 @@ func TestBasicExtractor(t *testing.T) {
 	assert.Equal(t, uint64(1), val[0].LineNumber)
 	assert.Equal(t, uint64(1), val[0].MatchNumber)
 
-	for _ = range val {
+	for _ = range ex.ReadChan() {
 	} // Loop until closed
 
 	assert.Equal(t, uint64(0), ex.IgnoredLines())

@@ -48,15 +48,15 @@ func buildRegex(s string, posix bool) *regexp.Regexp {
 }
 
 func (s *Extractor) ReadLines() uint64 {
-	return s.readLines
+	return atomic.LoadUint64(&s.readLines)
 }
 
 func (s *Extractor) MatchedLines() uint64 {
-	return s.matchedLines
+	return atomic.LoadUint64(&s.matchedLines)
 }
 
 func (s *Extractor) IgnoredLines() uint64 {
-	return s.ignoredLines
+	return atomic.LoadUint64(&s.ignoredLines)
 }
 
 func (s *Extractor) ReadChan() <-chan []Match {
