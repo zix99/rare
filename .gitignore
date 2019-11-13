@@ -6,3 +6,4 @@ dist/
 testdata/
 *-packr.go
 *.prof
+coverage.txt
