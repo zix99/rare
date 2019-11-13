@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"rare/pkg/color"
 	"rare/pkg/extractor"
@@ -34,7 +33,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	if ignoreSlice != nil && len(ignoreSlice) > 0 {
 		ignoreExp, err := extractor.NewIgnoreExpressions(ignoreSlice...)
 		if err != nil {
-			log.Panicln(err)
+			stderrLog.Panicln(err)
 		}
 		config.Ignore = ignoreExp
 	}
@@ -48,7 +47,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
 		ret, err := extractor.New(extractor.ConvertReaderToStringChan(os.Stdin, batchSize), &config)
 		if err != nil {
-			log.Panicln(err)
+			stderrLog.Panicln(err)
 		}
 		StartFileReading("<stdin>")
 		return ret
@@ -70,13 +69,13 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 
 		ret, err := extractor.New(extractor.CombineChannels(tailChannels...), &config)
 		if err != nil {
-			log.Panicln(err)
+			stderrLog.Panicln(err)
 		}
 		return ret
 	} else { // Read (no-follow) source file(s)
 		ret, err := extractor.New(openFilesToChan(globExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize), &config)
 		if err != nil {
-			log.Panicln(err)
+			stderrLog.Panicln(err)
 		}
 		return ret
 	}
