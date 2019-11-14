@@ -42,4 +42,25 @@ func TestWrapf(t *testing.T) {
 	s := Wrapf(Green, "This is %d", 123)
 	assert.Contains(t, s, "This is 123")
 	assert.Contains(t, s, Green)
+	assert.Contains(t, s, Reset)
+}
+
+func TestWrapi(t *testing.T) {
+	s := Wrapi(Blue, 123)
+	assert.Contains(t, s, Blue)
+	assert.Contains(t, s, Reset)
+	assert.Contains(t, s, "123")
+}
+
+func TestWrapIndicesNoGroups(t *testing.T) {
+	s := WrapIndices("Nothing", []int{})
+	assert.Equal(t, "Nothing", s)
+}
+
+func TestWrapIndices(t *testing.T) {
+	s := WrapIndices("abcdefg", []int{1, 2, 5, 6})
+	assert.Contains(t, s, "cde")
+	assert.Contains(t, s, Red)
+	assert.Contains(t, s, Green)
+	assert.Contains(t, s, Reset)
 }
