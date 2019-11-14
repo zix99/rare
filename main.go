@@ -13,7 +13,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func main() {
+func cliMain(args ...string) error {
 	app := cli.NewApp()
 
 	app.Usage = "A regex parser and extractor"
@@ -96,7 +96,11 @@ func main() {
 		return nil
 	})
 
-	err := app.Run(os.Args)
+	return app.Run(args)
+}
+
+func main() {
+	err := cliMain(os.Args...)
 	if err != nil {
 		log.Fatal(err)
 	}
