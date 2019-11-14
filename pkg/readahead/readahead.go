@@ -113,7 +113,7 @@ func (s *ReadAhead) Scan() bool {
 			} else if !s.eof {
 				// Not enough in buffer to find next new-line.. need to fill until finding
 				oldbuf := s.buf
-				s.buf = make([]byte, len(s.buf)*2)
+				s.buf = make([]byte, len(s.buf)+averageLineLen)
 				copy(s.buf, oldbuf)
 
 				n, err := s.r.Read(s.buf[len(oldbuf):])
