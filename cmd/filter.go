@@ -38,8 +38,11 @@ func filterFunction(c *cli.Context) error {
 // FilterCommand Exported command
 func filterCommand() *cli.Command {
 	return AdaptCommandForExtractor(cli.Command{
-		Name:      "filter",
-		Usage:     "Filter incoming results with search criteria, and output raw matches",
+		Name:  "filter",
+		Usage: "Filter incoming results with search criteria, and output raw matches",
+		Description: `Filters incoming results by a regex, and output the match or an extracted expression.
+		Unable to output contextual information due to the application's parallelism.  Use grep if you
+		need that`,
 		ShortName: "f",
 		Action:    filterFunction,
 		Flags: []cli.Flag{

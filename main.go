@@ -16,7 +16,7 @@ import (
 func cliMain(args ...string) error {
 	app := cli.NewApp()
 
-	app.Usage = "A regex parser and extractor"
+	app.Usage = "A fast regex parser, extractor and realtime aggregator"
 
 	app.Version = fmt.Sprintf("%s, %s", version, buildSha)
 
