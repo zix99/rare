@@ -13,6 +13,8 @@ import (
 	"github.com/hpcloud/tail"
 )
 
+const ReadAheadBufferSize = 128 * 1024
+
 func tailLineToChan(lines chan *tail.Line, batchSize int) <-chan []extractor.BString {
 	output := make(chan []extractor.BString)
 	go func() {
@@ -83,7 +85,7 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize
 				defer file.Close()
 				StartFileReading(goFilename)
 
-				ra := readahead.New(file, 128*1024)
+				ra := readahead.New(file, ReadAheadBufferSize)
 				extractor.SyncReadAheadToBatchChannel(ra, batchSize, out)
 
 				<-sema
