@@ -33,13 +33,13 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	if ignoreSlice != nil && len(ignoreSlice) > 0 {
 		ignoreExp, err := extractor.NewIgnoreExpressions(ignoreSlice...)
 		if err != nil {
-			stderrLog.Panicln(err)
+			ErrLog.Panicln(err)
 		}
 		config.Ignore = ignoreExp
 	}
 
 	if batchSize < 1 {
-		stderrLog.Fatalf("Batch size must be >= 1, is %d\n", batchSize)
+		ErrLog.Fatalf("Batch size must be >= 1, is %d\n", batchSize)
 	}
 
 	fileglobs := c.Args()
@@ -47,13 +47,13 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
 		ret, err := extractor.New(extractor.ConvertReaderToStringChan(os.Stdin, batchSize), &config)
 		if err != nil {
-			stderrLog.Panicln(err)
+			ErrLog.Panicln(err)
 		}
 		StartFileReading("<stdin>")
 		return ret
 	} else if follow { // Read from source file
 		if gunzip {
-			stderrLog.Println("Cannot combine -f and -z")
+			ErrLog.Println("Cannot combine -f and -z")
 		}
 
 		tailChannels := make([]<-chan []extractor.BString, 0)
@@ -61,7 +61,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
 			if err != nil {
-				stderrLog.Fatal("Unable to open file: ", err)
+				ErrLog.Fatal("Unable to open file: ", err)
 			}
 			tailChannels = append(tailChannels, tailLineToChan(tail.Lines, batchSize))
 			StartFileReading(filename)
@@ -69,13 +69,13 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 
 		ret, err := extractor.New(extractor.CombineChannels(tailChannels...), &config)
 		if err != nil {
-			stderrLog.Panicln(err)
+			ErrLog.Panicln(err)
 		}
 		return ret
 	} else { // Read (no-follow) source file(s)
 		ret, err := extractor.New(openFilesToChan(globExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize), &config)
 		if err != nil {
-			stderrLog.Panicln(err)
+			ErrLog.Panicln(err)
 		}
 		return ret
 	}
@@ -144,6 +144,18 @@ func AdaptCommandForExtractor(command cli.Command) *cli.Command {
 	if command.ArgsUsage == "" {
 		command.ArgsUsage = DefaultArgumentDescriptor
 	}
+
+	// While this doesn't own the log, this is the last place
+	// that has the option to flush the log buffer to sderr
+	originalAfter := command.After
+	command.After = func(c *cli.Context) error {
+		DisableAndFlushLogBuffer()
+		if originalAfter != nil {
+			return originalAfter(c)
+		}
+		return nil
+	}
+
 	return &command
 }
 

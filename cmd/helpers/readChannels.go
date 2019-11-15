@@ -54,7 +54,7 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	if gunzip {
 		zfile, err := gzip.NewReader(file)
 		if err != nil {
-			stderrLog.Printf("Gunzip error for file %s: %v\n", filename, err)
+			ErrLog.Printf("Gunzip error for file %s: %v\n", filename, err)
 		} else {
 			file = zfile
 		}
@@ -79,7 +79,7 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize
 				var file io.ReadCloser
 				file, err := openFileToReader(goFilename, gunzip)
 				if err != nil {
-					stderrLog.Printf("Error opening file %s: %v\n", goFilename, err)
+					ErrLog.Printf("Error opening file %s: %v\n", goFilename, err)
 					return
 				}
 				defer file.Close()
@@ -127,7 +127,7 @@ func globExpand(paths []string, recursive bool) []string {
 		} else {
 			expanded, err := filepath.Glob(p)
 			if err != nil {
-				stderrLog.Printf("Path error: %v\n", err)
+				ErrLog.Printf("Path error: %v\n", err)
 			} else {
 				out = append(out, expanded...)
 			}

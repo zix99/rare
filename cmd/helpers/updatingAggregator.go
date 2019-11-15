@@ -22,6 +22,7 @@ import (
 func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggregator, writeOutput func()) {
 
 	defer multiterm.ResetCursor()
+	EnableLogBuffer()
 
 	// Updater sync variables
 	outputDone := make(chan bool)
