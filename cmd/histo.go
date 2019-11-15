@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func writeOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool, sortByKey bool) {
+func writeHistoOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool, sortByKey bool) {
 	var items []aggregation.MatchPair
 	if sortByKey {
 		items = counter.ItemsSortedByKey(count, reverse)
@@ -39,7 +39,7 @@ func histoFunction(c *cli.Context) error {
 	ext := BuildExtractorFromArguments(c)
 
 	RunAggregationLoop(ext, counter, func() {
-		writeOutput(writer, counter, topItems, reverseSort, sortByKey)
+		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey)
 	})
 
 	fmt.Fprintf(os.Stderr, "Groups:  %s\n", color.Wrapf(color.BrightWhite, "%d", counter.GroupCount()))
