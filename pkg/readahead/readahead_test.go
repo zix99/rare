@@ -3,6 +3,7 @@ package readahead
 import (
 	"strings"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -57,4 +58,19 @@ func TestDropCR(t *testing.T) {
 	assert.Equal(t, []byte("test"), ra.ReadLine())
 	assert.Equal(t, []byte("thing"), ra.ReadLine())
 	assert.Nil(t, ra.ReadLine())
+}
+
+func TestErrorHandling(t *testing.T) {
+	errReader := iotest.TimeoutReader(strings.NewReader("Hello there you\nthis is a line\n"))
+	ra := New(errReader, 20)
+
+	var hadError bool
+	ra.OnError = func(e error) {
+		hadError = true
+	}
+
+	assert.Equal(t, []byte("Hello there you"), ra.ReadLine())
+	assert.Equal(t, []byte("this"), ra.ReadLine()) // up to twentyith char
+	assert.Nil(t, ra.ReadLine())
+	assert.True(t, hadError)
 }

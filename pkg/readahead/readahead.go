@@ -30,6 +30,8 @@ type ReadAhead struct {
 
 	token []byte
 	delim byte
+
+	OnError func(error) // OnError is called if there are any downstream errors
 }
 
 // dropCR drops a terminal \r from the data.
@@ -95,6 +97,9 @@ func (s *ReadAhead) Scan() bool {
 				n, err := s.r.Read(s.buf[readOffset:])
 				readOffset += n
 				if err != nil {
+					if err != io.EOF && s.OnError != nil {
+						s.OnError(err)
+					}
 					s.eof = true
 					break
 				}

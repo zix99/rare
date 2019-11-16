@@ -86,6 +86,9 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize
 				StartFileReading(goFilename)
 
 				ra := readahead.New(file, ReadAheadBufferSize)
+				ra.OnError = func(e error) {
+					ErrLog.Printf("Error reading %s: %v\n", goFilename, e)
+				}
 				extractor.SyncReadAheadToBatchChannel(ra, batchSize, out)
 
 				<-sema
