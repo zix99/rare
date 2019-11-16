@@ -72,7 +72,7 @@ func indexToSlices(s string, indexMatches []int) []string {
 }
 
 // async safe
-func (s *Extractor) processLineSync(line BString) *Match {
+func (s *Extractor) processLineSync(line BString) (Match, bool) {
 	lineNum := atomic.AddUint64(&s.readLines, 1)
 	matches := s.regex.FindSubmatchIndex(line)
 
@@ -88,7 +88,7 @@ func (s *Extractor) processLineSync(line BString) *Match {
 
 			if len(extractedKey) > 0 {
 				matchNum := atomic.AddUint64(&s.matchedLines, 1)
-				return &Match{
+				return Match{
 					bLine:       line,
 					Line:        lineStringPtr,
 					Groups:      slices,
@@ -96,7 +96,7 @@ func (s *Extractor) processLineSync(line BString) *Match {
 					Extracted:   extractedKey,
 					LineNumber:  lineNum,
 					MatchNumber: matchNum,
-				}
+				}, true
 			}
 
 			atomic.AddUint64(&s.ignoredLines, 1)
@@ -104,7 +104,7 @@ func (s *Extractor) processLineSync(line BString) *Match {
 			atomic.AddUint64(&s.ignoredLines, 1)
 		}
 	}
-	return nil
+	return Match{}, false
 }
 
 // New an extractor from an input channel
@@ -135,13 +135,12 @@ func New(inputBatch <-chan []BString, config *Config) (*Extractor, error) {
 
 				var matchBatch []Match
 				for _, s := range batch {
-					match := extractor.processLineSync(s)
-					if match != nil {
+					if match, ok := extractor.processLineSync(s); ok {
 						if matchBatch == nil {
 							// Initialize to expected cap (only if we have any matches)
 							matchBatch = make([]Match, 0, len(batch))
 						}
-						matchBatch = append(matchBatch, *match)
+						matchBatch = append(matchBatch, match)
 					}
 				}
 				if len(matchBatch) > 0 {

@@ -18,7 +18,7 @@ func startProfiler(basename string) {
 		idx := 0
 		for {
 			select {
-			case <-time.After(100 * time.Millisecond):
+			case <-time.After(500 * time.Millisecond):
 				filename := fmt.Sprintf("%s_%03d.prof", basename, idx)
 				if f, err := os.Create(filename); err == nil {
 					pprof.WriteHeapProfile(f)
