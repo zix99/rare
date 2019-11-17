@@ -16,8 +16,8 @@ import (
 // ReadAheadBufferSize is the default size of the read-ahead buffer
 const ReadAheadBufferSize = 128 * 1024
 
-func tailLineToChan(lines chan *tail.Line, batchSize int) <-chan []extractor.BString {
-	output := make(chan []extractor.BString)
+func tailLineToChan(sourceName string, lines chan *tail.Line, batchSize int) <-chan extractor.InputBatch {
+	output := make(chan extractor.InputBatch)
 	go func() {
 		batch := make([]extractor.BString, 0, batchSize)
 	MAIN_LOOP:
@@ -29,13 +29,13 @@ func tailLineToChan(lines chan *tail.Line, batchSize int) <-chan []extractor.BSt
 				}
 				batch = append(batch, extractor.BString(line.Text))
 				if len(batch) >= batchSize {
-					output <- batch
+					output <- extractor.InputBatch{batch, sourceName}
 					batch = make([]extractor.BString, 0, batchSize)
 				}
 			case <-time.After(500 * time.Millisecond):
 				// Since we're tailing, if we haven't received any line in a bit, lets flush what we have
 				if len(batch) > 0 {
-					output <- batch
+					output <- extractor.InputBatch{batch, sourceName}
 					batch = make([]extractor.BString, 0, batchSize)
 				}
 			}
@@ -64,8 +64,8 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	return file, nil
 }
 
-func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize int) <-chan []extractor.BString {
-	out := make(chan []extractor.BString, 128)
+func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize int) <-chan extractor.InputBatch {
+	out := make(chan extractor.InputBatch, 128)
 	sema := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
 	wg.Add(len(filenames))
@@ -90,7 +90,7 @@ func openFilesToChan(filenames []string, gunzip bool, concurrency int, batchSize
 				ra.OnError = func(e error) {
 					ErrLog.Printf("Error reading %s: %v\n", goFilename, e)
 				}
-				extractor.SyncReadAheadToBatchChannel(ra, batchSize, out)
+				extractor.SyncReadAheadToBatchChannel(goFilename, ra, batchSize, out)
 
 				<-sema
 				wg.Done()

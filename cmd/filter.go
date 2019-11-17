@@ -22,7 +22,7 @@ func filterFunction(c *cli.Context) error {
 		}
 		for _, match := range matchBatch {
 			if writeLines {
-				fmt.Printf("%d: ", match.LineNumber)
+				fmt.Printf("%s\t%d: ", match.Source, match.LineNumber)
 			}
 			if !customExtractor {
 				fmt.Println(color.WrapIndices(match.Line, match.Indices[2:]))

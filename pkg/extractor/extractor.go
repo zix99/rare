@@ -11,6 +11,12 @@ import (
 // BString a []byte representation of a string (used for performance over string-copies)
 type BString []byte
 
+// InputBatch represents a batch of input
+type InputBatch struct {
+	Batch  []BString
+	Source string
+}
+
 // Match is a single given match
 type Match struct {
 	bLine       BString  // Keep the pointer around next to line
@@ -20,6 +26,7 @@ type Match struct {
 	Extracted   string   // The extracted expression
 	LineNumber  uint64   // Line number
 	MatchNumber uint64   // Match number
+	Source      string   // Source of the match
 }
 
 // Config for the extractor
@@ -76,7 +83,7 @@ func indexToSlices(s string, indexMatches []int) []string {
 }
 
 // async safe
-func (s *Extractor) processLineSync(line BString) (Match, bool) {
+func (s *Extractor) processLineSync(source string, line BString) (Match, bool) {
 	lineNum := atomic.AddUint64(&s.readLines, 1)
 	matches := s.regex.FindSubmatchIndex(line)
 
@@ -100,6 +107,7 @@ func (s *Extractor) processLineSync(line BString) (Match, bool) {
 					Extracted:   extractedKey,
 					LineNumber:  lineNum,
 					MatchNumber: matchNum,
+					Source:      source,
 				}, true
 			}
 
@@ -112,7 +120,7 @@ func (s *Extractor) processLineSync(line BString) (Match, bool) {
 }
 
 // New an extractor from an input channel
-func New(inputBatch <-chan []BString, config *Config) (*Extractor, error) {
+func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 	compiledExpression, err := expressions.NewKeyBuilder().Compile(config.Extract)
 	if err != nil {
 		return nil, err
@@ -138,11 +146,11 @@ func New(inputBatch <-chan []BString, config *Config) (*Extractor, error) {
 				}
 
 				var matchBatch []Match
-				for _, s := range batch {
-					if match, ok := extractor.processLineSync(s); ok {
+				for _, s := range batch.Batch {
+					if match, ok := extractor.processLineSync(batch.Source, s); ok {
 						if matchBatch == nil {
 							// Initialize to expected cap (only if we have any matches)
-							matchBatch = make([]Match, 0, len(batch))
+							matchBatch = make([]Match, 0, len(batch.Batch))
 						}
 						matchBatch = append(matchBatch, match)
 					}
