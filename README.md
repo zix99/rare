@@ -5,7 +5,9 @@
 
 A file scanner/regex extractor and realtime summarizor.
 
-Supports various CLI-based graphing and metric formats.
+Supports various CLI-based graphing and metric formats (histogram, table, etc).
+
+[See Releases for Binary Downloads](releases)
 
 ![rare gif](images/rare.gif)
 
