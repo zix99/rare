@@ -14,7 +14,7 @@ script:
 - packr2
 - gox -os="linux darwin windows"
   -arch="amd64"
-  -ldflags "-X main.version=${TRAVIS_TAG:-devel} -X main.buildSha=$(git rev-list -1 HEAD)"
+  -ldflags "-s -w -X main.version=${TRAVIS_TAG:-devel} -X main.buildSha=$(git rev-list -1 HEAD)"
   -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
   -verbose ./...
 after_success:

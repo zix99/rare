@@ -31,7 +31,7 @@ func tailLineToChan(lines chan *tail.Line, batchSize int) <-chan []extractor.BSt
 					output <- batch
 					batch = make([]extractor.BString, 0, batchSize)
 				}
-			case <-time.After(1000 * time.Millisecond):
+			case <-time.After(500 * time.Millisecond):
 				// Since we're tailing, if we haven't received any line in a bit, lets flush what we have
 				if len(batch) > 0 {
 					output <- batch
