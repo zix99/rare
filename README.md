@@ -7,7 +7,7 @@ A file scanner/regex extractor and realtime summarizor.
 
 Supports various CLI-based graphing and metric formats (histogram, table, etc).
 
-[See Releases for Binary Downloads](releases)
+[See Releases for Binary Downloads](https://github.com/zix99/rare/releases)
 
 ![rare gif](images/rare.gif)
 
