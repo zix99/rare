@@ -13,6 +13,7 @@ import (
 	"github.com/hpcloud/tail"
 )
 
+// ReadAheadBufferSize is the default size of the read-ahead buffer
 const ReadAheadBufferSize = 128 * 1024
 
 func tailLineToChan(lines chan *tail.Line, batchSize int) <-chan []extractor.BString {
@@ -114,6 +115,7 @@ func isDir(path string) bool {
 	return false
 }
 
+// globExpand expands a directory-glob, and optionally recurses on it
 func globExpand(paths []string, recursive bool) []string {
 	out := make([]string, 0)
 	for _, p := range paths {

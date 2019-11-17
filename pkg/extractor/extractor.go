@@ -8,16 +8,18 @@ import (
 	"unsafe"
 )
 
+// BString a []byte representation of a string (used for performance over string-copies)
 type BString []byte
 
+// Match is a single given match
 type Match struct {
-	bLine       BString // Keep the pointer around next to line
-	Line        string
-	Groups      []string
-	Indices     []int // match indices as returned by regexp
-	Extracted   string
-	LineNumber  uint64
-	MatchNumber uint64
+	bLine       BString  // Keep the pointer around next to line
+	Line        string   // Unsafe pointer to bLine (no-copy)
+	Groups      []string // Groups of the matched regex expression
+	Indices     []int    // match indices as returned by regexp
+	Extracted   string   // The extracted expression
+	LineNumber  uint64   // Line number
+	MatchNumber uint64   // Match number
 }
 
 // Config for the extractor
@@ -29,6 +31,8 @@ type Config struct {
 	Ignore  IgnoreSet // Ignore these truthy expressions
 }
 
+// Extractor is the representation of the reader
+//  Expects someone to consume its ReadChan()
 type Extractor struct {
 	readChan     chan []Match
 	regex        *regexp.Regexp

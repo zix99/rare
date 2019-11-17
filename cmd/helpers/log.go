@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// ErrLog is the logger that is controlled by this log controller
 var ErrLog *log.Logger
 
 const logPrefix = "[Log] "
