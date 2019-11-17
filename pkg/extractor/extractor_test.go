@@ -14,7 +14,7 @@ qqq 123
 xxx`
 
 func TestBasicExtractor(t *testing.T) {
-	input := ConvertReaderToStringChan(ioutil.NopCloser(strings.NewReader(testData)), 1)
+	input := ConvertReaderToStringChan("", ioutil.NopCloser(strings.NewReader(testData)), 1)
 	ex, err := New(input, &Config{
 		Regex:   `(\d+)`,
 		Extract: "val:{1}",
