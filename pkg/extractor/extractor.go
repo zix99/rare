@@ -70,7 +70,13 @@ func (s *Extractor) ReadChan() <-chan []Match {
 func indexToSlices(s string, indexMatches []int) []string {
 	strings := make([]string, len(indexMatches)/2)
 	for i := 0; i < len(indexMatches)/2; i++ {
-		strings[i] = s[indexMatches[i*2]:indexMatches[i*2+1]]
+		start := indexMatches[i*2]
+		end := indexMatches[i*2+1]
+		if start < 0 || end < 0 {
+			strings[i] = ""
+		} else {
+			strings[i] = s[start:end]
+		}
 	}
 	return strings
 }
