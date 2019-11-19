@@ -88,6 +88,10 @@ func (s *Extractor) processLineSync(line BString) (Match, bool) {
 
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
+		// Speed is more important here than safety
+		// By default, casting to string will copy() data from bytes to
+		//   a string instance, but we can safely point to the existing bytes
+		//   as a pointer instead
 		lineStringPtr := *(*string)(unsafe.Pointer(&line))
 		slices := indexToSlices(lineStringPtr, matches)
 		if s.ignore == nil || !s.ignore.IgnoreMatch(slices...) {

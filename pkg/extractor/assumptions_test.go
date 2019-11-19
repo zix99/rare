@@ -16,9 +16,11 @@ type StringHeader struct {
 func TestSliceAssumptions(t *testing.T) {
 	b := []byte("hello")
 	z := b[1:]
-	sr := (*string)(unsafe.Pointer(&z))
+	sr := *(*string)(unsafe.Pointer(&z))
+	sr2 := sr[0:1]
 	b[1] = 'a'
-	assert.Equal(t, "allo", *sr)
+	assert.Equal(t, "allo", sr)
+	assert.Equal(t, "a", sr2)
 }
 
 func BenchmarkRegexWithString(b *testing.B) {
