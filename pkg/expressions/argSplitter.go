@@ -20,12 +20,17 @@ func splitTokenizedArguments(s string) []string {
 		if r == '\\' { // something is escaped
 			i++
 			sb.WriteRune(runes[i])
-		} else if r == '"' {
-			quoted = !quoted
-		} else if r == '{' {
+		} else if r == '"' && !quoted {
+			quoted = true
+		} else if r == '"' && quoted {
+			quoted = false
+			// Always append, even if empty
+			args = append(args, sb.String())
+			sb.Reset()
+		} else if r == '{' && !quoted {
 			tokenDepth++
 			sb.WriteRune(r)
-		} else if r == '}' {
+		} else if r == '}' && !quoted {
 			tokenDepth--
 			sb.WriteRune(r)
 		} else if unicode.IsSpace(r) && sb.Len() > 0 && tokenDepth == 0 && !quoted {
