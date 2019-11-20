@@ -81,6 +81,10 @@ func kfTimeFormat(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) >= 2 {
 		format = namedTimeFormatToFormat(args[1](nil))
 	}
+	utc := false
+	if len(args) >= 3 {
+		utc = Truthy(args[2](nil))
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		strUnixTime := args[0](context)
 		unixTime, err := strconv.ParseInt(strUnixTime, 10, 64)
@@ -88,6 +92,9 @@ func kfTimeFormat(args []KeyBuilderStage) KeyBuilderStage {
 			return ErrorType
 		}
 		t := time.Unix(unixTime, 0)
+		if utc {
+			t = t.UTC()
+		}
 		return t.Format(format)
 	})
 }

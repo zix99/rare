@@ -126,7 +126,7 @@ See: [json](json.md) for more information.
 
 ## Time
 
-Syntax: `{time str [format]}` `{timeformat unixtime [format]}` `{duration dur}`
+Syntax: `{time str [format]}` `{timeformat unixtime [format] [utc]}` `{duration dur}`
 
 These three time functions provide you a way to parse and manipulate time.
 
