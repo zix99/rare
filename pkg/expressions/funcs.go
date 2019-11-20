@@ -53,4 +53,9 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 
 	// Json
 	"json": KeyBuilderFunction(kfJson),
+
+	// Time
+	"time":       KeyBuilderFunction(kfTimeParse),
+	"timeformat": KeyBuilderFunction(kfTimeFormat),
+	"duration":   KeyBuilderFunction(kfDuration),
 }

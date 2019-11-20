@@ -1,6 +1,7 @@
 package expressions
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,6 +10,30 @@ import (
 var testFuncData = []string{"ab", "100", "1000000", "5000000.123456", "22"}
 var testFuncContext = KeyBuilderContextArray{
 	Elements: testFuncData,
+}
+
+func mockContext(args ...interface{}) KeyBuilderContext {
+	s := make([]string, len(args))
+	for idx, arg := range args {
+		s[idx] = fmt.Sprintf("%v", arg)
+	}
+	return &KeyBuilderContextArray{
+		Elements: s,
+	}
+}
+
+func testExpression(t *testing.T, context KeyBuilderContext, expression string, expected string) {
+	kb, err := NewKeyBuilder().Compile(expression)
+	assert.NoError(t, err)
+	ret := kb.BuildKey(context)
+	assert.Equal(t, expected, ret)
+}
+
+func TestCoalesce(t *testing.T) {
+	testExpression(t,
+		mockContext("", "a", "b"),
+		"{coalesce a b c} {coalesce {0} {2}}",
+		"a b")
 }
 
 func TestSimpleFunction(t *testing.T) {
@@ -23,7 +48,7 @@ func TestByteSize(t *testing.T) {
 	assert.Equal(t, "976 KB", key)
 }
 
-func TestExpression(t *testing.T) {
+func TestComparisonExpression(t *testing.T) {
 	kb, _ := NewKeyBuilder().Compile("{and {lt {2} 10000000} {gt {1} 50}}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "1", key)
@@ -43,6 +68,12 @@ func TestLike(t *testing.T) {
 
 func TestArithmatic(t *testing.T) {
 	kb, _ := NewKeyBuilder().Compile("{sumi {1} {4}} {multi {1} 2} {divi {1} 2} {subi {1} 10}")
+	key := kb.BuildKey(&testFuncContext)
+	assert.Equal(t, "122 200 50 90", key)
+}
+
+func TestArithmaticf(t *testing.T) {
+	kb, _ := NewKeyBuilder().Compile("{sumf {1} {4}} {multf {1} 2} {divf {1} 2} {subf {1} 10}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "122 200 50 90", key)
 }
