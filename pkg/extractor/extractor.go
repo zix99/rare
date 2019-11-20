@@ -13,13 +13,12 @@ type BString []byte
 
 // Match is a single given match
 type Match struct {
-	bLine       BString  // Keep the pointer around next to line
-	Line        string   // Unsafe pointer to bLine (no-copy)
-	Groups      []string // Groups of the matched regex expression
-	Indices     []int    // match indices as returned by regexp
-	Extracted   string   // The extracted expression
-	LineNumber  uint64   // Line number
-	MatchNumber uint64   // Match number
+	bLine       BString // Keep the pointer around next to line
+	Line        string  // Unsafe pointer to bLine (no-copy)
+	Indices     []int   // match indices as returned by regexp
+	Extracted   string  // The extracted expression
+	LineNumber  uint64  // Line number
+	MatchNumber uint64  // Match number
 }
 
 // Config for the extractor
@@ -67,20 +66,6 @@ func (s *Extractor) ReadChan() <-chan []Match {
 	return s.readChan
 }
 
-func indexToSlices(s string, indexMatches []int) []string {
-	strings := make([]string, len(indexMatches)/2)
-	for i := 0; i < len(indexMatches)/2; i++ {
-		start := indexMatches[i*2]
-		end := indexMatches[i*2+1]
-		if start < 0 || end < 0 {
-			strings[i] = ""
-		} else {
-			strings[i] = s[start:end]
-		}
-	}
-	return strings
-}
-
 // async safe
 func (s *Extractor) processLineSync(line BString) (Match, bool) {
 	lineNum := atomic.AddUint64(&s.readLines, 1)
@@ -93,19 +78,18 @@ func (s *Extractor) processLineSync(line BString) (Match, bool) {
 		//   a string instance, but we can safely point to the existing bytes
 		//   as a pointer instead
 		lineStringPtr := *(*string)(unsafe.Pointer(&line))
-		slices := indexToSlices(lineStringPtr, matches)
-		if s.ignore == nil || !s.ignore.IgnoreMatch(slices...) {
-			context := expressions.KeyBuilderContextArray{
-				Elements: slices,
-			}
-			extractedKey := s.keyBuilder.BuildKey(&context)
+		expContext := SliceSpaceExpressionContext{
+			linePtr: lineStringPtr,
+			indices: matches,
+		}
+		if s.ignore == nil || !s.ignore.IgnoreMatch(&expContext) {
+			extractedKey := s.keyBuilder.BuildKey(&expContext)
 
 			if len(extractedKey) > 0 {
 				matchNum := atomic.AddUint64(&s.matchedLines, 1)
 				return Match{
 					bLine:       line,
 					Line:        lineStringPtr,
-					Groups:      slices,
 					Indices:     matches,
 					Extracted:   extractedKey,
 					LineNumber:  lineNum,
