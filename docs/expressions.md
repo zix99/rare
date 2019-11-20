@@ -123,3 +123,29 @@ Syntax: `{json field expression}`
 Extract a JSON value based on the expression statement from [gjson](https://github.com/tidwall/gjson)
 
 See: [json](json.md) for more information.
+
+## Time
+
+Syntax: `{time str [format]}` `{timeformat unixtime [format]}` `{duration dur}`
+
+These three time functions provide you a way to parse and manipulate time.
+
+time: Parse a given time-string into a unix second time (default: RFC3339)
+timeformat: Takes a unix time, and formats it (default: RFC3339)
+duration: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
+
+*Supported Formats:*
+ASNIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339N, NGINX
+
+*Additional formats for formatting:*
+MONTH, DAY, YEAR, HOUR, MINUTE, SECOND, TIMEZONE, NTIMEZONE
+
+*Custom formats:*
+You can provide a custom format using go's well-known date. Here's an exercept from their docs:
+
+```
+To define your own format, write down what the reference time would look like formatted your way; see the values of constants like ANSIC, StampMicro or Kitchen for examples. The model is to demonstrate what the reference time looks like so that the Format and Parse methods can apply the same transformation to a general time value.
+
+The reference time used in the layouts is the specific time:
+Mon Jan 2 15:04:05 MST 2006
+```
