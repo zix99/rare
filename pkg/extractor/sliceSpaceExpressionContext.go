@@ -6,9 +6,14 @@ type SliceSpaceExpressionContext struct {
 }
 
 func (s *SliceSpaceExpressionContext) GetMatch(idx int) string {
-	start := idx * 2
-	if start < 0 || start+1 >= len(s.indices) {
+	sliceIndex := idx * 2
+	if sliceIndex < 0 || sliceIndex+1 >= len(s.indices) {
 		return ""
 	}
-	return s.linePtr[s.indices[start]:s.indices[start+1]]
+	start := s.indices[sliceIndex]
+	end := s.indices[sliceIndex+1]
+	if start < 0 || end < 0 {
+		return ""
+	}
+	return s.linePtr[start:end]
 }

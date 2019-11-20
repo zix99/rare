@@ -40,12 +40,12 @@ func TestGH10SliceBoundsPanic(t *testing.T) {
 	input := ConvertReaderToStringChan(ioutil.NopCloser(strings.NewReader("this is an [ERROR] message")), 1)
 	ex, err := New(input, &Config{
 		Regex:   `\[(INFO)|(ERROR)|(WARNING)|(CRITICAL)\]`,
-		Extract: "val:{2}",
+		Extract: "val:{2} val:{3}",
 		Workers: 1,
 	})
 	assert.NoError(t, err)
 
 	vals := unbatchMatches(ex.ReadChan())
-	assert.Equal(t, "val:ERROR", vals[0].Extracted)
+	assert.Equal(t, "val:ERROR val:", vals[0].Extracted)
 	assert.Equal(t, []int{12, 17, -1, -1, 12, 17, -1, -1, -1, -1}, vals[0].Indices)
 }
