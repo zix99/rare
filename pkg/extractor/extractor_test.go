@@ -24,9 +24,7 @@ func TestBasicExtractor(t *testing.T) {
 
 	vals := unbatchMatches(ex.ReadChan())
 	assert.Equal(t, "abc 123", vals[0].Line)
-	assert.Equal(t, 2, len(vals[0].Groups))
 	assert.Equal(t, 4, len(vals[0].Indices))
-	assert.Equal(t, "123", vals[0].Groups[0])
 	assert.Equal(t, "val:123", vals[0].Extracted)
 	assert.Equal(t, uint64(1), vals[0].LineNumber)
 	assert.Equal(t, uint64(1), vals[0].MatchNumber)
@@ -42,14 +40,12 @@ func TestGH10SliceBoundsPanic(t *testing.T) {
 	input := ConvertReaderToStringChan(ioutil.NopCloser(strings.NewReader("this is an [ERROR] message")), 1)
 	ex, err := New(input, &Config{
 		Regex:   `\[(INFO)|(ERROR)|(WARNING)|(CRITICAL)\]`,
-		Extract: "val:{2}",
+		Extract: "val:{2} val:{3}",
 		Workers: 1,
 	})
 	assert.NoError(t, err)
 
 	vals := unbatchMatches(ex.ReadChan())
-	assert.Equal(t, "val:ERROR", vals[0].Extracted)
+	assert.Equal(t, "val:ERROR val:", vals[0].Extracted)
 	assert.Equal(t, []int{12, 17, -1, -1, 12, 17, -1, -1, -1, -1}, vals[0].Indices)
-	assert.Equal(t, "ERROR", vals[0].Groups[0])
-	assert.Equal(t, "ERROR", vals[0].Groups[2])
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type IgnoreSet interface {
-	IgnoreMatch(matchSet ...string) bool
+	IgnoreMatch(context expressions.KeyBuilderContext) bool
 }
 
 type ExpressionIgnoreSet struct {
@@ -32,15 +32,12 @@ func NewIgnoreExpressions(expSet ...string) (IgnoreSet, error) {
 	return igSet, nil
 }
 
-func (s *ExpressionIgnoreSet) IgnoreMatch(matchSet ...string) bool {
-	if len(matchSet) == 0 || len(s.expressions) == 0 {
+func (s *ExpressionIgnoreSet) IgnoreMatch(context expressions.KeyBuilderContext) bool {
+	if len(s.expressions) == 0 {
 		return false
 	}
-	context := expressions.KeyBuilderContextArray{
-		Elements: matchSet,
-	}
 	for _, exp := range s.expressions {
-		result := strings.TrimSpace(exp.BuildKey(&context))
+		result := strings.TrimSpace(exp.BuildKey(context))
 		if expressions.Truthy(result) {
 			return true
 		}
