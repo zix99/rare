@@ -1,6 +1,8 @@
 package expressions
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+)
 
 func kfJson(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 2 {
