@@ -30,7 +30,7 @@ func NewTable(maxCols, maxRows int) *TableWriter {
 	}
 }
 
-func (s *TableWriter) InnerWriter() *TermWriter {
+func (s *TableWriter) InnerWriter() MultilineTerm {
 	return s.term
 }
 

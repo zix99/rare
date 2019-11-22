@@ -5,6 +5,10 @@ import (
 	"os"
 )
 
+type MultilineTerm interface {
+	WriteForLine(line int, format string, args ...interface{})
+}
+
 type TermWriter struct {
 	cursor       int
 	cursorHidden bool
