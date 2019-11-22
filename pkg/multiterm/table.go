@@ -22,7 +22,7 @@ func NewTable(maxCols, maxRows int) *TableWriter {
 	return &TableWriter{
 		maxCols:       maxCols,
 		maxRows:       maxRows,
-		term:          New(maxRows),
+		term:          New(),
 		rows:          make([][]string, maxRows),
 		maxElementLen: 8,
 		HighlightRow0: true,

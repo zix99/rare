@@ -22,7 +22,7 @@ type HistoWriter struct {
 
 func NewHistogram(maxLines int) *HistoWriter {
 	return &HistoWriter{
-		writer:      New(maxLines),
+		writer:      New(),
 		ShowBar:     true,
 		textSpacing: 16,
 		items:       make([]histoPair, maxLines),

@@ -58,7 +58,7 @@ func analyzeFunction(c *cli.Context) error {
 	quantiles := parseStringSet(c.StringSlice("quantile"))
 
 	aggr := aggregation.NewNumericalAggregator(&config)
-	writer := multiterm.New(15)
+	writer := multiterm.New()
 	defer multiterm.ResetCursor()
 
 	ext := BuildExtractorFromArguments(c)
