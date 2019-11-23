@@ -42,16 +42,18 @@ func tabulateFunction(c *cli.Context) error {
 		} else {
 			rows = counter.OrderedRows()
 		}
-
-		for idx, row := range rows {
+		line := 1
+		for i := 0; i < len(rows) && line < writer.MaxRows(); i++ {
+			row := rows[i]
 			rowVals := make([]string, len(cols)+1)
 			rowVals[0] = row.Name()
 			for idx, colName := range cols[1:] {
 				rowVals[1+idx] = humanize.Hi(row.Value(colName))
 			}
-			writer.WriteRow(1+idx, rowVals...)
+			writer.WriteRow(line, rowVals...)
+			line++
 		}
-		writer.InnerWriter().WriteForLine(1+len(rows), GetReadFileString())
+		writer.InnerWriter().WriteForLine(line, GetReadFileString())
 	})
 
 	fmt.Fprintf(os.Stderr, "Rows: %s; Cols: %s\n",

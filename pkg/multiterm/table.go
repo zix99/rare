@@ -34,6 +34,14 @@ func (s *TableWriter) InnerWriter() MultilineTerm {
 	return s.term
 }
 
+func (s *TableWriter) MaxRows() int {
+	return s.maxRows
+}
+
+func (s *TableWriter) MaxCols() int {
+	return s.maxCols
+}
+
 func (s *TableWriter) WriteRow(rowNum int, cols ...string) {
 	if rowNum >= s.maxRows {
 		return
