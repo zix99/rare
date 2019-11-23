@@ -32,7 +32,7 @@ func histoFunction(c *cli.Context) error {
 	)
 
 	counter := aggregation.NewCounter()
-	writer := multiterm.NewHistogram(topItems)
+	writer := multiterm.NewHistogram(multiterm.New(), topItems)
 	writer.ShowBar = c.Bool("bars")
 
 	ext := BuildExtractorFromArguments(c)

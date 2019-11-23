@@ -1,6 +1,28 @@
 package multiterm
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
+
+// Term to use for testing
+type VirtualTerm struct {
+	lines map[int]string
+}
+
+func NewVirtualTerm() *VirtualTerm {
+	return &VirtualTerm{
+		lines: make(map[int]string),
+	}
+}
+
+func (s *VirtualTerm) WriteForLine(line int, format string, args ...interface{}) {
+	s.lines[line] = fmt.Sprintf(format, args...)
+}
+
+func (s *VirtualTerm) Get(line int) string {
+	return s.lines[line]
+}
 
 func TestBasicMultiterm(t *testing.T) {
 	mt := New()

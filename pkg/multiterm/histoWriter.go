@@ -12,7 +12,7 @@ type histoPair struct {
 }
 
 type HistoWriter struct {
-	writer      *TermWriter
+	writer      MultilineTerm
 	maxVal      int64
 	textSpacing int
 	items       []histoPair
@@ -20,9 +20,9 @@ type HistoWriter struct {
 	ShowBar bool
 }
 
-func NewHistogram(maxLines int) *HistoWriter {
+func NewHistogram(term MultilineTerm, maxLines int) *HistoWriter {
 	return &HistoWriter{
-		writer:      New(),
+		writer:      term,
 		ShowBar:     true,
 		textSpacing: 16,
 		items:       make([]histoPair, maxLines),

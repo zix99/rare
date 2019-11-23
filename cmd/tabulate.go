@@ -28,7 +28,7 @@ func tabulateFunction(c *cli.Context) error {
 	)
 
 	counter := aggregation.NewTable(delim)
-	writer := multiterm.NewTable(numCols, numRows)
+	writer := multiterm.NewTable(multiterm.New(), numCols, numRows)
 
 	ext := BuildExtractorFromArguments(c)
 
