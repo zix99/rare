@@ -72,19 +72,36 @@ The histogram format outputs an aggregation by counting the occurences of an ext
 
 ```
 NAME:
-   main histo - Summarize results by extracting them to a histogram
+   rare histogram - Summarize results by extracting them to a histogram
 
 USAGE:
-   main histo [command options] <-|filename>
+   rare histogram [command options] <-|filename|glob...>
+
+DESCRIPTION:
+   Generates a live-updating histogram of the extracted information from a file
+    Each line in the file will be matched, any the matching part extracted
+    as a key and counted.
+    If an extraction expression is provided with -e, that will be used
+    as the key instead
 
 OPTIONS:
-   --follow, -f               Read appended data as file grows
-   --posix, -p                Compile regex as against posix standard
-   --match value, -m value    Regex to create match groups to summarize on (default: ".*")
-   --extract value, -e value  Comparisons to extract
-   --gunzip, -z               Attempt to decompress file when reading
-   --bars, -b                 Display bars as part of histogram
-   --num value, -n value      Number of elements to display (default: 5
+   --follow, -f                 Read appended data as file grows
+   --reopen, -F                 Same as -f, but will reopen recreated files
+   --poll                       When following a file, poll for changes rather than using inotify
+   --posix, -p                  Compile regex as against posix standard
+   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
+   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
+   --gunzip, -z                 Attempt to decompress file when reading
+   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
+   --workers value, -w value    Set number of data processors (default: 5)
+   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
+   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
+   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
+   --bars, -b                   Display bars as part of histogram
+   --num value, -n value        Number of elements to display (default: 5)
+   --reverse                    Reverses the display sort-order
+   --sortkey, --sk              Sort by key, rather than value
+
 ```
 
 ## Filter (filter)
@@ -93,18 +110,30 @@ Filter is a command used to match and (optionally) extract that match without an
 
 ```
 NAME:
-   main filter - Filter incoming results with search criteria, and output raw matches
+   rare filter - Filter incoming results with search criteria, and output raw matches
 
 USAGE:
-   main filter [command options] <-|filename>
+   rare filter [command options] <-|filename|glob...>
+
+DESCRIPTION:
+   Filters incoming results by a regex, and output the match or an extracted expression.
+    Unable to output contextual information due to the application's parallelism.  Use grep if you
+    need that
 
 OPTIONS:
-   --follow, -f               Read appended data as file grows
-   --posix, -p                Compile regex as against posix standard
-   --match value, -m value    Regex to create match groups to summarize on (default: ".*")
-   --extract value, -e value  Comparisons to extract
-   --gunzip, -z               Attempt to decompress file when reading
-   --line, -l                 Output line numbers
+   --follow, -f                 Read appended data as file grows
+   --reopen, -F                 Same as -f, but will reopen recreated files
+   --poll                       When following a file, poll for changes rather than using inotify
+   --posix, -p                  Compile regex as against posix standard
+   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
+   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
+   --gunzip, -z                 Attempt to decompress file when reading
+   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
+   --workers value, -w value    Set number of data processors (default: 5)
+   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
+   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
+   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
+   --line, -l                   Output line numbers
 ```
 
 ## Numerical Analysis
