@@ -140,7 +140,37 @@ OPTIONS:
 
 This command will extract a number from logs and run basic analysis on that number (Such as mean, median, mode, and quantiles).
 
-Example:
+```
+NAME:
+   rare analyze - Numerical analysis on a set of filtered data
+
+USAGE:
+   rare analyze [command options] <-|filename|glob...>
+
+DESCRIPTION:
+   Treat every extracted expression as a numerical input, and run analysis
+    on that input.  Will extract mean, median, mode, min, max.  If specifying --extra
+    will also extract std deviation, and quantiles
+
+OPTIONS:
+   --follow, -f                 Read appended data as file grows
+   --reopen, -F                 Same as -f, but will reopen recreated files
+   --poll                       When following a file, poll for changes rather than using inotify
+   --posix, -p                  Compile regex as against posix standard
+   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
+   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
+   --gunzip, -z                 Attempt to decompress file when reading
+   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
+   --workers value, -w value    Set number of data processors (default: 5)
+   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
+   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
+   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
+   --extra                      Displays extra analysis on the data (Requires more memory and cpu)
+   --reverse, -r                Reverses the numerical series when ordered-analysis takes place (eg Quantile)
+   --quantile value, -q value   Adds a quantile to the output set. Requires --extra (default: "90", "99", "99.9")
+```
+
+**Example:**
 
 ```bash
 $ go run *.go --color analyze -m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+).*" (\d{3}) (\d+)' -e "{4}" testdata/access.log 
@@ -160,6 +190,39 @@ Matched: 161,622 / 161,622
 ## Tabulate
 
 Create a 2D view (table) of data extracted from a file. Expression needs to yield a two dimensions separated by a tab.  Can either use `\t` or the `{tab a b}` helper.  First element is the column name, followed by the row name.
+
+```
+NAME:
+   rare tabulate - Create a 2D summarizing table of extracted data
+
+USAGE:
+   rare tabulate [command options] <-|filename|glob...>
+
+DESCRIPTION:
+   Summarizes the extracted data as a 2D data table.
+    The key is provided in the expression, and should be separated by a tab \t
+    character or via {tab a b} Where a is the column header, and b is the row
+
+OPTIONS:
+   --follow, -f                 Read appended data as file grows
+   --reopen, -F                 Same as -f, but will reopen recreated files
+   --poll                       When following a file, poll for changes rather than using inotify
+   --posix, -p                  Compile regex as against posix standard
+   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
+   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
+   --gunzip, -z                 Attempt to decompress file when reading
+   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
+   --workers value, -w value    Set number of data processors (default: 5)
+   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
+   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
+   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
+   --delim value                Character to tabulate on. Use {tab} helper by default (default: "\t")
+   --num value, -n value        Number of elements to display (default: 20)
+   --cols value                 Number of columns to display (default: 10)
+   --sortkey, --sk              Sort rows by key name rather than by values
+```
+
+**Example:**
 
 ```bash
 $ rare tabulate -m "(\d{3}) (\d+)" -e "{tab {1} {bucket {2} 100000}}" -sk access.log
