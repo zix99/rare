@@ -57,6 +57,8 @@ func tabulateFunction(c *cli.Context) error {
 		writer.InnerWriter().WriteForLine(line+1, GetReadFileString())
 	})
 
+	writer.InnerWriter().Close()
+
 	return nil
 }
 

@@ -69,6 +69,8 @@ func analyzeFunction(c *cli.Context) error {
 		writer.WriteForLine(line+2, GetReadFileString())
 	})
 
+	writer.Close()
+
 	return nil
 }
 
