@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
@@ -36,7 +37,9 @@ func histoFunction(c *cli.Context) error {
 
 	RunAggregationLoop(ext, counter, func() {
 		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey)
-		writer.InnerWriter().WriteForLine(topItems, FWriteExtractorSummary(ext, " (Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount())))
+		writer.InnerWriter().WriteForLine(topItems, FWriteExtractorSummary(ext,
+			counter.ParseErrors(),
+			fmt.Sprintf(" (Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount()))))
 		writer.InnerWriter().WriteForLine(topItems+1, GetReadFileString())
 	})
 

@@ -16,7 +16,7 @@ func humanf(arg interface{}) string {
 	return color.Wrap(color.BrightWhite, humanize.Hf(arg))
 }
 
-func writeAggrOutput(writer *multiterm.TermWriter, aggr *aggregation.MatchNumerical, extra bool, quantiles []float64) {
+func writeAggrOutput(writer *multiterm.TermWriter, aggr *aggregation.MatchNumerical, extra bool, quantiles []float64) int {
 	writer.WriteForLine(0, "Samples:  %v", color.Wrap(color.BrightWhite, humanize.Hi(aggr.Count())))
 	writer.WriteForLine(1, "Mean:     %v", humanf(aggr.Mean()))
 	writer.WriteForLine(2, "Min:      %v", humanf(aggr.Min()))
@@ -32,9 +32,9 @@ func writeAggrOutput(writer *multiterm.TermWriter, aggr *aggregation.MatchNumeri
 		for idx, q := range quantiles {
 			writer.WriteForLine(8+idx, "P%02.4f: %v", q, humanf(data.Quantile(q/100.0)))
 		}
-		writer.WriteForLine(8+len(quantiles), GetReadFileString())
+		return 8 + len(quantiles)
 	} else {
-		writer.WriteForLine(4, GetReadFileString())
+		return 4
 	}
 }
 
@@ -64,7 +64,9 @@ func analyzeFunction(c *cli.Context) error {
 	ext := BuildExtractorFromArguments(c)
 
 	RunAggregationLoop(ext, aggr, func() {
-		writeAggrOutput(writer, aggr, extra, quantiles)
+		line := writeAggrOutput(writer, aggr, extra, quantiles)
+		writer.WriteForLine(line+1, FWriteExtractorSummary(ext, aggr.ParseErrors()))
+		writer.WriteForLine(line+2, GetReadFileString())
 	})
 
 	return nil
