@@ -53,7 +53,7 @@ func tabulateFunction(c *cli.Context) error {
 			line++
 		}
 		writer.InnerWriter().WriteForLine(line, FWriteExtractorSummary(ext, counter.ParseErrors(),
-			fmt.Sprintf(" (R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
+			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
 		writer.InnerWriter().WriteForLine(line+1, GetReadFileString())
 	})
 

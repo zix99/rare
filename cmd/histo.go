@@ -39,7 +39,7 @@ func histoFunction(c *cli.Context) error {
 		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey)
 		writer.InnerWriter().WriteForLine(topItems, FWriteExtractorSummary(ext,
 			counter.ParseErrors(),
-			fmt.Sprintf(" (Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount()))))
+			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount()))))
 		writer.InnerWriter().WriteForLine(topItems+1, GetReadFileString())
 	})
 

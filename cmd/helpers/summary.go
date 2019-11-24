@@ -15,6 +15,7 @@ func FWriteExtractorSummary(extractor *extractor.Extractor, errors uint64, addit
 		color.Wrapi(color.BrightGreen, humanize.Hi(extractor.MatchedLines())),
 		color.Wrapi(color.BrightWhite, humanize.Hi(extractor.ReadLines())))
 	for _, p := range additionalParts {
+		w.WriteRune(' ')
 		w.WriteString(p)
 	}
 	if extractor.IgnoredLines() > 0 {
