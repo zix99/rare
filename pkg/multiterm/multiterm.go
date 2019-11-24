@@ -7,18 +7,22 @@ import (
 
 type MultilineTerm interface {
 	WriteForLine(line int, format string, args ...interface{})
+	Close()
 }
 
 type TermWriter struct {
 	cursor       int
 	cursorHidden bool
-	ClearLine    bool
-	HideCursor   bool
+	maxLine      int
+
+	ClearLine  bool
+	HideCursor bool
 }
 
 func New() *TermWriter {
 	return &TermWriter{
 		cursor:     0,
+		maxLine:    0,
 		ClearLine:  true,
 		HideCursor: true,
 	}
@@ -34,7 +38,14 @@ func (s *TermWriter) WriteForLine(line int, format string, args ...interface{}) 
 	s.writeAtCursor(format, args...)
 }
 
+func (s *TermWriter) Close() {
+	s.goTo(s.maxLine)
+}
+
 func (s *TermWriter) goTo(line int) {
+	if line > s.maxLine {
+		s.maxLine = line
+	}
 	for i := s.cursor; i < line; i++ {
 		fmt.Print("\n")
 		s.cursor++
