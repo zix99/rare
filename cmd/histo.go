@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
@@ -21,7 +20,6 @@ func writeHistoOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchC
 	for idx, match := range items {
 		writer.WriteForLine(idx, match.Name, match.Item.Count())
 	}
-	writer.InnerWriter().WriteForLine(count, GetReadFileString())
 }
 
 func histoFunction(c *cli.Context) error {
@@ -39,9 +37,13 @@ func histoFunction(c *cli.Context) error {
 
 	RunAggregationLoop(ext, counter, func() {
 		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey)
+		writer.InnerWriter().WriteForLine(topItems, FWriteExtractorSummary(ext,
+			counter.ParseErrors(),
+			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount()))))
+		writer.InnerWriter().WriteForLine(topItems+1, GetReadFileString())
 	})
 
-	fmt.Fprintf(os.Stderr, "Groups:  %s\n", color.Wrapf(color.BrightWhite, "%d", counter.GroupCount()))
+	writer.InnerWriter().Close()
 
 	return nil
 }

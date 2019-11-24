@@ -20,6 +20,8 @@ func (s *VirtualTerm) WriteForLine(line int, format string, args ...interface{})
 	s.lines[line] = fmt.Sprintf(format, args...)
 }
 
+func (s *VirtualTerm) Close() {}
+
 func (s *VirtualTerm) Get(line int) string {
 	return s.lines[line]
 }
