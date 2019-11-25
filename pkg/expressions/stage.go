@@ -15,7 +15,10 @@ func stageLiteral(s string) KeyBuilderStage {
 }
 
 func stageSimpleVariable(s string) KeyBuilderStage {
-	index, _ := strconv.Atoi(s)
+	index, err := strconv.Atoi(s)
+	if err != nil {
+		return stageLiteral(ErrorType)
+	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		return context.GetMatch(index)
 	})

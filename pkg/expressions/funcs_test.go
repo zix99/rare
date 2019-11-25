@@ -118,8 +118,20 @@ func TestArithmatic(t *testing.T) {
 	assert.Equal(t, "122 200 50 90", key)
 }
 
+func TestArithmaticError(t *testing.T) {
+	kb, _ := NewKeyBuilder().Compile("{sumi 1} {sumi 1 a} {sumi a 1} {sumi 1 1 b}")
+	key := kb.BuildKey(&testFuncContext)
+	assert.Equal(t, "<ARGN> <BAD-TYPE> <BAD-TYPE> <BAD-TYPE>", key)
+}
+
 func TestArithmaticf(t *testing.T) {
 	kb, _ := NewKeyBuilder().Compile("{sumf {1} {4}} {multf {1} 2} {divf {1} 2} {subf {1} 10}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "122 200 50 90", key)
+}
+
+func TestArithmaticfError(t *testing.T) {
+	kb, _ := NewKeyBuilder().Compile("{sumf 1} {sumf 1 a} {sumf a 1} {sumf 1 2 a}")
+	key := kb.BuildKey(&testFuncContext)
+	assert.Equal(t, "<ARGN> <BAD-TYPE> <BAD-TYPE> <BAD-TYPE>", key)
 }
