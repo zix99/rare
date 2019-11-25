@@ -38,3 +38,12 @@ func TestSimpleMode(t *testing.T) {
 	assert.Equal(t, 5.0, data.Mode())
 	assert.Equal(t, 15.0, data.Quantile(0.9))
 }
+func TestSampleString(t *testing.T) {
+	aggr := NewNumericalAggregator(&NumericalConfig{})
+	aggr.Sample("abc")
+	assert.Equal(t, uint64(1), aggr.ParseErrors())
+
+	aggr.Sample("100.1")
+	assert.Equal(t, uint64(1), aggr.Count())
+	assert.Equal(t, 100.1, aggr.Mean())
+}

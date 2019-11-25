@@ -19,7 +19,7 @@ func kfCoalesce(args []KeyBuilderStage) KeyBuilderStage {
 
 func kfBucket(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 2 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(args[0](context))
@@ -38,7 +38,7 @@ func kfBucket(args []KeyBuilderStage) KeyBuilderStage {
 
 func kfExpBucket(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(args[0](context))

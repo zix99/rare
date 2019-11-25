@@ -32,8 +32,8 @@ func testExpression(t *testing.T, context KeyBuilderContext, expression string, 
 func TestCoalesce(t *testing.T) {
 	testExpression(t,
 		mockContext("", "a", "b"),
-		"{coalesce a b c} {coalesce {0} {2}}",
-		"a b")
+		"{coalesce {0}} {coalesce a b c} {coalesce {0} {2}}",
+		" a b")
 }
 
 func TestSimpleFunction(t *testing.T) {
@@ -47,7 +47,7 @@ func TestBucket(t *testing.T) {
 		mockContext("1000", "1200", "1234"),
 		"{bucket {0} 1000} {bucket {1} 1000} {bucket {2} 1000} {bucket {2} 100}",
 		"1000 1000 1000 1200")
-	testExpression(t, mockContext(), "{bucket abc 100}", "<BUCKET-ERROR>")
+	testExpression(t, mockContext(), "{bucket abc 100} {bucket 1}", "<BUCKET-ERROR> <ARGN>")
 }
 
 func TestExpBucket(t *testing.T) {
