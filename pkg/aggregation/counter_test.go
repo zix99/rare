@@ -52,7 +52,14 @@ func TestInOrderItemsByKey(t *testing.T) {
 	items := val.ItemsSortedByKey(3, false)
 
 	assert.Equal(t, 3, len(items))
+	assert.Equal(t, 3, val.GroupCount())
+	assert.Equal(t, uint64(0), val.ParseErrors())
 	assert.Equal(t, "abc", items[0].Name)
+	assert.Equal(t, int64(3), items[0].Item.Count())
 	assert.Equal(t, "qq", items[1].Name)
 	assert.Equal(t, "test", items[2].Name)
+
+	reverseSort := val.ItemsSortedByKey(3, true)
+	assert.Equal(t, 3, len(reverseSort))
+	assert.Equal(t, "test", reverseSort[0].Name)
 }
