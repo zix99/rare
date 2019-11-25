@@ -56,17 +56,3 @@ func TestInOrderItemsByKey(t *testing.T) {
 	assert.Equal(t, "qq", items[1].Name)
 	assert.Equal(t, "test", items[2].Name)
 }
-
-func TestIteration(t *testing.T) {
-	val := NewCounter()
-	val.Sample("a")
-	val.Sample("b")
-	val.Sample("c")
-
-	total := 0
-	for range val.Iter() {
-		total++
-	}
-
-	assert.Equal(t, 3, total)
-}

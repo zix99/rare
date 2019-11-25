@@ -43,25 +43,6 @@ func (s *MatchCounter) ParseErrors() uint64 {
 	return 0
 }
 
-func (s *MatchCounter) Iter() <-chan MatchPair {
-	c := make(chan MatchPair)
-	go func() {
-		for key, value := range s.matches {
-			select {
-			case c <- MatchPair{
-				Item: *value,
-				Name: key,
-			}:
-			case <-c:
-				close(c)
-				return
-			}
-		}
-		close(c)
-	}()
-	return c
-}
-
 func (s *MatchCounter) Items() []MatchPair {
 	items := make([]MatchPair, 0, len(s.matches))
 	for key, val := range s.matches {
