@@ -8,14 +8,19 @@ jobs:
   goreleaser:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v1
-      -
-        name: Set up Go
+      - name: Set up Go
         uses: actions/setup-go@v1
-      -
-        name: Run GoReleaser
+      - name: Get
+        run: go get -t -v ./...
+      - name: Vet
+        run: go vet $(go list ./... | grep -v /vendor/)
+      - name: Test
+        run: |
+          go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+          bash <(curl -s https://codecov.io/bash)
+      - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v1
         with:
           version: latest
