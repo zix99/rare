@@ -1,0 +1,50 @@
+# This is an example goreleaser.yaml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+before:
+  hooks:
+    - go run github.com/gobuffalo/packr/v2/packr2
+builds:
+- env:
+  - CGO_ENABLED=0
+  ldflags:
+    - -s -w
+    - -X main.version={{.Version}}
+    - -X main.buildSha={{.ShortCommit}}
+  goarch:
+    - amd64
+  goos:
+    - darwin
+    - linux
+    - windows
+archives:
+- replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+  format_overrides:
+    - goos: windows
+      format: zip
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+
+brews:
+- github:
+    owner: zix99
+    name: homebrew-rare
+  commit_author:
+    name: rare-bot
+    email: noreply@zdyn.net
+  homepage: https://github.com/zix99/rare
+  description: Fast, realtime regex-extraction, and aggregation into common formats such as histograms, numerical summaries, tables, and more!
+  test: |
+    system "#{bin}/rare -v"

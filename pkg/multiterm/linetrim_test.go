@@ -14,5 +14,6 @@ func TestTermSizeIsSet(t *testing.T) {
 
 func TestWriteLineWrap(t *testing.T) {
 	computedCols = 10
+	AutoTrim = true
 	WriteLineNoWrap(os.Stdout, "hello there this \x1b123m is a longer than 10 char string")
 }
