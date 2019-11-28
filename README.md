@@ -7,8 +7,6 @@ A file scanner/regex extractor and realtime summarizor.
 
 Supports various CLI-based graphing and metric formats (histogram, table, etc).
 
-[See Releases for Binary Downloads](https://github.com/zix99/rare/releases)
-
 ![rare gif](images/rare.gif)
 
 # Features
@@ -23,6 +21,34 @@ Supports various CLI-based graphing and metric formats (histogram, table, etc).
  * Color-coded outputs (optionally)
  * Pipe support (stdin for reading, stdout will disable color) eg. `tail -f | rare ...`
 
+# Installation
+
+## Manual
+
+Download appropriate binary from [Releases](https://github.com/zix99/rare/releases), unzip, and put it in `/bin`
+
+## Homebrew
+
+```sh
+brew tap zix99/rare
+brew install rare
+```
+
+## From code
+
+Clone the repo, and:
+
+Requires GO 1.11 or higher (Uses go modules)
+
+```sh
+go get ./...
+
+# Pack documentation (Only necessary for release builds)
+go run github.com/gobuffalo/packr/v2/packr2
+
+# Build binary
+go build .
+```
 
 # Docs
 
