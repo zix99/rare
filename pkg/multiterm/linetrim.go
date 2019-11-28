@@ -42,6 +42,8 @@ func init() {
 		computedRows, computedCols = getTermRowsCols()
 	} else {
 		AutoTrim = false
+		computedRows = defaultRows
+		computedCols = defaultCols
 	}
 }
 
