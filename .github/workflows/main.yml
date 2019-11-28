@@ -10,18 +10,20 @@ jobs:
     env:
       GO111MODULE: on
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
       - name: Set up Go
         uses: actions/setup-go@v1
+      - name: Checkout
+        uses: actions/checkout@v1
       - name: Get
-        run: go get -t -v ./...
+        run: go mod download
       - name: Vet
         run: go vet $(go list ./... | grep -v /vendor/)
       - name: Test
         run: |
           go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
           bash <(curl -s https://codecov.io/bash)
+      - name: Pack
+        run: go run github.com/gobuffalo/packr/v2/packr2
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v1
         with:
