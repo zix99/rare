@@ -28,7 +28,7 @@ func getTermRowsCols() (int, int) {
 
 	rows, rowsErr := strconv.Atoi(parts[0])
 	cols, colsErr := strconv.Atoi(parts[1])
-	if rowsErr != nil || colsErr != nil {
+	if rowsErr != nil || colsErr != nil || rows <= 0 || cols <= 0 {
 		return defaultRows, defaultCols
 	}
 
