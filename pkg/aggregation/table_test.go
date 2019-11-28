@@ -27,7 +27,8 @@ func TestSimpleTable(t *testing.T) {
 	assert.Equal(t, 2, table.RowCount())
 	assert.Equal(t, 2, table.ColumnCount())
 
-	assert.Equal(t, []string{"b", "a"}, table.Columns())
+	assert.Contains(t, table.Columns(), "a")
+	assert.Contains(t, table.Columns(), "b")
 	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns())
 	assert.Equal(t, uint64(1), table.ParseErrors())
 }
