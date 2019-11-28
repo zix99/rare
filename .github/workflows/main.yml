@@ -1,11 +1,11 @@
-name: goreleaser
+name: rare
 
 on:
   pull_request:
   push:
 
 jobs:
-  goreleaser:
+  rare:
     runs-on: ubuntu-latest
     env:
       GO111MODULE: on
