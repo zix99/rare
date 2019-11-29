@@ -11,17 +11,22 @@ type StatisticalAnalysis struct {
 }
 
 type NumericalConfig struct {
-	Reverse bool
+	Reverse               bool // When sorting values for analysis, sort in reverse
+	KeepValuesForAnalysis bool // Keep values for more numerical analysis (mode, quantiles, etc)
 }
 
 type MatchNumerical struct {
 	samples     uint64
-	sum         float64
-	values      []float64
+	mean        float64
+	variance    float64
 	min         float64
 	max         float64
 	parseErrors uint64
-	config      *NumericalConfig
+
+	// values is all the samples (Only when KeepValues is on)
+	values []float64
+
+	config *NumericalConfig
 }
 
 func NewNumericalAggregator(config *NumericalConfig) *MatchNumerical {
@@ -35,8 +40,14 @@ func NewNumericalAggregator(config *NumericalConfig) *MatchNumerical {
 
 func (s *MatchNumerical) Samplef(val float64) {
 	s.samples++
-	s.sum += val
-	s.values = append(s.values, val)
+
+	oldMean := s.mean
+	s.mean += (val - oldMean) / float64(s.samples)
+	s.variance += (val - oldMean) * (val - s.mean)
+
+	if s.config.KeepValuesForAnalysis {
+		s.values = append(s.values, val)
+	}
 
 	if val < s.min {
 		s.min = val
@@ -71,21 +82,19 @@ func (s *MatchNumerical) Max() float64 {
 	return s.max
 }
 
+func (s *MatchNumerical) Variance() float64 {
+	if s.samples > 1 {
+		return s.variance / float64(s.samples-1)
+	}
+	return 0.0
+}
+
 func (s *MatchNumerical) Mean() float64 {
-	return s.sum / float64(s.samples)
+	return s.mean
 }
 
 func (s *MatchNumerical) StdDev() float64 {
-	if s.samples == 0 {
-		return 0.0
-	}
-	mean := s.Mean()
-	diffSum := 0.0
-	for _, v := range s.values {
-		diffSum += (v - mean) * (v - mean)
-	}
-	diffMean := diffSum / float64(s.samples)
-	return math.Sqrt(diffMean)
+	return math.Sqrt(s.Variance())
 }
 
 func (s *MatchNumerical) Analyze() *StatisticalAnalysis {

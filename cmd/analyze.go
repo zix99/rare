@@ -19,22 +19,22 @@ func humanf(arg interface{}) string {
 func writeAggrOutput(writer *multiterm.TermWriter, aggr *aggregation.MatchNumerical, extra bool, quantiles []float64) int {
 	writer.WriteForLine(0, "Samples:  %v", color.Wrap(color.BrightWhite, humanize.Hi(aggr.Count())))
 	writer.WriteForLine(1, "Mean:     %v", humanf(aggr.Mean()))
-	writer.WriteForLine(2, "Min:      %v", humanf(aggr.Min()))
-	writer.WriteForLine(3, "Max:      %v", humanf(aggr.Max()))
+	writer.WriteForLine(2, "StdDev:   %v", humanf(aggr.StdDev()))
+	writer.WriteForLine(3, "Min:      %v", humanf(aggr.Min()))
+	writer.WriteForLine(4, "Max:      %v", humanf(aggr.Max()))
 
 	if extra {
-		writer.WriteForLine(4, "")
+		writer.WriteForLine(5, "")
 
 		data := aggr.Analyze()
-		writer.WriteForLine(5, "Median:   %v", humanf(data.Median()))
-		writer.WriteForLine(6, "Mode:     %v", humanf(data.Mode()))
-		writer.WriteForLine(7, "StdDev:   %v", humanf(aggr.StdDev()))
+		writer.WriteForLine(6, "Median:   %v", humanf(data.Median()))
+		writer.WriteForLine(7, "Mode:     %v", humanf(data.Mode()))
 		for idx, q := range quantiles {
 			writer.WriteForLine(8+idx, "P%02.4f: %v", q, humanf(data.Quantile(q/100.0)))
 		}
 		return 8 + len(quantiles)
 	} else {
-		return 4
+		return 5
 	}
 }
 
@@ -51,11 +51,12 @@ func parseStringSet(vals []string) []float64 {
 }
 
 func analyzeFunction(c *cli.Context) error {
-	config := aggregation.NumericalConfig{
-		Reverse: c.Bool("reverse"),
-	}
 	extra := c.Bool("extra")
 	quantiles := parseStringSet(c.StringSlice("quantile"))
+	config := aggregation.NumericalConfig{
+		Reverse:               c.Bool("reverse"),
+		KeepValuesForAnalysis: extra,
+	}
 
 	aggr := aggregation.NewNumericalAggregator(&config)
 	writer := multiterm.New()
