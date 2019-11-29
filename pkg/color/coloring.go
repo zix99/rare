@@ -3,7 +3,6 @@ package color
 import (
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 )
 
@@ -43,9 +42,7 @@ var Enabled = true
 var groupColors = [...]ColorCode{Red, Green, Yellow, Blue, Magenta, Cyan}
 
 func init() {
-	if runtime.GOOS == "windows" {
-		Enabled = false
-	} else if fi, err := os.Stdout.Stat(); err == nil {
+	if fi, err := os.Stdout.Stat(); err == nil {
 		if (fi.Mode() & os.ModeCharDevice) == 0 {
 			Enabled = false
 		}

@@ -1,11 +1,11 @@
 # rare
 
-[![Build Status](https://travis-ci.org/zix99/rare.svg?branch=master)](https://travis-ci.org/zix99/rare) [![codecov](https://codecov.io/gh/zix99/rare/branch/master/graph/badge.svg)](https://codecov.io/gh/zix99/rare)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/zix99/rare/rare) [![codecov](https://codecov.io/gh/zix99/rare/branch/master/graph/badge.svg)](https://codecov.io/gh/zix99/rare)
 
 
 A file scanner/regex extractor and realtime summarizor.
 
-Supports various CLI-based graphing and metric formats.
+Supports various CLI-based graphing and metric formats (histogram, table, etc).
 
 ![rare gif](images/rare.gif)
 
@@ -21,6 +21,34 @@ Supports various CLI-based graphing and metric formats.
  * Color-coded outputs (optionally)
  * Pipe support (stdin for reading, stdout will disable color) eg. `tail -f | rare ...`
 
+# Installation
+
+## Manual
+
+Download appropriate binary from [Releases](https://github.com/zix99/rare/releases), unzip, and put it in `/bin`
+
+## Homebrew
+
+```sh
+brew tap zix99/rare
+brew install rare
+```
+
+## From code
+
+Clone the repo, and:
+
+Requires GO 1.11 or higher (Uses go modules)
+
+```sh
+go get ./...
+
+# Pack documentation (Only necessary for release builds)
+go run github.com/gobuffalo/packr/v2/packr2
+
+# Build binary
+go build .
+```
 
 # Docs
 
@@ -70,19 +98,36 @@ The histogram format outputs an aggregation by counting the occurences of an ext
 
 ```
 NAME:
-   main histo - Summarize results by extracting them to a histogram
+   rare histogram - Summarize results by extracting them to a histogram
 
 USAGE:
-   main histo [command options] <-|filename>
+   rare histogram [command options] <-|filename|glob...>
+
+DESCRIPTION:
+   Generates a live-updating histogram of the extracted information from a file
+    Each line in the file will be matched, any the matching part extracted
+    as a key and counted.
+    If an extraction expression is provided with -e, that will be used
+    as the key instead
 
 OPTIONS:
-   --follow, -f               Read appended data as file grows
-   --posix, -p                Compile regex as against posix standard
-   --match value, -m value    Regex to create match groups to summarize on (default: ".*")
-   --extract value, -e value  Comparisons to extract
-   --gunzip, -z               Attempt to decompress file when reading
-   --bars, -b                 Display bars as part of histogram
-   --num value, -n value      Number of elements to display (default: 5
+   --follow, -f                 Read appended data as file grows
+   --reopen, -F                 Same as -f, but will reopen recreated files
+   --poll                       When following a file, poll for changes rather than using inotify
+   --posix, -p                  Compile regex as against posix standard
+   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
+   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
+   --gunzip, -z                 Attempt to decompress file when reading
+   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
+   --workers value, -w value    Set number of data processors (default: 5)
+   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
+   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
+   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
+   --bars, -b                   Display bars as part of histogram
+   --num value, -n value        Number of elements to display (default: 5)
+   --reverse                    Reverses the display sort-order
+   --sortkey, --sk              Sort by key, rather than value
+
 ```
 
 ## Filter (filter)
@@ -91,25 +136,67 @@ Filter is a command used to match and (optionally) extract that match without an
 
 ```
 NAME:
-   main filter - Filter incoming results with search criteria, and output raw matches
+   rare filter - Filter incoming results with search criteria, and output raw matches
 
 USAGE:
-   main filter [command options] <-|filename>
+   rare filter [command options] <-|filename|glob...>
+
+DESCRIPTION:
+   Filters incoming results by a regex, and output the match or an extracted expression.
+    Unable to output contextual information due to the application's parallelism.  Use grep if you
+    need that
 
 OPTIONS:
-   --follow, -f               Read appended data as file grows
-   --posix, -p                Compile regex as against posix standard
-   --match value, -m value    Regex to create match groups to summarize on (default: ".*")
-   --extract value, -e value  Comparisons to extract
-   --gunzip, -z               Attempt to decompress file when reading
-   --line, -l                 Output line numbers
+   --follow, -f                 Read appended data as file grows
+   --reopen, -F                 Same as -f, but will reopen recreated files
+   --poll                       When following a file, poll for changes rather than using inotify
+   --posix, -p                  Compile regex as against posix standard
+   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
+   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
+   --gunzip, -z                 Attempt to decompress file when reading
+   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
+   --workers value, -w value    Set number of data processors (default: 5)
+   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
+   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
+   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
+   --line, -l                   Output line numbers
 ```
 
 ## Numerical Analysis
 
 This command will extract a number from logs and run basic analysis on that number (Such as mean, median, mode, and quantiles).
 
-Example:
+```
+NAME:
+   rare analyze - Numerical analysis on a set of filtered data
+
+USAGE:
+   rare analyze [command options] <-|filename|glob...>
+
+DESCRIPTION:
+   Treat every extracted expression as a numerical input, and run analysis
+    on that input.  Will extract mean, median, mode, min, max.  If specifying --extra
+    will also extract std deviation, and quantiles
+
+OPTIONS:
+   --follow, -f                 Read appended data as file grows
+   --reopen, -F                 Same as -f, but will reopen recreated files
+   --poll                       When following a file, poll for changes rather than using inotify
+   --posix, -p                  Compile regex as against posix standard
+   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
+   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
+   --gunzip, -z                 Attempt to decompress file when reading
+   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
+   --workers value, -w value    Set number of data processors (default: 5)
+   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
+   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
+   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
+   --extra                      Displays extra analysis on the data (Requires more memory and cpu)
+   --reverse, -r                Reverses the numerical series when ordered-analysis takes place (eg Quantile)
+   --quantile value, -q value   Adds a quantile to the output set. Requires --extra (default: "90", "99", "99.9")
+```
+
+**Example:**
 
 ```bash
 $ go run *.go --color analyze -m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+).*" (\d{3}) (\d+)' -e "{4}" testdata/access.log 
@@ -129,6 +216,39 @@ Matched: 161,622 / 161,622
 ## Tabulate
 
 Create a 2D view (table) of data extracted from a file. Expression needs to yield a two dimensions separated by a tab.  Can either use `\t` or the `{tab a b}` helper.  First element is the column name, followed by the row name.
+
+```
+NAME:
+   rare tabulate - Create a 2D summarizing table of extracted data
+
+USAGE:
+   rare tabulate [command options] <-|filename|glob...>
+
+DESCRIPTION:
+   Summarizes the extracted data as a 2D data table.
+    The key is provided in the expression, and should be separated by a tab \t
+    character or via {tab a b} Where a is the column header, and b is the row
+
+OPTIONS:
+   --follow, -f                 Read appended data as file grows
+   --reopen, -F                 Same as -f, but will reopen recreated files
+   --poll                       When following a file, poll for changes rather than using inotify
+   --posix, -p                  Compile regex as against posix standard
+   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
+   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
+   --gunzip, -z                 Attempt to decompress file when reading
+   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
+   --workers value, -w value    Set number of data processors (default: 5)
+   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
+   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
+   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
+   --delim value                Character to tabulate on. Use {tab} helper by default (default: "\t")
+   --num value, -n value        Number of elements to display (default: 20)
+   --cols value                 Number of columns to display (default: 10)
+   --sortkey, --sk              Sort rows by key name rather than by values
+```
+
+**Example:**
 
 ```bash
 $ rare tabulate -m "(\d{3}) (\d+)" -e "{tab {1} {bucket {2} 100000}}" -sk access.log

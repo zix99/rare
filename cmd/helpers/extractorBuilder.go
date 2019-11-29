@@ -1,11 +1,8 @@
 package helpers
 
 import (
-	"fmt"
 	"os"
-	"rare/pkg/color"
 	"rare/pkg/extractor"
-	"rare/pkg/humanize"
 	"runtime"
 
 	"github.com/hpcloud/tail"
@@ -157,14 +154,4 @@ func AdaptCommandForExtractor(command cli.Command) *cli.Command {
 	}
 
 	return &command
-}
-
-func WriteExtractorSummary(extractor *extractor.Extractor) {
-	fmt.Fprintf(os.Stderr, "Matched: %s / %s",
-		color.Wrapi(color.BrightGreen, humanize.Hi(extractor.MatchedLines())),
-		color.Wrapi(color.BrightWhite, humanize.Hi(extractor.ReadLines())))
-	if extractor.IgnoredLines() > 0 {
-		fmt.Fprintf(os.Stderr, " (Ignored: %s)", color.Wrapi(color.Red, humanize.Hi(extractor.IgnoredLines())))
-	}
-	fmt.Fprintf(os.Stderr, "\n")
 }

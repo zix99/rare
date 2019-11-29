@@ -36,13 +36,6 @@ func StopFileReading(source string) {
 	activeReadMutex.Unlock()
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 // GetReadFileString gets a formatted version of the current reader-set
 func GetReadFileString() string {
 	var sb strings.Builder

@@ -5,42 +5,47 @@ import (
 	"os"
 )
 
-type TermWriter struct {
-	maxLines     int
-	cursor       int
-	cursorHidden bool
-	ClearLine    bool
-	HideCursor   bool
+type MultilineTerm interface {
+	WriteForLine(line int, format string, args ...interface{})
+	Close()
 }
 
-func New(maxLines int) *TermWriter {
+type TermWriter struct {
+	cursor       int
+	cursorHidden bool
+	maxLine      int
+
+	ClearLine  bool
+	HideCursor bool
+}
+
+func New() *TermWriter {
 	return &TermWriter{
-		maxLines:   maxLines,
 		cursor:     0,
+		maxLine:    0,
 		ClearLine:  true,
 		HideCursor: true,
 	}
 }
 
 func (s *TermWriter) WriteForLine(line int, format string, args ...interface{}) {
-	if line >= s.maxLines {
-		return
-	}
 	if s.HideCursor && !s.cursorHidden {
 		hideCursor()
 		s.cursorHidden = true
 	}
 
-	s.GoTo(line)
-
-	s.WriteAtCursor(format, args...)
+	s.goTo(line)
+	s.writeAtCursor(format, args...)
 }
 
-func (s *TermWriter) GoToBottom(rel int) {
-	s.GoTo(s.maxLines + rel)
+func (s *TermWriter) Close() {
+	s.goTo(s.maxLine)
 }
 
-func (s *TermWriter) GoTo(line int) {
+func (s *TermWriter) goTo(line int) {
+	if line > s.maxLine {
+		s.maxLine = line
+	}
 	for i := s.cursor; i < line; i++ {
 		fmt.Print("\n")
 		s.cursor++
@@ -53,7 +58,7 @@ func (s *TermWriter) GoTo(line int) {
 	fmt.Print("\r")
 }
 
-func (s *TermWriter) WriteAtCursor(format string, args ...interface{}) {
+func (s *TermWriter) writeAtCursor(format string, args ...interface{}) {
 	WriteLineNoWrap(os.Stdout, fmt.Sprintf(format, args...))
 	if s.ClearLine {
 		eraseRemainingLine()

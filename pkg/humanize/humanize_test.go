@@ -13,6 +13,9 @@ func TestH(t *testing.T) {
 func TestHDisabled(t *testing.T) {
 	Enabled = false
 	assert.Equal(t, "Hello 1000", H("Hello %d", 1000))
+	assert.Equal(t, "1000", Hi(1000))
+	assert.Equal(t, "1000.000000", Hf(1000.0))
+	assert.Equal(t, "1000.000000", Hfd(1000.0, 5))
 	Enabled = true
 }
 

@@ -10,7 +10,7 @@ import (
 type TableWriter struct {
 	maxCols, maxRows int
 	currentRows      int
-	term             *TermWriter
+	term             MultilineTerm
 	maxElementLen    int
 	rows             [][]string
 
@@ -18,11 +18,11 @@ type TableWriter struct {
 	HighlightCol0 bool
 }
 
-func NewTable(maxCols, maxRows int) *TableWriter {
+func NewTable(term MultilineTerm, maxCols, maxRows int) *TableWriter {
 	return &TableWriter{
 		maxCols:       maxCols,
 		maxRows:       maxRows,
-		term:          New(maxRows),
+		term:          term,
 		rows:          make([][]string, maxRows),
 		maxElementLen: 8,
 		HighlightRow0: true,
@@ -30,8 +30,16 @@ func NewTable(maxCols, maxRows int) *TableWriter {
 	}
 }
 
-func (s *TableWriter) InnerWriter() *TermWriter {
+func (s *TableWriter) InnerWriter() MultilineTerm {
 	return s.term
+}
+
+func (s *TableWriter) MaxRows() int {
+	return s.maxRows
+}
+
+func (s *TableWriter) MaxCols() int {
+	return s.maxCols
 }
 
 func (s *TableWriter) WriteRow(rowNum int, cols ...string) {

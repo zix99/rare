@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	. "rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
@@ -28,7 +27,7 @@ func tabulateFunction(c *cli.Context) error {
 	)
 
 	counter := aggregation.NewTable(delim)
-	writer := multiterm.NewTable(numCols, numRows)
+	writer := multiterm.NewTable(multiterm.New(), numCols, numRows)
 
 	ext := BuildExtractorFromArguments(c)
 
@@ -42,21 +41,23 @@ func tabulateFunction(c *cli.Context) error {
 		} else {
 			rows = counter.OrderedRows()
 		}
-
-		for idx, row := range rows {
+		line := 1
+		for i := 0; i < len(rows) && line < writer.MaxRows(); i++ {
+			row := rows[i]
 			rowVals := make([]string, len(cols)+1)
 			rowVals[0] = row.Name()
 			for idx, colName := range cols[1:] {
 				rowVals[1+idx] = humanize.Hi(row.Value(colName))
 			}
-			writer.WriteRow(1+idx, rowVals...)
+			writer.WriteRow(line, rowVals...)
+			line++
 		}
-		writer.InnerWriter().WriteForLine(1+len(rows), GetReadFileString())
+		writer.InnerWriter().WriteForLine(line, FWriteExtractorSummary(ext, counter.ParseErrors(),
+			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
+		writer.InnerWriter().WriteForLine(line+1, GetReadFileString())
 	})
 
-	fmt.Fprintf(os.Stderr, "Rows: %s; Cols: %s\n",
-		color.Wrapi(color.Yellow, counter.RowCount()),
-		color.Wrapi(color.BrightBlue, counter.ColumnCount()))
+	writer.InnerWriter().Close()
 
 	return nil
 }

@@ -40,3 +40,13 @@ func TestEscaping(t *testing.T) {
 	tokens := splitTokenizedArguments("a \\\"b c")
 	assert.Equal(t, []string{"a", "\"b", "c"}, tokens)
 }
+
+func TestEmptyString(t *testing.T) {
+	tokens := splitTokenizedArguments(`a "bc" ""`)
+	assert.Equal(t, []string{"a", "bc", ""}, tokens)
+}
+
+func TestQuotedBraces(t *testing.T) {
+	tokens := splitTokenizedArguments(`a "{bc\"" def`)
+	assert.Equal(t, []string{"a", "{bc\"", "def"}, tokens)
+}
