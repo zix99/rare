@@ -118,9 +118,11 @@ Good for tabulate output separation.
 
 ## Json
 
-Syntax: `{json field expression}`
+Syntax: `{json field expression}` or `{json expression}`
 
 Extract a JSON value based on the expression statement from [gjson](https://github.com/tidwall/gjson)
+
+When only 1 argument is present, it will assume the JSON is in `{0}` (Full match)
 
 See: [json](json.md) for more information.
 
