@@ -29,14 +29,22 @@ func tailLineToChan(sourceName string, lines chan *tail.Line, batchSize int) <-c
 				}
 				batch = append(batch, extractor.BString(line.Text))
 				if len(batch) >= batchSize {
-					output <- extractor.InputBatch{batch, sourceName, batchStart}
+					output <- extractor.InputBatch{
+						Batch:      batch,
+						Source:     sourceName,
+						BatchStart: batchStart,
+					}
 					batchStart += uint64(len(batch))
 					batch = make([]extractor.BString, 0, batchSize)
 				}
 			case <-time.After(500 * time.Millisecond):
 				// Since we're tailing, if we haven't received any line in a bit, lets flush what we have
 				if len(batch) > 0 {
-					output <- extractor.InputBatch{batch, sourceName, batchStart}
+					output <- extractor.InputBatch{
+						Batch:      batch,
+						Source:     sourceName,
+						BatchStart: batchStart,
+					}
 					batchStart += uint64(len(batch))
 					batch = make([]extractor.BString, 0, batchSize)
 				}
