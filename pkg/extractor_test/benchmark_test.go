@@ -5,15 +5,19 @@ import (
 	"testing"
 )
 
-func batchInputGenerator(batches int, batchSize int) <-chan []extractor.BString {
-	c := make(chan []extractor.BString, 128)
+func batchInputGenerator(batches int, batchSize int) <-chan extractor.InputBatch {
+	c := make(chan extractor.InputBatch, 128)
 	go func() {
 		for i := 0; i < batches; i++ {
 			batch := make([]extractor.BString, batchSize)
 			for j := 0; j < batchSize; j++ {
 				batch[j] = extractor.BString("abcdefg 123")
 			}
-			c <- batch
+			c <- extractor.InputBatch{
+				Batch:      batch,
+				Source:     "",
+				BatchStart: 1,
+			}
 		}
 		close(c)
 	}()
