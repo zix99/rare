@@ -20,6 +20,7 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 	"divf":  arithmaticHelperf(func(a, b float64) float64 { return a / b }),
 
 	// Comparisons
+	"if": KeyBuilderFunction(kfIf),
 	"eq": stringComparator(func(a, b string) string {
 		if a == b {
 			return a

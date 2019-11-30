@@ -63,6 +63,12 @@ Evaluates using operator from left to right. Requires at least 2 arguments.
 
 Eg: `{sumi 1 2 3}` will result in `6`
 
+## If
+
+Syntax: `{if val ifTrue ifFalse}` or `{if val ifTrue}`
+
+If `val` is truthy, then return `ifTrue` else optionally return `ifFalse`
+
 ## Equals, NotEquals, Not
 
 Syntax: `{eq a b}`, `{neq a b}`, `{not a}`

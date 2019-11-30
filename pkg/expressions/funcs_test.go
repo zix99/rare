@@ -25,8 +25,11 @@ func mockContext(args ...interface{}) KeyBuilderContext {
 func testExpression(t *testing.T, context KeyBuilderContext, expression string, expected string) {
 	kb, err := NewKeyBuilder().Compile(expression)
 	assert.NoError(t, err)
-	ret := kb.BuildKey(context)
-	assert.Equal(t, expected, ret)
+	assert.NotNil(t, kb)
+	if kb != nil {
+		ret := kb.BuildKey(context)
+		assert.Equal(t, expected, ret)
+	}
 }
 
 func TestCoalesce(t *testing.T) {
@@ -59,6 +62,12 @@ func TestByteSize(t *testing.T) {
 	kb, _ := NewKeyBuilder().Compile("{bytesize {2}}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "976 KB", key)
+}
+
+func TestIfStatement(t *testing.T) {
+	testExpression(t, mockContext("abc", "q"),
+		`{if {0} {1} efg} {if {0} abc} {if {not {0}} a b} {if "" a} {if "" a b}`,
+		"q abc b  b")
 }
 
 func TestComparisonEquality(t *testing.T) {

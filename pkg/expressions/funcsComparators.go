@@ -96,3 +96,19 @@ func kfLike(args []KeyBuilderStage) KeyBuilderStage {
 		return FalsyVal
 	})
 }
+
+// {if truthy val elseVal}
+func kfIf(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) < 2 || len(args) > 3 {
+		return stageError(ErrorArgCount)
+	}
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		ifVal := args[0](context)
+		if Truthy(ifVal) {
+			return args[1](context)
+		} else if len(args) >= 3 {
+			return args[2](context)
+		}
+		return FalsyVal
+	})
+}
