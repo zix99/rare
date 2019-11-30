@@ -48,7 +48,7 @@ func filterCommand() *cli.Command {
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "line,l",
-				Usage: "Output line numbers",
+				Usage: "Output source file and line number",
 			},
 		},
 	})
