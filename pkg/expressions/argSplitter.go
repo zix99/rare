@@ -22,11 +22,18 @@ func splitTokenizedArguments(s string) []string {
 			sb.WriteRune(runes[i])
 		} else if r == '"' && !quoted {
 			quoted = true
+			if tokenDepth > 0 {
+				sb.WriteRune('"')
+			}
 		} else if r == '"' && quoted {
 			quoted = false
-			// Always append, even if empty
-			args = append(args, sb.String())
-			sb.Reset()
+			if tokenDepth > 0 {
+				sb.WriteRune('"')
+			} else {
+				// Always append, even if empty
+				args = append(args, sb.String())
+				sb.Reset()
+			}
 		} else if r == '{' && !quoted {
 			tokenDepth++
 			sb.WriteRune(r)

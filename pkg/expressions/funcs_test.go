@@ -68,6 +68,7 @@ func TestIfStatement(t *testing.T) {
 	testExpression(t, mockContext("abc", "q"),
 		`{if {0} {1} efg} {if {0} abc} {if {not {0}} a b} {if "" a} {if "" a b}`,
 		"q abc b  b")
+	testExpression(t, mockContext("abc efg"), `{if {eq {0} "abc efg"} beq}`, "beq")
 }
 
 func TestComparisonEquality(t *testing.T) {
