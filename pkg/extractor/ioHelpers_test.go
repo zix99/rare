@@ -9,14 +9,14 @@ import (
 )
 
 func TestCombiningChannels(t *testing.T) {
-	c1 := make(chan []BString)
-	c2 := make(chan []BString)
+	c1 := make(chan InputBatch)
+	c2 := make(chan InputBatch)
 
 	combined := CombineChannels(c1, c2)
-	c1 <- []BString{BString("a")}
-	assert.Equal(t, []BString{BString("a")}, <-combined)
-	c2 <- []BString{BString("b")}
-	assert.Equal(t, []BString{BString("b")}, <-combined)
+	c1 <- InputBatch{[]BString{BString("a")}, "", 0}
+	assert.Equal(t, []BString{BString("a")}, (<-combined).Batch)
+	c2 <- InputBatch{[]BString{BString("b")}, "", 0}
+	assert.Equal(t, []BString{BString("b")}, (<-combined).Batch)
 
 	close(c1)
 	close(c2)
@@ -27,20 +27,21 @@ func TestCombiningChannels(t *testing.T) {
 
 func TestConvertReaderToStringChan(t *testing.T) {
 	buf := ioutil.NopCloser(strings.NewReader("line1\nline2\nline3"))
-	c := ConvertReaderToStringChan(buf, 100)
+	c := ConvertReaderToStringChan("src", buf, 100)
 	batch := <-c
-	assert.Equal(t, 3, len(batch))
-	assert.Equal(t, BString("line1"), batch[0])
-	assert.Equal(t, BString("line2"), batch[1])
-	assert.Equal(t, BString("line3"), batch[2])
+	assert.Equal(t, "src", batch.Source)
+	assert.Equal(t, 3, len(batch.Batch))
+	assert.Equal(t, BString("line1"), batch.Batch[0])
+	assert.Equal(t, BString("line2"), batch.Batch[1])
+	assert.Equal(t, BString("line3"), batch.Batch[2])
 }
 
 func TestConvertReaderToStringChanSmallBatch(t *testing.T) {
 	buf := ioutil.NopCloser(strings.NewReader("line1\nline2\nline3"))
-	c := ConvertReaderToStringChan(buf, 1)
-	assert.Equal(t, BString("line1"), (<-c)[0])
-	assert.Equal(t, BString("line2"), (<-c)[0])
-	assert.Equal(t, BString("line3"), (<-c)[0])
+	c := ConvertReaderToStringChan("src", buf, 1)
+	assert.Equal(t, BString("line1"), (<-c).Batch[0])
+	assert.Equal(t, BString("line2"), (<-c).Batch[0])
+	assert.Equal(t, BString("line3"), (<-c).Batch[0])
 
 	_, more := <-c
 	assert.False(t, more)

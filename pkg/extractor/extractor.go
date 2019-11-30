@@ -11,14 +11,21 @@ import (
 // BString a []byte representation of a string (used for performance over string-copies)
 type BString []byte
 
+// InputBatch represents a batch of input
+type InputBatch struct {
+	Batch      []BString
+	Source     string
+	BatchStart uint64
+}
+
 // Match is a single given match
 type Match struct {
-	bLine       BString // Keep the pointer around next to line
-	Line        string  // Unsafe pointer to bLine (no-copy)
-	Indices     []int   // match indices as returned by regexp
-	Extracted   string  // The extracted expression
-	LineNumber  uint64  // Line number
-	MatchNumber uint64  // Match number
+	bLine      BString // Keep the pointer around next to line
+	Line       string  // Unsafe pointer to bLine (no-copy)
+	Indices    []int   // match indices as returned by regexp
+	Extracted  string  // The extracted expression
+	LineNumber uint64  // Line number
+	Source     string  // Source name
 }
 
 // Config for the extractor
@@ -67,8 +74,8 @@ func (s *Extractor) ReadChan() <-chan []Match {
 }
 
 // async safe
-func (s *Extractor) processLineSync(line BString) (Match, bool) {
-	lineNum := atomic.AddUint64(&s.readLines, 1)
+func (s *Extractor) processLineSync(source string, lineNum uint64, line BString) (Match, bool) {
+	atomic.AddUint64(&s.readLines, 1)
 	matches := s.regex.FindSubmatchIndex(line)
 
 	// Extract and forward to the ReadChan if there are matches
@@ -86,14 +93,14 @@ func (s *Extractor) processLineSync(line BString) (Match, bool) {
 			extractedKey := s.keyBuilder.BuildKey(&expContext)
 
 			if len(extractedKey) > 0 {
-				matchNum := atomic.AddUint64(&s.matchedLines, 1)
+				atomic.AddUint64(&s.matchedLines, 1)
 				return Match{
-					bLine:       line,
-					Line:        lineStringPtr,
-					Indices:     matches,
-					Extracted:   extractedKey,
-					LineNumber:  lineNum,
-					MatchNumber: matchNum,
+					bLine:      line,
+					Line:       lineStringPtr,
+					Indices:    matches,
+					Extracted:  extractedKey,
+					LineNumber: lineNum,
+					Source:     source,
 				}, true
 			}
 
@@ -106,7 +113,7 @@ func (s *Extractor) processLineSync(line BString) (Match, bool) {
 }
 
 // New an extractor from an input channel
-func New(inputBatch <-chan []BString, config *Config) (*Extractor, error) {
+func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 	compiledExpression, err := expressions.NewKeyBuilder().Compile(config.Extract)
 	if err != nil {
 		return nil, err
@@ -132,11 +139,11 @@ func New(inputBatch <-chan []BString, config *Config) (*Extractor, error) {
 				}
 
 				var matchBatch []Match
-				for _, s := range batch {
-					if match, ok := extractor.processLineSync(s); ok {
+				for idx, s := range batch.Batch {
+					if match, ok := extractor.processLineSync(batch.Source, batch.BatchStart+uint64(idx), s); ok {
 						if matchBatch == nil {
 							// Initialize to expected cap (only if we have any matches)
-							matchBatch = make([]Match, 0, len(batch))
+							matchBatch = make([]Match, 0, len(batch.Batch))
 						}
 						matchBatch = append(matchBatch, match)
 					}

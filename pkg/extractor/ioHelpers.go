@@ -8,7 +8,7 @@ import (
 
 // CombineChannels combines multiple string channels into a single (unordered)
 //  string channel
-func CombineChannels(channels ...<-chan []BString) <-chan []BString {
+func CombineChannels(channels ...<-chan InputBatch) <-chan InputBatch {
 	if channels == nil {
 		return nil
 	}
@@ -16,12 +16,12 @@ func CombineChannels(channels ...<-chan []BString) <-chan []BString {
 		return channels[0]
 	}
 
-	out := make(chan []BString)
+	out := make(chan InputBatch)
 	var wg sync.WaitGroup
 
 	for _, c := range channels {
 		wg.Add(1)
-		go func(subchan <-chan []BString) {
+		go func(subchan <-chan InputBatch) {
 			for {
 				s, more := <-subchan
 				if !more {
@@ -43,13 +43,13 @@ func CombineChannels(channels ...<-chan []BString) <-chan []BString {
 
 // ConvertReaderToStringChan converts an io.reader to a string channel
 //  where it's separated by a new-line
-func ConvertReaderToStringChan(reader io.ReadCloser, batchSize int) <-chan []BString {
-	out := make(chan []BString)
+func ConvertReaderToStringChan(sourceName string, reader io.ReadCloser, batchSize int) <-chan InputBatch {
+	out := make(chan InputBatch)
 	ra := readahead.New(reader, 128*1024)
 
 	go func() {
 		defer reader.Close()
-		SyncReadAheadToBatchChannel(ra, batchSize, out)
+		SyncReadAheadToBatchChannel(sourceName, ra, batchSize, out)
 		close(out)
 	}()
 
@@ -58,16 +58,18 @@ func ConvertReaderToStringChan(reader io.ReadCloser, batchSize int) <-chan []BSt
 
 // SyncReadAheadToBatchChannel reads a readahead buffer and breaks up its scants to `batchSize`
 //  and writes the batch-sized results to a channel
-func SyncReadAheadToBatchChannel(readahead *readahead.ReadAhead, batchSize int, out chan<- []BString) {
+func SyncReadAheadToBatchChannel(sourceName string, readahead *readahead.ReadAhead, batchSize int, out chan<- InputBatch) {
 	batch := make([]BString, 0, batchSize)
+	var batchStart uint64 = 1
 	for readahead.Scan() {
 		batch = append(batch, readahead.Bytes())
 		if len(batch) >= batchSize {
-			out <- batch
+			out <- InputBatch{batch, sourceName, batchStart}
+			batchStart += uint64(len(batch))
 			batch = make([]BString, 0, batchSize)
 		}
 	}
 	if len(batch) > 0 {
-		out <- batch
+		out <- InputBatch{batch, sourceName, batchStart}
 	}
 }

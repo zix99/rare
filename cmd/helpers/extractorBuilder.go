@@ -42,7 +42,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	fileglobs := c.Args()
 
 	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
-		ret, err := extractor.New(extractor.ConvertReaderToStringChan(os.Stdin, batchSize), &config)
+		ret, err := extractor.New(extractor.ConvertReaderToStringChan("stdin", os.Stdin, batchSize), &config)
 		if err != nil {
 			ErrLog.Panicln(err)
 		}
@@ -53,14 +53,14 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			ErrLog.Println("Cannot combine -f and -z")
 		}
 
-		tailChannels := make([]<-chan []extractor.BString, 0)
+		tailChannels := make([]<-chan extractor.InputBatch, 0)
 		for _, filename := range globExpand(fileglobs, recursive) {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
 			if err != nil {
 				ErrLog.Fatal("Unable to open file: ", err)
 			}
-			tailChannels = append(tailChannels, tailLineToChan(tail.Lines, batchSize))
+			tailChannels = append(tailChannels, tailLineToChan(filename, tail.Lines, batchSize))
 			StartFileReading(filename)
 		}
 

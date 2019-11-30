@@ -14,7 +14,7 @@ qqq 123
 xxx`
 
 func TestBasicExtractor(t *testing.T) {
-	input := ConvertReaderToStringChan(ioutil.NopCloser(strings.NewReader(testData)), 1)
+	input := ConvertReaderToStringChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1)
 	ex, err := New(input, &Config{
 		Regex:   `(\d+)`,
 		Extract: "val:{1}",
@@ -27,9 +27,10 @@ func TestBasicExtractor(t *testing.T) {
 	assert.Equal(t, 4, len(vals[0].Indices))
 	assert.Equal(t, "val:123", vals[0].Extracted)
 	assert.Equal(t, uint64(1), vals[0].LineNumber)
-	assert.Equal(t, uint64(1), vals[0].MatchNumber)
+	assert.Equal(t, "test", vals[0].Source)
 
 	assert.Equal(t, 3, len(vals))
+	assert.Equal(t, uint64(2), vals[1].LineNumber)
 
 	assert.Equal(t, uint64(0), ex.IgnoredLines())
 	assert.Equal(t, uint64(3), ex.MatchedLines())
@@ -37,7 +38,7 @@ func TestBasicExtractor(t *testing.T) {
 }
 
 func TestGH10SliceBoundsPanic(t *testing.T) {
-	input := ConvertReaderToStringChan(ioutil.NopCloser(strings.NewReader("this is an [ERROR] message")), 1)
+	input := ConvertReaderToStringChan("", ioutil.NopCloser(strings.NewReader("this is an [ERROR] message")), 1)
 	ex, err := New(input, &Config{
 		Regex:   `\[(INFO)|(ERROR)|(WARNING)|(CRITICAL)\]`,
 		Extract: "val:{2} val:{3}",
