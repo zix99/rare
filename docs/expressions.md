@@ -113,6 +113,20 @@ Syntax: `{format "%s" ...}`
 
 Formats a string based on `fmt.Sprintf`
 
+## Substring
+
+Syntax: `{substr {0} pos length}`
+
+Takes the substring of the first argument starting at `pos` for `length`
+
+## Select Field
+
+Syntax: `{select {0} 1}`
+
+Assuming that `{0}` is a whitespace-separated value, split the values and select the item at index `1`
+
+Eg. `{select "ab cd ef" 1}` will result in `cd`
+
 ## Humanize Number (Add Commas)
 
 Syntax: `{hf val}`, `{hi val}`
