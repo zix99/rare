@@ -23,6 +23,10 @@ jobs:
       - name: Test
         run: |
           go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+      - name: Codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
           bash <(curl -s https://codecov.io/bash)
       - name: Pack
         run: go run github.com/gobuffalo/packr/v2/packr2
