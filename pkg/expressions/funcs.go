@@ -48,6 +48,11 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 	"format": KeyBuilderFunction(kfFormat),
 	"tab":    KeyBuilderFunction(kfTab),
 
+	// Pathing
+	"basename": kfPathBase,
+	"dirname":  kfPathDir,
+	"extname":  kfPathExt,
+
 	// Formatting
 	"hi": KeyBuilderFunction(kfHumanizeInt),
 	"hf": KeyBuilderFunction(kfHumanizeFloat),

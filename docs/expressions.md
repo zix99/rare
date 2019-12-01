@@ -130,6 +130,16 @@ Concatenates the values of the arguments separated by a table character.
 
 Good for tabulate output separation.
 
+## Paths
+
+Syntax: `{basename a/b/c}`, `{dirname a/b/c}`, `{extname a/b/c.jpg}`
+
+Selects the base, directory, or extension of a path.
+
+`basename a/b/c` = c
+`dirname  a/b/c` = a/b
+`extname a/b/c.jpg` = .jpg 
+
 ## Json
 
 Syntax: `{json field expression}` or `{json expression}`
