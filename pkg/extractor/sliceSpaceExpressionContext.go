@@ -1,8 +1,15 @@
 package extractor
 
+import (
+	"rare/pkg/expressions"
+	"strconv"
+)
+
 type SliceSpaceExpressionContext struct {
 	linePtr string
 	indices []int
+	source  string
+	lineNum uint64
 }
 
 func (s *SliceSpaceExpressionContext) GetMatch(idx int) string {
@@ -16,4 +23,14 @@ func (s *SliceSpaceExpressionContext) GetMatch(idx int) string {
 		return ""
 	}
 	return s.linePtr[start:end]
+}
+
+func (s *SliceSpaceExpressionContext) GetKey(key string) string {
+	switch key {
+	case "src":
+		return s.source
+	case "line":
+		return strconv.FormatUint(s.lineNum, 10)
+	}
+	return expressions.ErrorArgName
 }

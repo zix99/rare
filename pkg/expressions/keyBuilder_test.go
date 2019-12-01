@@ -9,11 +9,18 @@ import (
 )
 
 var testData = []string{"ab", "cd", "123"}
+var testKeyData = map[string]string{
+	"test": "testval",
+}
 
 type TestContext struct{}
 
 func (s *TestContext) GetMatch(idx int) string {
 	return testData[idx]
+}
+
+func (s *TestContext) GetKey(key string) string {
+	return testKeyData[key]
 }
 
 var testContext = TestContext{}
@@ -56,6 +63,12 @@ func TestDeepKeys(t *testing.T) {
 	kb, _ := NewKeyBuilder().Compile("{{1} b} is bucketed")
 	key := kb.BuildKey(&testContext)
 	assert.Equal(t, "<Err:{1}> is bucketed", key)
+}
+
+func TestStringKey(t *testing.T) {
+	kb, _ := NewKeyBuilder().Compile("{test} {some} key")
+	key := kb.BuildKey(&testContext)
+	assert.Equal(t, "testval  key", key)
 }
 
 func BenchmarkSimpleReplacement(b *testing.B) {

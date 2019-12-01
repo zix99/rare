@@ -88,6 +88,8 @@ func (s *Extractor) processLineSync(source string, lineNum uint64, line BString)
 		expContext := SliceSpaceExpressionContext{
 			linePtr: lineStringPtr,
 			indices: matches,
+			source:  source,
+			lineNum: lineNum,
 		}
 		if s.ignore == nil || !s.ignore.IgnoreMatch(&expContext) {
 			extractedKey := s.keyBuilder.BuildKey(&expContext)

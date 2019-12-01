@@ -37,6 +37,23 @@ func TestBasicExtractor(t *testing.T) {
 	assert.Equal(t, uint64(4), ex.ReadLines())
 }
 
+func TestSourceAndLine(t *testing.T) {
+	input := ConvertReaderToStringChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1)
+	ex, err := New(input, &Config{
+		Regex:   `(\d+)`,
+		Extract: "{src} {line} val:{1} {bad}",
+		Workers: 1,
+	})
+	assert.NoError(t, err)
+
+	vals := unbatchMatches(ex.ReadChan())
+	assert.Equal(t, "test 1 val:123 <NAME>", vals[0].Extracted)
+	assert.Equal(t, uint64(1), vals[0].LineNumber)
+
+	assert.Equal(t, "test 2 val:245 <NAME>", vals[1].Extracted)
+	assert.Equal(t, "test 3 val:123 <NAME>", vals[2].Extracted)
+}
+
 func TestGH10SliceBoundsPanic(t *testing.T) {
 	input := ConvertReaderToStringChan("", ioutil.NopCloser(strings.NewReader("this is an [ERROR] message")), 1)
 	ex, err := New(input, &Config{

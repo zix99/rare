@@ -15,9 +15,17 @@ The basic syntax structure is as follows:
  * Anything not surrounded by `{}` is a literal
  * Expressions are surrounded by `{}`. The entire match will always be `{0}`
  * An integer in an expression denotes a matched value from the regex (or other input) eg. `{2}`
+ * A string in an expression is a special key eg. `{src}`
  * When an expression has space(s), the first literal will be the name of a helper function.
    From there, the logic is nested. eg `{coalesce {4} {3} notfound}`
  * Truthiness is the presence of a value.  False is an empty value (or only whitespace)
+
+## Special Keys
+
+The following are special Keys:
+
+ * `{src}`  The source name (eg filename). `stdin` when read from stdin
+ * `{line}` The line numbers of the current match
 
 ## Examples
 
