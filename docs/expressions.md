@@ -15,9 +15,17 @@ The basic syntax structure is as follows:
  * Anything not surrounded by `{}` is a literal
  * Expressions are surrounded by `{}`. The entire match will always be `{0}`
  * An integer in an expression denotes a matched value from the regex (or other input) eg. `{2}`
+ * A string in an expression is a special key eg. `{src}`
  * When an expression has space(s), the first literal will be the name of a helper function.
    From there, the logic is nested. eg `{coalesce {4} {3} notfound}`
  * Truthiness is the presence of a value.  False is an empty value (or only whitespace)
+
+## Special Keys
+
+The following are special Keys:
+
+ * `{src}`  The source name (eg filename). `stdin` when read from stdin
+ * `{line}` The line numbers of the current match
 
 ## Examples
 
@@ -105,6 +113,20 @@ Syntax: `{format "%s" ...}`
 
 Formats a string based on `fmt.Sprintf`
 
+## Substring
+
+Syntax: `{substr {0} pos length}`
+
+Takes the substring of the first argument starting at `pos` for `length`
+
+## Select Field
+
+Syntax: `{select {0} 1}`
+
+Assuming that `{0}` is a whitespace-separated value, split the values and select the item at index `1`
+
+Eg. `{select "ab cd ef" 1}` will result in `cd`
+
 ## Humanize Number (Add Commas)
 
 Syntax: `{hf val}`, `{hi val}`
@@ -121,6 +143,16 @@ Syntax: `{tab a b c ...}`
 Concatenates the values of the arguments separated by a table character.
 
 Good for tabulate output separation.
+
+## Paths
+
+Syntax: `{basename a/b/c}`, `{dirname a/b/c}`, `{extname a/b/c.jpg}`
+
+Selects the base, directory, or extension of a path.
+
+`basename a/b/c` = c
+`dirname  a/b/c` = a/b
+`extname a/b/c.jpg` = .jpg 
 
 ## Json
 

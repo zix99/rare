@@ -12,3 +12,9 @@ func (s *KeyBuilderContextArray) GetMatch(idx int) string {
 	}
 	return ""
 }
+
+// GetKey gets a key for a given element
+func (s *KeyBuilderContextArray) GetKey(key string) string {
+	// Unimplemented
+	return ""
+}

@@ -39,6 +39,52 @@ func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
+// {substr {0} }
+func kfSubstr(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 3 {
+		return stageLiteral(ErrorArgCount)
+	}
+
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		s := args[0](context)
+		left, err1 := strconv.Atoi(args[1](context))
+		length, err2 := strconv.Atoi(args[2](context))
+		if err1 != nil || err2 != nil {
+			return ErrorParsing
+		}
+		right := left + length
+
+		if left < 0 {
+			left = 0
+		}
+		if right > len(s) {
+			right = len(s)
+		}
+		return s[left:right]
+	})
+}
+
+// {select {0} 1}
+func kfSelect(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 2 {
+		return stageLiteral(ErrorArgCount)
+	}
+
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		s := args[0](context)
+		idx, err := strconv.Atoi(args[1](context))
+		if err != nil {
+			return ErrorParsing
+		}
+
+		fields := strings.Fields(s)
+		if idx >= 0 && idx < len(fields) {
+			return fields[idx]
+		}
+		return ""
+	})
+}
+
 // {format str args...}
 // just like fmt.Sprintf
 func kfFormat(args []KeyBuilderStage) KeyBuilderStage {

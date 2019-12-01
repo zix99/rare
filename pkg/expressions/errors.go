@@ -6,4 +6,5 @@ const (
 	ErrorType       = "<BAD-TYPE>"
 	ErrorParsing    = "<PARSE-ERROR>"
 	ErrorArgCount   = "<ARGN>"
+	ErrorArgName    = "<NAME>"
 )
