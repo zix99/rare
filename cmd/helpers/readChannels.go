@@ -74,6 +74,7 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	return file, nil
 }
 
+// Aggregate one channel into another, with a buffer
 func bufferChan(in <-chan string, size int) <-chan string {
 	out := make(chan string, size)
 	go func() {
@@ -85,6 +86,8 @@ func bufferChan(in <-chan string, size int) <-chan string {
 	return out
 }
 
+// openFilesToChan takes an iterated channel of filenames, options, and loads them all with
+//  a max concurrency.  Returns a channel that will populate with input batches
 func openFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize int) <-chan extractor.InputBatch {
 	out := make(chan extractor.InputBatch, 128)
 	sema := make(chan struct{}, concurrency)
@@ -103,6 +106,12 @@ func openFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 			SetSourceCount(readCount + len(bufferedFilenames))
 
 			go func(goFilename string) {
+				defer func() {
+					<-sema
+					wg.Done()
+					StopFileReading(goFilename)
+				}()
+
 				var file io.ReadCloser
 				file, err := openFileToReader(goFilename, gunzip)
 				if err != nil {
@@ -117,10 +126,6 @@ func openFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 					ErrLog.Printf("Error reading %s: %v\n", goFilename, e)
 				}
 				extractor.SyncReadAheadToBatchChannel(goFilename, ra, batchSize, out)
-
-				<-sema
-				wg.Done() // TODO: This will cause a lock if there's an error
-				StopFileReading(goFilename)
 			}(filename)
 		}
 
