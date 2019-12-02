@@ -3,6 +3,7 @@ package helpers
 import (
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -22,5 +23,8 @@ func TestBufferingChan(t *testing.T) {
 
 	bc := bufferChan(c, 100)
 	wg.Wait()
-	assert.Equal(t, 100, len(bc))
+
+	assert.Eventually(t, func() bool {
+		return len(bc) == 100
+	}, 1*time.Second, 10*time.Millisecond)
 }
