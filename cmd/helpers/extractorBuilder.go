@@ -54,7 +54,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 
 		tailChannels := make([]<-chan extractor.InputBatch, 0)
-		for _, filename := range globExpand(fileglobs, recursive) {
+		for filename := range globExpand(fileglobs, recursive) {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
 			if err != nil {
