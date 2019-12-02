@@ -74,18 +74,6 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	return file, nil
 }
 
-// Aggregate one channel into another, with a buffer
-func bufferChan(in <-chan string, size int) <-chan string {
-	out := make(chan string, size)
-	go func() {
-		for item := range in {
-			out <- item
-		}
-		close(out)
-	}()
-	return out
-}
-
 // openFilesToChan takes an iterated channel of filenames, options, and loads them all with
 //  a max concurrency.  Returns a channel that will populate with input batches
 func openFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize int) <-chan extractor.InputBatch {

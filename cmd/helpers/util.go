@@ -5,6 +5,18 @@ import (
 	"path/filepath"
 )
 
+// Aggregate one channel into another, with a buffer
+func bufferChan(in <-chan string, size int) <-chan string {
+	out := make(chan string, size)
+	go func() {
+		for item := range in {
+			out <- item
+		}
+		close(out)
+	}()
+	return out
+}
+
 func isDir(path string) bool {
 	if fi, err := os.Stat(path); err == nil && fi.IsDir() {
 		return true
