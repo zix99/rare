@@ -16,6 +16,11 @@ func IncSourceCount(delta int) {
 	sourceCount += delta
 }
 
+// SetSourceCount sets the number of source files
+func SetSourceCount(count int) {
+	sourceCount = count
+}
+
 // StartFileReading registers a given source as being read in the global read-pool
 func StartFileReading(source string) {
 	activeReadMutex.Lock()
