@@ -85,7 +85,7 @@ func openFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 		var wg sync.WaitGroup
 		readCount := 0
 
-		bufferedFilenames := bufferChan(filenames, 100)
+		bufferedFilenames := bufferChan(filenames, 1000)
 		for filename := range bufferedFilenames {
 			sema <- struct{}{}
 
