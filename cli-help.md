@@ -1,5 +1,7 @@
-% main(8) Aggregate and display information parsed from text files using
+% rare(8) Aggregate and display information parsed from text files using
 	regex and a simple handlebars-like expression syntax.
+
+	Run "rare docs overview" for more information
 	
 	https://github.com/zix99/rare
 
@@ -7,11 +9,11 @@
 
 # NAME
 
-main - A regex parser and extractor
+rare - A fast regex parser, extractor and realtime aggregator
 
 # SYNOPSIS
 
-main
+rare
 
 ```
 [--color]
@@ -26,7 +28,7 @@ main
 **Usage**:
 
 ```
-main [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
+rare [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 ```
 
 # GLOBAL OPTIONS
@@ -62,7 +64,7 @@ Filter incoming results with search criteria, and output raw matches
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
 
-**--line, -l**: Output line numbers
+**--line, -l**: Output source file and line number
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
