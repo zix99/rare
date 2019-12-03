@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -27,4 +28,23 @@ func TestBufferingChan(t *testing.T) {
 	assert.Eventually(t, func() bool {
 		return len(bc) == 100
 	}, 1*time.Second, 10*time.Millisecond)
+}
+
+func TestGlobExpand(t *testing.T) {
+	iter := globExpand([]string{"*"}, false)
+	items := make([]string, 0)
+	for ele := range iter {
+		items = append(items, ele)
+	}
+	assert.Greater(t, len(items), 5)
+}
+
+func TestGlobExpandRecursive(t *testing.T) {
+	iter := globExpand([]string{"../"}, true)
+	items := make([]string, 0)
+	for ele := range iter {
+		items = append(items, ele)
+	}
+	assert.Greater(t, len(items), 10)
+	fmt.Println(items)
 }
