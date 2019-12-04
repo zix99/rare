@@ -54,10 +54,3 @@ func globExpand(paths []string, recursive bool) <-chan string {
 	}()
 	return c
 }
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}

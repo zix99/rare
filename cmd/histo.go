@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	. "rare/cmd/helpers"
+	"rare/cmd/readProgress"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
 	"rare/pkg/multiterm"
@@ -40,7 +41,7 @@ func histoFunction(c *cli.Context) error {
 		writer.InnerWriter().WriteForLine(topItems, FWriteExtractorSummary(ext,
 			counter.ParseErrors(),
 			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount()))))
-		writer.InnerWriter().WriteForLine(topItems+1, GetReadFileString())
+		writer.InnerWriter().WriteForLine(topItems+1, readProgress.GetReadFileString())
 	})
 
 	writer.InnerWriter().Close()

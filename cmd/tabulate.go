@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	. "rare/cmd/helpers"
+	"rare/cmd/readProgress"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
 	"rare/pkg/humanize"
@@ -54,7 +55,7 @@ func tabulateFunction(c *cli.Context) error {
 		}
 		writer.InnerWriter().WriteForLine(line, FWriteExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
-		writer.InnerWriter().WriteForLine(line+1, GetReadFileString())
+		writer.InnerWriter().WriteForLine(line+1, readProgress.GetReadFileString())
 	})
 
 	writer.InnerWriter().Close()

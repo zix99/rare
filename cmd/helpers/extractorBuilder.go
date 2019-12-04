@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"os"
+	"rare/cmd/readProgress"
 	"rare/pkg/extractor"
 	"runtime"
 
@@ -46,7 +47,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		if err != nil {
 			ErrLog.Panicln(err)
 		}
-		StartFileReading("<stdin>")
+		readProgress.StartFileReading("<stdin>")
 		return ret
 	} else if follow { // Read from source file
 		if gunzip {
@@ -61,7 +62,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 				ErrLog.Fatal("Unable to open file: ", err)
 			}
 			tailChannels = append(tailChannels, tailLineToChan(filename, tail.Lines, batchSize))
-			StartFileReading(filename)
+			readProgress.StartFileReading(filename)
 		}
 
 		ret, err := extractor.New(extractor.CombineChannels(tailChannels...), &config)
