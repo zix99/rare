@@ -7,7 +7,7 @@ import (
 )
 
 func TestSimpleTable(t *testing.T) {
-	table := NewTable(' ')
+	table := NewTable(" ")
 	table.Sample("b c")
 	table.Sample("b c")
 	table.Sample("a b")
@@ -34,7 +34,7 @@ func TestSimpleTable(t *testing.T) {
 }
 
 func TestTableMultiIncrement(t *testing.T) {
-	table := NewTable(' ')
+	table := NewTable(" ")
 	table.Sample("a b 1")
 	table.Sample("b c 3")
 	table.Sample("b c 3")
