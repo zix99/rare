@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"rare/pkg/stringSplitter"
 	"sort"
 	"strconv"
 )
@@ -16,6 +17,7 @@ type MatchPair struct {
 
 type MatchCounter struct {
 	matches map[string]*MatchItem
+	errors  uint64
 }
 
 func NewCounter() *MatchCounter {
@@ -29,6 +31,26 @@ func (s *MatchCounter) GroupCount() int {
 }
 
 func (s *MatchCounter) Sample(element string) {
+	splitter := stringSplitter.Splitter{
+		S:     element,
+		Delim: "\x00",
+	}
+	key := splitter.Next()
+	val, hasVal := splitter.NextOk()
+
+	if hasVal {
+		valNum, err := strconv.ParseInt(val, 10, 64)
+		if err != nil {
+			s.errors++
+		} else {
+			s.SampleValue(key, valNum)
+		}
+	} else {
+		s.SampleValue(key, 1)
+	}
+}
+
+func (s *MatchCounter) SampleValue(element string, count int64) {
 	item := s.matches[element]
 	if item == nil {
 		item = &MatchItem{
@@ -36,11 +58,11 @@ func (s *MatchCounter) Sample(element string) {
 		}
 		s.matches[element] = item
 	}
-	item.count++
+	item.count += count
 }
 
 func (s *MatchCounter) ParseErrors() uint64 {
-	return 0
+	return s.errors
 }
 
 func (s *MatchCounter) Items() []MatchPair {
