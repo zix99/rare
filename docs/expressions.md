@@ -142,7 +142,12 @@ Syntax: `{tab a b c ...}`
 
 Concatenates the values of the arguments separated by a table character.
 
-Good for tabulate output separation.
+## Arrays / Null Separator
+
+Syntax: `{$ a b c}`
+
+Concatenates a set of arguments with a null separator.  Commonly used
+to form arrays that have meaning for a given aggregator.
 
 ## Paths
 
