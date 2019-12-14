@@ -70,14 +70,14 @@ func tabulateCommand() *cli.Command {
 		ShortName: "t",
 		Usage:     "Create a 2D summarizing table of extracted data",
 		Description: `Summarizes the extracted data as a 2D data table.
-		The key is provided in the expression, and should be separated by a tab \t
-		character or via {tab a b} Where a is the column header, and b is the row`,
+		The key is provided in the expression, and should be separated by a tab \x00
+		character or via {$ a b} Where a is the column header, and b is the row`,
 		Action: tabulateFunction,
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "delim",
-				Usage: "Character to tabulate on. Use {tab} helper by default",
-				Value: "\t",
+				Usage: "Character to tabulate on. Use {$} helper by default",
+				Value: "\x00",
 			},
 			cli.IntFlag{
 				Name:  "num,n",

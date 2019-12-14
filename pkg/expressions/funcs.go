@@ -46,9 +46,12 @@ var defaultFunctions = map[string]KeyBuilderFunction{
 	"prefix": KeyBuilderFunction(kfPrefix),
 	"suffix": KeyBuilderFunction(kfSuffix),
 	"format": KeyBuilderFunction(kfFormat),
-	"tab":    KeyBuilderFunction(kfTab),
 	"substr": KeyBuilderFunction(kfSubstr),
 	"select": KeyBuilderFunction(kfSelect),
+
+	// Separation
+	"tab": kfSeparate('\t'),
+	"$":   kfSeparate('\x00'),
 
 	// Pathing
 	"basename": kfPathBase,
