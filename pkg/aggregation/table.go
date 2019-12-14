@@ -1,9 +1,9 @@
 package aggregation
 
 import (
+	"rare/pkg/stringSplitter"
 	"sort"
 	"strconv"
-	"strings"
 )
 
 type TableRow struct {
@@ -34,16 +34,22 @@ func (s *TableAggregator) ParseErrors() uint64 {
 
 // Samples item like "<column><delim><row><delim><count>"
 func (s *TableAggregator) Sample(ele string) {
-	parts := strings.Split(ele, s.delim)
-	if len(parts) == 2 {
-		s.SampleItem(parts[0], parts[1], 1)
-	} else if len(parts) == 3 {
-		inc, err := strconv.ParseInt(parts[2], 10, 64)
+	splitter := stringSplitter.Splitter{
+		S:     ele,
+		Delim: s.delim,
+	}
+	part0 := splitter.Next()
+	part1, has1 := splitter.NextOk()
+	part2, has2 := splitter.NextOk()
+	if has2 {
+		inc, err := strconv.ParseInt(part2, 10, 64)
 		if err != nil {
 			s.errors++
 		} else {
-			s.SampleItem(parts[0], parts[1], inc)
+			s.SampleItem(part0, part1, inc)
 		}
+	} else if has1 {
+		s.SampleItem(part0, part1, 1)
 	} else {
 		s.errors++
 	}

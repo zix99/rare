@@ -151,17 +151,19 @@ func kfBytesize(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
-func kfTab(args []KeyBuilderStage) KeyBuilderStage {
-	if len(args) == 0 {
-		return stageLiteral("")
-	}
-	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		var sb strings.Builder
-		sb.WriteString(args[0](context))
-		for _, arg := range args[1:] {
-			sb.WriteRune('\t')
-			sb.WriteString(arg(context))
+func kfSeparate(delim rune) KeyBuilderFunction {
+	return func(args []KeyBuilderStage) KeyBuilderStage {
+		if len(args) == 0 {
+			return stageLiteral("")
 		}
-		return sb.String()
-	})
+		return KeyBuilderStage(func(context KeyBuilderContext) string {
+			var sb strings.Builder
+			sb.WriteString(args[0](context))
+			for _, arg := range args[1:] {
+				sb.WriteRune(delim)
+				sb.WriteString(arg(context))
+			}
+			return sb.String()
+		})
+	}
 }

@@ -215,7 +215,7 @@ Matched: 161,622 / 161,622
 
 ## Tabulate
 
-Create a 2D view (table) of data extracted from a file. Expression needs to yield a two dimensions separated by a tab.  Can either use `\t` or the `{tab a b}` helper.  First element is the column name, followed by the row name.
+Create a 2D view (table) of data extracted from a file. Expression needs to yield a two dimensions separated by a tab.  Can either use `\x00` or the `{$ a b}` helper.  First element is the column name, followed by the row name.
 
 ```
 NAME:
@@ -226,8 +226,8 @@ USAGE:
 
 DESCRIPTION:
    Summarizes the extracted data as a 2D data table.
-    The key is provided in the expression, and should be separated by a tab \t
-    character or via {tab a b} Where a is the column header, and b is the row
+    The key is provided in the expression, and should be separated by a tab \x00
+    character or via {$ a b} Where a is the column header, and b is the row
 
 OPTIONS:
    --follow, -f                 Read appended data as file grows
@@ -242,7 +242,7 @@ OPTIONS:
    --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
    --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
    --recursive, -R              Recursively walk a non-globbing path and search for plain-files
-   --delim value                Character to tabulate on. Use {tab} helper by default (default: "\t")
+   --delim value                Character to tabulate on. Use {$} helper by default (default: "\x00")
    --num value, -n value        Number of elements to display (default: 20)
    --cols value                 Number of columns to display (default: 10)
    --sortkey, --sk              Sort rows by key name rather than by values
@@ -251,7 +251,7 @@ OPTIONS:
 **Example:**
 
 ```bash
-$ rare tabulate -m "(\d{3}) (\d+)" -e "{tab {1} {bucket {2} 100000}}" -sk access.log
+$ rare tabulate -m "(\d{3}) (\d+)" -e "{$ {1} {bucket {2} 100000}}" -sk access.log
 
          200      404      304      403      301      206      
 0        153,271  860      53       14       12       2                 
