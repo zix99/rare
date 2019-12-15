@@ -6,8 +6,13 @@ type KeyBuilderFunction func([]KeyBuilderStage) KeyBuilderStage
 var defaultFunctions = map[string]KeyBuilderFunction{
 	"coalesce":  KeyBuilderFunction(kfCoalesce),
 	"bucket":    KeyBuilderFunction(kfBucket),
+	"clamp":     KeyBuilderFunction(kfClamp),
 	"expbucket": KeyBuilderFunction(kfExpBucket),
 	"bytesize":  KeyBuilderFunction(kfBytesize),
+
+	// Checks
+	"isint": KeyBuilderFunction(kfIsInt),
+	"isnum": KeyBuilderFunction(kfIsNum),
 
 	// Arithmatic
 	"sumi":  arithmaticHelperi(func(a, b int) int { return a + b }),

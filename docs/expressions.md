@@ -57,6 +57,14 @@ Syntax: `{expbucket intVal}`
 
 Create exponentially (base-10) increase buckets.
 
+## Clamp
+
+Syntax: `{clamp intVal min max}`
+
+Clamps a given input `intVal` between `min` and `max`.  If falls outside bucket, returns
+the word "min" or "max" as appropriate.  If you wish to not see these values, you can
+filter with `--ignore`
+
 ## ByteSize
 
 Syntax: `{bytesize intVal}`
@@ -106,6 +114,12 @@ or:  At least one argument needs to be truthy
 Syntax: `{like val contains}`, `{prefix val startsWith}`, `{suffix val endsWith}`
 
 Truthy check if a value contains a sub-value, starts with, or ends with
+
+## IsInt, IsNum
+
+Syntax: `{isint val}`, `{isnum val}`
+
+Returns truthy if the val is an integer (isint), or a floating point (isnum)
 
 ## Format
 
@@ -179,18 +193,32 @@ time: Parse a given time-string into a unix second time (default: RFC3339)
 timeformat: Takes a unix time, and formats it (default: RFC3339)
 duration: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
 
-*Supported Formats:*
+**Supported Formats:**
 ASNIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339N, NGINX
 
-*Additional formats for formatting:*
+**Additional formats for formatting:**
 MONTH, DAY, YEAR, HOUR, MINUTE, SECOND, TIMEZONE, NTIMEZONE
 
-*Custom formats:*
+**Custom formats:**
 You can provide a custom format using go's well-known date. Here's an exercept from their docs:
 
-```
+**From go docs:**
 To define your own format, write down what the reference time would look like formatted your way; see the values of constants like ANSIC, StampMicro or Kitchen for examples. The model is to demonstrate what the reference time looks like so that the Format and Parse methods can apply the same transformation to a general time value.
 
 The reference time used in the layouts is the specific time:
 Mon Jan 2 15:04:05 MST 2006
+
+# Errors
+
+The following error strings may be returned while compiling your expression
+
+```go
+const (
+	ErrorBucket     = "<BUCKET-ERROR>" // Unable to bucket from given value (wrong type)
+	ErrorBucketSize = "<BUCKET-SIZE>"  // Unable to get the size of the bucket (wrong type)
+	ErrorType       = "<BAD-TYPE>"     // Error parsing the principle value of the input because of unexpected type
+	ErrorParsing    = "<PARSE-ERROR>"  // Error parsing the principle value of the input
+	ErrorArgCount   = "<ARGN>"         // Function to not support a variation with the given argument count
+	ErrorArgName    = "<NAME>"         // A variable accessed by a given name does not exist
+)
 ```

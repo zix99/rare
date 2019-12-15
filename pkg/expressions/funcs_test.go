@@ -58,6 +58,12 @@ func TestExpBucket(t *testing.T) {
 		"{expbucket {0}} {expbucket {1}} {expbucket {2}}", "100 1000 10000")
 }
 
+func TestClamp(t *testing.T) {
+	testExpression(t, mockContext("100", "200", "1000", "-10"),
+		"{clamp {0} 50 200}-{clamp {1} 50 200}-{clamp {2} 50 200}-{clamp {3} 50 200}",
+		"100-200-max-min")
+}
+
 func TestByteSize(t *testing.T) {
 	kb, _ := NewKeyBuilder().Compile("{bytesize {2}}")
 	key := kb.BuildKey(&testFuncContext)
