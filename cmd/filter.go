@@ -22,10 +22,16 @@ func filterFunction(c *cli.Context) error {
 		}
 		for _, match := range matchBatch {
 			if writeLines {
-				fmt.Printf("%s\t%d: ", match.Source, match.LineNumber)
+				fmt.Printf("%s %s: ", color.Wrap(color.BrightGreen, match.Source), color.Wrapi(color.BrightYellow, match.LineNumber))
 			}
 			if !customExtractor {
-				fmt.Println(color.WrapIndices(match.Line, match.Indices[2:]))
+				if len(match.Indices) == 2 {
+					// Single match, highlight entire phrase
+					fmt.Println(color.WrapIndices(match.Line, match.Indices))
+				} else {
+					// Multi-match groups, highlight individual groups
+					fmt.Println(color.WrapIndices(match.Line, match.Indices[2:]))
+				}
 			} else {
 				fmt.Println(match.Extracted)
 			}

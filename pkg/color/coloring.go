@@ -89,14 +89,16 @@ func WrapIndices(s string, groups []int) string {
 	for i := 0; i < len(groups); i += 2 {
 		start := groups[i]
 		end := groups[i+1]
-		color := groupColors[(i/2)%len(groupColors)]
+		if start >= 0 && end >= 0 {
+			color := groupColors[(i/2)%len(groupColors)]
 
-		sb.WriteString(s[lastIndex:start])
-		sb.WriteString(string(color))
-		sb.WriteString(s[start:end])
-		sb.WriteString(string(Reset))
+			sb.WriteString(s[lastIndex:start])
+			sb.WriteString(string(color))
+			sb.WriteString(s[start:end])
+			sb.WriteString(string(Reset))
 
-		lastIndex = end
+			lastIndex = end
+		}
 	}
 
 	if lastIndex < len(s) {
