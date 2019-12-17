@@ -11,15 +11,20 @@ import (
 	"github.com/urfave/cli"
 )
 
-func writeHistoOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool, sortByKey bool) {
+func writeHistoOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool, sortByKey bool, atLeast int64) {
 	var items []aggregation.MatchPair
 	if sortByKey {
 		items = counter.ItemsSortedByKey(count, reverse)
 	} else {
 		items = counter.ItemsSorted(count, reverse)
 	}
-	for idx, match := range items {
-		writer.WriteForLine(idx, match.Name, match.Item.Count())
+	line := 0
+	for _, match := range items {
+		count := match.Item.Count()
+		if count >= atLeast {
+			writer.WriteForLine(line, match.Name, count)
+			line++
+		}
 	}
 }
 
@@ -28,6 +33,7 @@ func histoFunction(c *cli.Context) error {
 		topItems    = c.Int("n")
 		reverseSort = c.Bool("reverse")
 		sortByKey   = c.Bool("sk")
+		atLeast     = c.Int64("atleast")
 	)
 
 	counter := aggregation.NewCounter()
@@ -37,7 +43,7 @@ func histoFunction(c *cli.Context) error {
 	ext := BuildExtractorFromArguments(c)
 
 	RunAggregationLoop(ext, counter, func() {
-		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey)
+		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey, atLeast)
 		writer.InnerWriter().WriteForLine(topItems, FWriteExtractorSummary(ext,
 			counter.ParseErrors(),
 			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount()))))
@@ -74,6 +80,11 @@ func histogramCommand() *cli.Command {
 				Name:  "num,n",
 				Usage: "Number of elements to display",
 				Value: 5,
+			},
+			cli.Int64Flag{
+				Name:  "atleast",
+				Usage: "Only show results if there are at least this many samples",
+				Value: 0,
 			},
 			cli.BoolFlag{
 				Name:  "reverse",
