@@ -8,7 +8,6 @@ import (
 	"rare/pkg/extractor"
 	"rare/pkg/multiterm"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
@@ -25,8 +24,6 @@ func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggrega
 	// Updater sync variables
 	outputDone := make(chan bool)
 	var outputMutex sync.Mutex
-	var hasUpdates atomic.Value
-	hasUpdates.Store(false)
 
 	// Updating loop
 	go func() {
@@ -35,12 +32,9 @@ func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggrega
 			case <-outputDone:
 				return
 			case <-time.After(100 * time.Millisecond):
-				if hasUpdates.Load().(bool) {
-					hasUpdates.Store(false)
-					outputMutex.Lock()
-					writeOutput()
-					outputMutex.Unlock()
-				}
+				outputMutex.Lock()
+				writeOutput()
+				outputMutex.Unlock()
 			}
 		}
 	}()
@@ -63,7 +57,6 @@ PROCESSING_LOOP:
 				aggregator.Sample(match.Extracted)
 			}
 			outputMutex.Unlock()
-			hasUpdates.Store(true)
 		}
 	}
 	outputDone <- true
