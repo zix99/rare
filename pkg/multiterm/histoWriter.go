@@ -1,6 +1,7 @@
 package multiterm
 
 import (
+	"fmt"
 	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"strings"
@@ -14,18 +15,21 @@ type histoPair struct {
 type HistoWriter struct {
 	writer      MultilineTerm
 	maxVal      int64
+	samples     uint64
 	textSpacing int
 	items       []histoPair
 
-	ShowBar bool
+	ShowBar        bool
+	ShowPercentage bool
 }
 
 func NewHistogram(term MultilineTerm, maxLines int) *HistoWriter {
 	return &HistoWriter{
-		writer:      term,
-		ShowBar:     true,
-		textSpacing: 16,
-		items:       make([]histoPair, maxLines),
+		writer:         term,
+		ShowBar:        true,
+		ShowPercentage: true,
+		textSpacing:    16,
+		items:          make([]histoPair, maxLines),
 	}
 }
 
@@ -56,27 +60,43 @@ func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 	}
 
 	if needsFullRefresh {
-		for idx, item := range s.items {
-			if item.val > 0 {
-				s.writeLine(idx, item.key, item.val)
-			}
-		}
+		s.fullRender()
 	} else {
 		s.writeLine(line, key, val)
 	}
 }
 
-func (s *HistoWriter) writeLine(line int, key string, val int64) {
-	if s.ShowBar {
-		progress := val * int64(len(progressSlice)) / s.maxVal
-		s.writer.WriteForLine(line, "%[1]s    %-10[2]s %[3]s",
-			color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.textSpacing),
-			humanize.Hi(val),
-			color.Wrap(color.Blue, progressSlice[:progress]),
-			s.textSpacing)
-	} else {
-		s.writer.WriteForLine(line, "%[1]s    %-10[2]s",
-			color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.textSpacing),
-			humanize.Hi(val))
+func (s *HistoWriter) UpdateSamples(samples uint64) {
+	s.samples = samples
+	s.fullRender()
+}
+
+func (s *HistoWriter) fullRender() {
+	for idx, item := range s.items {
+		if item.val > 0 {
+			s.writeLine(idx, item.key, item.val)
+		}
 	}
+}
+
+func (s *HistoWriter) writeLine(line int, key string, val int64) {
+	var sb strings.Builder
+	sb.Grow(128)
+
+	sb.WriteString(color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.textSpacing))
+	sb.WriteString("    ")
+	fmt.Fprintf(&sb, "%-10s", humanize.Hi(val))
+	if s.ShowPercentage && s.samples > 0 {
+		percentage := float64(val) / float64(s.samples)
+		sb.WriteString(" ")
+		sb.WriteString(color.Wrapf(color.Cyan, "[%4.1f%%]", percentage*100.0))
+	}
+
+	if s.ShowBar && s.maxVal > 0 {
+		progress := val * int64(len(progressSlice)) / s.maxVal
+		sb.WriteString(" ")
+		sb.WriteString(color.Wrap(color.Blue, progressSlice[:progress]))
+	}
+
+	s.writer.WriteForLine(line, sb.String())
 }

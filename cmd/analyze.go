@@ -18,20 +18,20 @@ func humanf(arg interface{}) string {
 }
 
 func writeAggrOutput(writer *multiterm.TermWriter, aggr *aggregation.MatchNumerical, extra bool, quantiles []float64) int {
-	writer.WriteForLine(0, "Samples:  %v", color.Wrap(color.BrightWhite, humanize.Hi(aggr.Count())))
-	writer.WriteForLine(1, "Mean:     %v", humanf(aggr.Mean()))
-	writer.WriteForLine(2, "StdDev:   %v", humanf(aggr.StdDev()))
-	writer.WriteForLine(3, "Min:      %v", humanf(aggr.Min()))
-	writer.WriteForLine(4, "Max:      %v", humanf(aggr.Max()))
+	writer.WriteForLinef(0, "Samples:  %v", color.Wrap(color.BrightWhite, humanize.Hi(aggr.Count())))
+	writer.WriteForLinef(1, "Mean:     %v", humanf(aggr.Mean()))
+	writer.WriteForLinef(2, "StdDev:   %v", humanf(aggr.StdDev()))
+	writer.WriteForLinef(3, "Min:      %v", humanf(aggr.Min()))
+	writer.WriteForLinef(4, "Max:      %v", humanf(aggr.Max()))
 
 	if extra {
-		writer.WriteForLine(5, "")
+		writer.WriteForLinef(5, "")
 
 		data := aggr.Analyze()
-		writer.WriteForLine(6, "Median:   %v", humanf(data.Median()))
-		writer.WriteForLine(7, "Mode:     %v", humanf(data.Mode()))
+		writer.WriteForLinef(6, "Median:   %v", humanf(data.Median()))
+		writer.WriteForLinef(7, "Mode:     %v", humanf(data.Mode()))
 		for idx, q := range quantiles {
-			writer.WriteForLine(8+idx, "P%02.4f: %v", q, humanf(data.Quantile(q/100.0)))
+			writer.WriteForLinef(8+idx, "P%02.4f: %v", q, humanf(data.Quantile(q/100.0)))
 		}
 		return 8 + len(quantiles)
 	} else {
@@ -87,7 +87,7 @@ func analyzeCommand() *cli.Command {
 		Action: analyzeFunction,
 		Flags: []cli.Flag{
 			cli.BoolFlag{
-				Name:  "extra",
+				Name:  "extra,x",
 				Usage: "Displays extra analysis on the data (Requires more memory and cpu)",
 			},
 			cli.BoolFlag{
