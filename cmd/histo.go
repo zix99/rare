@@ -19,6 +19,7 @@ func writeHistoOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchC
 		items = counter.ItemsSorted(count, reverse)
 	}
 	line := 0
+	writer.UpdateSamples(counter.Count())
 	for _, match := range items {
 		count := match.Item.Count()
 		if count >= atLeast {
@@ -34,11 +35,13 @@ func histoFunction(c *cli.Context) error {
 		reverseSort = c.Bool("reverse")
 		sortByKey   = c.Bool("sk")
 		atLeast     = c.Int64("atleast")
+		extra       = c.Bool("extra")
 	)
 
 	counter := aggregation.NewCounter()
 	writer := multiterm.NewHistogram(multiterm.New(), topItems)
-	writer.ShowBar = c.Bool("bars")
+	writer.ShowBar = c.Bool("bars") || extra
+	writer.ShowPercentage = c.Bool("percentage") || extra
 
 	ext := BuildExtractorFromArguments(c)
 
@@ -75,6 +78,14 @@ func histogramCommand() *cli.Command {
 			cli.BoolFlag{
 				Name:  "bars,b",
 				Usage: "Display bars as part of histogram",
+			},
+			cli.BoolFlag{
+				Name:  "percentage",
+				Usage: "Display percentage of total next to the value",
+			},
+			cli.BoolFlag{
+				Name:  "extra,x",
+				Usage: "Alias for -b --percentage",
 			},
 			cli.IntFlag{
 				Name:  "num,n",

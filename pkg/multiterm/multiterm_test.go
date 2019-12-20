@@ -1,7 +1,6 @@
 package multiterm
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -16,8 +15,8 @@ func NewVirtualTerm() *VirtualTerm {
 	}
 }
 
-func (s *VirtualTerm) WriteForLine(line int, format string, args ...interface{}) {
-	s.lines[line] = fmt.Sprintf(format, args...)
+func (s *VirtualTerm) WriteForLine(line int, text string) {
+	s.lines[line] = text
 }
 
 func (s *VirtualTerm) Close() {}

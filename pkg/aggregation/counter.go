@@ -18,12 +18,17 @@ type MatchPair struct {
 type MatchCounter struct {
 	matches map[string]*MatchItem
 	errors  uint64
+	samples uint64
 }
 
 func NewCounter() *MatchCounter {
 	return &MatchCounter{
 		matches: make(map[string]*MatchItem),
 	}
+}
+
+func (s *MatchCounter) Count() uint64 {
+	return s.samples
 }
 
 func (s *MatchCounter) GroupCount() int {
@@ -59,6 +64,7 @@ func (s *MatchCounter) SampleValue(element string, count int64) {
 		s.matches[element] = item
 	}
 	item.count += count
+	s.samples++
 }
 
 func (s *MatchCounter) ParseErrors() uint64 {

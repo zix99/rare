@@ -6,7 +6,7 @@ import (
 )
 
 type MultilineTerm interface {
-	WriteForLine(line int, format string, args ...interface{})
+	WriteForLine(line int, s string)
 	Close()
 }
 
@@ -28,14 +28,18 @@ func New() *TermWriter {
 	}
 }
 
-func (s *TermWriter) WriteForLine(line int, format string, args ...interface{}) {
+func (s *TermWriter) WriteForLinef(line int, format string, args ...interface{}) {
+	s.WriteForLine(line, fmt.Sprintf(format, args...))
+}
+
+func (s *TermWriter) WriteForLine(line int, text string) {
 	if s.HideCursor && !s.cursorHidden {
 		hideCursor()
 		s.cursorHidden = true
 	}
 
 	s.goTo(line)
-	s.writeAtCursor(format, args...)
+	s.writeAtCursor(text)
 }
 
 func (s *TermWriter) Close() {
@@ -58,8 +62,8 @@ func (s *TermWriter) goTo(line int) {
 	fmt.Print("\r")
 }
 
-func (s *TermWriter) writeAtCursor(format string, args ...interface{}) {
-	WriteLineNoWrap(os.Stdout, fmt.Sprintf(format, args...))
+func (s *TermWriter) writeAtCursor(text string) {
+	WriteLineNoWrap(os.Stdout, text)
 	if s.ClearLine {
 		eraseRemainingLine()
 	}
