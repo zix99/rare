@@ -50,11 +50,11 @@ type Extractor struct {
 	ignore       IgnoreSet
 }
 
-func buildRegex(s string, posix bool) *regexp.Regexp {
+func buildRegex(s string, posix bool) (*regexp.Regexp, error) {
 	if posix {
-		return regexp.MustCompilePOSIX(s)
+		return regexp.CompilePOSIX(s)
 	}
-	return regexp.MustCompile(s)
+	return regexp.Compile(s)
 }
 
 func (s *Extractor) ReadLines() uint64 {
@@ -121,9 +121,14 @@ func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 		return nil, err
 	}
 
+	compiledRegex, err := buildRegex(config.Regex, config.Posix)
+	if err != nil {
+		return nil, err
+	}
+
 	extractor := Extractor{
 		readChan:   make(chan []Match, 5),
-		regex:      buildRegex(config.Regex, config.Posix),
+		regex:      compiledRegex,
 		keyBuilder: compiledExpression,
 		config:     *config,
 		ignore:     config.Ignore,
