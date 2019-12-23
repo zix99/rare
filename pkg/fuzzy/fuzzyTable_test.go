@@ -8,7 +8,7 @@ import (
 )
 
 func TestSimpleTable(t *testing.T) {
-	tbl := NewFuzzyTable(0.7)
+	tbl := NewFuzzyTable(0.5)
 	id, new := tbl.GetMatchId("test")
 	assert.Equal(t, 0, id)
 	assert.True(t, new)

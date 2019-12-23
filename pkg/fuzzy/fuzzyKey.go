@@ -1,5 +1,5 @@
 package fuzzy
 
 type FuzzyKey interface {
-	Distance(other string) float32
+	Distance(other string, abortAt float32) float32
 }

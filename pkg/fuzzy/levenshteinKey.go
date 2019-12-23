@@ -1,16 +1,14 @@
 package fuzzy
 
 type LevenshteinKey struct {
-	val        []rune
-	col        []int
-	earlyAbort int
+	val []rune
+	col []int
 }
 
-func NewLevenshteinKey(val string, earlyAbort float32) *LevenshteinKey {
+func NewLevenshteinKey(val string) *LevenshteinKey {
 	return &LevenshteinKey{
-		val:        []rune(val),
-		col:        make([]int, len(val)+1),
-		earlyAbort: len(val) - int(float32(len(val))*earlyAbort),
+		val: []rune(val),
+		col: make([]int, len(val)+1),
 	}
 }
 
@@ -26,7 +24,7 @@ func equalsRunes(a, b []rune) bool {
 	return true
 }
 
-func (s *LevenshteinKey) WordDistance(otherStr string) int {
+func (s *LevenshteinKey) WordDistance(otherStr string, abortAt float32) int {
 	other := []rune(otherStr)
 	if equalsRunes(s.val, other) {
 		return 0
@@ -34,6 +32,8 @@ func (s *LevenshteinKey) WordDistance(otherStr string) int {
 
 	alen := len(s.val)
 	blen := len(other)
+
+	abortDistance := int(float32(alen) * (1.0 - abortAt))
 
 	for y := 1; y <= alen; y++ {
 		s.col[y] = y
@@ -51,15 +51,16 @@ func (s *LevenshteinKey) WordDistance(otherStr string) int {
 			s.col[y] = min3(s.col[y]+1, s.col[y-1]+1, lastkey+incr)
 			lastkey = oldkey
 		}
-		if s.col[alen]-(alen-x) > len(s.val)/2 {
+		approxDist := s.col[alen] - (alen - x)
+		if approxDist*2 > abortDistance {
 			return len(otherStr)
 		}
 	}
 	return s.col[alen]
 }
 
-func (s *LevenshteinKey) Distance(other string) float32 {
-	dist := s.WordDistance(other)
+func (s *LevenshteinKey) Distance(other string, abortAt float32) float32 {
+	dist := s.WordDistance(other, abortAt)
 	sum := len(s.val) + len(other)
 	return float32(sum-dist*2) / float32(sum)
 }

@@ -19,14 +19,14 @@ func NewFuzzyTable(matchDist float32) *FuzzyTable {
 
 func (s *FuzzyTable) GetMatchId(val string) (id int, isNew bool) {
 	for idx, ele := range s.keys {
-		d := ele.key.Distance(val)
+		d := ele.key.Distance(val, s.matchDist)
 		if d > s.matchDist {
 			return idx, false
 		}
 	}
 
 	newItem := fuzzyItem{
-		key:      NewLevenshteinKey(val, 0.5),
+		key:      NewLevenshteinKey(val),
 		original: val,
 	}
 	s.keys = append(s.keys, newItem)
