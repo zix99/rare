@@ -8,48 +8,33 @@ import (
 
 const defaultTimeFormat = time.RFC3339
 
+var timeFormats = map[string]string{
+	"ASNIC":    time.ANSIC,
+	"UNIX":     time.UnixDate,
+	"RUBY":     time.RubyDate,
+	"RFC822":   time.RFC822,
+	"RFC822Z":  time.RFC822Z,
+	"RFC1123":  time.RFC1123,
+	"RFC1123Z": time.RFC1123Z,
+	"RFC3339":  time.RFC3339,
+	"RFC3339N": time.RFC3339Nano,
+	// Custom formats,
+	"NGINX": "_2/Jan/2006:15:04:05 -0700",
+	// Parts,
+	"MONTH":     "01",
+	"DAY":       "_2",
+	"YEAR":      "2006",
+	"HOUR":      "15",
+	"MINUTE":    "04",
+	"SECOND":    "05",
+	"TIMEZONE":  "MST",
+	"NTIMEZONE": "-0700",
+	"NTZ":       "-0700",
+}
+
 func namedTimeFormatToFormat(f string) string {
-	switch strings.ToUpper(f) {
-	// Standard formats
-	case "ASNIC":
-		return time.ANSIC
-	case "UNIX":
-		return time.UnixDate
-	case "RUBY":
-		return time.RubyDate
-	case "RFC822":
-		return time.RFC822
-	case "RFC822Z":
-		return time.RFC822Z
-	case "RFC1123":
-		return time.RFC1123
-	case "RFC1123Z":
-		return time.RFC1123Z
-	case "RFC3339":
-		return time.RFC3339
-	case "RFC3339N":
-		return time.RFC3339Nano
-	// Custom formats
-	case "NGINX":
-		return "_2/Jan/2006:15:04:05 -0700"
-	// Parts
-	case "MONTH":
-		return "01"
-	case "DAY":
-		return "_2"
-	case "YEAR":
-		return "2006"
-	case "HOUR":
-		return "15"
-	case "MINUTE":
-		return "04"
-	case "SECOND":
-		return "05"
-	case "TIMEZONE":
-		return "MST"
-	case "NTIMEZONE":
-	case "NTZ":
-		return "-0700"
+	if mapped, ok := timeFormats[strings.ToUpper(f)]; ok {
+		return mapped
 	}
 	return f
 }
