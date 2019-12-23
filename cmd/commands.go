@@ -9,5 +9,6 @@ func GetSupportedCommands() []cli.Command {
 		*analyzeCommand(),
 		*tabulateCommand(),
 		*docsCommand(),
+		*distCommand(),
 	}
 }
