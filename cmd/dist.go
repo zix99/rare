@@ -1,47 +1,38 @@
 package cmd
 
 import (
+	"fmt"
 	"rare/cmd/helpers"
 	"rare/cmd/readProgress"
 	"rare/pkg/aggregation"
-	"rare/pkg/fuzzy"
+	"rare/pkg/color"
 	"rare/pkg/multiterm"
 
 	"github.com/urfave/cli"
 )
 
-type distCounter struct {
-	counter *aggregation.MatchCounter
-	lookup  *fuzzy.FuzzyTable
-}
-
-func (s *distCounter) Sample(element string) {
-	m, _ := s.lookup.GetMatchId(element)
-	s.counter.Sample(s.lookup.GetString(m))
-}
-
-func (s *distCounter) ParseErrors() uint64 {
-	return s.counter.ParseErrors()
-}
-
 func distFunction(c *cli.Context) error {
-	counter := &distCounter{
-		counter: aggregation.NewCounter(),
-		lookup:  fuzzy.NewFuzzyTable(0.9),
-	}
+	var (
+		topItems    = c.Int("n")
+		reverseSort = c.Bool("reverse")
+		atLeast     = c.Int64("atleast")
+		sortByKey   = c.Bool("sk")
+		extra       = c.Bool("extra")
+	)
+
+	counter := aggregation.NewFuzzyAggregator(0.8)
 	writer := multiterm.NewHistogram(multiterm.New(), 10)
-	writer.ShowBar = true
-	writer.ShowPercentage = true
+	writer.ShowBar = c.Bool("bars") || extra
+	writer.ShowPercentage = c.Bool("percentage") || extra
 
 	ext := helpers.BuildExtractorFromArguments(c)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
-		writer.UpdateSamples(counter.counter.Count())
-		items := counter.counter.ItemsSorted(10, false)
-		for idx, item := range items {
-			writer.WriteForLine(idx, item.Name, item.Item.Count())
-		}
-		writer.InnerWriter().WriteForLine(11, readProgress.GetReadFileString())
+		writeHistoOutput(writer, counter.Histo, topItems, reverseSort, sortByKey, atLeast)
+		writer.InnerWriter().WriteForLine(topItems, helpers.FWriteExtractorSummary(ext,
+			counter.ParseErrors(),
+			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.Histo.GroupCount()))))
+		writer.InnerWriter().WriteForLine(topItems+1, readProgress.GetReadFileString())
 	})
 
 	writer.InnerWriter().Close()
@@ -51,7 +42,45 @@ func distFunction(c *cli.Context) error {
 
 func distCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
-		Name:   "dist",
+		Name:      "distance",
+		ShortName: "d",
+		Aliases:   []string{"dist"},
+		Description: `Generates a live-updating histogram of the input data, looking
+		for a relative distance between various results.  This is useful to find
+		similar log messages that may have slight differences to them (eg ids)
+		and aggregating and search for these messages`,
 		Action: distFunction,
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  "bars,b",
+				Usage: "Display bars as part of histogram",
+			},
+			cli.BoolFlag{
+				Name:  "percentage",
+				Usage: "Display percentage of total next to the value",
+			},
+			cli.BoolFlag{
+				Name:  "extra,x",
+				Usage: "Alias for -b --percentage",
+			},
+			cli.IntFlag{
+				Name:  "num,n",
+				Usage: "Number of elements to display",
+				Value: 5,
+			},
+			cli.Int64Flag{
+				Name:  "atleast",
+				Usage: "Only show results if there are at least this many samples",
+				Value: 0,
+			},
+			cli.BoolFlag{
+				Name:  "reverse",
+				Usage: "Reverses the display sort-order",
+			},
+			cli.BoolFlag{
+				Name:  "sortkey,sk",
+				Usage: "Sort by key, rather than value",
+			},
+		},
 	})
 }

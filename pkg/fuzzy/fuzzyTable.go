@@ -17,11 +17,11 @@ func NewFuzzyTable(matchDist float32) *FuzzyTable {
 	}
 }
 
-func (s *FuzzyTable) GetMatchId(val string) (id int, isNew bool) {
+func (s *FuzzyTable) GetMatchId(val string) (id int, match string, isNew bool) {
 	for idx, ele := range s.keys {
 		d := ele.key.Distance(val, s.matchDist)
 		if d > s.matchDist {
-			return idx, false
+			return idx, ele.original, false
 		}
 	}
 
@@ -31,13 +31,9 @@ func (s *FuzzyTable) GetMatchId(val string) (id int, isNew bool) {
 	}
 	s.keys = append(s.keys, newItem)
 
-	return len(s.keys) - 1, true
+	return len(s.keys) - 1, val, true
 }
 
 func (s *FuzzyTable) Count() int {
 	return len(s.keys)
-}
-
-func (s *FuzzyTable) GetString(id int) string {
-	return s.keys[id].original
 }
