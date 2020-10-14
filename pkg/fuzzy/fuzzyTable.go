@@ -1,5 +1,7 @@
 package fuzzy
 
+import "rare/pkg/fuzzy/levenshtein"
+
 type fuzzyItem struct {
 	key      FuzzyKey
 	original string
@@ -26,7 +28,7 @@ func (s *FuzzyTable) GetMatchId(val string) (id int, match string, isNew bool) {
 	}
 
 	newItem := fuzzyItem{
-		key:      NewLevenshteinKey(val),
+		key:      levenshtein.NewLevenshteinKey(val),
 		original: val,
 	}
 	s.keys = append(s.keys, newItem)

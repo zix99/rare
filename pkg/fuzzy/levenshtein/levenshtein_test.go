@@ -1,4 +1,4 @@
-package fuzzy
+package levenshtein
 
 import (
 	"testing"

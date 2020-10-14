@@ -1,4 +1,4 @@
-package fuzzy
+package levenshtein
 
 func Distance(a, b []rune) int {
 	alen := len(a)

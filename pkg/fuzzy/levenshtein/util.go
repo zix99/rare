@@ -1,4 +1,4 @@
-package fuzzy
+package levenshtein
 
 func min3(a, b, c int) int {
 	if a < b {

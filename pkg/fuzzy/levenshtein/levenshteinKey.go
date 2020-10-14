@@ -1,4 +1,4 @@
-package fuzzy
+package levenshtein
 
 type LevenshteinKey struct {
 	val []rune
