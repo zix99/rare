@@ -9,19 +9,19 @@ import (
 
 func TestSimpleTable(t *testing.T) {
 	tbl := NewFuzzyTable(0.5)
-	id, new := tbl.GetMatchId("test")
+	id, _, new := tbl.GetMatchId("test")
 	assert.Equal(t, 0, id)
 	assert.True(t, new)
 
-	id, new = tbl.GetMatchId("test")
+	id, _, new = tbl.GetMatchId("test")
 	assert.Equal(t, 0, id)
 	assert.False(t, new)
 
-	id, new = tbl.GetMatchId("blah")
+	id, _, new = tbl.GetMatchId("blah")
 	assert.Equal(t, 1, id)
 	assert.True(t, new)
 
-	id, new = tbl.GetMatchId("tast")
+	id, _, new = tbl.GetMatchId("tast")
 	assert.Equal(t, 0, id)
 	assert.False(t, new)
 }
