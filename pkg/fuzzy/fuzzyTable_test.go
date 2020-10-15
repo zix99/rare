@@ -8,7 +8,7 @@ import (
 )
 
 func TestSimpleTable(t *testing.T) {
-	tbl := NewFuzzyTable(0.5)
+	tbl := NewFuzzyTable(0.5, 5)
 	id, _, new := tbl.GetMatchId("test")
 	assert.Equal(t, 0, id)
 	assert.True(t, new)
@@ -27,7 +27,7 @@ func TestSimpleTable(t *testing.T) {
 }
 
 func BenchmarkSimpleTable(b *testing.B) {
-	tbl := NewFuzzyTable(0.7)
+	tbl := NewFuzzyTable(0.7, 5)
 	for n := 0; n < b.N; n++ {
 		tbl.GetMatchId(fmt.Sprintf("abcd-%d", n%100))
 	}

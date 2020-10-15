@@ -1,34 +1,36 @@
 package fuzzy
 
-import "rare/pkg/fuzzy/levenshtein"
+import (
+	"rare/pkg/fuzzy/sift4"
+)
 
 type fuzzyItem struct {
-	key      FuzzyKey
 	original string
 }
 
 type FuzzyTable struct {
 	keys      []fuzzyItem
 	matchDist float32
+	maxOffset int
 }
 
-func NewFuzzyTable(matchDist float32) *FuzzyTable {
+func NewFuzzyTable(matchDist float32, maxOffset int) *FuzzyTable {
 	return &FuzzyTable{
 		keys:      make([]fuzzyItem, 0),
 		matchDist: matchDist,
+		maxOffset: maxOffset,
 	}
 }
 
 func (s *FuzzyTable) GetMatchId(val string) (id int, match string, isNew bool) {
 	for idx, ele := range s.keys {
-		d := ele.key.Distance(val, s.matchDist)
+		d := sift4.DistanceStringRatio(ele.original, val, s.maxOffset)
 		if d > s.matchDist {
 			return idx, ele.original, false
 		}
 	}
 
 	newItem := fuzzyItem{
-		key:      levenshtein.NewLevenshteinKey(val),
 		original: val,
 	}
 	s.keys = append(s.keys, newItem)

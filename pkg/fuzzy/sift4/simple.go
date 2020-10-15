@@ -52,12 +52,12 @@ func Distance(s1, s2 []rune, maxOffset int) int {
 				c2 = c1
 			}
 			for i := 0; i < maxOffset && (c1+i < l1 || c2+i < l2); i++ {
-				if c1+i < l1 && s1[c1+i] == s2[c2] {
+				if c1+i < l1 && c2 < l2 && s1[c1+i] == s2[c2] {
 					c1 += i
 					loccs++
 					break
 				}
-				if c2+i < l2 && s1[c1] == s2[c2+i] {
+				if c1 < l1 && c2+i < l2 && s1[c1] == s2[c2+i] {
 					c2 += i
 					loccs++
 					break

@@ -18,10 +18,12 @@ func distFunction(c *cli.Context) error {
 		atLeast     = c.Int64("atleast")
 		sortByKey   = c.Bool("sk")
 		extra       = c.Bool("extra")
+		similarity  = float32(c.Float64("similarity"))
+		simOffset   = c.Int("similiarty-offset")
 	)
 
-	counter := aggregation.NewFuzzyAggregator(0.8)
-	writer := multiterm.NewHistogram(multiterm.New(), 10)
+	counter := aggregation.NewFuzzyAggregator(similarity, simOffset)
+	writer := multiterm.NewHistogram(multiterm.New(), topItems)
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
 
@@ -80,6 +82,16 @@ func distCommand() *cli.Command {
 			cli.BoolFlag{
 				Name:  "sortkey,sk",
 				Usage: "Sort by key, rather than value",
+			},
+			cli.Float64Flag{
+				Name:  "similarity,s",
+				Usage: "The expression string has to be at least this percent similar to qualify as a fuzzy match",
+				Value: 0.75,
+			},
+			cli.Int64Flag{
+				Name:  "similarity-offset,so",
+				Usage: "The max offset to examine in the string to look for a similarity",
+				Value: 10,
 			},
 		},
 	})
