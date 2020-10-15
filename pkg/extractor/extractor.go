@@ -114,6 +114,31 @@ func (s *Extractor) processLineSync(source string, lineNum uint64, line BString)
 	return Match{}, false
 }
 
+func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch) {
+	defer wg.Done()
+
+	for {
+		batch, more := <-inputBatch
+		if !more {
+			break
+		}
+
+		var matchBatch []Match
+		for idx, str := range batch.Batch {
+			if match, ok := s.processLineSync(batch.Source, batch.BatchStart+uint64(idx), str); ok {
+				if matchBatch == nil {
+					// Initialize to expected cap (only if we have any matches)
+					matchBatch = make([]Match, 0, len(batch.Batch))
+				}
+				matchBatch = append(matchBatch, match)
+			}
+		}
+		if len(matchBatch) > 0 {
+			s.readChan <- matchBatch
+		}
+	}
+}
+
 // New an extractor from an input channel
 func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 	compiledExpression, err := expressions.NewKeyBuilder().Compile(config.Extract)
@@ -138,29 +163,7 @@ func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 
 	for i := 0; i < config.getWorkerCount(); i++ {
 		wg.Add(1)
-		go func() {
-			for {
-				batch, more := <-inputBatch
-				if !more {
-					break
-				}
-
-				var matchBatch []Match
-				for idx, s := range batch.Batch {
-					if match, ok := extractor.processLineSync(batch.Source, batch.BatchStart+uint64(idx), s); ok {
-						if matchBatch == nil {
-							// Initialize to expected cap (only if we have any matches)
-							matchBatch = make([]Match, 0, len(batch.Batch))
-						}
-						matchBatch = append(matchBatch, match)
-					}
-				}
-				if len(matchBatch) > 0 {
-					extractor.readChan <- matchBatch
-				}
-			}
-			wg.Done()
-		}()
+		go extractor.asyncWorker(&wg, inputBatch)
 	}
 
 	go func() {
