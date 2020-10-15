@@ -64,3 +64,12 @@ func TestWrapIndices(t *testing.T) {
 	assert.Contains(t, s, Green)
 	assert.Contains(t, s, Reset)
 }
+
+func TestWrapIndicesInnerGroups(t *testing.T) {
+	s := WrapIndices("abcdefg", []int{0, 3, 1, 2, 5, 6})
+	assert.Contains(t, s, "cde")
+	assert.Contains(t, s, Red)
+	assert.Contains(t, s, Green)
+	assert.Contains(t, s, Yellow)
+	assert.Contains(t, s, Reset)
+}
