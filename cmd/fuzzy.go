@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func distFunction(c *cli.Context) error {
+func fuzzyFunction(c *cli.Context) error {
 	var (
 		topItems    = c.Int("n")
 		reverseSort = c.Bool("reverse")
@@ -42,16 +42,17 @@ func distFunction(c *cli.Context) error {
 	return nil
 }
 
-func distCommand() *cli.Command {
+func fuzzyCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
-		Name:      "distance",
-		ShortName: "d",
-		Aliases:   []string{"dist"},
+		Name:      "fuzzy",
+		ShortName: "z",
+		Aliases:   []string{"fuz"},
+		Usage:     "Look for similar matches by using a fuzzy search algorithm",
 		Description: `Generates a live-updating histogram of the input data, looking
 		for a relative distance between various results.  This is useful to find
 		similar log messages that may have slight differences to them (eg ids)
 		and aggregating and search for these messages`,
-		Action: distFunction,
+		Action: fuzzyFunction,
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "bars,b",
