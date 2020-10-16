@@ -89,17 +89,7 @@ func WrapIndices(s string, groups []int) string {
 	for i := 0; i < len(groups); i += 2 {
 		start := groups[i]
 		end := groups[i+1]
-
-		// check to see if the next group is an inner group
-		if i+2 < len(groups) {
-			nextStart := groups[i+2]
-			if end > nextStart {
-				// stop coloring before start of next group
-				end = nextStart
-			}
-		}
-
-		if start >= 0 && end >= 0 {
+		if start >= 0 && end >= 0 && end > start && start >= lastIndex {
 			color := groupColors[(i/2)%len(groupColors)]
 
 			sb.WriteString(s[lastIndex:start])
