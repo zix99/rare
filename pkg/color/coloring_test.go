@@ -24,6 +24,18 @@ func BenchmarkColorReplacer(b *testing.B) {
 	fmt.Println(out)
 }
 
+func BenchmarkColorReplacerOverlapping(b *testing.B) {
+	s := "This is a test"
+	groups := []int{4, 7, 5, 6, 8, 9}
+
+	var out string
+	for n := 0; n < b.N; n++ {
+		out = WrapIndices(s, groups)
+	}
+
+	fmt.Println(out)
+}
+
 func TestWrap(t *testing.T) {
 	s := Wrap(Red, "hello")
 	assert.Contains(t, s, Red)
@@ -63,4 +75,9 @@ func TestWrapIndices(t *testing.T) {
 	assert.Contains(t, s, Red)
 	assert.Contains(t, s, Green)
 	assert.Contains(t, s, Reset)
+}
+
+func TestWrapIndicesInnerGroups(t *testing.T) {
+	s := WrapIndices("abcdefg", []int{0, 2, 1, 2, 5, 6})
+	assert.Contains(t, s, "cde")
 }
