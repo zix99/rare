@@ -8,26 +8,22 @@ import (
 )
 
 func TestSimpleTable(t *testing.T) {
-	tbl := NewFuzzyTable(0.5, 5)
-	id, _, new := tbl.GetMatchId("test")
-	assert.Equal(t, 0, id)
+	tbl := NewFuzzyTable(0.5, 5, -100)
+	_, new := tbl.GetMatchId("test")
 	assert.True(t, new)
 
-	id, _, new = tbl.GetMatchId("test")
-	assert.Equal(t, 0, id)
+	_, new = tbl.GetMatchId("test")
 	assert.False(t, new)
 
-	id, _, new = tbl.GetMatchId("blah")
-	assert.Equal(t, 1, id)
+	_, new = tbl.GetMatchId("blah")
 	assert.True(t, new)
 
-	id, _, new = tbl.GetMatchId("tast")
-	assert.Equal(t, 0, id)
+	_, new = tbl.GetMatchId("tast")
 	assert.False(t, new)
 }
 
 func BenchmarkSimpleTable(b *testing.B) {
-	tbl := NewFuzzyTable(0.7, 5)
+	tbl := NewFuzzyTable(0.7, 5, -100)
 	for n := 0; n < b.N; n++ {
 		tbl.GetMatchId(fmt.Sprintf("abcd-%d", n%100))
 	}

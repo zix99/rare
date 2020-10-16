@@ -27,13 +27,17 @@ func NewFuzzyTable(matchDist float32, maxOffset, minScore int) *FuzzyTable {
 	}
 }
 
-func (s *FuzzyTable) GetMatchId(val string) (id int, match string, isNew bool) {
+func (s *FuzzyTable) GetMatchId(val string) (match string, isNew bool) {
 	for i := range s.keys {
 		ele := &s.keys[i]
 		d := sift4.DistanceStringRatio(ele.original, val, s.maxOffset)
 		if d > s.matchDist {
-			ele.score += int64(len(s.keys)) * 2
-			return i, ele.original, false
+			if d < 0.99 { // Imperfect matches score more
+				ele.score += int64(len(s.keys))
+			} else {
+				ele.score++
+			}
+			return ele.original, false
 		}
 		ele.score--
 	}
@@ -49,7 +53,7 @@ func (s *FuzzyTable) GetMatchId(val string) (id int, match string, isNew bool) {
 	}
 	s.keys = append(s.keys, newItem)
 
-	return len(s.keys) - 1, val, true
+	return val, true
 }
 
 func (s *FuzzyTable) Cleanup() {

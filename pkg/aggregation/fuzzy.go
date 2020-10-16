@@ -17,7 +17,7 @@ func NewFuzzyAggregator(matchDist float32, maxOffset, minScore int) *FuzzyAggreg
 }
 
 func (s *FuzzyAggregator) Sample(ele string) {
-	_, similarStr, _ := s.lookup.GetMatchId(ele)
+	similarStr, _ := s.lookup.GetMatchId(ele)
 	s.Histo.SampleValue(similarStr, 1)
 }
 
