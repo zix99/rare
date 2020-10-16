@@ -9,9 +9,9 @@ type FuzzyAggregator struct {
 	Histo  *MatchCounter
 }
 
-func NewFuzzyAggregator(matchDist float32, maxOffset int) *FuzzyAggregator {
+func NewFuzzyAggregator(matchDist float32, maxOffset, minScore int) *FuzzyAggregator {
 	return &FuzzyAggregator{
-		lookup: fuzzy.NewFuzzyTable(matchDist, maxOffset),
+		lookup: fuzzy.NewFuzzyTable(matchDist, maxOffset, minScore),
 		Histo:  NewCounter(),
 	}
 }
@@ -22,5 +22,9 @@ func (s *FuzzyAggregator) Sample(ele string) {
 }
 
 func (s *FuzzyAggregator) ParseErrors() uint64 {
-	return 0
+	return s.Histo.ParseErrors()
+}
+
+func (s *FuzzyAggregator) FuzzyTableSize() int {
+	return s.lookup.Count()
 }

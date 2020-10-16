@@ -19,10 +19,11 @@ func fuzzyFunction(c *cli.Context) error {
 		sortByKey   = c.Bool("sk")
 		extra       = c.Bool("extra")
 		similarity  = float32(c.Float64("similarity"))
-		simOffset   = c.Int("similiarty-offset")
+		simOffset   = c.Int("similarity-offset")
+		simMinScore = c.Int("similarity-min-score")
 	)
 
-	counter := aggregation.NewFuzzyAggregator(similarity, simOffset)
+	counter := aggregation.NewFuzzyAggregator(similarity, simOffset, simMinScore)
 	writer := multiterm.NewHistogram(multiterm.New(), topItems)
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
@@ -33,7 +34,7 @@ func fuzzyFunction(c *cli.Context) error {
 		writeHistoOutput(writer, counter.Histo, topItems, reverseSort, sortByKey, atLeast)
 		writer.InnerWriter().WriteForLine(topItems, helpers.FWriteExtractorSummary(ext,
 			counter.ParseErrors(),
-			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.Histo.GroupCount()))))
+			fmt.Sprintf("(Groups: %s) (Fuzzy: %s)", color.Wrapi(color.BrightBlue, counter.Histo.GroupCount()), color.Wrapi(color.BrightMagenta, counter.FuzzyTableSize()))))
 		writer.InnerWriter().WriteForLine(topItems+1, readProgress.GetReadFileString())
 	})
 
@@ -93,6 +94,11 @@ func fuzzyCommand() *cli.Command {
 				Name:  "similarity-offset,so",
 				Usage: "The max offset to examine in the string to look for a similarity",
 				Value: 10,
+			},
+			cli.Int64Flag{
+				Name:  "similarity-min-score,sms",
+				Usage: "The minimum score a similarity can have before it's removed from the fuzzy table.  Roughly speaking, the score is the hits*strength-misses",
+				Value: -100,
 			},
 		},
 	})
