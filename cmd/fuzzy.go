@@ -1,3 +1,5 @@
+// +build experimental
+
 package cmd
 
 import (
@@ -48,7 +50,7 @@ func fuzzyCommand() *cli.Command {
 		Name:      "fuzzy",
 		ShortName: "z",
 		Aliases:   []string{"fuz"},
-		Usage:     "Look for similar matches by using a fuzzy search algorithm",
+		Usage:     "(EXPERIMENTAL) Look for similar matches by using a fuzzy search algorithm",
 		Description: `Generates a live-updating histogram of the input data, looking
 		for a relative distance between various results.  This is useful to find
 		similar log messages that may have slight differences to them (eg ids)
@@ -102,4 +104,8 @@ func fuzzyCommand() *cli.Command {
 			},
 		},
 	})
+}
+
+func init() {
+	commands = append(commands, *fuzzyCommand())
 }
