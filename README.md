@@ -277,6 +277,59 @@ Matched: 161,622 / 161,622
 Rows: 223; Cols: 6
 ```
 
+## Fuzzy Histogram
+
+The fuzzy histogram is exactly the same as the `histogram` command, except matches are applied to a fuzzy-search-table.  This means that when two expressions yield *similar* results (within a defineable threshold) they are counted as a match.  This can be useful for something like log message searching and aggregation.
+
+```
+NAME:
+   rare fuzzy - Look for similar matches by using a fuzzy search algorithm
+
+USAGE:
+   rare fuzzy [command options] <-|filename|glob...>
+
+DESCRIPTION:
+   Generates a live-updating histogram of the input data, looking
+    for a relative distance between various results.  This is useful to find
+    similar log messages that may have slight differences to them (eg ids)
+    and aggregating and search for these messages
+
+OPTIONS:
+   --follow, -f                           Read appended data as file grows
+   --reopen, -F                           Same as -f, but will reopen recreated files
+   --poll                                 When following a file, poll for changes rather than using inotify
+   --posix, -p                            Compile regex as against posix standard
+   --match value, -m value                Regex to create match groups to summarize on (default: ".*")
+   --extract value, -e value              Expression that will generate the key to group by (default: "{0}")
+   --gunzip, -z                           Attempt to decompress file when reading
+   --batch value                          Specifies io batching size. Set to 1 for immediate input (default: 1000)
+   --workers value, -w value              Set number of data processors (default: 3)
+   --readers value, --wr value            Sets the number of concurrent readers (Infinite when -f) (default: 3)
+   --ignore value, -i value               Ignore a match given a truthy expression (Can have multiple)
+   --recursive, -R                        Recursively walk a non-globbing path and search for plain-files
+   --bars, -b                             Display bars as part of histogram
+   --percentage                           Display percentage of total next to the value
+   --extra, -x                            Alias for -b --percentage
+   --num value, -n value                  Number of elements to display (default: 5)
+   --atleast value                        Only show results if there are at least this many samples (default: 0)
+   --reverse                              Reverses the display sort-order
+   --sortkey, --sk                        Sort by key, rather than value
+   --similarity value, -s value           The expression string has to be at least this percent similar to qualify as a fuzzy match (default: 0.75)
+   --similarity-offset value, --so value  The max offset to examine in the string to look for a similarity (default: 10)
+   --similarity-size value, --ss value    The maximum size a similarity table can grow to.  Keeps the top most-likely keys at all times (default: 100)
+```
+
+**Example:**
+
+In this case, the "this is a test" string as several small mispellings/tweaks, and they all count towards the same category.
+
+```
+rare z testdata/fuzzy.log
+this is a test 1                 3
+nothing to do with the others    1
+Matched: 4 / 4 (Groups: 2) (Fuzzy: 2)
+```
+
 # Performance Benchmarking
 
 I know there are different solutions, and rare accomplishes summarization in a way
