@@ -90,7 +90,7 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 	}
 
 	if inStatement != 0 {
-		return nil, errors.New("Non-terminated statement in expression")
+		return nil, errors.New("non-terminated statement in expression")
 	}
 
 	if sb.Len() > 0 {

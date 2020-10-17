@@ -2,6 +2,8 @@ package multiterm
 
 import "fmt"
 
+//lint:file-ignore U1000 Retain useful functions
+
 func escape(format string, args ...interface{}) string {
 	const ESCAPE = "\x1b"
 	return ESCAPE + fmt.Sprintf(format, args...)

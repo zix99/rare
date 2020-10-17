@@ -40,7 +40,7 @@ func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggrega
 	}()
 
 	// Processing data from extractor
-	exitSignal := make(chan os.Signal)
+	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, os.Interrupt)
 	reader := ext.ReadChan()
 PROCESSING_LOOP:

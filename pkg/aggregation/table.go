@@ -23,8 +23,8 @@ func NewTable(delim string) *TableAggregator {
 	return &TableAggregator{
 		delim:  delim,
 		errors: 0,
-		rows:   make(map[string]*TableRow, 0),
-		cols:   make(map[string]uint64, 0),
+		rows:   make(map[string]*TableRow),
+		cols:   make(map[string]uint64),
 	}
 }
 
@@ -61,7 +61,7 @@ func (s *TableAggregator) SampleItem(colKey, rowKey string, inc int64) {
 	row := s.rows[rowKey]
 	if row == nil {
 		row = &TableRow{
-			cols: make(map[string]int64, 0),
+			cols: make(map[string]int64),
 			name: rowKey,
 		}
 		s.rows[rowKey] = row

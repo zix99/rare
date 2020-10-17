@@ -16,6 +16,7 @@ func startProfiler(basename string) {
 
 	go func() {
 		idx := 0
+	OUTER_LOOP:
 		for {
 			select {
 			case <-time.After(500 * time.Millisecond):
@@ -25,7 +26,7 @@ func startProfiler(basename string) {
 				}
 				idx++
 			case <-profilerDone:
-				break
+				break OUTER_LOOP
 			}
 		}
 	}()

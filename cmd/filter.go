@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	. "rare/cmd/helpers"
+	. "rare/cmd/helpers" //lint:ignore ST1001 Legacy
 	"rare/pkg/color"
 
 	"github.com/urfave/cli"

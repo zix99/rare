@@ -23,6 +23,9 @@ jobs:
       - name: Test
         run: |
           go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+      - name: StaticCheck
+        run: |
+          go run honnef.co/go/tools/cmd/staticcheck ./...
       - name: Codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

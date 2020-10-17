@@ -8,11 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type StringHeader struct {
-	Data unsafe.Pointer
-	Len  int
-}
-
 func TestSliceAssumptions(t *testing.T) {
 	b := []byte("hello")
 	z := b[1:]

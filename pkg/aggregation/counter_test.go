@@ -16,14 +16,6 @@ func TestBasicAddition(t *testing.T) {
 	assert.Equal(t, int64(1), items[0].Item.count)
 }
 
-func collectChan(c chan interface{}) []interface{} {
-	items := make([]interface{}, 0)
-	for ele := range c {
-		items = append(items, ele)
-	}
-	return items
-}
-
 func TestInOrderItems(t *testing.T) {
 	val := NewCounter()
 	val.Sample("test")

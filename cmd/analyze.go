@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"log"
-	. "rare/cmd/helpers"
+	. "rare/cmd/helpers" //lint:ignore ST1001 Legacy
 	"rare/cmd/readProgress"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"

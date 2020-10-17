@@ -28,7 +28,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	}
 
 	ignoreSlice := c.StringSlice("ignore")
-	if ignoreSlice != nil && len(ignoreSlice) > 0 {
+	if len(ignoreSlice) > 0 {
 		ignoreExp, err := extractor.NewIgnoreExpressions(ignoreSlice...)
 		if err != nil {
 			ErrLog.Fatalln(err)
