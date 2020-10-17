@@ -14,16 +14,22 @@ type FuzzyTable struct {
 	keys      []fuzzyItem
 	matchDist float32
 	maxOffset int
-	minScore  int64
+	maxSize   int
 	searches  int
 }
 
-func NewFuzzyTable(matchDist float32, maxOffset, minScore int) *FuzzyTable {
+func NewFuzzyTable(matchDist float32, maxOffset, maxSize int) *FuzzyTable {
+	if maxSize < 0 {
+		panic("Invalid max size")
+	}
+	if maxOffset < 0 {
+		panic("Invalid max offset")
+	}
 	return &FuzzyTable{
 		keys:      make([]fuzzyItem, 0),
 		matchDist: matchDist,
 		maxOffset: maxOffset,
-		minScore:  int64(minScore),
+		maxSize:   maxSize,
 	}
 }
 
@@ -48,10 +54,13 @@ func (s *FuzzyTable) GetMatchId(val string) (match string, isNew bool) {
 		s.searches = 0
 	}
 
-	newItem := fuzzyItem{
-		original: val,
+	if len(s.keys) < s.maxSize || s.keys[len(s.keys)-1].score < 1 {
+		newItem := fuzzyItem{
+			original: val,
+			score:    1,
+		}
+		s.keys = append(s.keys, newItem)
 	}
-	s.keys = append(s.keys, newItem)
 
 	return val, true
 }
@@ -62,12 +71,8 @@ func (s *FuzzyTable) Cleanup() {
 		return s.keys[i].score > s.keys[j].score
 	})
 
-	// Truncate the list after score falls below threshold
-	for i := 0; i < len(s.keys); i++ {
-		if s.keys[i].score < s.minScore {
-			s.keys = s.keys[:i]
-			break
-		}
+	if len(s.keys) > s.maxSize {
+		s.keys = s.keys[:s.maxSize]
 	}
 }
 

@@ -20,10 +20,10 @@ func fuzzyFunction(c *cli.Context) error {
 		extra       = c.Bool("extra")
 		similarity  = float32(c.Float64("similarity"))
 		simOffset   = c.Int("similarity-offset")
-		simMinScore = c.Int("similarity-min-score")
+		simSize     = c.Int("similarity-size")
 	)
 
-	counter := aggregation.NewFuzzyAggregator(similarity, simOffset, simMinScore)
+	counter := aggregation.NewFuzzyAggregator(similarity, simOffset, simSize)
 	writer := multiterm.NewHistogram(multiterm.New(), topItems)
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
@@ -96,9 +96,9 @@ func fuzzyCommand() *cli.Command {
 				Value: 10,
 			},
 			cli.Int64Flag{
-				Name:  "similarity-min-score,sms",
-				Usage: "The minimum score a similarity can have before it's removed from the fuzzy table.  Roughly speaking, the score is the hits*strength-misses",
-				Value: -100,
+				Name:  "similarity-size,ss",
+				Usage: "The maximum size a similarity table can grow to.  Keeps the top most-likely keys at all times",
+				Value: 100,
 			},
 		},
 	})

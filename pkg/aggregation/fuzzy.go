@@ -9,9 +9,9 @@ type FuzzyAggregator struct {
 	Histo  *MatchCounter
 }
 
-func NewFuzzyAggregator(matchDist float32, maxOffset, minScore int) *FuzzyAggregator {
+func NewFuzzyAggregator(matchDist float32, maxOffset, maxSize int) *FuzzyAggregator {
 	return &FuzzyAggregator{
-		lookup: fuzzy.NewFuzzyTable(matchDist, maxOffset, minScore),
+		lookup: fuzzy.NewFuzzyTable(matchDist, maxOffset, maxSize),
 		Histo:  NewCounter(),
 	}
 }
