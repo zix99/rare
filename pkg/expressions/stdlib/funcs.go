@@ -1,9 +1,8 @@
-package expressions
+package stdlib
 
-// KeyBuilderFunction defines a helper function at runtime
-type KeyBuilderFunction func([]KeyBuilderStage) KeyBuilderStage
+import . "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 
-var defaultFunctions = map[string]KeyBuilderFunction{
+var StandardFunctions = map[string]KeyBuilderFunction{
 	"coalesce":  KeyBuilderFunction(kfCoalesce),
 	"bucket":    KeyBuilderFunction(kfBucket),
 	"clamp":     KeyBuilderFunction(kfClamp),

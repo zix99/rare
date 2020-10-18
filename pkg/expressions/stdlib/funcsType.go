@@ -1,6 +1,9 @@
-package expressions
+package stdlib
 
-import "strconv"
+import (
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	"strconv"
+)
 
 func kfIsInt(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 1 {

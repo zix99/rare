@@ -5,6 +5,9 @@ import (
 	"strconv"
 )
 
+// KeyBuilderFunction defines a helper function at runtime
+type KeyBuilderFunction func([]KeyBuilderStage) KeyBuilderStage
+
 // KeyBuilderStage is a stage within the compiled builder
 type KeyBuilderStage func(KeyBuilderContext) string
 

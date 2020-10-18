@@ -1,8 +1,10 @@
-package expressions
+package stdlib
 
 import (
 	"math"
 	"strconv"
+
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 func kfCoalesce(args []KeyBuilderStage) KeyBuilderStage {

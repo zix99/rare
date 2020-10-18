@@ -1,6 +1,9 @@
-package expressions
+package stdlib
 
-import "path/filepath"
+import (
+	"path/filepath"
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+)
 
 func kfPathManip(manipulator func(string) string) func([]KeyBuilderStage) KeyBuilderStage {
 	return func(args []KeyBuilderStage) KeyBuilderStage {

@@ -2,6 +2,7 @@ package extractor
 
 import (
 	"rare/pkg/expressions"
+	"rare/pkg/expressions/stdlib"
 	"regexp"
 	"sync"
 	"sync/atomic"
@@ -141,7 +142,7 @@ func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch
 
 // New an extractor from an input channel
 func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
-	compiledExpression, err := expressions.NewKeyBuilder().Compile(config.Extract)
+	compiledExpression, err := stdlib.NewStdKeyBuilder().Compile(config.Extract)
 	if err != nil {
 		return nil, err
 	}

@@ -1,8 +1,10 @@
-package expressions
+package stdlib
 
 import (
 	"strconv"
 	"strings"
+
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 func stringComparator(equation func(string, string) string) KeyBuilderFunction {

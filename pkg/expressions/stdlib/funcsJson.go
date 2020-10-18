@@ -1,7 +1,9 @@
-package expressions
+package stdlib
 
 import (
 	"github.com/tidwall/gjson"
+
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 func kfJson(args []KeyBuilderStage) KeyBuilderStage {

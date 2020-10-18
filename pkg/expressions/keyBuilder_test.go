@@ -52,13 +52,6 @@ func TestEscapedString(t *testing.T) {
 	assert.Equal(t, 2, len(kb.stages))
 }
 
-func TestBucketing(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{bucket {2} 10} is bucketed")
-	key := kb.BuildKey(&testContext)
-	assert.Equal(t, "120 is bucketed", key)
-	assert.Equal(t, 2, len(kb.stages))
-}
-
 func TestDeepKeys(t *testing.T) {
 	kb, _ := NewKeyBuilder().Compile("{{1} b} is bucketed")
 	key := kb.BuildKey(&testContext)

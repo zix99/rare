@@ -1,6 +1,9 @@
-package expressions
+package stdlib
 
-import "strconv"
+import (
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	"strconv"
+)
 
 // Simple helper that will take 2 or more integers, and apply an operation
 func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {

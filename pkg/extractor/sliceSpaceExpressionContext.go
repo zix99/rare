@@ -1,7 +1,7 @@
 package extractor
 
 import (
-	"rare/pkg/expressions"
+	"rare/pkg/expressions/stdlib"
 	"strconv"
 )
 
@@ -32,5 +32,5 @@ func (s *SliceSpaceExpressionContext) GetKey(key string) string {
 	case "line":
 		return strconv.FormatUint(s.lineNum, 10)
 	}
-	return expressions.ErrorArgName
+	return stdlib.ErrorArgName
 }

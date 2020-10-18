@@ -1,4 +1,4 @@
-package expressions
+package stdlib
 
 import (
 	"strconv"

@@ -1,7 +1,8 @@
-package expressions
+package stdlib
 
 import (
 	"fmt"
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,7 @@ func mockContext(args ...interface{}) KeyBuilderContext {
 }
 
 func testExpression(t *testing.T, context KeyBuilderContext, expression string, expected string) {
-	kb, err := NewKeyBuilder().Compile(expression)
+	kb, err := NewStdKeyBuilder().Compile(expression)
 	assert.NoError(t, err)
 	assert.NotNil(t, kb)
 	if kb != nil {
@@ -40,9 +41,17 @@ func TestCoalesce(t *testing.T) {
 }
 
 func TestSimpleFunction(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{hi {2}} {hf {3}}")
+	kb, _ := NewStdKeyBuilder().Compile("{hi {2}} {hf {3}}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "1,000,000 5,000,000.1235", key)
+}
+
+func TestBucketing(t *testing.T) {
+	testContext := mockContext("ab", "cd", "123")
+	kb, _ := NewStdKeyBuilder().Compile("{bucket {2} 10} is bucketed")
+	key := kb.BuildKey(testContext)
+	assert.Equal(t, "120 is bucketed", key)
+	assert.Equal(t, 2, kb.StageCount())
 }
 
 func TestBucket(t *testing.T) {
@@ -65,7 +74,7 @@ func TestClamp(t *testing.T) {
 }
 
 func TestByteSize(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{bytesize {2}}")
+	kb, _ := NewStdKeyBuilder().Compile("{bytesize {2}}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "976 KB", key)
 }
@@ -84,13 +93,13 @@ func TestComparisonEquality(t *testing.T) {
 }
 
 func TestComparisonExpression(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{and {lt {2} 10000000} {gt {1} 50}} {or 1 {eq abc 123}} {or {eq abc 123} {eq qef agg}}")
+	kb, _ := NewStdKeyBuilder().Compile("{and {lt {2} 10000000} {gt {1} 50}} {or 1 {eq abc 123}} {or {eq abc 123} {eq qef agg}}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "1 1 ", key)
 }
 
 func TestNotExpression(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{not {and {lt {2} 10000000} {gt {1} 50}}}")
+	kb, _ := NewStdKeyBuilder().Compile("{not {and {lt {2} 10000000} {gt {1} 50}}}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "", key)
 }
@@ -136,31 +145,31 @@ func TestFormat(t *testing.T) {
 }
 
 func TestLike(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{like {0} \"a\"}{like {0} c}")
+	kb, _ := NewStdKeyBuilder().Compile("{like {0} \"a\"}{like {0} c}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "ab", key)
 }
 
 func TestArithmatic(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{sumi {1} {4}} {multi {1} 2} {divi {1} 2} {subi {1} 10}")
+	kb, _ := NewStdKeyBuilder().Compile("{sumi {1} {4}} {multi {1} 2} {divi {1} 2} {subi {1} 10}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "122 200 50 90", key)
 }
 
 func TestArithmaticError(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{sumi 1} {sumi 1 a} {sumi a 1} {sumi 1 1 b}")
+	kb, _ := NewStdKeyBuilder().Compile("{sumi 1} {sumi 1 a} {sumi a 1} {sumi 1 1 b}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "<ARGN> <BAD-TYPE> <BAD-TYPE> <BAD-TYPE>", key)
 }
 
 func TestArithmaticf(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{sumf {1} {4}} {multf {1} 2} {divf {1} 2} {subf {1} 10}")
+	kb, _ := NewStdKeyBuilder().Compile("{sumf {1} {4}} {multf {1} 2} {divf {1} 2} {subf {1} 10}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "122 200 50 90", key)
 }
 
 func TestArithmaticfError(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{sumf 1} {sumf 1 a} {sumf a 1} {sumf 1 2 a}")
+	kb, _ := NewStdKeyBuilder().Compile("{sumf 1} {sumf 1 a} {sumf a 1} {sumf 1 2 a}")
 	key := kb.BuildKey(&testFuncContext)
 	assert.Equal(t, "<ARGN> <BAD-TYPE> <BAD-TYPE> <BAD-TYPE>", key)
 }

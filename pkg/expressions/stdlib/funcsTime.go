@@ -1,9 +1,11 @@
-package expressions
+package stdlib
 
 import (
 	"strconv"
 	"strings"
 	"time"
+
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 const defaultTimeFormat = time.RFC3339

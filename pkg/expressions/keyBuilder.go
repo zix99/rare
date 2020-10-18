@@ -21,7 +21,6 @@ func NewKeyBuilder() *KeyBuilder {
 	kb := &KeyBuilder{
 		functions: make(map[string]KeyBuilderFunction),
 	}
-	kb.Funcs(defaultFunctions)
 	return kb
 }
 
@@ -115,6 +114,10 @@ func (s *CompiledKeyBuilder) BuildKey(context KeyBuilderContext) string {
 	}
 
 	return sb.String()
+}
+
+func (s *CompiledKeyBuilder) StageCount() int {
+	return len(s.stages)
 }
 
 func (s *CompiledKeyBuilder) joinStages() KeyBuilderStage {

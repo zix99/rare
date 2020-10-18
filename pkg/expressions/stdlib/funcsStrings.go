@@ -1,10 +1,12 @@
-package expressions
+package stdlib
 
 import (
 	"fmt"
 	"rare/pkg/humanize"
 	"strconv"
 	"strings"
+
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 // {prefix string prefix}

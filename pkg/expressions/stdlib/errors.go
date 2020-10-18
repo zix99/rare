@@ -1,4 +1,4 @@
-package expressions
+package stdlib
 
 const (
 	ErrorBucket     = "<BUCKET-ERROR>" // Unable to bucket from given value (wrong type)
