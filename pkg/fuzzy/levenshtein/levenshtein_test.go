@@ -34,8 +34,14 @@ func TestFullSimilar(t *testing.T) {
 	assert.Equal(t, float32(1.0), DistanceStringRatio("abc", "abc"))
 }
 
-func BenchmarkSimilarity(b *testing.B) {
+func BenchmarkSimilarityHigh(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		DistanceStringRatio("abcdef", "qqqdef")
+		DistanceString("this is a very long string to test with", "this is a very short string to test with")
+	}
+}
+
+func BenchmarkSimilarityLow(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		DistanceString("this is a very long string to test with", "a completely different string with a few similar words")
 	}
 }

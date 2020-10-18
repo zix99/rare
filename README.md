@@ -48,6 +48,9 @@ go run github.com/gobuffalo/packr/v2/packr2
 
 # Build binary
 go build .
+
+# OR, with experimental features
+go build -tags experimental .
 ```
 
 # Docs
