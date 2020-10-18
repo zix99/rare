@@ -2,7 +2,7 @@ package stdlib
 
 import (
 	"fmt"
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	. "rare/pkg/expressions"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
