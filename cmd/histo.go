@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	. "rare/cmd/helpers" //lint:ignore ST1001 Legacy
 	"rare/cmd/readProgress"
 	"rare/pkg/aggregation"
@@ -36,6 +37,7 @@ func histoFunction(c *cli.Context) error {
 		sortByKey   = c.Bool("sk")
 		atLeast     = c.Int64("atleast")
 		extra       = c.Bool("extra")
+		all         = c.Bool("all")
 	)
 
 	counter := aggregation.NewCounter()
@@ -45,15 +47,29 @@ func histoFunction(c *cli.Context) error {
 
 	ext := BuildExtractorFromArguments(c)
 
+	progressString := func() string {
+		return FWriteExtractorSummary(ext,
+			counter.ParseErrors(),
+			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount())))
+	}
+
 	RunAggregationLoop(ext, counter, func() {
 		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey, atLeast)
-		writer.InnerWriter().WriteForLine(topItems, FWriteExtractorSummary(ext,
-			counter.ParseErrors(),
-			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount()))))
+		writer.InnerWriter().WriteForLine(topItems, progressString())
 		writer.InnerWriter().WriteForLine(topItems+1, readProgress.GetReadFileString())
 	})
 
 	writer.InnerWriter().Close()
+
+	if all {
+		fmt.Println("Full Table:")
+		vterm := multiterm.NewVirtualTerm()
+		vWriter := multiterm.NewHistogram(vterm, counter.GroupCount())
+		writeHistoOutput(vWriter, counter, counter.GroupCount(), reverseSort, sortByKey, atLeast)
+
+		vterm.WriteToOutput(os.Stdout)
+		fmt.Println(progressString())
+	}
 
 	return nil
 }
@@ -75,6 +91,10 @@ func histogramCommand() *cli.Command {
 		ShortName: "h",
 		ArgsUsage: DefaultArgumentDescriptor,
 		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  "all,a",
+				Usage: "After summarization is complete, print all histogram buckets",
+			},
 			cli.BoolFlag{
 				Name:  "bars,b",
 				Usage: "Display bars as part of histogram",
