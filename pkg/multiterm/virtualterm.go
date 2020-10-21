@@ -33,7 +33,7 @@ func (s *VirtualTerm) Get(line int) string {
 }
 
 func (s *VirtualTerm) LineCount() int {
-	return s.maxLine
+	return s.maxLine + 1
 }
 
 func (s *VirtualTerm) WriteToOutput(out io.Writer) {
