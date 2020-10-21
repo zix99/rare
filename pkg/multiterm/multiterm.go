@@ -19,6 +19,8 @@ type TermWriter struct {
 	HideCursor bool
 }
 
+var _ MultilineTerm = &TermWriter{}
+
 func New() *TermWriter {
 	return &TermWriter{
 		cursor:     0,

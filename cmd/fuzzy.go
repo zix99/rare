@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"rare/cmd/helpers"
 	"rare/cmd/readProgress"
 	"rare/pkg/aggregation"
@@ -23,6 +24,7 @@ func fuzzyFunction(c *cli.Context) error {
 		similarity  = float32(c.Float64("similarity"))
 		simOffset   = c.Int("similarity-offset")
 		simSize     = c.Int("similarity-size")
+		all         = c.Bool("all")
 	)
 
 	counter := aggregation.NewFuzzyAggregator(similarity, simOffset, simSize)
@@ -32,15 +34,29 @@ func fuzzyFunction(c *cli.Context) error {
 
 	ext := helpers.BuildExtractorFromArguments(c)
 
+	progressString := func() string {
+		return helpers.FWriteExtractorSummary(ext,
+			counter.ParseErrors(),
+			fmt.Sprintf("(Groups: %s) (Fuzzy: %s)", color.Wrapi(color.BrightBlue, counter.Histo.GroupCount()), color.Wrapi(color.BrightMagenta, counter.FuzzyTableSize())))
+	}
+
 	helpers.RunAggregationLoop(ext, counter, func() {
 		writeHistoOutput(writer, counter.Histo, topItems, reverseSort, sortByKey, atLeast)
-		writer.InnerWriter().WriteForLine(topItems, helpers.FWriteExtractorSummary(ext,
-			counter.ParseErrors(),
-			fmt.Sprintf("(Groups: %s) (Fuzzy: %s)", color.Wrapi(color.BrightBlue, counter.Histo.GroupCount()), color.Wrapi(color.BrightMagenta, counter.FuzzyTableSize()))))
+		writer.InnerWriter().WriteForLine(topItems, progressString())
 		writer.InnerWriter().WriteForLine(topItems+1, readProgress.GetReadFileString())
 	})
 
 	writer.InnerWriter().Close()
+
+	if all {
+		fmt.Println("Full Table:")
+		vterm := multiterm.NewVirtualTerm()
+		vWriter := multiterm.NewHistogram(vterm, counter.Histo.GroupCount())
+		writeHistoOutput(vWriter, counter.Histo, counter.Histo.GroupCount(), reverseSort, sortByKey, atLeast)
+
+		vterm.WriteToOutput(os.Stdout)
+		fmt.Println(progressString())
+	}
 
 	return nil
 }
@@ -57,6 +73,10 @@ func fuzzyCommand() *cli.Command {
 		and aggregating and search for these messages`,
 		Action: fuzzyFunction,
 		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  "all,a",
+				Usage: "After summarization is complete, print all histogram buckets",
+			},
 			cli.BoolFlag{
 				Name:  "bars,b",
 				Usage: "Display bars as part of histogram",
