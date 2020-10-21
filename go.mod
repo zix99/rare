@@ -16,7 +16,7 @@ require (
 	golang.org/x/crypto v0.0.0-20191219195013-becbf705a915 // indirect
 	golang.org/x/sys v0.0.0-20191220220014-0732a990476f
 	golang.org/x/text v0.3.2
-	golang.org/x/tools v0.0.0-20191005014404-c9f9432ec4b2 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
+	honnef.co/go/tools v0.0.1-2020.1.6 // indirect
 )
