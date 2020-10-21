@@ -17,10 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Get
-        run: |
-          go get -t -v ./...
-          go install honnef.co/go/tools/cmd/staticcheck
-          go install github.com/gobuffalo/packr/v2/packr2
+        run: go get -t -v ./...
       - name: Vet
         run: go vet $(go list ./... | grep -v /vendor/)
       - name: Test
@@ -28,14 +25,14 @@ jobs:
           go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: StaticCheck
         run: |
-          staticcheck ./...
+          go run honnef.co/go/tools/cmd/staticcheck ./...
       - name: Codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           bash <(curl -s https://codecov.io/bash)
       - name: Pack
-        run: packr2
+        run: go run github.com/gobuffalo/packr/v2/packr2
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v1
         with:
