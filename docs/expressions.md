@@ -18,6 +18,7 @@ The basic syntax structure is as follows:
  * A string in an expression is a special key eg. `{src}`
  * When an expression has space(s), the first literal will be the name of a helper function.
    From there, the logic is nested. eg `{coalesce {4} {3} notfound}`
+ * Quotes in an argument create a single argument eg. `{coalesce {4} {3} "not found"}`
  * Truthiness is the presence of a value.  False is an empty value (or only whitespace)
 
 ## Special Keys
