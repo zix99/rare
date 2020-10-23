@@ -174,6 +174,12 @@ Selects the base, directory, or extension of a path.
 `dirname  a/b/c` = a/b
 `extname a/b/c.jpg` = .jpg 
 
+## CSV
+
+Syntax: `{csv a b c}`
+
+Generate a CSV row given a set of values
+
 ## Json
 
 Syntax: `{json field expression}` or `{json expression}`

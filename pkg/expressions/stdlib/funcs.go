@@ -69,6 +69,9 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	// Json
 	"json": KeyBuilderFunction(kfJson),
 
+	// CSV
+	"csv": KeyBuilderFunction(kfCsv),
+
 	// Time
 	"time":       KeyBuilderFunction(kfTimeParse),
 	"timeformat": KeyBuilderFunction(kfTimeFormat),
