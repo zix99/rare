@@ -14,8 +14,8 @@ $ rare h -m "\" (\d+)" -e "{1}" -z -x testdata/*
 404                 5,557,374  [66.4%] ||||||||||||||||||||||||||||||||||||||||||||||||||
 200                 2,564,984  [30.6%] |||||||||||||||||||||||
 400                 243,282    [ 2.9%] ||
-405                 5,708      [ 0.1%] 
-408                 1,397      [ 0.0%] 
+405                 5,708      [ 0.1%]
+408                 1,397      [ 0.0%]
 Matched: 8,373,328 / 8,383,717 (Groups: 8)
 ```
 
@@ -41,25 +41,25 @@ Know how your URLs are responding by their http statuses
 ```sh
 $ rare t -m "\"(\w+) (.+).*\" (\d+) (\d+)" -e "{$ {3} {substr {2} 0 20}}" -z testdata/*
 
-                     404                  200                  400                  405                  304                  301                  
-/ HTTP/1.1           0                    21,614               38                   22                   8                    0                                         
-/mirror/distros/vlit 0                    1,122                0                    0                    0                    0                                         
-/test.php HTTP/1.1   909                  0                    0                    0                    0                    0                                         
-/ HTTP/1.0           0                    833                  0                    4                    0                    0                                         
-/1.php HTTP/1.1      792                  0                    0                    0                    0                    0                                         
-/qq.php HTTP/1.1     611                  0                    0                    0                    0                    0                                         
-../../mnt/custom/Pro 0                    0                    558                  0                    0                    0                                         
-/cmd.php HTTP/1.1    511                  0                    0                    0                    0                    0                                         
-/x.php HTTP/1.1      497                  0                    0                    0                    0                    0                                         
-/shell.php HTTP/1.1  478                  0                    0                    0                    0                    0                                         
-/log.php HTTP/1.1    399                  0                    0                    0                    0                    0                                         
-/confg.php HTTP/1.1  396                  0                    0                    0                    0                    0                                         
-/api.php HTTP/1.1    385                  0                    0                    0                    0                    0                                         
-/ss.php HTTP/1.1     379                  0                    0                    0                    0                    0                                         
-/index.php HTTP/1.1  349                  0                    0                    0                    0                    0                                         
-/aaa.php HTTP/1.1    302                  0                    0                    0                    0                    0                                         
-/hell.php HTTP/1.1   300                  0                    0                    0                    0                    0                                         
-/z.php HTTP/1.1      300                  0                    0                    0                    0                    0                                         
-/123.php HTTP/1.1    297                  0                    0                    0                    0                    0                                         
-Matched: 116,729 / 117,170 (R: 1149; C: 6)
+                     404                  200                  400
+/ HTTP/1.1           0                    127,624              5,681
+/ HTTP/1.0           0                    5,222                0
+/test.php HTTP/1.1   3,241                0                    0
+/1.php HTTP/1.1      2,508                0                    0
+/qq.php HTTP/1.1     1,908                0                    0
+/index.php HTTP/1.1  1,776                0                    0
+/shell.php HTTP/1.1  1,750                0                    0
+/cmd.php HTTP/1.1    1,588                0                    0
+/x.php HTTP/1.1      1,573                0                    0
+/log.php HTTP/1.1    1,261                0                    0
+/confg.php HTTP/1.1  1,253                0                    0
+/api.php HTTP/1.1    1,241                0                    0
+/ss.php HTTP/1.1     1,233                0                    0
+/mirror/distros/vlit 0                    1,122                0
+/robots.txt HTTP/1.1 1,056                0                    0
+/vendor/phpunit/phpu 1,055                0                    0
+/aaa.php HTTP/1.1    954                  0                    0
+/hell.php HTTP/1.1   948                  0                    0
+/z.php HTTP/1.1      948                  0                    0
+Matched: 465,348 / 470,163 (R: 2396; C: 8)
 ```
