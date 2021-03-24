@@ -44,6 +44,10 @@ func cliMain(args ...string) error {
 			Usage: "Disable number formatting",
 		},
 		cli.BoolFlag{
+			Name:  "nounicode,nu",
+			Usage: "Disable usage of unicode characters",
+		},
+		cli.BoolFlag{
 			Name:  "color",
 			Usage: "Force-enable color output",
 		},
@@ -80,6 +84,9 @@ func cliMain(args ...string) error {
 		}
 		if c.Bool("notrim") {
 			multiterm.AutoTrim = false
+		}
+		if c.Bool("nounicode") {
+			multiterm.UnicodeEnabled = false
 		}
 
 		// Profiling

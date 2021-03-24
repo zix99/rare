@@ -2,9 +2,14 @@ package multiterm
 
 import (
 	"io"
+	"strings"
 )
 
+const nonUnicodeBlock rune = '|'
+
 const fullBlock rune = '\u2588'
+
+var UnicodeEnabled = true
 
 var barUnicode = [...]rune{
 	'\u0000',
@@ -24,17 +29,31 @@ type RuneWriter interface {
 	WriteRune(r rune) (int, error)
 }
 
-func WriteBar(w io.StringWriter, val, maxVal, maxLen int64) {
+func BarWrite(w io.StringWriter, val, maxVal, maxLen int64) {
 	if val > maxVal {
 		val = maxVal
 	}
 
-	remainingBlocks := val * maxLen * barUnicodePartCount / maxVal
-	for remainingBlocks >= barUnicodePartCount {
-		w.WriteString(string(fullBlock))
-		remainingBlocks -= barUnicodePartCount
+	if UnicodeEnabled {
+		remainingBlocks := val * maxLen * barUnicodePartCount / maxVal
+		for remainingBlocks >= barUnicodePartCount {
+			w.WriteString(string(fullBlock))
+			remainingBlocks -= barUnicodePartCount
+		}
+		if remainingBlocks > 0 {
+			w.WriteString(string(barUnicode[remainingBlocks]))
+		}
+	} else {
+		blocks := val * maxLen / maxVal
+		for blocks > 0 {
+			w.WriteString(string(nonUnicodeBlock))
+			blocks--
+		}
 	}
-	if remainingBlocks > 0 {
-		w.WriteString(string(barUnicode[remainingBlocks]))
-	}
+}
+
+func BarString(val, maxVal, maxLen int64) string {
+	var sb strings.Builder
+	BarWrite(&sb, val, maxVal, maxLen)
+	return sb.String()
 }

@@ -92,9 +92,7 @@ func (s *HistoWriter) writeLine(line int, key string, val int64) {
 
 	if s.ShowBar && s.maxVal > 0 {
 		sb.WriteString(" ")
-		sb.WriteString(color.Blue)
-		WriteBar(&sb, val, s.maxVal, 50)
-		sb.WriteString(color.Reset)
+		sb.WriteString(color.Wrap(color.Blue, BarString(val, s.maxVal, 50)))
 	}
 
 	s.writer.WriteForLine(line, sb.String())
