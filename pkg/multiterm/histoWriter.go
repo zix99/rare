@@ -33,8 +33,6 @@ func NewHistogram(term MultilineTerm, maxLines int) *HistoWriter {
 	}
 }
 
-var progressSlice string = strings.Repeat("|", 50)
-
 func (s *HistoWriter) InnerWriter() MultilineTerm {
 	return s.writer
 }
@@ -93,9 +91,10 @@ func (s *HistoWriter) writeLine(line int, key string, val int64) {
 	}
 
 	if s.ShowBar && s.maxVal > 0 {
-		progress := val * int64(len(progressSlice)) / s.maxVal
 		sb.WriteString(" ")
-		sb.WriteString(color.Wrap(color.Blue, progressSlice[:progress]))
+		sb.WriteString(color.Blue)
+		WriteBar(&sb, val, s.maxVal, 50)
+		sb.WriteString(color.Reset)
 	}
 
 	s.writer.WriteForLine(line, sb.String())
