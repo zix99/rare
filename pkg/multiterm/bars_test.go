@@ -6,5 +6,5 @@ import (
 )
 
 func TestWriteBar(t *testing.T) {
-	WriteBar(os.Stdout, 1, 8, 1)
+	BarWrite(os.Stdout, 1, 8, 1)
 }
