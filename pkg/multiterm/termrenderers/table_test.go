@@ -1,20 +1,21 @@
-package multiterm
+package termrenderers
 
 import (
+	"rare/pkg/multiterm"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSimpleTable(t *testing.T) {
-	table := NewTable(New(), 5, 5)
+	table := NewTable(multiterm.New(), 5, 5)
 	table.WriteRow(0, "a", "b", "c", "d")
 	table.WriteRow(4, "a", "b", "c", "d")
 	table.WriteRow(10, "a", "b", "c", "d")
 }
 
 func TestSimpleTableVirtual(t *testing.T) {
-	vt := NewVirtualTerm()
+	vt := multiterm.NewVirtualTerm()
 	table := NewTable(vt, 2, 2)
 	table.WriteRow(0, "a", "b", "c")
 	table.WriteRow(1, "q")

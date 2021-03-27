@@ -1,4 +1,4 @@
-package multiterm
+package termunicode
 
 import (
 	"io"
@@ -8,8 +8,6 @@ import (
 const nonUnicodeBlock rune = '|'
 
 const fullBlock rune = '\u2588'
-
-var UnicodeEnabled = true
 
 var barUnicode = [...]rune{
 	'\u0000',

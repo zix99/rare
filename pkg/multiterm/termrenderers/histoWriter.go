@@ -1,9 +1,11 @@
-package multiterm
+package termrenderers
 
 import (
 	"fmt"
 	"rare/pkg/color"
 	"rare/pkg/humanize"
+	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termunicode"
 	"strings"
 )
 
@@ -13,7 +15,7 @@ type histoPair struct {
 }
 
 type HistoWriter struct {
-	writer      MultilineTerm
+	writer      multiterm.MultilineTerm
 	maxVal      int64
 	samples     uint64
 	textSpacing int
@@ -23,7 +25,7 @@ type HistoWriter struct {
 	ShowPercentage bool
 }
 
-func NewHistogram(term MultilineTerm, maxLines int) *HistoWriter {
+func NewHistogram(term multiterm.MultilineTerm, maxLines int) *HistoWriter {
 	return &HistoWriter{
 		writer:         term,
 		ShowBar:        true,
@@ -33,7 +35,7 @@ func NewHistogram(term MultilineTerm, maxLines int) *HistoWriter {
 	}
 }
 
-func (s *HistoWriter) InnerWriter() MultilineTerm {
+func (s *HistoWriter) InnerWriter() multiterm.MultilineTerm {
 	return s.writer
 }
 
@@ -92,7 +94,7 @@ func (s *HistoWriter) writeLine(line int, key string, val int64) {
 
 	if s.ShowBar && s.maxVal > 0 {
 		sb.WriteString(" ")
-		sb.WriteString(color.Wrap(color.Blue, BarString(val, s.maxVal, 50)))
+		sb.WriteString(color.Wrap(color.Blue, termunicode.BarString(val, s.maxVal, 50)))
 	}
 
 	s.writer.WriteForLine(line, sb.String())

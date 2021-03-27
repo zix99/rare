@@ -1,18 +1,19 @@
-package multiterm
+package termrenderers
 
 import (
+	"rare/pkg/multiterm"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBasicHisto(t *testing.T) {
-	mt := NewHistogram(New(), 5)
+	mt := NewHistogram(multiterm.New(), 5)
 	mt.WriteForLine(4, "key", 1000)
 }
 
 func TestHistoWithValues(t *testing.T) {
-	vt := NewVirtualTerm()
+	vt := multiterm.NewVirtualTerm()
 	mt := NewHistogram(vt, 2)
 	mt.ShowBar = false
 	mt.WriteForLine(0, "abc", 1234)

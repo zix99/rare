@@ -1,7 +1,8 @@
-package multiterm
+package termrenderers
 
 import (
 	"rare/pkg/color"
+	"rare/pkg/multiterm"
 	"strings"
 )
 
@@ -10,7 +11,7 @@ import (
 type TableWriter struct {
 	maxCols, maxRows int
 	currentRows      int
-	term             MultilineTerm
+	term             multiterm.MultilineTerm
 	maxElementLen    int
 	rows             [][]string
 
@@ -18,7 +19,7 @@ type TableWriter struct {
 	HighlightCol0 bool
 }
 
-func NewTable(term MultilineTerm, maxCols, maxRows int) *TableWriter {
+func NewTable(term multiterm.MultilineTerm, maxCols, maxRows int) *TableWriter {
 	return &TableWriter{
 		maxCols:       maxCols,
 		maxRows:       maxRows,
@@ -30,7 +31,7 @@ func NewTable(term MultilineTerm, maxCols, maxRows int) *TableWriter {
 	}
 }
 
-func (s *TableWriter) InnerWriter() MultilineTerm {
+func (s *TableWriter) InnerWriter() multiterm.MultilineTerm {
 	return s.term
 }
 

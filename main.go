@@ -9,6 +9,7 @@ import (
 	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termunicode"
 
 	"github.com/urfave/cli"
 )
@@ -86,7 +87,7 @@ func cliMain(args ...string) error {
 			multiterm.AutoTrim = false
 		}
 		if c.Bool("nounicode") {
-			multiterm.UnicodeEnabled = false
+			termunicode.UnicodeEnabled = false
 		}
 
 		// Profiling

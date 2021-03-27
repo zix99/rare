@@ -1,4 +1,4 @@
-package multiterm
+package termunicode
 
 import (
 	"os"
