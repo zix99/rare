@@ -8,6 +8,7 @@ import (
 	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli"
 )
@@ -28,7 +29,7 @@ func tabulateFunction(c *cli.Context) error {
 	)
 
 	counter := aggregation.NewTable(delim)
-	writer := multiterm.NewTable(multiterm.New(), numCols, numRows)
+	writer := termrenderers.NewTable(multiterm.New(), numCols, numRows)
 
 	ext := BuildExtractorFromArguments(c)
 

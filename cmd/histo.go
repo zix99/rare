@@ -8,11 +8,12 @@ import (
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli"
 )
 
-func writeHistoOutput(writer *multiterm.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool, sortByKey bool, atLeast int64) {
+func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool, sortByKey bool, atLeast int64) {
 	var items []aggregation.MatchPair
 	if sortByKey {
 		items = counter.ItemsSortedByKey(count, reverse)
@@ -41,7 +42,7 @@ func histoFunction(c *cli.Context) error {
 	)
 
 	counter := aggregation.NewCounter()
-	writer := multiterm.NewHistogram(multiterm.New(), topItems)
+	writer := termrenderers.NewHistogram(multiterm.New(), topItems)
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
 
@@ -64,7 +65,7 @@ func histoFunction(c *cli.Context) error {
 	if all {
 		fmt.Println("Full Table:")
 		vterm := multiterm.NewVirtualTerm()
-		vWriter := multiterm.NewHistogram(vterm, counter.GroupCount())
+		vWriter := termrenderers.NewHistogram(vterm, counter.GroupCount())
 		writeHistoOutput(vWriter, counter, counter.GroupCount(), reverseSort, sortByKey, atLeast)
 
 		vterm.WriteToOutput(os.Stdout)
