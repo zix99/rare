@@ -102,3 +102,45 @@ func kfDuration(args []KeyBuilderStage) KeyBuilderStage {
 		return strconv.FormatInt(int64(duration.Seconds()), 10)
 	})
 }
+
+func kfBucketTime(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) < 2 {
+		return stageError(ErrorArgCount)
+	}
+
+	bucketFormat := timeBucketToFormat(args[1](nil))
+
+	parseFormat := defaultTimeFormat
+	if len(args) >= 3 {
+		parseFormat = namedTimeFormatToFormat(args[2](nil))
+	}
+
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		t, err := time.Parse(parseFormat, args[0](context))
+		if err != nil {
+			return ErrorParsing
+		}
+		return t.Format(bucketFormat)
+	})
+}
+
+func timeBucketToFormat(name string) string {
+	name = strings.ToLower(name)
+
+	if isPartialString(name, "nanos") {
+		return "2006-01-02 15:04:05.999999999"
+	} else if isPartialString(name, "seconds") {
+		return "2006-01-02 15:04:05"
+	} else if isPartialString(name, "minutes") {
+		return "2006-01-02 15:04"
+	} else if isPartialString(name, "hours") {
+		return "2006-01-02 15"
+	} else if isPartialString(name, "days") {
+		return "2006-01-02"
+	} else if isPartialString(name, "months") {
+		return "2006-01"
+	} else if isPartialString(name, "years") {
+		return "2006"
+	}
+	return ErrorBucket
+}

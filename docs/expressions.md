@@ -192,13 +192,14 @@ See: [json](json.md) for more information.
 
 ## Time
 
-Syntax: `{time str [format]}` `{timeformat unixtime [format] [utc]}` `{duration dur}`
+Syntax: `{time str [format]}` `{timeformat unixtime [format] [utc]}` `{duration dur}` `{buckettime str bucket [format]}`
 
 These three time functions provide you a way to parse and manipulate time.
 
 time: Parse a given time-string into a unix second time (default: RFC3339)
 timeformat: Takes a unix time, and formats it (default: RFC3339)
 duration: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
+buckettime: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
 
 **Supported Formats:**
 ASNIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339N, NGINX

@@ -32,3 +32,10 @@ func TestDuration(t *testing.T) {
 		"{duration 24h}",
 		strconv.Itoa(60*60*24))
 }
+
+func TestTimeFormat(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{buckettime {0} d nginx}",
+		"2016-04-14")
+}
