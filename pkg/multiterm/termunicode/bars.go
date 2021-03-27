@@ -22,11 +22,6 @@ var barUnicode = [...]rune{
 }
 var barUnicodePartCount int64 = int64(len(barUnicode))
 
-type RuneWriter interface {
-	io.Writer
-	WriteRune(r rune) (int, error)
-}
-
 func BarWrite(w io.StringWriter, val, maxVal, maxLen int64) {
 	if val > maxVal {
 		val = maxVal
