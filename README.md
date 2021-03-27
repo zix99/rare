@@ -379,7 +379,7 @@ go test ./...
 
 ## Profiling
 
-New high-throughput changes should be performance benchmark.
+New high-throughput changes should be performance benchmarked.
 
 To Benchmark:
 
