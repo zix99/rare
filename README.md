@@ -361,6 +361,34 @@ user	0m1.648s
 sys	0m0.048s
 ```
 
+# Development
+
+New additions to `rare` should pass the following checks
+
+- Documentation for any new functionality or expression changes
+- Before and after CPU and memory benchmarking for core additions (Expressions, aggregation, benchmarking, and rendering)
+- Limit memory allocations (preferably 0!) in the high-throughput functions
+- Tests, and if it makes sense, benchmarks of a given function
+
+## Running/Testing
+
+```bash
+go run .
+go test ./...
+```
+
+## Profiling
+
+New high-throughput changes should be performance benchmarked.
+
+To Benchmark:
+
+```bash
+go run . --profile out <your test code>
+go tool pprof -http=:8080 out.cpu.prof # CPU
+go tool pprof -http=:8080 out_num.prof # Memory
+```
+
 # License
 
     Copyright (C) 2019  Christopher LaPointe

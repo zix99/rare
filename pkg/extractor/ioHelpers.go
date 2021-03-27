@@ -56,7 +56,7 @@ func ConvertReaderToStringChan(sourceName string, reader io.ReadCloser, batchSiz
 	return out
 }
 
-// SyncReadAheadToBatchChannel reads a readahead buffer and breaks up its scants to `batchSize`
+// SyncReadAheadToBatchChannel reads a readahead buffer and breaks up its scans to `batchSize`
 //  and writes the batch-sized results to a channel
 func SyncReadAheadToBatchChannel(sourceName string, readahead *readahead.ReadAhead, batchSize int, out chan<- InputBatch) {
 	batch := make([]BString, 0, batchSize)
