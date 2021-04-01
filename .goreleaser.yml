@@ -5,7 +5,7 @@ before:
     - go run github.com/gobuffalo/packr/v2/packr2
 builds:
 - env:
-  - CGO_ENABLED=0
+  - CGO_ENABLED=1
   ldflags:
     - -s -w
     - -X main.version={{.Version}}
