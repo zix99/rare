@@ -7,6 +7,7 @@ import (
 
 	"rare/cmd"
 	"rare/pkg/color"
+	"rare/pkg/fastregex"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termunicode"
@@ -19,7 +20,7 @@ func cliMain(args ...string) error {
 
 	app.Usage = "A fast regex parser, extractor and realtime aggregator"
 
-	app.Version = fmt.Sprintf("%s, %s", version, buildSha)
+	app.Version = fmt.Sprintf("%s, %s; regex: %s", version, buildSha, fastregex.Version)
 
 	app.Description = `Aggregate and display information parsed from text files using
 	regex and a simple handlebars-like expression syntax.

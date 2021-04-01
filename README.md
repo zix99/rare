@@ -53,6 +53,11 @@ go build .
 go build -tags experimental .
 ```
 
+Available tags:
+
+* `experimental` Enable experimental features (eg. fuzzy search)
+* `nopcre` Disable PCRE for regex feature where supported
+
 # Docs
 
 All documentation may be found here, in the [docs/](docs/) folder, and by running `rare docs` (embedded docs/ folder)
