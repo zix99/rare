@@ -3,6 +3,7 @@ package extractor
 import (
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/stdlib"
+	"rare/pkg/fastregex"
 	"regexp"
 	"sync"
 	"sync/atomic"
@@ -42,7 +43,7 @@ type Config struct {
 //  Expects someone to consume its ReadChan()
 type Extractor struct {
 	readChan     chan []Match
-	regex        *regexp.Regexp
+	regex        fastregex.Regexp
 	readLines    uint64
 	matchedLines uint64
 	ignoredLines uint64
@@ -51,11 +52,11 @@ type Extractor struct {
 	ignore       IgnoreSet
 }
 
-func buildRegex(s string, posix bool) (*regexp.Regexp, error) {
+func buildRegex(s string, posix bool) (fastregex.Regexp, error) {
 	if posix {
 		return regexp.CompilePOSIX(s)
 	}
-	return regexp.Compile(s)
+	return fastregex.Compile(s)
 }
 
 func (s *Extractor) ReadLines() uint64 {
