@@ -4,7 +4,8 @@ before:
   hooks:
     - go run github.com/gobuffalo/packr/v2/packr2
 builds:
-- env:
+- id: cgo
+  env:
   - CGO_ENABLED=1
   ldflags:
     - -s -w
@@ -13,8 +14,18 @@ builds:
   goarch:
     - amd64
   goos:
-    - darwin
     - linux
+- id: non-cgo
+  env:
+  - CGO_ENABLED=0
+  ldflags:
+    - -s -w
+    - -X main.version={{.Version}}
+    - -X main.buildSha={{.ShortCommit}}
+  goarch:
+    - amd64
+  goos:
+    - darwin
     - windows
 archives:
 - replacements:
