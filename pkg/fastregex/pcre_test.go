@@ -30,12 +30,19 @@ func TestMatch(t *testing.T) {
 	assert.False(t, MustCompile("test").Match([]byte("this is a tes")))
 }
 
+func TestMatchString(t *testing.T) {
+	assert.True(t, MustCompile("test").MatchString("this is a test"))
+	assert.False(t, MustCompile("test").MatchString("this is a tes"))
+}
+
 func TestSubMatch(t *testing.T) {
 	re := MustCompile("a (\\w+)")
 	ret := re.FindSubmatchIndex([]byte("this is a test"))
 	assert.Len(t, ret, 4)
 	assert.Equal(t, []int{8, 14, 10, 14}, ret)
 }
+
+// Benchmarks
 
 func BenchmarkPCREMatch(b *testing.B) {
 	re := MustCompile(`t(\w+)`)
