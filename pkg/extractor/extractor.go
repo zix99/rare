@@ -51,13 +51,6 @@ type Extractor struct {
 	ignore         IgnoreSet
 }
 
-func buildRegex(s string, posix bool) (fastregex.CompiledRegexp, error) {
-	/*if posix {
-		return regexp.CompilePOSIX(s)
-	}*/ // TODO
-	return fastregex.Compile(s)
-}
-
 func (s *Extractor) ReadLines() uint64 {
 	return atomic.LoadUint64(&s.readLines)
 }
@@ -149,7 +142,7 @@ func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 		return nil, err
 	}
 
-	compiledRegex, err := buildRegex(config.Regex, config.Posix)
+	compiledRegex, err := fastregex.Compile(config.Regex, config.Posix)
 	if err != nil {
 		return nil, err
 	}

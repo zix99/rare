@@ -16,7 +16,7 @@ type Regexp interface {
 
 // In addition, the following must be provided
 var (
-	_ string                                    = Version
-	_ func(expr string) (CompiledRegexp, error) = Compile
-	_ func(expr string) CompiledRegexp          = MustCompile
+	_ string                                                = Version
+	_ func(expr string, posix bool) (CompiledRegexp, error) = Compile
+	_ func(expr string, posix bool) CompiledRegexp          = MustCompile
 )

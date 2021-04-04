@@ -58,8 +58,7 @@ go build -tags experimental .
 Available tags:
 
 * `experimental` Enable experimental features (eg. fuzzy search)
-* `pcre1` Enables PCRE 1 (v8) where able
-* `pcre2` Enables PCRE 2 (v10) where able
+* `pcre2` Enables PCRE 2 (v10) where able. Currently linux only
 
 # Docs
 

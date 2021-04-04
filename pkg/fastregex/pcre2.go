@@ -43,7 +43,11 @@ type pcre2Regexp struct {
 
 var _ Regexp = &pcre2Regexp{}
 
-func Compile(expr string) (CompiledRegexp, error) {
+func Compile(expr string, posix bool) (CompiledRegexp, error) {
+	if posix {
+		return nil, errors.New("libpcre doesn't support posix")
+	}
+
 	bPtr := *(**C.uchar)(unsafe.Pointer(&expr))
 
 	var errNum C.int
@@ -78,8 +82,8 @@ func Compile(expr string) (CompiledRegexp, error) {
 	return pcre, nil
 }
 
-func MustCompile(expr string) CompiledRegexp {
-	re, err := Compile(expr)
+func MustCompile(expr string, posix bool) CompiledRegexp {
+	re, err := Compile(expr, posix)
 	if err != nil {
 		panic(err)
 	}

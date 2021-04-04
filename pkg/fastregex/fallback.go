@@ -21,14 +21,24 @@ func (s *compiledRegexp) CreateInstance() Regexp {
 	return s.re
 }
 
-func Compile(expr string) (CompiledRegexp, error) {
-	re, err := regexp.Compile(expr)
+func buildRegexp(expr string, posix bool) (*regexp.Regexp, error) {
+	if posix {
+		return regexp.CompilePOSIX(expr)
+	}
+	return regexp.Compile(expr)
+}
+
+func Compile(expr string, posix bool) (CompiledRegexp, error) {
+	re, err := buildRegexp(expr, posix)
 	if err != nil {
 		return nil, err
 	}
 	return &compiledRegexp{re}, nil
 }
 
-func MustCompile(expr string) CompiledRegexp {
+func MustCompile(expr string, posix bool) CompiledRegexp {
+	if posix {
+		return &compiledRegexp{regexp.MustCompilePOSIX(expr)}
+	}
 	return &compiledRegexp{regexp.MustCompile(expr)}
 }
