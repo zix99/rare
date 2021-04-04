@@ -28,17 +28,10 @@ func buildRegexp(expr string, posix bool) (*regexp.Regexp, error) {
 	return regexp.Compile(expr)
 }
 
-func Compile(expr string, posix bool) (CompiledRegexp, error) {
+func CompileEx(expr string, posix bool) (CompiledRegexp, error) {
 	re, err := buildRegexp(expr, posix)
 	if err != nil {
 		return nil, err
 	}
 	return &compiledRegexp{re}, nil
-}
-
-func MustCompile(expr string, posix bool) CompiledRegexp {
-	if posix {
-		return &compiledRegexp{regexp.MustCompilePOSIX(expr)}
-	}
-	return &compiledRegexp{regexp.MustCompile(expr)}
 }

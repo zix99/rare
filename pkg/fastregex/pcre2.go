@@ -44,7 +44,7 @@ type pcre2Regexp struct {
 
 var _ Regexp = &pcre2Regexp{}
 
-func Compile(expr string, posix bool) (CompiledRegexp, error) {
+func CompileEx(expr string, posix bool) (CompiledRegexp, error) {
 	if posix {
 		return nil, errors.New("libpcre doesn't support posix")
 	}
@@ -86,14 +86,6 @@ func Compile(expr string, posix bool) (CompiledRegexp, error) {
 		C.pcre2_code_free(f.p)
 	})
 	return pcre, nil
-}
-
-func MustCompile(expr string, posix bool) CompiledRegexp {
-	re, err := Compile(expr, posix)
-	if err != nil {
-		panic(err)
-	}
-	return re
 }
 
 func (s *pcre2Compiled) CreateInstance() Regexp {

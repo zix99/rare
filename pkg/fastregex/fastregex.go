@@ -18,6 +18,19 @@ type Regexp interface {
 // In addition, the following must be provided
 var (
 	_ string                                                = Version
-	_ func(expr string, posix bool) (CompiledRegexp, error) = Compile
-	_ func(expr string, posix bool) CompiledRegexp          = MustCompile
+	_ func(expr string, posix bool) (CompiledRegexp, error) = CompileEx
 )
+
+// And lastly, some helpers to bring us closer to regexp module
+
+func Compile(expr string) (CompiledRegexp, error) {
+	return CompileEx(expr, false)
+}
+
+func MustCompile(expr string) CompiledRegexp {
+	re, err := CompileEx(expr, false)
+	if err != nil {
+		panic(err)
+	}
+	return re
+}

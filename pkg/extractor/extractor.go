@@ -142,7 +142,7 @@ func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 		return nil, err
 	}
 
-	compiledRegex, err := fastregex.Compile(config.Regex, config.Posix)
+	compiledRegex, err := fastregex.CompileEx(config.Regex, config.Posix)
 	if err != nil {
 		return nil, err
 	}
