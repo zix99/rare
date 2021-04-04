@@ -1,5 +1,10 @@
 package fastregex
 
+// An instance of a shareble compiled regex. Assumed to be safe to share across threads/goroutines
+type CompiledRegexp interface {
+	CreateInstance() Regexp
+}
+
 // Regexp servers as an abstraction interface for regex classes
 // and shares the same methods as the re2/regexp implementation
 // which allows for easy fallback
@@ -11,7 +16,7 @@ type Regexp interface {
 
 // In addition, the following must be provided
 var (
-	_ string                            = Version
-	_ func(expr string) (Regexp, error) = Compile
-	_ func(expr string) Regexp          = MustCompile
+	_ string                                    = Version
+	_ func(expr string) (CompiledRegexp, error) = Compile
+	_ func(expr string) CompiledRegexp          = MustCompile
 )

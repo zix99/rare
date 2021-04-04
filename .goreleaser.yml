@@ -1,12 +1,15 @@
-# This is an example goreleaser.yaml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
 before:
   hooks:
     - go run github.com/gobuffalo/packr/v2/packr2
+
 builds:
-- id: cgo
+- id: rare-pcre
+  binary: rare-pcre
   env:
-  - CGO_ENABLED=1
+    - CGO_ENABLED=1
+  flags:
+    - -tags=pcre2
   ldflags:
     - -s -w
     - -X main.version={{.Version}}
@@ -15,9 +18,9 @@ builds:
     - amd64
   goos:
     - linux
-- id: non-cgo
+- id: rare
   env:
-  - CGO_ENABLED=0
+    - CGO_ENABLED=0
   ldflags:
     - -s -w
     - -X main.version={{.Version}}
@@ -25,10 +28,13 @@ builds:
   goarch:
     - amd64
   goos:
+    - linux
     - darwin
     - windows
+
 archives:
-- replacements:
+- allow_different_binary_count: true
+  replacements:
     darwin: Darwin
     linux: Linux
     windows: Windows
@@ -37,6 +43,7 @@ archives:
   format_overrides:
     - goos: windows
       format: zip
+
 checksum:
   name_template: 'checksums.txt'
 snapshot:
