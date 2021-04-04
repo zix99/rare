@@ -23,7 +23,7 @@ Supports various CLI-based graphing and metric formats (histogram, table, etc).
 
 # Installation
 
-**Notes on versions:**  Besides your standard OS versions, there is an additional `pcre` build which is 4x faster than go's `re2` implementation.  In order to use this, you must make sure that libpcre2 is installed.  Right now, it is only bundled with the linux distribution.
+**Notes on versions:**  Besides your standard OS versions, there is an additional `pcre` build which is 4x faster than go's `re2` implementation.  In order to use this, you must make sure that libpcre2 is installed (eg `apt install libpcre2-8-0`).  Right now, it is only bundled with the linux distribution.
 
 ## Manual
 

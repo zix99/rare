@@ -5,9 +5,10 @@ type CompiledRegexp interface {
 	CreateInstance() Regexp
 }
 
-// Regexp servers as an abstraction interface for regex classes
+// Regexp serves as an abstraction interface for regex classes
 // and shares the same methods as the re2/regexp implementation
-// which allows for easy fallback
+// which allows for easy fallback. This interface is expeted
+// to only be used by a single thread/goroutine
 type Regexp interface {
 	Match(b []byte) bool
 	MatchString(str string) bool
