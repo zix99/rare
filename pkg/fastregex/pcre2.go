@@ -53,10 +53,10 @@ func CompileEx(expr string, posix bool) (CompiledRegexp, error) {
 
 	var errNum C.int
 	var errOffset C.ulong
-	compiled := C.pcre2_compile(bPtr, C.ulong(len([]byte(expr))), 0, &errNum, &errOffset, nil)
+	compiled := C.pcre2_compile(bPtr, C.ulong(len(expr)), 0, &errNum, &errOffset, nil)
 	if compiled == nil {
 		buf := make([]C.uchar, 256)
-		msgLen := C.pcre2_get_error_message(errNum, &buf[0], (C.size_t)(len(buf)))
+		msgLen := C.pcre2_get_error_message(errNum, &buf[0], C.size_t(len(buf)))
 		return nil, &compileError{
 			Expr:    expr,
 			Message: C.GoStringN((*C.char)(unsafe.Pointer(&buf[0])), msgLen),
@@ -147,7 +147,7 @@ func (s *pcre2Regexp) MatchString(str string) bool {
 func (s *pcre2Regexp) FindSubmatchIndex(b []byte) []int {
 	bPtr := (*C.uchar)(unsafe.Pointer(&b[0]))
 
-	rc := C.pcre2_match(s.re.p, bPtr, C.size_t(len(b)), 0, 0, s.matchData, nil)
+	rc := C.pcre2_match(s.re.p, bPtr, C.size_t(len(b)), 0, 0, s.matchData, s.context)
 	if rc < 0 {
 		return nil
 	}
