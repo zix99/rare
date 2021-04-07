@@ -3,7 +3,7 @@ package extractor
 import (
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/stdlib"
-	"regexp"
+	"rare/pkg/fastregex"
 	"sync"
 	"sync/atomic"
 	"unsafe"
@@ -41,21 +41,14 @@ type Config struct {
 // Extractor is the representation of the reader
 //  Expects someone to consume its ReadChan()
 type Extractor struct {
-	readChan     chan []Match
-	regex        *regexp.Regexp
-	readLines    uint64
-	matchedLines uint64
-	ignoredLines uint64
-	config       Config
-	keyBuilder   *expressions.CompiledKeyBuilder
-	ignore       IgnoreSet
-}
-
-func buildRegex(s string, posix bool) (*regexp.Regexp, error) {
-	if posix {
-		return regexp.CompilePOSIX(s)
-	}
-	return regexp.Compile(s)
+	readChan       chan []Match
+	compiledRegexp fastregex.CompiledRegexp
+	readLines      uint64
+	matchedLines   uint64
+	ignoredLines   uint64
+	config         Config
+	keyBuilder     *expressions.CompiledKeyBuilder
+	ignore         IgnoreSet
 }
 
 func (s *Extractor) ReadLines() uint64 {
@@ -75,9 +68,9 @@ func (s *Extractor) ReadChan() <-chan []Match {
 }
 
 // async safe
-func (s *Extractor) processLineSync(source string, lineNum uint64, line BString) (Match, bool) {
+func (s *Extractor) processLineSync(source string, lineNum uint64, line BString, re fastregex.Regexp) (Match, bool) {
 	atomic.AddUint64(&s.readLines, 1)
-	matches := s.regex.FindSubmatchIndex(line)
+	matches := re.FindSubmatchIndex(line)
 
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
@@ -118,6 +111,8 @@ func (s *Extractor) processLineSync(source string, lineNum uint64, line BString)
 func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch) {
 	defer wg.Done()
 
+	reInst := s.compiledRegexp.CreateInstance()
+
 	for {
 		batch, more := <-inputBatch
 		if !more {
@@ -126,7 +121,7 @@ func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch
 
 		var matchBatch []Match
 		for idx, str := range batch.Batch {
-			if match, ok := s.processLineSync(batch.Source, batch.BatchStart+uint64(idx), str); ok {
+			if match, ok := s.processLineSync(batch.Source, batch.BatchStart+uint64(idx), str, reInst); ok {
 				if matchBatch == nil {
 					// Initialize to expected cap (only if we have any matches)
 					matchBatch = make([]Match, 0, len(batch.Batch))
@@ -147,17 +142,17 @@ func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 		return nil, err
 	}
 
-	compiledRegex, err := buildRegex(config.Regex, config.Posix)
+	compiledRegex, err := fastregex.CompileEx(config.Regex, config.Posix)
 	if err != nil {
 		return nil, err
 	}
 
 	extractor := Extractor{
-		readChan:   make(chan []Match, 5),
-		regex:      compiledRegex,
-		keyBuilder: compiledExpression,
-		config:     *config,
-		ignore:     config.Ignore,
+		readChan:       make(chan []Match, 5),
+		compiledRegexp: compiledRegex,
+		keyBuilder:     compiledExpression,
+		config:         *config,
+		ignore:         config.Ignore,
 	}
 
 	var wg sync.WaitGroup

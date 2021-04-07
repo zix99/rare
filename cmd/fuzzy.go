@@ -10,6 +10,7 @@ import (
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli"
 )
@@ -28,7 +29,7 @@ func fuzzyFunction(c *cli.Context) error {
 	)
 
 	counter := aggregation.NewFuzzyAggregator(similarity, simOffset, simSize)
-	writer := multiterm.NewHistogram(multiterm.New(), topItems)
+	writer := termrenderers.NewHistogram(multiterm.New(), topItems)
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
 
@@ -51,7 +52,7 @@ func fuzzyFunction(c *cli.Context) error {
 	if all {
 		fmt.Println("Full Table:")
 		vterm := multiterm.NewVirtualTerm()
-		vWriter := multiterm.NewHistogram(vterm, counter.Histo.GroupCount())
+		vWriter := termrenderers.NewHistogram(vterm, counter.Histo.GroupCount())
 		writeHistoOutput(vWriter, counter.Histo, counter.Histo.GroupCount(), reverseSort, sortByKey, atLeast)
 
 		vterm.WriteToOutput(os.Stdout)
