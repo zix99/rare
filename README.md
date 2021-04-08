@@ -43,10 +43,7 @@ Clone the repo, and:
 Requires GO 1.11 or higher (Uses go modules)
 
 ```sh
-go get ./...
-
-# Pack documentation (Only necessary for release builds)
-go run github.com/gobuffalo/packr/v2/packr2
+go mod download
 
 # Build binary
 go build .

@@ -3,26 +3,24 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"rare/docs"
 	"rare/pkg/markdowncli"
 	"strings"
 
-	"github.com/gobuffalo/packr/v2"
 	"github.com/urfave/cli"
 )
 
 func docsFunction(c *cli.Context) error {
-	box := packr.New("Help Docs", "../docs")
-
 	docname := strings.ToLower(c.Args().First())
 
 	if docname == "" || docname == "list" {
 		fmt.Println("Available Docs:")
-		for _, name := range box.List() {
-			fmt.Printf("  %s\n", strings.Title(strings.TrimSuffix(name, ".md")))
+		entries, _ := docs.DocFS.ReadDir(".")
+		for _, entry := range entries {
+			fmt.Printf("  %s\n", strings.Title(strings.TrimSuffix(entry.Name(), ".md")))
 		}
 
-	} else if box.Has(docname + ".md") {
-		file, err := box.Resolve(docname + ".md")
+	} else if file, err := docs.DocFS.Open(docname + ".md"); err == nil {
 		if err != nil {
 			fmt.Println(err)
 		} else {

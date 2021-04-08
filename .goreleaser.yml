@@ -1,8 +1,4 @@
 # Make sure to check the documentation at http://goreleaser.com
-before:
-  hooks:
-    - go run github.com/gobuffalo/packr/v2/packr2
-
 builds:
 - id: rare-pcre
   binary: rare-pcre
