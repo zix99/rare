@@ -61,6 +61,9 @@ nfpms:
     formats:
     - deb
     - rpm
+    - apk
+    dependencies:
+    - libpcre2-8-0
 
 brews:
 - tap:
