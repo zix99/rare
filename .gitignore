@@ -5,6 +5,5 @@ rare
 rare.exe
 dist/
 testdata/
-*-packr.go
 *.prof
 coverage.txt
