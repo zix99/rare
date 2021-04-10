@@ -47,9 +47,6 @@ func (s *BarGraph) SetKeys(keyItems ...string) {
 
 // Writes bar graph values, assuming vals map to the keyItems for each index
 func (s *BarGraph) WriteBar(idx int, key string, vals ...int64) {
-	if len(vals) == 0 {
-		return
-	}
 	if len(key) > s.maxKeyLength {
 		s.maxKeyLength = len(key)
 	}
