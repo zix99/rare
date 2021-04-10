@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"rare/cmd/helpers"
+	"rare/cmd/readProgress"
 	"rare/pkg/aggregation"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
@@ -29,8 +30,9 @@ func bargraphFunction(c *cli.Context) error {
 			line++
 		}
 
-		//writer.WriteLine(line, helpers.FWriteExtractorSummary(ext, counter.ParseErrors()))
-		//writer.WriteLine(line+1, readProgress.GetReadFileString())
+		line *= len(counter.SubKeys())
+		writer.WriteLine(line, helpers.FWriteExtractorSummary(ext, counter.ParseErrors()))
+		writer.WriteLine(line+1, readProgress.GetReadFileString())
 	})
 
 	return nil

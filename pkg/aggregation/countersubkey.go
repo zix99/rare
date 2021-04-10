@@ -21,7 +21,6 @@ type SubKeyCounter struct {
 	subKeyIdx map[string]int
 	subKeys   []string
 	errors    uint64
-	samples   uint64
 }
 
 func NewSubKeyCounter() *SubKeyCounter {
