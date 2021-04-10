@@ -16,8 +16,14 @@ go run . bars -z -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} day nginx} {2}}
 */
 
 func bargraphFunction(c *cli.Context) error {
+	var (
+		stacked     = c.Bool("stacked")
+		reverseSort = c.Bool("reverse")
+	)
+
 	counter := aggregation.NewSubKeyCounter()
 	writer := termrenderers.NewBarGraph(multiterm.New())
+	writer.Stacked = stacked
 
 	ext := helpers.BuildExtractorFromArguments(c)
 
@@ -25,14 +31,13 @@ func bargraphFunction(c *cli.Context) error {
 		line := 0
 
 		writer.SetKeys(counter.SubKeys()...)
-		for _, row := range counter.ItemsSorted(false) {
+		for _, row := range counter.ItemsSorted(reverseSort) {
 			writer.WriteBar(line, row.Name, row.Item.Items()...)
 			line++
 		}
 
-		line *= len(counter.SubKeys())
-		writer.WriteLine(line, helpers.FWriteExtractorSummary(ext, counter.ParseErrors()))
-		writer.WriteLine(line+1, readProgress.GetReadFileString())
+		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors()))
+		writer.WriteFooter(1, readProgress.GetReadFileString())
 	})
 
 	return nil
@@ -49,6 +54,15 @@ func bargraphCommand() *cli.Command {
 		is {$ a b [c]}, where a is the base-key, b is the optional sub-key, and c is the increment
 		(defeaults to 1)`,
 		Action: bargraphFunction,
-		Flags:  []cli.Flag{},
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  "stacked,s",
+				Usage: "Display bargraph as stacked",
+			},
+			cli.BoolFlag{
+				Name:  "reverse",
+				Usage: "Reverses the display sort-order",
+			},
+		},
 	})
 }

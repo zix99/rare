@@ -6,6 +6,7 @@ import (
 	"strconv"
 )
 
+// SubKeyNamedItem is a returnable key-pair for data aggregation
 type SubKeyNamedItem struct {
 	Item SubKeyItem
 	Name string
@@ -13,13 +14,13 @@ type SubKeyNamedItem struct {
 
 type SubKeyItem struct {
 	count      int64
-	submatches []int64
+	submatches []int64 // Matches, in same order as subKeys
 }
 
 type SubKeyCounter struct {
-	matches   map[string]*SubKeyItem
-	subKeyIdx map[string]int
-	subKeys   []string
+	matches   map[string]*SubKeyItem // All matches of the top level key
+	subKeys   []string               // All the subkeys. Never changes order (append-only)
+	subKeyIdx map[string]int         // Name to index of subKeys
 	errors    uint64
 }
 
@@ -77,14 +78,15 @@ func (s *SubKeyCounter) getOrCreateKeyItem(key string) *SubKeyItem {
 
 func (s *SubKeyCounter) getOrCreateSubkeyIndex(subkey string) int {
 	if idx, ok := s.subKeyIdx[subkey]; !ok {
+		idx = len(s.subKeys)
 		s.subKeys = append(s.subKeys, subkey)
-		s.subKeyIdx[subkey] = len(s.subKeys) - 1
+		s.subKeyIdx[subkey] = idx
 
 		for _, item := range s.matches {
 			item.submatches = append(item.submatches, 0)
 		}
 
-		return len(s.subKeys) - 1
+		return idx
 	} else {
 		return idx
 	}

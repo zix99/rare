@@ -13,7 +13,8 @@ type BarGraph struct {
 
 	maxKeyLength int
 	subKeys      []string
-	maxVal       int64
+	maxLineVal   int64
+	maxRows      int
 
 	BarSize int
 	Stacked bool
@@ -49,42 +50,78 @@ func (s *BarGraph) WriteBar(idx int, key string, vals ...int64) {
 	if len(vals) == 0 {
 		return
 	}
-
 	if len(key) > s.maxKeyLength {
 		s.maxKeyLength = len(key)
 	}
 
+	if s.Stacked {
+		s.writeBarStacked(idx, key, vals...)
+	} else {
+		s.writeBarGrouped(idx, key, vals...)
+	}
+}
+
+func (s *BarGraph) writeBarGrouped(idx int, key string, vals ...int64) {
 	for _, val := range vals {
-		if val > s.maxVal {
-			s.maxVal = val
+		if val > s.maxLineVal {
+			s.maxLineVal = val
 		}
 	}
 
-	line := 1 + idx*len(s.subKeys)
-
-	// Header element
 	var sb strings.Builder
 	sb.WriteString(color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.maxKeyLength))
 	sb.WriteString("  ")
 
-	if s.Stacked {
+	line := 1 + idx*len(s.subKeys)
 
-	} else {
-		for i := 0; i < len(vals); i++ {
-			if i > 0 {
-				sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
-			}
-			sb.WriteString(string(barColors[i%len(barColors)]))
-			termunicode.BarWrite(&sb, vals[i], s.maxVal, int64(s.BarSize))
-			sb.WriteString(" ")
-			sb.WriteString(humanize.Hi(vals[i]))
-			s.writer.WriteForLine(line+i, sb.String())
+	maxRow := line + len(s.subKeys)
+	if maxRow > s.maxRows {
+		s.maxRows = maxRow
+	}
 
-			sb.Reset()
+	for i := 0; i < len(vals); i++ {
+		if i > 0 {
+			sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
 		}
+		sb.WriteString(string(barColors[i%len(barColors)]))
+		termunicode.BarWrite(&sb, vals[i], s.maxLineVal, int64(s.BarSize))
+		sb.WriteString(" ")
+		sb.WriteString(humanize.Hi(vals[i]))
+		s.writer.WriteForLine(line+i, sb.String())
+
+		sb.Reset()
 	}
 }
 
-func (s *BarGraph) WriteLine(idx int, str string) {
-	s.writer.WriteForLine(1+idx, str)
+func (s *BarGraph) writeBarStacked(idx int, key string, vals ...int64) {
+	var total int64
+	for _, val := range vals {
+		total += val
+	}
+
+	if total > s.maxLineVal {
+		s.maxLineVal = total
+	}
+
+	var sb strings.Builder
+	sb.WriteString(color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.maxKeyLength))
+	sb.WriteString("  ")
+
+	line := idx + 1
+	maxRow := line + 1
+	if maxRow > s.maxRows {
+		s.maxRows = maxRow
+	}
+
+	for i := 0; i < len(vals); i++ {
+		sb.WriteString(string(barColors[i%len(barColors)]))
+		termunicode.BarWriteFull(&sb, vals[i], s.maxLineVal, int64(s.BarSize))
+	}
+	sb.WriteString("  ")
+	sb.WriteString(humanize.Hi(total))
+	s.writer.WriteForLine(line, sb.String())
+}
+
+func (s *BarGraph) WriteFooter(idx int, str string) {
+	s.writer.WriteForLine(s.maxRows+idx, str)
 }
