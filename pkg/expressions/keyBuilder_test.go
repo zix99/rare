@@ -2,6 +2,7 @@ package expressions
 
 import (
 	"bytes"
+	"strconv"
 	"testing"
 	"text/template"
 
@@ -76,5 +77,45 @@ func BenchmarkGoTextTemplate(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		var buf bytes.Buffer
 		kb.Execute(&buf, nil)
+	}
+}
+
+// func tests
+
+var simpleFuncs = map[string]KeyBuilderFunction{
+	"addi": func(args []KeyBuilderStage) KeyBuilderStage {
+		return func(ctx KeyBuilderContext) string {
+			val, _ := strconv.Atoi(args[0](ctx))
+			for i := 1; i < len(args); i++ {
+				aVal, _ := strconv.Atoi(args[i](ctx))
+				val += aVal
+			}
+			return strconv.Itoa(val)
+		}
+	},
+}
+
+func TestSimpleFuncs(t *testing.T) {
+	k := NewKeyBuilder()
+	k.Funcs(simpleFuncs)
+	kb, _ := k.Compile("value: {addi {addi 1 2} 2}")
+	assert.Equal(t, 2, kb.StageCount())
+	assert.Equal(t, "value: 5", kb.BuildKey(&KeyBuilderContextArray{}))
+}
+
+func TestManyStages(t *testing.T) {
+	k := NewKeyBuilder()
+	k.Funcs(simpleFuncs)
+	kb, _ := k.Compile("value: {addi -{addi 1 2} 2} {addi 3 5}")
+	assert.Equal(t, 4, kb.StageCount())
+	assert.Equal(t, "value: -1 8", kb.BuildKey(&KeyBuilderContextArray{}))
+}
+
+func BenchmarkSimpleFunc(b *testing.B) {
+	k := NewKeyBuilder()
+	k.Funcs(simpleFuncs)
+	kb, _ := k.Compile("value: {addi {addi 1 2} 2}")
+	for i := 0; i < b.N; i++ {
+		kb.BuildKey(&KeyBuilderContextArray{})
 	}
 }
