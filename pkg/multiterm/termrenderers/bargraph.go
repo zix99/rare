@@ -1,6 +1,7 @@
 package termrenderers
 
 import (
+	"io"
 	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
@@ -15,12 +16,13 @@ type BarGraph struct {
 	subKeys      []string
 	maxLineVal   int64
 	maxRows      int
+	prefixLines  int
 
 	BarSize int
 	Stacked bool
 }
 
-var barColors = [...]color.ColorCode{color.Red, color.Green, color.Yellow, color.Black, color.Magenta, color.Cyan}
+var barColors = [...]color.ColorCode{color.Blue, color.Red, color.Green, color.Yellow, color.Magenta, color.Cyan}
 
 func NewBarGraph(term multiterm.MultilineTerm) *BarGraph {
 	return &BarGraph{
@@ -34,15 +36,19 @@ func NewBarGraph(term multiterm.MultilineTerm) *BarGraph {
 func (s *BarGraph) SetKeys(keyItems ...string) {
 	s.subKeys = keyItems
 
-	var sb strings.Builder
-	sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
-	for idx, item := range keyItems {
-		sb.WriteString("  ")
-		sb.WriteString(color.Wrap(barColors[idx%len(barColors)], termunicode.BarString(1, 1, 1)))
-		sb.WriteString(" ")
-		sb.WriteString(item)
+	if len(keyItems) > 1 || (len(keyItems) == 1 && keyItems[0] != "") {
+		s.prefixLines = 1
+
+		var sb strings.Builder
+		sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
+		for idx, item := range keyItems {
+			sb.WriteString("  ")
+			sb.WriteString(color.Wrap(barColors[idx%len(barColors)], termunicode.BarString(1, 1, 1)))
+			sb.WriteString(" ")
+			sb.WriteString(item)
+		}
+		s.writer.WriteForLine(0, sb.String())
 	}
-	s.writer.WriteForLine(0, sb.String())
 }
 
 // Writes bar graph values, assuming vals map to the keyItems for each index
@@ -69,7 +75,7 @@ func (s *BarGraph) writeBarGrouped(idx int, key string, vals ...int64) {
 	sb.WriteString(color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.maxKeyLength))
 	sb.WriteString("  ")
 
-	line := 1 + idx*len(s.subKeys)
+	line := s.prefixLines + idx*len(s.subKeys)
 
 	maxRow := line + len(s.subKeys)
 	if maxRow > s.maxRows {
@@ -80,8 +86,9 @@ func (s *BarGraph) writeBarGrouped(idx int, key string, vals ...int64) {
 		if i > 0 {
 			sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
 		}
-		sb.WriteString(string(barColors[i%len(barColors)]))
-		termunicode.BarWrite(&sb, vals[i], s.maxLineVal, int64(s.BarSize))
+		color.Write(&sb, barColors[i%len(barColors)], func(w io.StringWriter) {
+			termunicode.BarWrite(w, vals[i], s.maxLineVal, int64(s.BarSize))
+		})
 		sb.WriteString(" ")
 		sb.WriteString(humanize.Hi(vals[i]))
 		s.writer.WriteForLine(line+i, sb.String())
@@ -104,15 +111,16 @@ func (s *BarGraph) writeBarStacked(idx int, key string, vals ...int64) {
 	sb.WriteString(color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.maxKeyLength))
 	sb.WriteString("  ")
 
-	line := idx + 1
+	line := idx + s.prefixLines
 	maxRow := line + 1
 	if maxRow > s.maxRows {
 		s.maxRows = maxRow
 	}
 
 	for i := 0; i < len(vals); i++ {
-		sb.WriteString(string(barColors[i%len(barColors)]))
-		termunicode.BarWriteFull(&sb, vals[i], s.maxLineVal, int64(s.BarSize))
+		color.Write(&sb, barColors[i%len(barColors)], func(w io.StringWriter) {
+			termunicode.BarWriteFull(w, vals[i], s.maxLineVal, int64(s.BarSize))
+		})
 	}
 	sb.WriteString("  ")
 	sb.WriteString(humanize.Hi(total))

@@ -2,6 +2,7 @@ package color
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
@@ -47,6 +48,17 @@ func init() {
 			Enabled = false
 		}
 	}
+}
+
+func Write(w io.StringWriter, color ColorCode, f func(w io.StringWriter)) {
+	if !Enabled {
+		f(w)
+		return
+	}
+
+	w.WriteString(string(color))
+	f(w)
+	w.WriteString(string(Reset))
 }
 
 // Wrap surroungs a string with a color (if enabled)

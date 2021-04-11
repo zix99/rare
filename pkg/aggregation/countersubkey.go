@@ -58,10 +58,8 @@ func (s *SubKeyCounter) SampleValue(key, subkey string, count int64) {
 	item := s.getOrCreateKeyItem(key)
 	item.count += count
 
-	if subkey != "" {
-		subKeyIndex := s.getOrCreateSubkeyIndex(subkey)
-		item.submatches[subKeyIndex] += count
-	}
+	subKeyIndex := s.getOrCreateSubkeyIndex(subkey)
+	item.submatches[subKeyIndex] += count
 }
 
 func (s *SubKeyCounter) getOrCreateKeyItem(key string) *SubKeyItem {

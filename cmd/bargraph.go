@@ -52,7 +52,7 @@ func bargraphCommand() *cli.Command {
 		Description: `Creates a bargraph of one or two dimensional data.  Unlike histogram
 		the bargraph can collapse and stack data in different formats.  The key data format
 		is {$ a b [c]}, where a is the base-key, b is the optional sub-key, and c is the increment
-		(defeaults to 1)`,
+		(defaults to 1)`,
 		Action: bargraphFunction,
 		Flags: []cli.Flag{
 			cli.BoolFlag{
