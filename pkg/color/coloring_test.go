@@ -2,6 +2,8 @@ package color
 
 import (
 	"fmt"
+	"io"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -80,4 +82,12 @@ func TestWrapIndices(t *testing.T) {
 func TestWrapIndicesInnerGroups(t *testing.T) {
 	s := WrapIndices("abcdefg", []int{0, 2, 1, 2, 5, 6})
 	assert.Contains(t, s, "cde")
+}
+
+func TestWriteColor(t *testing.T) {
+	var sb strings.Builder
+	Write(&sb, Red, func(w io.StringWriter) {
+		w.WriteString("hi")
+	})
+	assert.Contains(t, sb.String(), "hi")
 }

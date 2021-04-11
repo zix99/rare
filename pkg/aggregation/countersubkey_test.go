@@ -22,7 +22,7 @@ func TestSubKeyWithOnlyKeys(t *testing.T) {
 	sk.SampleValue("test2", "", 3)
 	sk.SampleValue("test2", "", 2)
 
-	assert.Len(t, sk.SubKeys(), 0)
+	assert.Len(t, sk.SubKeys(), 1)
 	assert.Len(t, sk.Items(), 2)
 
 	items := sk.ItemsSorted(false)
@@ -53,12 +53,12 @@ func TestSubKeyWithNullSample(t *testing.T) {
 	sk.Sample(fmt.Sprintf("%s\x00%s", "test", "abc"))
 	sk.Sample(fmt.Sprintf("%s\x00%s\x00%d", "test", "abc", 5))
 
-	assert.Len(t, sk.SubKeys(), 1)
+	assert.Len(t, sk.SubKeys(), 2)
 	assert.Len(t, sk.Items(), 1)
 
 	item := sk.Items()[0]
 	assert.Equal(t, int64(7), item.Item.Count())
-	assert.Equal(t, []int64{6}, item.Item.Items())
+	assert.Equal(t, []int64{1, 6}, item.Item.Items())
 }
 
 func TestSubKeyParseError(t *testing.T) {
