@@ -22,6 +22,24 @@ var barUnicode = [...]rune{
 }
 var barUnicodePartCount int64 = int64(len(barUnicode))
 
+// BarWriteFull does not write partial bars to the end. Useful for stacking
+func BarWriteFull(w io.StringWriter, val, maxVal, maxLen int64) {
+	if val > maxVal {
+		val = maxVal
+	}
+
+	var blockChar rune = nonUnicodeBlock
+	if UnicodeEnabled {
+		blockChar = fullBlock
+	}
+
+	blocks := val * maxLen / maxVal
+	for blocks > 0 {
+		w.WriteString(string(blockChar))
+		blocks--
+	}
+}
+
 func BarWrite(w io.StringWriter, val, maxVal, maxLen int64) {
 	if val > maxVal {
 		val = maxVal

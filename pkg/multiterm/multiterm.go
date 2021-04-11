@@ -41,6 +41,9 @@ func (s *TermWriter) WriteForLine(line int, text string) {
 
 func (s *TermWriter) Close() {
 	s.goTo(s.maxLine)
+	if s.cursorHidden {
+		showCursor()
+	}
 }
 
 func (s *TermWriter) goTo(line int) {
