@@ -169,6 +169,49 @@ OPTIONS:
    --line, -l                   Output line numbers
 ```
 
+## Bar Graph
+
+Similar to histogram or table, bargraph can generate a stacked or grouped bargraph by one or two keys.
+
+```sh
+$ rare bars -sz -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} year nginx} {bucket {2} {multi 10 10}}}" testdata/*
+
+        █ 200  █ 400  █ 300
+2019  ████████████████████████████████████████  3,741,444
+2020  █████████████████████████████████████████████████  4,631,884
+Matched: 8,373,328 / 8,383,717
+```
+
+```
+NAME:
+   rare bargraph - Create a bargraph of the given 1 or 2 dimension data
+
+USAGE:
+   rare bargraph [command options] <-|filename|glob...>
+
+DESCRIPTION:
+   Creates a bargraph of one or two dimensional data.  Unlike histogram
+    the bargraph can collapse and stack data in different formats.  The key data format
+    is {$ a b [c]}, where a is the base-key, b is the optional sub-key, and c is the increment
+    (defeaults to 1)
+
+OPTIONS:
+   --follow, -f                 Read appended data as file grows
+   --reopen, -F                 Same as -f, but will reopen recreated files
+   --poll                       When following a file, poll for changes rather than using inotify
+   --posix, -p                  Compile regex as against posix standard
+   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
+   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
+   --gunzip, -z                 Attempt to decompress file when reading
+   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
+   --workers value, -w value    Set number of data processors (default: 3)
+   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
+   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
+   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
+   --stacked, -s                Display bargraph as stacked
+   --reverse                    Reverses the display sort-order
+```
+
 ## Numerical Analysis
 
 This command will extract a number from logs and run basic analysis on that number (Such as mean, median, mode, and quantiles).
