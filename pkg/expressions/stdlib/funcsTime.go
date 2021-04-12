@@ -6,6 +6,8 @@ import (
 	"time"
 
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+
+	"github.com/araddon/dateparse"
 )
 
 const defaultTimeFormat = time.RFC3339
@@ -41,17 +43,36 @@ func namedTimeFormatToFormat(f string) string {
 	return f
 }
 
-// Parse time into standard unix time (easier to use)
+func detectTimeFormat(timeString string) string {
+	if timeString == "" {
+		return ""
+	}
+	if format, err := dateparse.ParseFormat(timeString); err == nil {
+		return format
+	}
+	return defaultTimeFormat
+}
+
+// Parse time into standard unix epoch time (easier to use)
 func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
 		return stageError(ErrorArgCount)
 	}
-	format := defaultTimeFormat
+
+	// Specific format denoted
+	var format string
 	if len(args) >= 2 {
 		format = namedTimeFormatToFormat(args[1](nil))
 	}
+
+	// Auto format detection
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		strTime := args[0](context)
+
+		if format == "" {
+			format = detectTimeFormat(strTime)
+		}
+
 		val, err := time.Parse(format, strTime)
 		if err != nil {
 			return ErrorParsing
@@ -110,13 +131,19 @@ func kfBucketTime(args []KeyBuilderStage) KeyBuilderStage {
 
 	bucketFormat := timeBucketToFormat(args[1](nil))
 
-	parseFormat := defaultTimeFormat
+	var parseFormat string
 	if len(args) >= 3 {
 		parseFormat = namedTimeFormatToFormat(args[2](nil))
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		t, err := time.Parse(parseFormat, args[0](context))
+		strTime := args[0](context)
+
+		if parseFormat == "" {
+			parseFormat = detectTimeFormat(strTime)
+		}
+
+		t, err := time.Parse(parseFormat, strTime)
 		if err != nil {
 			return ErrorParsing
 		}

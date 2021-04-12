@@ -1,6 +1,7 @@
 package stdlib
 
 import (
+	"rare/pkg/expressions"
 	"strconv"
 	"testing"
 )
@@ -38,4 +39,27 @@ func TestTimeFormat(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{buckettime {0} d nginx}",
 		"2016-04-14")
+}
+
+func TestTimeExpressionDetection(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0}}",
+		"1460653945")
+}
+
+func BenchmarkTimeParse(b *testing.B) {
+	stage := kfTimeParse([]expressions.KeyBuilderStage{
+		func(kbc expressions.KeyBuilderContext) string {
+			return kbc.GetMatch(0)
+		},
+		stageLiteral("nginx"),
+	})
+	for i := 0; i < b.N; i++ {
+		stage(&expressions.KeyBuilderContextArray{
+			Elements: []string{
+				"14/Apr/2016:19:12:25 +0200",
+			},
+		})
+	}
 }
