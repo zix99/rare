@@ -90,7 +90,7 @@ func BenchmarkTimeParseExpression(b *testing.B) {
 
 func BenchmarkTimeParse(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		time.Parse("2012-05-02T15:04:05Z07:00", time.RFC3339)
+		time.Parse(time.RFC3339, "2012-05-02T15:04:05Z07:00")
 	}
 }
 
