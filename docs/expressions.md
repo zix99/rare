@@ -197,9 +197,19 @@ Syntax: `{time str [format]}` `{timeformat unixtime [format] [utc]}` `{duration 
 These three time functions provide you a way to parse and manipulate time.
 
 time: Parse a given time-string into a unix second time (default: RFC3339)
-timeformat: Takes a unix time, and formats it (default: RFC3339)
+timeformat: Takes a unix time, and formats it (default: auto-detection)
 duration: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
 buckettime: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
+
+**Format Auto-Detection:**
+
+If the format argument is ommitted or set to "auto", it will attempt to resolve the format of the time.
+If the format is unable to be resolved, it bust be specific manually with a format below, or a custom format.
+
+If ommitted: The first seen date will determine the format for all dates going forward (faster)
+If "auto":   The date format will always be auto-detected. This can be used if the date could be in different formats (slower)
+
+### Time Formats
 
 **Supported Formats:**
 ASNIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339N, NGINX
