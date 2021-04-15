@@ -204,7 +204,7 @@ buckettime: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*
 **Format Auto-Detection:**
 
 If the format argument is ommitted or set to "auto", it will attempt to resolve the format of the time.
-If the format is unable to be resolved, it bust be specific manually with a format below, or a custom format.
+If the format is unable to be resolved, it must be specific manually with a format below, or a custom format.
 
 If ommitted: The first seen date will determine the format for all dates going forward (faster)
 If "auto":   The date format will always be auto-detected. This can be used if the date could be in different formats (slower)
