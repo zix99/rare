@@ -97,7 +97,32 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 		kb.stages = append(kb.stages, stageLiteral(sb.String()))
 	}
 
-	return kb, nil
+	return kb.optimize(), nil
+}
+
+func (s *CompiledKeyBuilder) optimize() *CompiledKeyBuilder {
+	ret := &CompiledKeyBuilder{
+		stages: make([]KeyBuilderStage, 0, len(s.stages)),
+	}
+
+	var sb strings.Builder
+	for _, stage := range s.stages {
+		if constVal, ok := EvalStaticStage(stage); ok {
+			sb.WriteString(constVal)
+		} else {
+			if sb.Len() > 0 {
+				ret.stages = append(ret.stages, stageLiteral(sb.String()))
+				sb.Reset()
+			}
+			ret.stages = append(ret.stages, stage)
+		}
+	}
+
+	if sb.Len() > 0 {
+		ret.stages = append(ret.stages, stageLiteral(sb.String()))
+	}
+
+	return ret
 }
 
 func (s *CompiledKeyBuilder) BuildKey(context KeyBuilderContext) string {

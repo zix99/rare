@@ -105,6 +105,15 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 		return stageError(ErrorArgCount)
 	}
 
+	if val, ok := EvalStaticStage(args[0]); ok {
+		if strings.ToLower(val) == "now" {
+			now := strconv.FormatInt(time.Now().Unix(), 10)
+			return func(context KeyBuilderContext) string {
+				return now
+			}
+		}
+	}
+
 	// Specific format denoted
 	var format string
 	if len(args) >= 2 {

@@ -54,10 +54,16 @@ func kfSubstr(args []KeyBuilderStage) KeyBuilderStage {
 		if err1 != nil || err2 != nil {
 			return ErrorParsing
 		}
+		if length < 0 {
+			length = 0
+		}
+
 		right := left + length
 
 		if left < 0 {
 			left = 0
+		} else if left > len(s) {
+			left = len(s)
 		}
 		if right > len(s) {
 			right = len(s)
