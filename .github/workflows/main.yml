@@ -23,6 +23,7 @@ jobs:
       - name: Test
         run: |
           go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+          go test -tags=pcre2 rare/pkg/fastregex
       - name: StaticCheck
         run: |
           go run honnef.co/go/tools/cmd/staticcheck ./...

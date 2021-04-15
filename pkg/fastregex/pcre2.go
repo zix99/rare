@@ -145,6 +145,10 @@ func (s *pcre2Regexp) MatchString(str string) bool {
 //  the return result is mutable-per response.  If you need after making a 2nd call to this function
 //  a copy needs to be made
 func (s *pcre2Regexp) FindSubmatchIndex(b []byte) []int {
+	if len(b) == 0 {
+		return nil
+	}
+
 	bPtr := (*C.uchar)(unsafe.Pointer(&b[0]))
 
 	rc := C.pcre2_match(s.re.p, bPtr, C.size_t(len(b)), 0, 0, s.matchData, s.context)

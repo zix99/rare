@@ -55,6 +55,11 @@ func TestMatchUnicodeCharacter(t *testing.T) {
 	assert.Equal(t, []int{11, 13}, re.FindSubmatchIndex([]byte("this is ε ζ η a test ✻")))
 }
 
+func TestMatchEmptyArray(t *testing.T) {
+	re := MustCompile("test").CreateInstance()
+	assert.Nil(t, re.FindSubmatchIndex([]byte{}))
+}
+
 // Benchmarks
 
 // pcre1: 273ns
