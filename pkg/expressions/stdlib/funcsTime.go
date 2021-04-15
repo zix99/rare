@@ -3,14 +3,18 @@ package stdlib
 import (
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+
+	"github.com/araddon/dateparse"
 )
 
 const defaultTimeFormat = time.RFC3339
 
 var timeFormats = map[string]string{
+	// Standard formats
 	"ASNIC":    time.ANSIC,
 	"UNIX":     time.UnixDate,
 	"RUBY":     time.RubyDate,
@@ -41,22 +45,74 @@ func namedTimeFormatToFormat(f string) string {
 	return f
 }
 
-// Parse time into standard unix time (easier to use)
+func smartDateParseWrapper(format string, dateStage KeyBuilderStage, f func(time time.Time) string) KeyBuilderStage {
+	switch strings.ToLower(format) {
+	case "auto": // Auto will attempt to parse every time
+		return KeyBuilderStage(func(context KeyBuilderContext) string {
+			strTime := dateStage(context)
+			val, err := dateparse.ParseAny(strTime)
+			if err != nil {
+				return ErrorParsing
+			}
+			return f(val)
+		})
+
+	case "": // Empty format will auto-detect on first successful entry
+		var atomicFormat atomic.Value
+		atomicFormat.Store("")
+
+		return KeyBuilderStage(func(context KeyBuilderContext) string {
+			strTime := dateStage(context)
+			if strTime == "" { // This is important for future optimization efforts (so an empty string won't be remembered as a valid format)
+				return ErrorParsing
+			}
+
+			liveFormat := atomicFormat.Load().(string)
+			if liveFormat == "" {
+				// This may end up run by a few different threads, but it comes at the benefit
+				// of not needing a mutex
+				var err error
+				liveFormat, err = dateparse.ParseFormat(strTime)
+				if err != nil {
+					return ErrorParsing
+				}
+				atomicFormat.Store(liveFormat)
+			}
+
+			val, err := time.Parse(liveFormat, strTime)
+			if err != nil {
+				return ErrorParsing
+			}
+			return f(val)
+		})
+
+	default: // non-empty; Set format will resolve to a go date
+		parseFormat := namedTimeFormatToFormat(format)
+		return KeyBuilderStage(func(context KeyBuilderContext) string {
+			strTime := dateStage(context)
+			val, err := time.Parse(parseFormat, strTime)
+			if err != nil {
+				return ErrorParsing
+			}
+			return f(val)
+		})
+	}
+}
+
+// Parse time into standard unix epoch time (easier to use)
 func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
 		return stageError(ErrorArgCount)
 	}
-	format := defaultTimeFormat
+
+	// Specific format denoted
+	var format string
 	if len(args) >= 2 {
-		format = namedTimeFormatToFormat(args[1](nil))
+		format = args[1](nil)
 	}
-	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		strTime := args[0](context)
-		val, err := time.Parse(format, strTime)
-		if err != nil {
-			return ErrorParsing
-		}
-		return strconv.FormatInt(val.Unix(), 10)
+
+	return smartDateParseWrapper(format, args[0], func(t time.Time) string {
+		return strconv.FormatInt(t.Unix(), 10)
 	})
 }
 
@@ -110,16 +166,12 @@ func kfBucketTime(args []KeyBuilderStage) KeyBuilderStage {
 
 	bucketFormat := timeBucketToFormat(args[1](nil))
 
-	parseFormat := defaultTimeFormat
+	var parseFormat string
 	if len(args) >= 3 {
-		parseFormat = namedTimeFormatToFormat(args[2](nil))
+		parseFormat = args[2](nil)
 	}
 
-	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		t, err := time.Parse(parseFormat, args[0](context))
-		if err != nil {
-			return ErrorParsing
-		}
+	return smartDateParseWrapper(parseFormat, args[0], func(t time.Time) string {
 		return t.Format(bucketFormat)
 	})
 }

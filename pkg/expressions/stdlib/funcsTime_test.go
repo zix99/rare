@@ -1,8 +1,12 @@
 package stdlib
 
 import (
+	"rare/pkg/expressions"
 	"strconv"
 	"testing"
+	"time"
+
+	"github.com/araddon/dateparse"
 )
 
 func TestTimeExpression(t *testing.T) {
@@ -38,4 +42,60 @@ func TestTimeFormat(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{buckettime {0} d nginx}",
 		"2016-04-14")
+}
+
+func TestTimeFormatDetection(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{buckettime {0} d}",
+		"2016-04-14")
+}
+
+func TestTimeExpressionDetection(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0}}",
+		"1460653945")
+}
+
+func TestTimeExpressionDetectionFailure(t *testing.T) {
+	testExpression(t,
+		mockContext("oauef888"),
+		"{time {0}}",
+		"<PARSE-ERROR>")
+}
+
+func TestTimeExpressionDetectionAuto(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0} auto}",
+		"1460653945")
+}
+
+func BenchmarkTimeParseExpression(b *testing.B) {
+	stage := kfTimeParse([]expressions.KeyBuilderStage{
+		func(kbc expressions.KeyBuilderContext) string {
+			return kbc.GetMatch(0)
+		},
+		stageLiteral("auto"),
+	})
+	for i := 0; i < b.N; i++ {
+		stage(&expressions.KeyBuilderContextArray{
+			Elements: []string{
+				"14/Apr/2016:19:12:25 +0200",
+			},
+		})
+	}
+}
+
+func BenchmarkTimeParse(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		time.Parse(time.RFC3339, "2012-05-02T15:04:05Z07:00")
+	}
+}
+
+func BenchmarkDateParse(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		dateparse.ParseAny("2012-05-02T15:04:05Z07:00")
+	}
 }

@@ -12,6 +12,7 @@ type KeyBuilder struct {
 }
 
 // CompiledKeyBuilder represents the compiled key-builder
+// can be considered thread-safe
 type CompiledKeyBuilder struct {
 	stages []KeyBuilderStage
 }
