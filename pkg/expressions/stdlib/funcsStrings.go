@@ -49,24 +49,33 @@ func kfSubstr(args []KeyBuilderStage) KeyBuilderStage {
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		s := args[0](context)
+		lenS := len(s)
+		if lenS == 0 {
+			return ""
+		}
+
 		left, err1 := strconv.Atoi(args[1](context))
 		length, err2 := strconv.Atoi(args[2](context))
 		if err1 != nil || err2 != nil {
 			return ErrorParsing
 		}
+
 		if length < 0 {
 			length = 0
+		}
+		if left < 0 { // negative number wrap-around
+			left += lenS
+			if left < 0 {
+				left = 0
+			}
+		} else if left > lenS {
+			left = lenS
 		}
 
 		right := left + length
 
-		if left < 0 {
-			left = 0
-		} else if left > len(s) {
-			left = len(s)
-		}
-		if right > len(s) {
-			right = len(s)
+		if right > lenS {
+			right = lenS
 		}
 		return s[left:right]
 	})

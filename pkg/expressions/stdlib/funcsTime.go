@@ -105,8 +105,10 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 		return stageError(ErrorArgCount)
 	}
 
+	// Special key-words for time (eg "now")
 	if val, ok := EvalStaticStage(args[0]); ok {
-		if strings.ToLower(val) == "now" {
+		switch strings.ToLower(val) {
+		case "now":
 			now := strconv.FormatInt(time.Now().Unix(), 10)
 			return func(context KeyBuilderContext) string {
 				return now
@@ -117,7 +119,7 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	// Specific format denoted
 	var format string
 	if len(args) >= 2 {
-		format = args[1](nil)
+		format = EvalStageOrEmpty(args[1])
 	}
 
 	return smartDateParseWrapper(format, args[0], func(t time.Time) string {

@@ -9,6 +9,13 @@ func TestSubstring(t *testing.T) {
 		"ab abcd d d <ARGN>")
 }
 
+func TestSubstringOutOfBounds(t *testing.T) {
+	testExpression(t,
+		mockContext("abcd"),
+		"{substr {0} -1 2} {substr {0} -2 2} {substr {0} -10 2} {substr {0} 3 4} {substr {0} 10 1}",
+		"d cd ab d ")
+}
+
 func TestSelect(t *testing.T) {
 	testExpression(t,
 		mockContext("ab c d", "ab\tq"),

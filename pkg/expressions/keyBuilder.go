@@ -8,7 +8,8 @@ import (
 
 // KeyBuilder builds the compiled keybuilder
 type KeyBuilder struct {
-	functions map[string]KeyBuilderFunction
+	functions    map[string]KeyBuilderFunction
+	autoOptimize bool
 }
 
 // CompiledKeyBuilder represents the compiled key-builder
@@ -18,11 +19,16 @@ type CompiledKeyBuilder struct {
 }
 
 // NewKeyBuilder creates a new KeyBuilder
-func NewKeyBuilder() *KeyBuilder {
+func NewKeyBuilderEx(optimize bool) *KeyBuilder {
 	kb := &KeyBuilder{
-		functions: make(map[string]KeyBuilderFunction),
+		functions:    make(map[string]KeyBuilderFunction),
+		autoOptimize: optimize,
 	}
 	return kb
+}
+
+func NewKeyBuilder() *KeyBuilder {
+	return NewKeyBuilderEx(true)
 }
 
 // Funcs appends a map of functions to be used by the parser
@@ -97,7 +103,11 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 		kb.stages = append(kb.stages, stageLiteral(sb.String()))
 	}
 
-	return kb.optimize(), nil
+	if s.autoOptimize {
+		kb = kb.optimize()
+	}
+
+	return kb, nil
 }
 
 func (s *CompiledKeyBuilder) optimize() *CompiledKeyBuilder {
