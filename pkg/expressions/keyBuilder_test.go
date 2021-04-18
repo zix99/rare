@@ -96,7 +96,7 @@ var simpleFuncs = map[string]KeyBuilderFunction{
 }
 
 func TestSimpleFuncs(t *testing.T) {
-	k := NewKeyBuilder()
+	k := NewKeyBuilderEx(false)
 	k.Funcs(simpleFuncs)
 	kb, _ := k.Compile("value: {addi {addi 1 2} 2}")
 	assert.Equal(t, 2, kb.StageCount())
@@ -104,10 +104,19 @@ func TestSimpleFuncs(t *testing.T) {
 }
 
 func TestManyStages(t *testing.T) {
-	k := NewKeyBuilder()
+	k := NewKeyBuilderEx(false)
 	k.Funcs(simpleFuncs)
 	kb, _ := k.Compile("value: {addi -{addi 1 2} 2} {addi 3 5}")
 	assert.Equal(t, 4, kb.StageCount())
+	assert.Equal(t, "value: -1 8", kb.BuildKey(&KeyBuilderContextArray{}))
+}
+
+func TestManyStagesOptimize(t *testing.T) {
+	k := NewKeyBuilderEx(true)
+
+	k.Funcs(simpleFuncs)
+	kb, _ := k.Compile("value: {addi -{addi 1 2} 2} {addi 3 5}")
+	assert.Equal(t, 1, kb.StageCount())
 	assert.Equal(t, "value: -1 8", kb.BuildKey(&KeyBuilderContextArray{}))
 }
 
