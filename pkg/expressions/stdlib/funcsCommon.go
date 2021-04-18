@@ -43,8 +43,8 @@ func kfClamp(args []KeyBuilderStage) KeyBuilderStage {
 		return stageLiteral(ErrorArgCount)
 	}
 
-	min, minErr := strconv.Atoi(args[1](nil))
-	max, maxErr := strconv.Atoi(args[2](nil))
+	min, minErr := strconv.Atoi(EvalStageOrDefault(args[1], ""))
+	max, maxErr := strconv.Atoi(EvalStageOrDefault(args[2], ""))
 
 	if minErr != nil || maxErr != nil {
 		return stageLiteral(ErrorType)

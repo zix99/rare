@@ -117,10 +117,7 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	}
 
 	// Specific format denoted
-	var format string
-	if len(args) >= 2 {
-		format = EvalStageOrEmpty(args[1])
-	}
+	format := EvalStageIndexOrDefault(args, 1, "")
 
 	return smartDateParseWrapper(format, args[0], func(t time.Time) string {
 		return strconv.FormatInt(t.Unix(), 10)
@@ -131,14 +128,8 @@ func kfTimeFormat(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
 		return stageError(ErrorArgCount)
 	}
-	format := defaultTimeFormat
-	if len(args) >= 2 {
-		format = namedTimeFormatToFormat(args[1](nil))
-	}
-	utc := false
-	if len(args) >= 3 {
-		utc = Truthy(args[2](nil))
-	}
+	format := namedTimeFormatToFormat(EvalStageIndexOrDefault(args, 1, defaultTimeFormat))
+	utc := Truthy(EvalStageIndexOrDefault(args, 2, ""))
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		strUnixTime := args[0](context)
 		unixTime, err := strconv.ParseInt(strUnixTime, 10, 64)
@@ -175,12 +166,8 @@ func kfBucketTime(args []KeyBuilderStage) KeyBuilderStage {
 		return stageError(ErrorArgCount)
 	}
 
-	bucketFormat := timeBucketToFormat(args[1](nil))
-
-	var parseFormat string
-	if len(args) >= 3 {
-		parseFormat = args[2](nil)
-	}
+	bucketFormat := timeBucketToFormat(EvalStageOrDefault(args[1], "day"))
+	parseFormat := EvalStageIndexOrDefault(args, 2, "")
 
 	return smartDateParseWrapper(parseFormat, args[0], func(t time.Time) string {
 		return t.Format(bucketFormat)

@@ -30,6 +30,9 @@ func EvalStageOrDefault(stage KeyBuilderStage, dflt string) string {
 	return dflt
 }
 
-func EvalStageOrEmpty(stage KeyBuilderStage) string {
-	return EvalStageOrDefault(stage, "")
+func EvalStageIndexOrDefault(stages []KeyBuilderStage, idx int, dflt string) string {
+	if idx < len(stages) {
+		return EvalStageOrDefault(stages[idx], dflt)
+	}
+	return dflt
 }
