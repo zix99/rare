@@ -209,6 +209,9 @@ If the format is unable to be resolved, it must be specific manually with a form
 If ommitted: The first seen date will determine the format for all dates going forward (faster)
 If "auto":   The date format will always be auto-detected. This can be used if the date could be in different formats (slower)
 
+**Special Values:**
+The time `now` will return the current unix timestamp `{time now}`
+
 ### Time Formats
 
 **Supported Formats:**
