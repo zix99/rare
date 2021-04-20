@@ -1,7 +1,11 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestMain(t *testing.T) {
-	cliMain("main")
+	assert.NoError(t, cliMain("main"))
 }
