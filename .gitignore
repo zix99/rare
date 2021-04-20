@@ -4,6 +4,6 @@ main
 rare
 rare.exe
 dist/
-testdata/
+/testdata/
 *.prof
 coverage.txt

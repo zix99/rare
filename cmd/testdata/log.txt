@@ -1,0 +1,6 @@
+this is a text file with 5
+22 is the next number
+5 is the last
+no numbers here
+
+empty line above
