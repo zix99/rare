@@ -173,6 +173,9 @@ func kfSeparate(delim rune) KeyBuilderFunction {
 		if len(args) == 0 {
 			return stageLiteral("")
 		}
+		if len(args) == 1 {
+			return args[0]
+		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			var sb strings.Builder
 			sb.WriteString(args[0](context))

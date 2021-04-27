@@ -121,6 +121,7 @@ func TestTabulator(t *testing.T) {
 func TestArray(t *testing.T) {
 	testExpression(t, mockContext("q"), "{$ {0} {1} 22}", "q\x00\x0022")
 	testExpression(t, mockContext("q"), `{$ "{0} hi" 22}`, "q hi\x0022")
+	testExpression(t, mockContext("q"), "{$ {0}}", "q")
 }
 
 func TestHumanize(t *testing.T) {
