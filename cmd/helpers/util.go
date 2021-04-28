@@ -3,6 +3,7 @@ package helpers
 import (
 	"os"
 	"path/filepath"
+	"rare/pkg/logger"
 )
 
 // Aggregate one channel into another, with a buffer
@@ -42,7 +43,7 @@ func globExpand(paths []string, recursive bool) <-chan string {
 			} else {
 				expanded, err := filepath.Glob(p)
 				if err != nil {
-					ErrLog.Printf("Path error: %v\n", err)
+					logger.Printf("Path error: %v", err)
 				} else {
 					for _, item := range expanded {
 						c <- item

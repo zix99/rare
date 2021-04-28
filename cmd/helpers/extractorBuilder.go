@@ -4,6 +4,7 @@ import (
 	"os"
 	"rare/cmd/readProgress"
 	"rare/pkg/extractor"
+	"rare/pkg/logger"
 	"runtime"
 
 	"github.com/hpcloud/tail"
@@ -31,13 +32,13 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	if len(ignoreSlice) > 0 {
 		ignoreExp, err := extractor.NewIgnoreExpressions(ignoreSlice...)
 		if err != nil {
-			ErrLog.Fatalln(err)
+			logger.Fatalln(err)
 		}
 		config.Ignore = ignoreExp
 	}
 
 	if batchSize < 1 {
-		ErrLog.Fatalf("Batch size must be >= 1, is %d\n", batchSize)
+		logger.Fatalf("Batch size must be >= 1, is %d", batchSize)
 	}
 
 	fileglobs := c.Args()
@@ -45,13 +46,13 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
 		ret, err := extractor.New(extractor.ConvertReaderToStringChan("stdin", os.Stdin, batchSize), &config)
 		if err != nil {
-			ErrLog.Fatalln(err)
+			logger.Fatalln(err)
 		}
 		readProgress.StartFileReading("<stdin>")
 		return ret
 	} else if follow { // Read from source file
 		if gunzip {
-			ErrLog.Println("Cannot combine -f and -z")
+			logger.Println("Cannot combine -f and -z")
 		}
 
 		tailChannels := make([]<-chan extractor.InputBatch, 0)
@@ -59,7 +60,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
 			if err != nil {
-				ErrLog.Fatal("Unable to open file: ", err)
+				logger.Fatal("Unable to open file: ", err)
 			}
 			tailChannels = append(tailChannels, tailLineToChan(filename, tail.Lines, batchSize))
 			readProgress.StartFileReading(filename)
@@ -67,13 +68,13 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 
 		ret, err := extractor.New(extractor.CombineChannels(tailChannels...), &config)
 		if err != nil {
-			ErrLog.Fatalln(err)
+			logger.Fatalln(err)
 		}
 		return ret
 	} else { // Read (no-follow) source file(s)
 		ret, err := extractor.New(openFilesToChan(globExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize), &config)
 		if err != nil {
-			ErrLog.Fatalln(err)
+			logger.Fatalln(err)
 		}
 		return ret
 	}
@@ -147,7 +148,7 @@ func AdaptCommandForExtractor(command cli.Command) *cli.Command {
 	// that has the option to flush the log buffer to sderr
 	originalAfter := command.After
 	command.After = func(c *cli.Context) error {
-		DisableAndFlushLogBuffer()
+		logger.ImmediateLogs()
 		if originalAfter != nil {
 			return originalAfter(c)
 		}

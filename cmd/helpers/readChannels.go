@@ -6,6 +6,7 @@ import (
 	"os"
 	"rare/cmd/readProgress"
 	"rare/pkg/extractor"
+	"rare/pkg/logger"
 	"rare/pkg/readahead"
 	"sync"
 	"time"
@@ -66,7 +67,7 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	if gunzip {
 		zfile, err := gzip.NewReader(file)
 		if err != nil {
-			ErrLog.Printf("Gunzip error for file %s: %v\n", filename, err)
+			logger.Printf("Gunzip error for file %s: %v", filename, err)
 		} else {
 			file = zfile
 		}
@@ -104,7 +105,7 @@ func openFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 				var file io.ReadCloser
 				file, err := openFileToReader(goFilename, gunzip)
 				if err != nil {
-					ErrLog.Printf("Error opening file %s: %v\n", goFilename, err)
+					logger.Printf("Error opening file %s: %v", goFilename, err)
 					return
 				}
 				defer file.Close()
@@ -112,7 +113,7 @@ func openFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 
 				ra := readahead.New(file, ReadAheadBufferSize)
 				ra.OnError = func(e error) {
-					ErrLog.Printf("Error reading %s: %v\n", goFilename, e)
+					logger.Printf("Error reading %s: %v", goFilename, e)
 				}
 				extractor.SyncReadAheadToBatchChannel(goFilename, ra, batchSize, out)
 			}(filename)
