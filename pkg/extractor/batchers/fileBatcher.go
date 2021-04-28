@@ -11,6 +11,9 @@ import (
 	"sync"
 )
 
+// ReadAheadBufferSize is the default size of the read-ahead buffer
+const ReadAheadBufferSize = 128 * 1024
+
 // openFilesToChan takes an iterated channel of filenames, options, and loads them all with
 //  a max concurrency.  Returns a channel that will populate with input batches
 func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize int) <-chan extractor.InputBatch {

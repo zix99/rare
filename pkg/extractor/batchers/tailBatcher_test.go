@@ -10,7 +10,8 @@ import (
 
 func TestTailLineToChan(t *testing.T) {
 	tailchan := make(chan *tail.Line)
-	ret := TailLineToChan("test", tailchan, 1)
+	ret := make(chan extractor.InputBatch, 10)
+	go tailLineToChan("test", tailchan, 1, ret)
 
 	tailchan <- &tail.Line{
 		Text: "Hello",

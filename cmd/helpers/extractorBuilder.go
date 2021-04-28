@@ -9,7 +9,6 @@ import (
 	"rare/pkg/logger"
 	"runtime"
 
-	"github.com/hpcloud/tail"
 	"github.com/urfave/cli"
 )
 
@@ -57,24 +56,15 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			logger.Println("Cannot combine -f and -z")
 		}
 
-		tailChannels := make([]<-chan extractor.InputBatch, 0)
-		for filename := range dirwalk.GlobExpand(fileglobs, recursive) {
-			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
-
-			if err != nil {
-				logger.Fatal("Unable to open file: ", err)
-			}
-			tailChannels = append(tailChannels, batchers.TailLineToChan(filename, tail.Lines, batchSize))
-			readProgress.StartFileReading(filename)
-		}
-
-		ret, err := extractor.New(extractor.CombineChannels(tailChannels...), &config)
+		batcher := batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, followReopen, followPoll)
+		ret, err := extractor.New(batcher, &config)
 		if err != nil {
 			logger.Fatalln(err)
 		}
 		return ret
 	} else { // Read (no-follow) source file(s)
-		ret, err := extractor.New(batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize), &config)
+		batcher := batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize)
+		ret, err := extractor.New(batcher, &config)
 		if err != nil {
 			logger.Fatalln(err)
 		}
