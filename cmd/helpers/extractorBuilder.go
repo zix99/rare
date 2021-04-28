@@ -4,6 +4,7 @@ import (
 	"os"
 	"rare/cmd/readProgress"
 	"rare/pkg/extractor"
+	"rare/pkg/extractor/dirwalk"
 	"rare/pkg/logger"
 	"runtime"
 
@@ -56,7 +57,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 
 		tailChannels := make([]<-chan extractor.InputBatch, 0)
-		for filename := range globExpand(fileglobs, recursive) {
+		for filename := range dirwalk.GlobExpand(fileglobs, recursive) {
 			tail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: followReopen, Poll: followPoll})
 
 			if err != nil {
@@ -72,7 +73,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		}
 		return ret
 	} else { // Read (no-follow) source file(s)
-		ret, err := extractor.New(openFilesToChan(globExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize), &config)
+		ret, err := extractor.New(openFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize), &config)
 		if err != nil {
 			logger.Fatalln(err)
 		}
