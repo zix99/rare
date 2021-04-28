@@ -24,3 +24,14 @@ func TestTailLineToChan(t *testing.T) {
 
 	close(tailchan)
 }
+
+func TestBatchTailFile(t *testing.T) {
+	filenames := make(chan string, 1)
+	filenames <- "tailBatcher_test.go" // me
+
+	batcher := TailFilesToChan(filenames, 5, false, false)
+
+	batch := <-batcher
+	assert.Equal(t, "tailBatcher_test.go", batch.Source)
+	assert.Len(t, batch.Batch, 5)
+}
