@@ -64,7 +64,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 			if err != nil {
 				logger.Fatal("Unable to open file: ", err)
 			}
-			tailChannels = append(tailChannels, tailLineToChan(filename, tail.Lines, batchSize))
+			tailChannels = append(tailChannels, batchers.TailLineToChan(filename, tail.Lines, batchSize))
 			readProgress.StartFileReading(filename)
 		}
 
