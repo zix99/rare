@@ -44,7 +44,7 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 	return out
 }
 
-func tailLineToChan(sourceName string, lines chan *tail.Line, batchSize int, output chan<- extractor.InputBatch) {
+func tailLineToChan(sourceName string, lines <-chan *tail.Line, batchSize int, output chan<- extractor.InputBatch) {
 	batch := make([]extractor.BString, 0, batchSize)
 	var batchStart uint64 = 1
 
