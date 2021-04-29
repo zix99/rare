@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 	"os"
-	. "rare/cmd/helpers" //lint:ignore ST1001 Legacy
-	"rare/cmd/readProgress"
+	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
+	"rare/pkg/extractor/readState"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
@@ -46,18 +46,18 @@ func histoFunction(c *cli.Context) error {
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
 
-	ext := BuildExtractorFromArguments(c)
+	ext := helpers.BuildExtractorFromArguments(c)
 
 	progressString := func() string {
-		return FWriteExtractorSummary(ext,
+		return helpers.FWriteExtractorSummary(ext,
 			counter.ParseErrors(),
 			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount())))
 	}
 
-	RunAggregationLoop(ext, counter, func() {
+	helpers.RunAggregationLoop(ext, counter, func() {
 		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey, atLeast)
 		writer.InnerWriter().WriteForLine(topItems, progressString())
-		writer.InnerWriter().WriteForLine(topItems+1, readProgress.GetReadFileString())
+		writer.InnerWriter().WriteForLine(topItems+1, readState.GetReadFileString())
 	})
 
 	writer.InnerWriter().Close()
@@ -77,7 +77,7 @@ func histoFunction(c *cli.Context) error {
 
 // HistogramCommand Exported command
 func histogramCommand() *cli.Command {
-	return AdaptCommandForExtractor(cli.Command{
+	return helpers.AdaptCommandForExtractor(cli.Command{
 		Name:  "histogram",
 		Usage: "Summarize results by extracting them to a histogram",
 		Description: `Generates a live-updating histogram of the extracted information from a file
@@ -90,7 +90,7 @@ func histogramCommand() *cli.Command {
 		Action:    histoFunction,
 		Aliases:   []string{"histo"},
 		ShortName: "h",
-		ArgsUsage: DefaultArgumentDescriptor,
+		ArgsUsage: helpers.DefaultArgumentDescriptor,
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "all,a",

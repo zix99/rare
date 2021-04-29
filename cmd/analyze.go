@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"log"
-	. "rare/cmd/helpers" //lint:ignore ST1001 Legacy
-	"rare/cmd/readProgress"
+	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
+	"rare/pkg/extractor/readState"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 	"strconv"
@@ -63,12 +63,12 @@ func analyzeFunction(c *cli.Context) error {
 	writer := multiterm.New()
 	defer multiterm.ResetCursor()
 
-	ext := BuildExtractorFromArguments(c)
+	ext := helpers.BuildExtractorFromArguments(c)
 
-	RunAggregationLoop(ext, aggr, func() {
+	helpers.RunAggregationLoop(ext, aggr, func() {
 		line := writeAggrOutput(writer, aggr, extra, quantiles)
-		writer.WriteForLine(line+1, FWriteExtractorSummary(ext, aggr.ParseErrors()))
-		writer.WriteForLine(line+2, readProgress.GetReadFileString())
+		writer.WriteForLine(line+1, helpers.FWriteExtractorSummary(ext, aggr.ParseErrors()))
+		writer.WriteForLine(line+2, readState.GetReadFileString())
 	})
 
 	writer.Close()
@@ -77,7 +77,7 @@ func analyzeFunction(c *cli.Context) error {
 }
 
 func analyzeCommand() *cli.Command {
-	return AdaptCommandForExtractor(cli.Command{
+	return helpers.AdaptCommandForExtractor(cli.Command{
 		Name:      "analyze",
 		ShortName: "a",
 		Usage:     "Numerical analysis on a set of filtered data",

@@ -1,4 +1,4 @@
-package readProgress
+package readState
 
 import (
 	"testing"
