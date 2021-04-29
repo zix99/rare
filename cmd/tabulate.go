@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	. "rare/cmd/helpers" //lint:ignore ST1001 Legacy
+	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
 	"rare/pkg/extractor/readState"
@@ -31,9 +31,9 @@ func tabulateFunction(c *cli.Context) error {
 	counter := aggregation.NewTable(delim)
 	writer := termrenderers.NewTable(multiterm.New(), numCols, numRows)
 
-	ext := BuildExtractorFromArguments(c)
+	ext := helpers.BuildExtractorFromArguments(c)
 
-	RunAggregationLoop(ext, counter, func() {
+	helpers.RunAggregationLoop(ext, counter, func() {
 		cols := minColSlice(numCols, append([]string{""}, counter.OrderedColumns()...))
 		writer.WriteRow(0, cols...)
 
@@ -54,7 +54,7 @@ func tabulateFunction(c *cli.Context) error {
 			writer.WriteRow(line, rowVals...)
 			line++
 		}
-		writer.InnerWriter().WriteForLine(line, FWriteExtractorSummary(ext, counter.ParseErrors(),
+		writer.InnerWriter().WriteForLine(line, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
 		writer.InnerWriter().WriteForLine(line+1, readState.GetReadFileString())
 	})
@@ -65,7 +65,7 @@ func tabulateFunction(c *cli.Context) error {
 }
 
 func tabulateCommand() *cli.Command {
-	return AdaptCommandForExtractor(cli.Command{
+	return helpers.AdaptCommandForExtractor(cli.Command{
 		Name:      "tabulate",
 		Aliases:   []string{"table"},
 		ShortName: "t",

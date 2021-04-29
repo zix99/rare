@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	. "rare/cmd/helpers" //lint:ignore ST1001 Legacy
+	"rare/cmd/helpers"
 	"rare/pkg/color"
 
 	"github.com/urfave/cli"
@@ -13,7 +13,7 @@ func filterFunction(c *cli.Context) error {
 	writeLines := c.Bool("line")
 	customExtractor := c.IsSet("extract")
 
-	extractor := BuildExtractorFromArguments(c)
+	extractor := helpers.BuildExtractorFromArguments(c)
 	readChan := extractor.ReadChan()
 	for {
 		matchBatch, more := <-readChan
@@ -37,13 +37,13 @@ func filterFunction(c *cli.Context) error {
 			}
 		}
 	}
-	WriteExtractorSummary(extractor)
+	helpers.WriteExtractorSummary(extractor)
 	return nil
 }
 
 // FilterCommand Exported command
 func filterCommand() *cli.Command {
-	return AdaptCommandForExtractor(cli.Command{
+	return helpers.AdaptCommandForExtractor(cli.Command{
 		Name:  "filter",
 		Usage: "Filter incoming results with search criteria, and output raw matches",
 		Description: `Filters incoming results by a regex, and output the match or an extracted expression.
