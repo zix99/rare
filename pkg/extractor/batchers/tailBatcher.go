@@ -1,8 +1,8 @@
 package batchers
 
 import (
-	"rare/cmd/readProgress"
 	"rare/pkg/extractor"
+	"rare/pkg/extractor/readState"
 	"rare/pkg/logger"
 	"sync"
 	"time"
@@ -23,7 +23,7 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 			go func(filename string) {
 				defer func() {
 					wg.Done()
-					readProgress.StopFileReading(filename)
+					readState.StopFileReading(filename)
 				}()
 
 				fileTail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: reopen, Poll: poll})
@@ -31,7 +31,7 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 					logger.Print("Unable to open file: ", err)
 					return
 				}
-				readProgress.StartFileReading(filename)
+				readState.StartFileReading(filename)
 
 				tailLineToChan(filename, fileTail.Lines, batchSize, out)
 			}(filename)

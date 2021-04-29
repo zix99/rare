@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 	"rare/cmd/helpers"
-	"rare/cmd/readProgress"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
+	"rare/pkg/extractor/readState"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
@@ -44,7 +44,7 @@ func fuzzyFunction(c *cli.Context) error {
 	helpers.RunAggregationLoop(ext, counter, func() {
 		writeHistoOutput(writer, counter.Histo, topItems, reverseSort, sortByKey, atLeast)
 		writer.InnerWriter().WriteForLine(topItems, progressString())
-		writer.InnerWriter().WriteForLine(topItems+1, readProgress.GetReadFileString())
+		writer.InnerWriter().WriteForLine(topItems+1, readState.GetReadFileString())
 	})
 
 	writer.InnerWriter().Close()

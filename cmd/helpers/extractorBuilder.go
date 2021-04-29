@@ -2,10 +2,10 @@ package helpers
 
 import (
 	"os"
-	"rare/cmd/readProgress"
 	"rare/pkg/extractor"
 	"rare/pkg/extractor/batchers"
 	"rare/pkg/extractor/dirwalk"
+	"rare/pkg/extractor/readState"
 	"rare/pkg/logger"
 	"runtime"
 
@@ -49,7 +49,7 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		if err != nil {
 			logger.Fatalln(err)
 		}
-		readProgress.StartFileReading("<stdin>")
+		readState.StartFileReading("<stdin>")
 		return ret
 	} else if follow { // Read from source file
 		if gunzip {

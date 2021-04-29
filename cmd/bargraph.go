@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"rare/cmd/helpers"
-	"rare/cmd/readProgress"
 	"rare/pkg/aggregation"
+	"rare/pkg/extractor/readState"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
@@ -37,7 +37,7 @@ func bargraphFunction(c *cli.Context) error {
 		}
 
 		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors()))
-		writer.WriteFooter(1, readProgress.GetReadFileString())
+		writer.WriteFooter(1, readState.GetReadFileString())
 	})
 
 	return nil

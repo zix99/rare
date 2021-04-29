@@ -4,8 +4,8 @@ import (
 	"compress/gzip"
 	"io"
 	"os"
-	"rare/cmd/readProgress"
 	"rare/pkg/extractor"
+	"rare/pkg/extractor/readState"
 	"rare/pkg/logger"
 	"rare/pkg/readahead"
 	"sync"
@@ -31,13 +31,13 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 
 			wg.Add(1)
 			readCount++
-			readProgress.SetSourceCount(readCount + len(bufferedFilenames))
+			readState.SetSourceCount(readCount + len(bufferedFilenames))
 
 			go func(goFilename string) {
 				defer func() {
 					<-sema
 					wg.Done()
-					readProgress.StopFileReading(goFilename)
+					readState.StopFileReading(goFilename)
 				}()
 
 				var file io.ReadCloser
@@ -47,7 +47,7 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 					return
 				}
 				defer file.Close()
-				readProgress.StartFileReading(goFilename)
+				readState.StartFileReading(goFilename)
 
 				ra := readahead.New(file, ReadAheadBufferSize)
 				ra.OnError = func(e error) {
