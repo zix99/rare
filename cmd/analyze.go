@@ -5,7 +5,6 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
-	"rare/pkg/extractor/readState"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 	"strconv"
@@ -63,12 +62,13 @@ func analyzeFunction(c *cli.Context) error {
 	writer := multiterm.New()
 	defer multiterm.ResetCursor()
 
-	ext := helpers.BuildExtractorFromArguments(c)
+	batcher := helpers.BuildBatcherFromArguments(c)
+	ext := helpers.BuildExtractorFromArguments(c, batcher)
 
 	helpers.RunAggregationLoop(ext, aggr, func() {
 		line := writeAggrOutput(writer, aggr, extra, quantiles)
 		writer.WriteForLine(line+1, helpers.FWriteExtractorSummary(ext, aggr.ParseErrors()))
-		writer.WriteForLine(line+2, readState.GetReadFileString())
+		writer.WriteForLine(line+2, batcher.StatusString())
 	})
 
 	writer.Close()

@@ -13,7 +13,9 @@ func filterFunction(c *cli.Context) error {
 	writeLines := c.Bool("line")
 	customExtractor := c.IsSet("extract")
 
-	extractor := helpers.BuildExtractorFromArguments(c)
+	batcher := helpers.BuildBatcherFromArguments(c)
+	extractor := helpers.BuildExtractorFromArguments(c, batcher)
+
 	readChan := extractor.ReadChan()
 	for {
 		matchBatch, more := <-readChan

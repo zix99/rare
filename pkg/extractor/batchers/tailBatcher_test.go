@@ -31,7 +31,7 @@ func TestBatchTailFile(t *testing.T) {
 
 	batcher := TailFilesToChan(filenames, 5, false, false)
 
-	batch := <-batcher
+	batch := <-batcher.c
 	assert.Equal(t, "tailBatcher_test.go", batch.Source)
 	assert.Len(t, batch.Batch, 5)
 }

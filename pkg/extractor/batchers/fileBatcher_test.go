@@ -17,7 +17,7 @@ func TestOpenFilesToChan(t *testing.T) {
 
 	total := 0
 	var lastStart uint64 = 0
-	for batch := range batches {
+	for batch := range batches.c {
 		assert.Greater(t, batch.BatchStart, lastStart)
 		lastStart = batch.BatchStart
 		total += len(batch.Batch)
