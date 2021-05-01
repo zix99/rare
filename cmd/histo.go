@@ -6,7 +6,6 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
-	"rare/pkg/extractor/readState"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
@@ -46,7 +45,8 @@ func histoFunction(c *cli.Context) error {
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
 
-	ext := helpers.BuildExtractorFromArguments(c)
+	batcher := helpers.BuildBatcherFromArguments(c)
+	ext := helpers.BuildExtractorFromArguments(c, batcher)
 
 	progressString := func() string {
 		return helpers.FWriteExtractorSummary(ext,
@@ -57,7 +57,7 @@ func histoFunction(c *cli.Context) error {
 	helpers.RunAggregationLoop(ext, counter, func() {
 		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey, atLeast)
 		writer.InnerWriter().WriteForLine(topItems, progressString())
-		writer.InnerWriter().WriteForLine(topItems+1, readState.GetReadFileString())
+		writer.InnerWriter().WriteForLine(topItems+1, batcher.StatusString())
 	})
 
 	writer.InnerWriter().Close()

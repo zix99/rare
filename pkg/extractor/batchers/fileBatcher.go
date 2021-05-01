@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"rare/pkg/extractor"
-	"rare/pkg/extractor/readState"
 	"rare/pkg/logger"
 	"rare/pkg/readahead"
 	"sync"
@@ -16,8 +15,8 @@ const ReadAheadBufferSize = 128 * 1024
 
 // openFilesToChan takes an iterated channel of filenames, options, and loads them all with
 //  a max concurrency.  Returns a channel that will populate with input batches
-func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize int) <-chan extractor.InputBatch {
-	out := make(chan extractor.InputBatch, 128)
+func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize int) *Batcher {
+	out := newBatcher(128)
 	sema := make(chan struct{}, concurrency)
 
 	// Load as many files as the sema allows
@@ -31,13 +30,13 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 
 			wg.Add(1)
 			readCount++
-			readState.SetSourceCount(readCount + len(bufferedFilenames))
+			out.setSourceCount(readCount + len(bufferedFilenames))
 
 			go func(goFilename string) {
 				defer func() {
 					<-sema
 					wg.Done()
-					readState.StopFileReading(goFilename)
+					out.stopFileReading(goFilename)
 				}()
 
 				var file io.ReadCloser
@@ -47,18 +46,18 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 					return
 				}
 				defer file.Close()
-				readState.StartFileReading(goFilename)
+				out.startFileReading(goFilename)
 
 				ra := readahead.New(file, ReadAheadBufferSize)
 				ra.OnError = func(e error) {
 					logger.Printf("Error reading %s: %v", goFilename, e)
 				}
-				extractor.SyncReadAheadToBatchChannel(goFilename, ra, batchSize, out)
+				extractor.SyncReadAheadToBatchChannel(goFilename, ra, batchSize, out.c)
 			}(filename)
 		}
 
 		wg.Wait()
-		close(out)
+		out.close()
 	}()
 
 	return out

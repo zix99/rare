@@ -5,7 +5,6 @@ import (
 	"rare/pkg/extractor"
 	"rare/pkg/extractor/batchers"
 	"rare/pkg/extractor/dirwalk"
-	"rare/pkg/extractor/readState"
 	"rare/pkg/logger"
 	"runtime"
 
@@ -14,14 +13,39 @@ import (
 
 const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
-func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
-	follow := c.Bool("follow") || c.Bool("reopen")
-	followReopen := c.Bool("reopen")
-	followPoll := c.Bool("poll")
-	concurrentReaders := c.Int("readers")
-	gunzip := c.Bool("gunzip")
-	batchSize := c.Int("batch")
-	recursive := c.Bool("recursive")
+func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
+	var (
+		follow            = c.Bool("follow") || c.Bool("reopen")
+		followReopen      = c.Bool("reopen")
+		followPoll        = c.Bool("poll")
+		concurrentReaders = c.Int("readers")
+		gunzip            = c.Bool("gunzip")
+		batchSize         = c.Int("batch")
+		recursive         = c.Bool("recursive")
+	)
+
+	if batchSize < 1 {
+		logger.Fatalf("Batch size must be >= 1, is %d", batchSize)
+	}
+	if concurrentReaders < 1 {
+		logger.Fatalf("Must have at least 1 readers")
+	}
+
+	fileglobs := c.Args()
+
+	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
+		return batchers.OpenReaderToChan("<stdin>", os.Stdin, batchSize)
+	} else if follow { // Read from source file
+		if gunzip {
+			logger.Println("Cannot combine -f and -z")
+		}
+		return batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, followReopen, followPoll)
+	} else { // Read (no-follow) source file(s)
+		return batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize)
+	}
+}
+
+func BuildExtractorFromArguments(c *cli.Context, batcher *batchers.Batcher) *extractor.Extractor {
 	config := extractor.Config{
 		Posix:   c.Bool("posix"),
 		Regex:   c.String("match"),
@@ -38,38 +62,11 @@ func BuildExtractorFromArguments(c *cli.Context) *extractor.Extractor {
 		config.Ignore = ignoreExp
 	}
 
-	if batchSize < 1 {
-		logger.Fatalf("Batch size must be >= 1, is %d", batchSize)
+	ret, err := extractor.New(batcher.BatchChan(), &config)
+	if err != nil {
+		logger.Fatalln(err)
 	}
-
-	fileglobs := c.Args()
-
-	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
-		ret, err := extractor.New(extractor.ConvertReaderToStringChan("stdin", os.Stdin, batchSize), &config)
-		if err != nil {
-			logger.Fatalln(err)
-		}
-		readState.StartFileReading("<stdin>")
-		return ret
-	} else if follow { // Read from source file
-		if gunzip {
-			logger.Println("Cannot combine -f and -z")
-		}
-
-		batcher := batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, followReopen, followPoll)
-		ret, err := extractor.New(batcher, &config)
-		if err != nil {
-			logger.Fatalln(err)
-		}
-		return ret
-	} else { // Read (no-follow) source file(s)
-		batcher := batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize)
-		ret, err := extractor.New(batcher, &config)
-		if err != nil {
-			logger.Fatalln(err)
-		}
-		return ret
-	}
+	return ret
 }
 
 func getExtractorFlags() []cli.Flag {

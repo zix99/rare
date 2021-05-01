@@ -2,7 +2,6 @@ package batchers
 
 import (
 	"rare/pkg/extractor"
-	"rare/pkg/extractor/readState"
 	"rare/pkg/logger"
 	"sync"
 	"time"
@@ -12,8 +11,8 @@ import (
 
 // TailFilesToChan tails a set of files to an input batcher that can be consumed by extractor
 //  unlike a normal file batcher, this will attempt to tail all files at once
-func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) <-chan extractor.InputBatch {
-	out := make(chan extractor.InputBatch, 128)
+func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) *Batcher {
+	out := newBatcher(128)
 
 	go func() {
 		var wg sync.WaitGroup
@@ -23,7 +22,7 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 			go func(filename string) {
 				defer func() {
 					wg.Done()
-					readState.StopFileReading(filename)
+					out.stopFileReading(filename)
 				}()
 
 				fileTail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: reopen, Poll: poll})
@@ -31,14 +30,14 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 					logger.Print("Unable to open file: ", err)
 					return
 				}
-				readState.StartFileReading(filename)
+				out.startFileReading(filename)
 
-				tailLineToChan(filename, fileTail.Lines, batchSize, out)
+				tailLineToChan(filename, fileTail.Lines, batchSize, out.c)
 			}(filename)
 		}
 
 		wg.Wait()
-		close(out)
+		out.close()
 	}()
 
 	return out

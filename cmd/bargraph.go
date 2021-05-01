@@ -3,7 +3,6 @@ package cmd
 import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
-	"rare/pkg/extractor/readState"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
@@ -12,7 +11,7 @@ import (
 
 /*
 Test Command:
-go run . bars -z -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} day nginx} {2}}" testdata/*
+go run . bars -sz -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} year nginx} {2}}" testdata/*
 */
 
 func bargraphFunction(c *cli.Context) error {
@@ -25,7 +24,8 @@ func bargraphFunction(c *cli.Context) error {
 	writer := termrenderers.NewBarGraph(multiterm.New())
 	writer.Stacked = stacked
 
-	ext := helpers.BuildExtractorFromArguments(c)
+	batcher := helpers.BuildBatcherFromArguments(c)
+	ext := helpers.BuildExtractorFromArguments(c, batcher)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		line := 0
@@ -37,7 +37,7 @@ func bargraphFunction(c *cli.Context) error {
 		}
 
 		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors()))
-		writer.WriteFooter(1, readState.GetReadFileString())
+		writer.WriteFooter(1, batcher.StatusString())
 	})
 
 	return nil

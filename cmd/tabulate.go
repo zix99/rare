@@ -5,7 +5,6 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
-	"rare/pkg/extractor/readState"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
@@ -31,7 +30,8 @@ func tabulateFunction(c *cli.Context) error {
 	counter := aggregation.NewTable(delim)
 	writer := termrenderers.NewTable(multiterm.New(), numCols, numRows)
 
-	ext := helpers.BuildExtractorFromArguments(c)
+	batcher := helpers.BuildBatcherFromArguments(c)
+	ext := helpers.BuildExtractorFromArguments(c, batcher)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		cols := minColSlice(numCols, append([]string{""}, counter.OrderedColumns()...))
@@ -56,7 +56,7 @@ func tabulateFunction(c *cli.Context) error {
 		}
 		writer.InnerWriter().WriteForLine(line, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
-		writer.InnerWriter().WriteForLine(line+1, readState.GetReadFileString())
+		writer.InnerWriter().WriteForLine(line+1, batcher.StatusString())
 	})
 
 	writer.InnerWriter().Close()
