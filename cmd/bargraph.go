@@ -11,7 +11,7 @@ import (
 
 /*
 Test Command:
-go run . bars -z -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} day nginx} {2}}" testdata/*
+go run . bars -sz -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} year nginx} {2}}" testdata/*
 */
 
 func bargraphFunction(c *cli.Context) error {

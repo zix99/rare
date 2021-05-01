@@ -31,7 +31,8 @@ func TestAdaptingCommandForExtractor(t *testing.T) {
 func TestBuildingExtractorFromContext(t *testing.T) {
 	actionCalled := 0
 	cmdAction := func(c *cli.Context) error {
-		extractor := BuildExtractorFromArguments(c)
+		batcher := BuildBatcherFromArguments(c)
+		extractor := BuildExtractorFromArguments(c, batcher)
 		assert.NotNil(t, extractor)
 
 		actionCalled++
