@@ -31,8 +31,12 @@ func NewTable(term multiterm.MultilineTerm, maxCols, maxRows int) *TableWriter {
 	}
 }
 
-func (s *TableWriter) InnerWriter() multiterm.MultilineTerm {
-	return s.term
+func (s *TableWriter) WriteFooter(idx int, line string) {
+	s.term.WriteForLine(s.currentRows+idx+1, line)
+}
+
+func (s *TableWriter) Close() {
+	s.term.Close()
 }
 
 func (s *TableWriter) MaxRows() int {

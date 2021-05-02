@@ -8,7 +8,6 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
-	"rare/pkg/extractor/readState"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
@@ -44,11 +43,11 @@ func fuzzyFunction(c *cli.Context) error {
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		writeHistoOutput(writer, counter.Histo, topItems, reverseSort, sortByKey, atLeast)
-		writer.InnerWriter().WriteForLine(topItems, progressString())
-		writer.InnerWriter().WriteForLine(topItems+1, batcher.StatusString())
+		writer.WriteFooter(0, progressString())
+		writer.WriteFooter(1, batcher.StatusString())
 	})
 
-	writer.InnerWriter().Close()
+	writer.Close()
 
 	if all {
 		fmt.Println("Full Table:")

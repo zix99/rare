@@ -69,3 +69,25 @@ func TestSubKeyParseError(t *testing.T) {
 	assert.Len(t, sk.Items(), 0)
 	assert.Equal(t, uint64(1), sk.ParseErrors())
 }
+
+func TestInsertAlphaNumeric(t *testing.T) {
+	var arr []string
+	var idx int
+
+	arr, idx = insertAlphanumeric(arr, "c")
+	assert.Equal(t, 0, idx)
+	arr, idx = insertAlphanumeric(arr, "e")
+	assert.Equal(t, 1, idx)
+	arr, idx = insertAlphanumeric(arr, "a")
+	assert.Equal(t, 0, idx)
+	arr, idx = insertAlphanumeric(arr, "d")
+	assert.Equal(t, 2, idx)
+
+	assert.Equal(t, []string{"a", "c", "d", "e"}, arr)
+}
+
+func TestInsertAt(t *testing.T) {
+	assert.Equal(t, []string{"a", "howdy", "b", "c"}, insertAt([]string{"a", "b", "c"}, 1, "howdy"))
+	assert.Equal(t, []string{"a", "b", "c", "howdy"}, insertAt([]string{"a", "b", "c"}, 3, "howdy"))
+	assert.Equal(t, []string{"howdy", "a", "b", "c"}, insertAt([]string{"a", "b", "c"}, 0, "howdy"))
+}
