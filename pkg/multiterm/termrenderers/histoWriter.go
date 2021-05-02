@@ -35,8 +35,12 @@ func NewHistogram(term multiterm.MultilineTerm, maxLines int) *HistoWriter {
 	}
 }
 
-func (s *HistoWriter) InnerWriter() multiterm.MultilineTerm {
-	return s.writer
+func (s *HistoWriter) WriteFooter(idx int, line string) {
+	s.writer.WriteForLine(len(s.items)+idx, line)
+}
+
+func (s *HistoWriter) Close() {
+	s.writer.Close()
 }
 
 func (s *HistoWriter) WriteForLine(line int, key string, val int64) {

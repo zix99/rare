@@ -54,12 +54,12 @@ func tabulateFunction(c *cli.Context) error {
 			writer.WriteRow(line, rowVals...)
 			line++
 		}
-		writer.InnerWriter().WriteForLine(line, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
+		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
-		writer.InnerWriter().WriteForLine(line+1, batcher.StatusString())
+		writer.WriteFooter(1, batcher.StatusString())
 	})
 
-	writer.InnerWriter().Close()
+	writer.Close()
 
 	return nil
 }
