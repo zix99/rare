@@ -22,8 +22,6 @@ type BarGraph struct {
 	Stacked bool
 }
 
-var barColors = [...]color.ColorCode{color.Blue, color.Red, color.Green, color.Yellow, color.Magenta, color.Cyan}
-
 func NewBarGraph(term multiterm.MultilineTerm) *BarGraph {
 	return &BarGraph{
 		writer:       term,
@@ -43,7 +41,7 @@ func (s *BarGraph) SetKeys(keyItems ...string) {
 		sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
 		for idx, item := range keyItems {
 			sb.WriteString("  ")
-			sb.WriteString(color.Wrap(barColors[idx%len(barColors)], termunicode.BarString(1, 1, 1)))
+			sb.WriteString(color.Wrap(color.GroupColors[idx%len(color.GroupColors)], termunicode.BarString(1, 1, 1)))
 			sb.WriteString(" ")
 			sb.WriteString(item)
 		}
@@ -86,7 +84,7 @@ func (s *BarGraph) writeBarGrouped(idx int, key string, vals ...int64) {
 		if i > 0 {
 			sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
 		}
-		color.Write(&sb, barColors[i%len(barColors)], func(w io.StringWriter) {
+		color.Write(&sb, color.GroupColors[i%len(color.GroupColors)], func(w io.StringWriter) {
 			termunicode.BarWrite(w, vals[i], s.maxLineVal, int64(s.BarSize))
 		})
 		sb.WriteString(" ")
@@ -118,7 +116,7 @@ func (s *BarGraph) writeBarStacked(idx int, key string, vals ...int64) {
 	}
 
 	for i := 0; i < len(vals); i++ {
-		color.Write(&sb, barColors[i%len(barColors)], func(w io.StringWriter) {
+		color.Write(&sb, color.GroupColors[i%len(color.GroupColors)], func(w io.StringWriter) {
 			termunicode.BarWriteFull(w, vals[i], s.maxLineVal, int64(s.BarSize))
 		})
 	}

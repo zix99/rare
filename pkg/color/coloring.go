@@ -40,7 +40,7 @@ const (
 // Enabled controls whether or not coloring is applied
 var Enabled = true
 
-var groupColors = [...]ColorCode{Red, Green, Yellow, Blue, Magenta, Cyan}
+var GroupColors = [...]ColorCode{Red, Green, Yellow, Blue, Magenta, Cyan, BrightRed, BrightGreen, BrightYellow, BrightBlue, BrightMagenta, BrightCyan}
 
 func init() {
 	if fi, err := os.Stdout.Stat(); err == nil {
@@ -102,7 +102,7 @@ func WrapIndices(s string, groups []int) string {
 		start := groups[i]
 		end := groups[i+1]
 		if start >= 0 && end >= 0 && end > start && start >= lastIndex {
-			color := groupColors[(i/2)%len(groupColors)]
+			color := GroupColors[(i/2)%len(GroupColors)]
 
 			sb.WriteString(s[lastIndex:start])
 			sb.WriteString(string(color))

@@ -91,3 +91,11 @@ func TestWriteColor(t *testing.T) {
 	})
 	assert.Contains(t, sb.String(), "hi")
 }
+
+func TestGroupColors(t *testing.T) {
+	for _, c := range GroupColors {
+		fmt.Print(c)
+		fmt.Print("HI ")
+	}
+	t.Fail()
+}

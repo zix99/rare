@@ -76,18 +76,48 @@ func (s *SubKeyCounter) getOrCreateKeyItem(key string) *SubKeyItem {
 
 func (s *SubKeyCounter) getOrCreateSubkeyIndex(subkey string) int {
 	if idx, ok := s.subKeyIdx[subkey]; !ok {
-		idx = len(s.subKeys)
-		s.subKeys = append(s.subKeys, subkey)
+		s.subKeys, idx = insertAlphanumeric(s.subKeys, subkey)
 		s.subKeyIdx[subkey] = idx
 
 		for _, item := range s.matches {
-			item.submatches = append(item.submatches, 0)
+			item.submatches = insertAti64(item.submatches, idx, 0)
 		}
 
 		return idx
 	} else {
 		return idx
 	}
+}
+
+// insertAlphanumeric assumes slice is already in-order, and inserts a new element
+//  and returns the index it was inserted at
+func insertAlphanumeric(slice []string, ele string) (ret []string, idx int) {
+	for i, val := range slice {
+		if ele < val {
+			ret = insertAt(slice, i, ele)
+			idx = i
+			return
+		}
+	}
+
+	// Must be at the end, it's a simple case
+	idx = len(slice)
+	ret = append(slice, ele)
+	return
+}
+
+func insertAt(slice []string, idx int, ele string) (ret []string) {
+	ret = append(slice, "")
+	copy(ret[idx+1:], ret[idx:])
+	ret[idx] = ele
+	return
+}
+
+func insertAti64(slice []int64, idx int, ele int64) (ret []int64) {
+	ret = append(slice, 0)
+	copy(ret[idx+1:], ret[idx:])
+	ret[idx] = ele
+	return
 }
 
 func (s *SubKeyCounter) ParseErrors() uint64 {
