@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+const (
+	ArraySeparator       rune   = '\x00'
+	ArraySeparatorString string = string(ArraySeparator)
+)
+
 // KeyBuilderFunction defines a helper function at runtime
 type KeyBuilderFunction func([]KeyBuilderStage) KeyBuilderStage
 

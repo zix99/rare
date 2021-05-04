@@ -164,6 +164,8 @@ Syntax: `{$ a b c}`
 Concatenates a set of arguments with a null separator.  Commonly used
 to form arrays that have meaning for a given aggregator.
 
+Specifying multiple expressions is equivalent, eg. `{$ a b}` is the same as `-e a -e b`
+
 ## Paths
 
 Syntax: `{basename a/b/c}`, `{dirname a/b/c}`, `{extname a/b/c.jpg}`

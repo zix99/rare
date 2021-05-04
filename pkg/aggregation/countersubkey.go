@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"rare/pkg/expressions"
 	"rare/pkg/stringSplitter"
 	"sort"
 	"strconv"
@@ -35,7 +36,7 @@ func NewSubKeyCounter() *SubKeyCounter {
 func (s *SubKeyCounter) Sample(element string) {
 	splitter := stringSplitter.Splitter{
 		S:     element,
-		Delim: "\x00",
+		Delim: expressions.ArraySeparatorString,
 	}
 
 	key := splitter.Next()
