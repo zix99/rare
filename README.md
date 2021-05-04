@@ -337,7 +337,7 @@ It's worth noting that in many of these results rare is just as fast, but part
 of that reason is that it consumes CPU in a more efficient way (go is great at parallelization).
 So take that into account, for better or worse.
 
-All tests were done on ~200MB of gzip'd nginx logs spread acorss 10 files.
+All tests were done on ~83MB of gzip'd (1.5GB gunzip'd) nginx logs spread across 10 files.
 
 Each program was run 3 times and the last time was taken (to make sure things were cached equally).
 
@@ -345,17 +345,17 @@ Each program was run 3 times and the last time was taken (to make sure things we
 
 ```
 $ time zcat testdata/* | grep -Poa '" (\d{3})' | wc -l
-1131354
+8373328
 
-real	0m0.990s
-user	0m1.480s
-sys	0m0.080s
+real    0m11.272s
+user    0m16.239s
+sys     0m1.989s
 
 $ time zcat testdata/* | grep -Poa '" 200' > /dev/null
 
-real	0m1.136s
-user	0m1.644s
-sys	0m0.044s
+real    0m5.416s
+user    0m4.810s
+sys     0m1.185s
 ```
 
 I believe the largest holdup here is the fact that zcat will pass all the data to grep via a synchronous pipe, whereas
@@ -364,9 +364,12 @@ results they did perform comparibly.
 
 ## Silver Searcher (ag)
 
+ag version 2.2.0 has a bug where it won't scan all my testdata.  I'll hold on benchmarking until there's a fix.
+
+### Old Benchmark (Less data by factor of ~8x)
 ```
 $ ag --version
-ag version 0.31.0
+ag version 2.2.0
 
 Features:
   +jit +lzma +zlib
@@ -381,31 +384,63 @@ sys	0m0.152s
 
 ## rare
 
+At no point scanning the data does `rare` exceed ~76MB of resident memory.
+
 ```
 $ rare -v
 rare version 0.1.16, 11ca2bfc4ad35683c59929a74ad023cc762a29ae
 
 $ time rare filter -m '" (\d{3})' -e "{1}" -z testdata/* | wc -l
-Matched: 1,131,354 / 3,638,594
-1131354
+Matched: 8,373,328 / 8,373,328
+8373328
 
-real	0m0.927s
-user	0m1.764s
-sys	0m1.144s
+real    0m16.192s
+user    0m20.298s
+sys     0m20.697s
 
 $ time rare histo -m '" (\d{3})' -e "{1}" -z testdata/*
-200                 1,124,767 
-404                 6,020     
-304                 371       
-403                 98        
-301                 84        
+404                 5,557,374 
+200                 2,564,984 
+400                 243,282   
+405                 5,708     
+408                 1,397     
+Matched: 8,373,328 / 8,373,328 (Groups: 8)
 
-Matched: 1,131,354 / 3,638,594
-Groups:  6
 
-real	0m0.284s
-user	0m1.648s
-sys	0m0.048s
+real    0m3.869s
+user    0m13.423s
+sys     0m0.191s
+```
+
+### pcre2
+
+The PCRE2 version is approximately the same on a standard regular expression, but begans to shine
+on more complex regex's.
+
+```
+$ time rare table -z -m "\[(.+?)\].*\" (\d+)" -e "{buckettime {1} year nginx}" -e "{bucket {2} 100}" testdata/*
+          2020      2019      
+400       2,915,487 2,892,274           
+200       1,716,107 848,925             
+300       290       245                 
+Matched: 8,373,328 / 8,373,328 (R: 3; C: 2)
+
+
+real    0m31.419s
+user    1m40.060s
+sys     0m0.657s
+
+$ time rare-pcre table -z -m "\[(.+?)\].*\" (\d+)" -e "{buckettime {1} year nginx}" -e "{bucket {2} 100}" testdata/*
+          2020      2019      
+400       2,915,487 2,892,274           
+200       1,716,107 848,925             
+300       290       245                 
+Matched: 8,373,328 / 8,373,328 (R: 3; C: 2)
+
+
+real    0m7.936s
+user    0m27.600s
+sys     0m0.301s
 ```
 
 # Development
