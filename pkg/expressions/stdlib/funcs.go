@@ -55,7 +55,7 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 
 	// Separation
 	"tab": kfSeparate('\t'),
-	"$":   kfSeparate('\x00'),
+	"$":   kfSeparate(ArraySeparator),
 
 	// Pathing
 	"basename": kfPathBase,

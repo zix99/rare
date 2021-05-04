@@ -2,11 +2,13 @@ package helpers
 
 import (
 	"os"
+	"rare/pkg/expressions"
 	"rare/pkg/extractor"
 	"rare/pkg/extractor/batchers"
 	"rare/pkg/extractor/dirwalk"
 	"rare/pkg/logger"
 	"runtime"
+	"strings"
 
 	"github.com/urfave/cli"
 )
@@ -49,7 +51,7 @@ func BuildExtractorFromArguments(c *cli.Context, batcher *batchers.Batcher) *ext
 	config := extractor.Config{
 		Posix:   c.Bool("posix"),
 		Regex:   c.String("match"),
-		Extract: c.String("extract"),
+		Extract: buildExtractionExpression(c.StringSlice("extract")...),
 		Workers: c.Int("workers"),
 	}
 
@@ -67,6 +69,16 @@ func BuildExtractorFromArguments(c *cli.Context, batcher *batchers.Batcher) *ext
 		logger.Fatalln(err)
 	}
 	return ret
+}
+
+func buildExtractionExpression(args ...string) string {
+	if len(args) == 0 {
+		return "{0}"
+	}
+	if len(args) == 1 {
+		return args[0]
+	}
+	return strings.Join(args, expressions.ArraySeparatorString)
 }
 
 func getExtractorFlags() []cli.Flag {
@@ -92,10 +104,9 @@ func getExtractorFlags() []cli.Flag {
 			Usage: "Regex to create match groups to summarize on",
 			Value: ".*",
 		},
-		cli.StringFlag{
+		cli.StringSliceFlag{
 			Name:  "extract,e",
-			Usage: "Expression that will generate the key to group by",
-			Value: "{0}",
+			Usage: "Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper",
 		},
 		cli.BoolFlag{
 			Name:  "gunzip,z",

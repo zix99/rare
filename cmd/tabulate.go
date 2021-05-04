@@ -5,6 +5,7 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
+	"rare/pkg/expressions"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
@@ -78,7 +79,7 @@ func tabulateCommand() *cli.Command {
 			cli.StringFlag{
 				Name:  "delim",
 				Usage: "Character to tabulate on. Use {$} helper by default",
-				Value: "\x00",
+				Value: expressions.ArraySeparatorString,
 			},
 			cli.IntFlag{
 				Name:  "num,n",
