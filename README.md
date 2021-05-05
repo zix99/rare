@@ -414,7 +414,7 @@ sys     0m0.191s
 
 ### pcre2
 
-The PCRE2 version is approximately the same on a standard regular expression, but begans to shine
+The PCRE2 version is approximately the same on a simple regular expression, but begins to shine
 on more complex regex's.
 
 ```
