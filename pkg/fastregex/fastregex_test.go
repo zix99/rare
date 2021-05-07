@@ -31,6 +31,7 @@ func TestMatchString(t *testing.T) {
 
 func TestSubMatch(t *testing.T) {
 	re := MustCompile("test").CreateInstance()
+	assert.Len(t, re.SubexpNameTable(), 0)
 	ret := re.FindSubmatchIndex([]byte("this is a test"))
 	assert.Len(t, ret, 2)
 	assert.Equal(t, []int{10, 14}, ret)
@@ -58,6 +59,15 @@ func TestMatchUnicodeCharacter(t *testing.T) {
 func TestMatchEmptyArray(t *testing.T) {
 	re := MustCompile("test").CreateInstance()
 	assert.Nil(t, re.FindSubmatchIndex([]byte{}))
+	assert.Len(t, re.SubexpNameTable(), 0)
+}
+
+func TestCaptureGroupNames(t *testing.T) {
+	re := MustCompile(`(?P<num>\d+) (?P<thing>.+) (\w+)`).CreateInstance()
+	table := re.SubexpNameTable()
+	assert.Len(t, table, 2)
+	assert.Equal(t, 1, table["num"])
+	assert.Equal(t, 2, table["thing"])
 }
 
 // Benchmarks

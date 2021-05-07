@@ -27,8 +27,11 @@ var JITEnabled = true
 type pcre2Compiled struct {
 	p          *C.pcre2_code
 	groupCount int
+	groupNames map[string]int
 	jitted     bool
 }
+
+var _ CompiledRegexp = &pcre2Compiled{}
 
 // instance version
 type pcre2Regexp struct {
@@ -74,12 +77,13 @@ func CompileEx(expr string, posix bool) (CompiledRegexp, error) {
 		jitted = true
 	}
 
-	var groupCount C.uint32_t
-	C.pcre2_pattern_info(compiled, C.PCRE2_INFO_CAPTURECOUNT, unsafe.Pointer(&groupCount))
+	groupCount := pcre2PatternInfoUint32(compiled, C.PCRE2_INFO_CAPTURECOUNT)
+	groupNames := pcre2BuildGroupNameTable(compiled)
 
 	pcre := &pcre2Compiled{
 		p:          compiled,
-		groupCount: int(groupCount) + 1,
+		groupCount: groupCount + 1,
+		groupNames: groupNames,
 		jitted:     jitted,
 	}
 	runtime.SetFinalizer(pcre, func(f *pcre2Compiled) {
@@ -128,6 +132,10 @@ func (s *pcre2Regexp) GroupCount() int {
 	return s.re.groupCount
 }
 
+func (s *pcre2Regexp) SubexpNameTable() map[string]int {
+	return s.re.groupNames
+}
+
 func (s *pcre2Regexp) Match(b []byte) bool {
 	bPtr := (*C.uchar)(unsafe.Pointer(&b[0]))
 	rc := C.pcre2_match(s.re.p, bPtr, C.size_t(len(b)), 0, 0, s.matchData, nil)
@@ -173,4 +181,44 @@ var _ error = &compileError{}
 
 func (s *compileError) Error() string {
 	return fmt.Sprintf("Error in '%s', offset %d: %s", s.Expr, s.Offset, s.Message)
+}
+
+func pcre2BuildGroupNameTable(p *C.pcre2_code) map[string]int {
+	ret := make(map[string]int)
+
+	nameCount := pcre2PatternInfoUint32(p, C.PCRE2_INFO_NAMECOUNT)
+	if nameCount > 0 {
+		nameEntrySize := pcre2PatternInfoUint32(p, C.PCRE2_INFO_NAMEENTRYSIZE)
+		table := pcre2PatternInfoBytes(p, C.PCRE2_INFO_NAMETABLE, nameCount*nameEntrySize)
+
+		for i := 0; i < nameCount; i++ {
+			row := table[i*nameEntrySize : (i+1)*nameEntrySize]
+			groupIndex := (int(row[0]) << 8) | int(row[1])
+			name := nullTermString(row[2:])
+			ret[name] = groupIndex
+		}
+	}
+
+	return ret
+}
+
+func pcre2PatternInfoBytes(p *C.pcre2_code, code C.uint, size int) []byte {
+	var ret *C.uchar
+	C.pcre2_pattern_info(p, code, unsafe.Pointer(&ret))
+	return C.GoBytes(unsafe.Pointer(ret), C.int(size))
+}
+
+func pcre2PatternInfoUint32(p *C.pcre2_code, code C.uint) int {
+	var ret C.uint32_t
+	C.pcre2_pattern_info(p, code, unsafe.Pointer(&ret))
+	return int(ret)
+}
+
+func nullTermString(cstr []byte) string {
+	for i := 0; i < len(cstr); i++ {
+		if cstr[i] == 0 {
+			return string(cstr[:i])
+		}
+	}
+	return string(cstr)
 }

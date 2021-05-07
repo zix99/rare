@@ -12,13 +12,32 @@ cases where we can't compile with PCRE support
 const Version = "re2"
 
 type compiledRegexp struct {
-	re *regexp.Regexp
+	*regexp.Regexp
+	groupNames map[string]int
 }
 
-var _ CompiledRegexp = &compiledRegexp{}
+var (
+	_ CompiledRegexp = &compiledRegexp{}
+	_ Regexp         = &compiledRegexp{}
+)
 
 func (s *compiledRegexp) CreateInstance() Regexp {
-	return s.re
+	return s
+}
+
+func (s *compiledRegexp) SubexpNameTable() map[string]int {
+	return s.groupNames
+}
+
+func CompileEx(expr string, posix bool) (CompiledRegexp, error) {
+	re, err := buildRegexp(expr, posix)
+	if err != nil {
+		return nil, err
+	}
+	return &compiledRegexp{
+		re,
+		createGroupNameTable(re),
+	}, nil
 }
 
 func buildRegexp(expr string, posix bool) (*regexp.Regexp, error) {
@@ -28,10 +47,12 @@ func buildRegexp(expr string, posix bool) (*regexp.Regexp, error) {
 	return regexp.Compile(expr)
 }
 
-func CompileEx(expr string, posix bool) (CompiledRegexp, error) {
-	re, err := buildRegexp(expr, posix)
-	if err != nil {
-		return nil, err
+func createGroupNameTable(re *regexp.Regexp) (ret map[string]int) {
+	ret = make(map[string]int)
+	for idx, name := range re.SubexpNames() {
+		if name != "" {
+			ret[name] = idx
+		}
 	}
-	return &compiledRegexp{re}, nil
+	return
 }

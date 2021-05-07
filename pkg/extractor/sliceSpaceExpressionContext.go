@@ -6,10 +6,11 @@ import (
 )
 
 type SliceSpaceExpressionContext struct {
-	linePtr string
-	indices []int
-	source  string
-	lineNum uint64
+	linePtr   string
+	indices   []int
+	nameTable map[string]int
+	source    string
+	lineNum   uint64
 }
 
 func (s *SliceSpaceExpressionContext) GetMatch(idx int) string {
@@ -32,5 +33,10 @@ func (s *SliceSpaceExpressionContext) GetKey(key string) string {
 	case "line":
 		return strconv.FormatUint(s.lineNum, 10)
 	}
+
+	if idx, ok := s.nameTable[key]; ok {
+		return s.GetMatch(idx)
+	}
+
 	return stdlib.ErrorArgName
 }
