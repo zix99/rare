@@ -54,6 +54,22 @@ func TestSourceAndLine(t *testing.T) {
 	assert.Equal(t, "test 3 val:123 <NAME>", vals[2].Extracted)
 }
 
+func TestIgnoreLines(t *testing.T) {
+	input := ConvertReaderToStringChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1)
+	ignore, _ := NewIgnoreExpressions(`{eq {1} "123"}`)
+	ex, err := New(input, &Config{
+		Regex:   `(\d+)`,
+		Extract: "{src} {line} val:{1} {bad}",
+		Workers: 1,
+		Ignore:  ignore,
+	})
+	assert.NoError(t, err)
+
+	vals := unbatchMatches(ex.ReadChan())
+
+	assert.Len(t, vals, 1)
+}
+
 func TestNamedGroup(t *testing.T) {
 	input := ConvertReaderToStringChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1)
 	ex, err := New(input, &Config{
