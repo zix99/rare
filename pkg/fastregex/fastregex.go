@@ -13,6 +13,7 @@ type Regexp interface {
 	Match(b []byte) bool
 	MatchString(str string) bool
 	FindSubmatchIndex(b []byte) []int
+	SubexpNameTable() map[string]int
 }
 
 // In addition, the following must be provided

@@ -80,10 +80,11 @@ func (s *Extractor) processLineSync(source string, lineNum uint64, line BString,
 		//   as a pointer instead
 		lineStringPtr := *(*string)(unsafe.Pointer(&line))
 		expContext := SliceSpaceExpressionContext{
-			linePtr: lineStringPtr,
-			indices: matches,
-			source:  source,
-			lineNum: lineNum,
+			linePtr:   lineStringPtr,
+			indices:   matches,
+			nameTable: re.SubexpNameTable(),
+			source:    source,
+			lineNum:   lineNum,
 		}
 		if s.ignore == nil || !s.ignore.IgnoreMatch(&expContext) {
 			extractedKey := s.keyBuilder.BuildKey(&expContext)

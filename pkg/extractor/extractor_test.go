@@ -54,6 +54,37 @@ func TestSourceAndLine(t *testing.T) {
 	assert.Equal(t, "test 3 val:123 <NAME>", vals[2].Extracted)
 }
 
+func TestIgnoreLines(t *testing.T) {
+	input := ConvertReaderToStringChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1)
+	ignore, _ := NewIgnoreExpressions(`{eq {1} "123"}`)
+	ex, err := New(input, &Config{
+		Regex:   `(\d+)`,
+		Extract: "{src} {line} val:{1} {bad}",
+		Workers: 1,
+		Ignore:  ignore,
+	})
+	assert.NoError(t, err)
+
+	vals := unbatchMatches(ex.ReadChan())
+
+	assert.Len(t, vals, 1)
+}
+
+func TestNamedGroup(t *testing.T) {
+	input := ConvertReaderToStringChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1)
+	ex, err := New(input, &Config{
+		Regex:   `(?P<num>\d+)`,
+		Extract: "val:{1}:{num}",
+		Workers: 1,
+	})
+	assert.NoError(t, err)
+
+	vals := unbatchMatches(ex.ReadChan())
+	assert.Equal(t, "abc 123", vals[0].Line)
+	assert.Equal(t, 4, len(vals[0].Indices))
+	assert.Equal(t, "val:123:123", vals[0].Extracted)
+}
+
 func TestGH10SliceBoundsPanic(t *testing.T) {
 	input := ConvertReaderToStringChan("", ioutil.NopCloser(strings.NewReader("this is an [ERROR] message")), 1)
 	ex, err := New(input, &Config{

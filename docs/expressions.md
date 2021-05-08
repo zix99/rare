@@ -15,7 +15,7 @@ The basic syntax structure is as follows:
  * Anything not surrounded by `{}` is a literal
  * Expressions are surrounded by `{}`. The entire match will always be `{0}`
  * An integer in an expression denotes a matched value from the regex (or other input) eg. `{2}`
- * A string in an expression is a special key eg. `{src}`
+ * A string in an expression is a special key or a named regex group eg. `{src}`
  * When an expression has space(s), the first literal will be the name of a helper function.
    From there, the logic is nested. eg `{coalesce {4} {3} notfound}`
  * Quotes in an argument create a single argument eg. `{coalesce {4} {3} "not found"}`
