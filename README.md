@@ -1,11 +1,13 @@
 # rare
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/zix99/rare/rare) [![codecov](https://codecov.io/gh/zix99/rare/branch/master/graph/badge.svg)](https://codecov.io/gh/zix99/rare)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/zix99/rare/rare) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/zix99/rare) [![codecov](https://codecov.io/gh/zix99/rare/branch/master/graph/badge.svg)](https://codecov.io/gh/zix99/rare) ![GitHub all releases](https://img.shields.io/github/downloads/zix99/rare/total)
 
 
-A file scanner/regex extractor and realtime summarizor.
+A file fast scanner/regex extractor and realtime summarizer.
 
-Supports various CLI-based graphing and metric formats (histogram, table, etc).
+Supports various CLI-based graphing and metric formats (histogram, table, bargraph, etc).
+
+`rare` is a play on "more" and "less", but can also stand for "realtime aggregated regular expressions".
 
 ![rare gif](images/rare.gif)
 

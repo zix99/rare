@@ -20,7 +20,7 @@ type SubKeyItem struct {
 
 type SubKeyCounter struct {
 	matches   map[string]*SubKeyItem // All matches of the top level key
-	subKeys   []string               // All the subkeys. Never changes order (append-only)
+	subKeys   []string               // All the subkeys
 	subKeyIdx map[string]int         // Name to index of subKeys
 	errors    uint64
 }
@@ -78,8 +78,13 @@ func (s *SubKeyCounter) getOrCreateKeyItem(key string) *SubKeyItem {
 func (s *SubKeyCounter) getOrCreateSubkeyIndex(subkey string) int {
 	if idx, ok := s.subKeyIdx[subkey]; !ok {
 		s.subKeys, idx = insertAlphanumeric(s.subKeys, subkey)
-		s.subKeyIdx[subkey] = idx
 
+		// Regenerate key-table
+		for i, name := range s.subKeys {
+			s.subKeyIdx[name] = i
+		}
+
+		// Add index to all submatches
 		for _, item := range s.matches {
 			item.submatches = insertAti64(item.submatches, idx, 0)
 		}

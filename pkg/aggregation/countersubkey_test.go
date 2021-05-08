@@ -47,6 +47,21 @@ func TestSubKeyWithSubKeys(t *testing.T) {
 	assert.Len(t, items[1].Item.Items(), 2)
 }
 
+func TestComplexSubKeys(t *testing.T) {
+	sk := NewSubKeyCounter()
+	sk.SampleValue("test", "200", 1)
+	sk.SampleValue("test", "300", 5)
+	sk.SampleValue("test", "100", 3)
+	sk.SampleValue("test", "200", 1)
+
+	items := sk.ItemsSorted(false)
+	assert.Equal(t, items[0].Name, "test")
+	assert.Len(t, items[0].Item.Items(), 3)
+	assert.Equal(t, items[0].Item.Items()[0], int64(3))
+	assert.Equal(t, items[0].Item.Items()[1], int64(2))
+	assert.Equal(t, items[0].Item.Items()[2], int64(5))
+}
+
 func TestSubKeyWithNullSample(t *testing.T) {
 	sk := NewSubKeyCounter()
 	sk.Sample("test")
