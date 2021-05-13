@@ -11,7 +11,7 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.3.5
-	github.com/urfave/cli v1.22.2
+	github.com/urfave/cli v1.22.5
 	golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4
 	golang.org/x/text v0.3.3
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
