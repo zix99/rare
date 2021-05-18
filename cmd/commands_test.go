@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"regexp"
+	"os"
+	"rare/pkg/testutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,6 +19,12 @@ func testCommandSet(t *testing.T, command *cli.Command, commandArgList ...string
 	}
 }
 
+func testCommandCapture(command *cli.Command, cmd string) (stdout, stderr string, err error) {
+	return testutil.Capture(func(w *os.File) error {
+		return testCommand(command, cmd)
+	})
+}
+
 func testCommand(command *cli.Command, cmd string) error {
 	app := cli.NewApp()
 
@@ -26,24 +33,7 @@ func testCommand(command *cli.Command, cmd string) error {
 		*command,
 	}
 
-	commandArgs := append([]string{"app", "_testcommand"}, splitQuotedString(cmd)...)
+	commandArgs := append([]string{"app", "_testcommand"}, testutil.SplitQuotedString(cmd)...)
 
 	return app.Run(commandArgs)
-}
-
-var stringSplitter = regexp.MustCompile(`([^\s"]+)|"([^"]*)"`)
-
-func splitQuotedString(s string) []string {
-	matches := stringSplitter.FindAllStringSubmatch(s, -1)
-
-	ret := make([]string, 0)
-	for _, v := range matches {
-		if v[2] != "" {
-			ret = append(ret, v[2])
-		} else {
-			ret = append(ret, v[1])
-		}
-	}
-
-	return ret
 }
