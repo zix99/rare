@@ -10,11 +10,13 @@ import (
 )
 
 func filterFunction(c *cli.Context) error {
-	writeLines := c.Bool("line")
-	customExtractor := c.IsSet("extract")
+	var (
+		writeLines      = c.Bool("line")
+		customExtractor = c.IsSet("extract")
+	)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
-	extractor := helpers.BuildExtractorFromArguments(c, batcher)
+	extractor := helpers.BuildExtractorFromArgumentsEx(c, batcher, "\t")
 
 	readChan := extractor.ReadChan()
 	for {
