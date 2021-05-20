@@ -42,7 +42,8 @@ func filterFunction(c *cli.Context) error {
 		}
 	}
 	helpers.WriteExtractorSummary(extractor)
-	return nil
+
+	return helpers.DetermineErrorState(batcher, extractor, nil)
 }
 
 // FilterCommand Exported command

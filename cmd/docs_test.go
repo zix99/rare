@@ -1,11 +1,13 @@
 package cmd
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestDocs(t *testing.T) {
-	testCommandSet(t, docsCommand(),
-		``,
-		`expressions`,
-		`no-exist`,
-	)
+	assert.NoError(t, testCommand(docsCommand(), ``))
+	assert.NoError(t, testCommand(docsCommand(), `expressions`))
+	assert.Error(t, testCommand(docsCommand(), `no-exist`))
 }

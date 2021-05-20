@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli"
 )
 
 func TestFilter(t *testing.T) {
@@ -50,4 +51,20 @@ func TestFilterFromStdin(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "<stdin>:1 1-1\n<stdin>:2 5-5\n", out)
 	assert.Equal(t, "Matched: 2 / 3\n", eout)
+}
+
+func TestFilterFileNotExist(t *testing.T) {
+	out, eout, err := testCommandCapture(filterCommand(), `-m (\d+) -e "{1}" testdata/no-exist.txt`)
+	assert.Error(t, err)
+	assert.Equal(t, 2, err.(cli.ExitCoder).ExitCode())
+	assert.Equal(t, "", out)
+	assert.Equal(t, "Matched: 0 / 0\n", eout)
+}
+
+func TestFilterNoMatches(t *testing.T) {
+	out, eout, err := testCommandCapture(filterCommand(), `-m notfound(\d+) -e "{1}" testdata/log.txt`)
+	assert.Error(t, err)
+	assert.Equal(t, 1, err.(cli.ExitCoder).ExitCode())
+	assert.Equal(t, "", out)
+	assert.Equal(t, "Matched: 0 / 6\n", eout)
 }

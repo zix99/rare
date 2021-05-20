@@ -128,3 +128,7 @@ func (s *BarGraph) writeBarStacked(idx int, key string, vals ...int64) {
 func (s *BarGraph) WriteFooter(idx int, str string) {
 	s.writer.WriteForLine(s.maxRows+idx, str)
 }
+
+func (s *BarGraph) Close() {
+	s.writer.Close()
+}

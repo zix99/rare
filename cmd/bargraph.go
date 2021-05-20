@@ -40,7 +40,9 @@ func bargraphFunction(c *cli.Context) error {
 		writer.WriteFooter(1, batcher.StatusString())
 	})
 
-	return nil
+	writer.Close()
+
+	return helpers.DetermineErrorState(batcher, ext, counter)
 }
 
 func bargraphCommand() *cli.Command {

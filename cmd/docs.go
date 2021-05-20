@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"rare/cmd/helpers"
 	"rare/docs"
 	"rare/pkg/markdowncli"
 	"strings"
@@ -22,13 +23,14 @@ func docsFunction(c *cli.Context) error {
 
 	} else if file, err := docs.DocFS.Open(docname + ".md"); err == nil {
 		if err != nil {
-			fmt.Println(err)
+			return cli.NewExitError(err, helpers.ExitCodeInvalidUsage)
 		} else {
 			markdowncli.WriteMarkdownToTerm(os.Stdout, file)
 		}
 	} else {
-		fmt.Printf("Error: No such doc %s\n", docname)
+		return cli.NewExitError(fmt.Sprintf("No such doc '%s'", docname), helpers.ExitCodeInvalidUsage)
 	}
+
 	return nil
 }
 

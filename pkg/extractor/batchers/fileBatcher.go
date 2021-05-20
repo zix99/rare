@@ -38,18 +38,20 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 					wg.Done()
 					out.stopFileReading(goFilename)
 				}()
+				out.startFileReading(goFilename)
 
 				var file io.ReadCloser
 				file, err := openFileToReader(goFilename, gunzip)
 				if err != nil {
 					logger.Printf("Error opening file %s: %v", goFilename, err)
+					out.incErrors()
 					return
 				}
 				defer file.Close()
-				out.startFileReading(goFilename)
 
 				ra := readahead.New(file, ReadAheadBufferSize)
 				ra.OnError = func(e error) {
+					out.incErrors()
 					logger.Printf("Error reading %s: %v", goFilename, e)
 				}
 				extractor.SyncReadAheadToBatchChannel(goFilename, ra, batchSize, out.c)
@@ -73,7 +75,7 @@ func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
 	if gunzip {
 		zfile, err := gzip.NewReader(file)
 		if err != nil {
-			logger.Printf("Gunzip error for file %s: %v", filename, err)
+			logger.Printf("Gunzip error for file %s: %v; Reading as plain file", filename, err)
 		} else {
 			file = zfile
 		}
