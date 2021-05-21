@@ -25,14 +25,19 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 					out.stopFileReading(filename)
 				}()
 
+				out.startFileReading(filename)
 				fileTail, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: reopen, Poll: poll})
 				if err != nil {
 					logger.Print("Unable to open file: ", err)
+					out.incErrors()
 					return
 				}
-				out.startFileReading(filename)
 
-				tailLineToChan(filename, fileTail.Lines, batchSize, out.c)
+				err = tailLineToChan(filename, fileTail.Lines, batchSize, out.c)
+				if err != nil {
+					logger.Print("Error tailing file: ", err)
+					out.incErrors()
+				}
 			}(filename)
 		}
 
@@ -43,7 +48,7 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 	return out
 }
 
-func tailLineToChan(sourceName string, lines <-chan *tail.Line, batchSize int, output chan<- extractor.InputBatch) {
+func tailLineToChan(sourceName string, lines <-chan *tail.Line, batchSize int, output chan<- extractor.InputBatch) (err error) {
 	batch := make([]extractor.BString, 0, batchSize)
 	var batchStart uint64 = 1
 
@@ -51,7 +56,11 @@ MAIN_LOOP:
 	for {
 		select {
 		case line := <-lines:
-			if line == nil || line.Err != nil {
+			if line == nil {
+				break MAIN_LOOP
+			}
+			if line.Err != nil {
+				err = line.Err
 				break MAIN_LOOP
 			}
 			batch = append(batch, extractor.BString(line.Text))
@@ -77,4 +86,5 @@ MAIN_LOOP:
 			}
 		}
 	}
+	return
 }

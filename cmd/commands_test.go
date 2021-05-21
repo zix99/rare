@@ -32,6 +32,9 @@ func testCommand(command *cli.Command, cmd string) error {
 	app.Commands = []cli.Command{
 		*command,
 	}
+	app.ExitErrHandler = func(context *cli.Context, err error) {
+		// disabled
+	}
 
 	commandArgs := append([]string{"app", "_testcommand"}, testutil.SplitQuotedString(cmd)...)
 

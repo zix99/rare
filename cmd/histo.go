@@ -72,7 +72,7 @@ func histoFunction(c *cli.Context) error {
 		fmt.Println(progressString())
 	}
 
-	return nil
+	return helpers.DetermineErrorState(batcher, ext, counter)
 }
 
 // HistogramCommand Exported command

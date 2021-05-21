@@ -7,5 +7,6 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	assert.NoError(t, cliMain("main"))
+	assert.Error(t, cliMain("main"))
+	assert.NoError(t, cliMain("main", "--help"))
 }

@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"rare/cmd"
+	"rare/cmd/helpers"
 	"rare/pkg/color"
 	"rare/pkg/fastregex"
 	"rare/pkg/humanize"
+	"rare/pkg/logger"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termunicode"
 
@@ -63,6 +64,23 @@ func cliMain(args ...string) error {
 		},
 	}
 
+	// When showing default help, exit with an error code
+	app.Action = func(c *cli.Context) error {
+		var err error
+
+		args := c.Args()
+		if args.Present() {
+			err = cli.ShowCommandHelp(c, args.First())
+		} else {
+			err = cli.ShowAppHelp(c)
+		}
+
+		if err != nil {
+			return err
+		}
+		return cli.NewExitError("", helpers.ExitCodeInvalidUsage)
+	}
+
 	app.Commands = cmd.GetSupportedCommands()
 	app.Commands = append(app.Commands, cli.Command{
 		Name:   "_gendoc",
@@ -107,12 +125,24 @@ func cliMain(args ...string) error {
 		return nil
 	})
 
+	app.ExitErrHandler = func(c *cli.Context, err error) {
+		// Suppress built-in handler (Which will exit before running any After())
+		// Handle exit-codes in main()
+		// This also allows for better unit testing...
+	}
+
 	return app.Run(args)
 }
 
 func main() {
 	err := cliMain(os.Args...)
 	if err != nil {
-		log.Fatal(err)
+		if msg := err.Error(); msg != "" {
+			logger.Print(msg)
+		}
+		if v, ok := err.(cli.ExitCoder); ok {
+			os.Exit(v.ExitCode())
+		}
+		os.Exit(helpers.ExitCodeInvalidUsage)
 	}
 }

@@ -62,7 +62,7 @@ func tabulateFunction(c *cli.Context) error {
 
 	writer.Close()
 
-	return nil
+	return helpers.DetermineErrorState(batcher, ext, counter)
 }
 
 func tabulateCommand() *cli.Command {

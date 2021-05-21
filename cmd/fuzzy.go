@@ -59,7 +59,7 @@ func fuzzyFunction(c *cli.Context) error {
 		fmt.Println(progressString())
 	}
 
-	return nil
+	return helpers.DetermineErrorState(batcher, ext, counter)
 }
 
 func fuzzyCommand() *cli.Command {

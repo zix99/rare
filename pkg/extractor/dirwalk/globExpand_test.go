@@ -25,3 +25,14 @@ func TestGlobExpandRecursive(t *testing.T) {
 	assert.Greater(t, len(items), 10)
 	fmt.Println(items)
 }
+
+func TestGlobalExpandNoFile(t *testing.T) {
+	iter := GlobExpand([]string{"does-not-exist"}, false)
+
+	items := make([]string, 0)
+	for ele := range iter {
+		items = append(items, ele)
+	}
+
+	assert.Len(t, items, 1)
+}

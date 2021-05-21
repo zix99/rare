@@ -73,7 +73,7 @@ func analyzeFunction(c *cli.Context) error {
 
 	writer.Close()
 
-	return nil
+	return helpers.DetermineErrorState(batcher, ext, aggr)
 }
 
 func analyzeCommand() *cli.Command {

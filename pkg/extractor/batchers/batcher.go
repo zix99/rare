@@ -13,6 +13,7 @@ type Batcher struct {
 	mux         sync.Mutex
 	sourceCount int
 	readCount   int
+	errorCount  int
 	activeFiles []string
 }
 
@@ -55,6 +56,12 @@ func (s *Batcher) stopFileReading(source string) {
 	s.mux.Unlock()
 }
 
+func (s *Batcher) incErrors() {
+	s.mux.Lock()
+	s.errorCount++
+	s.mux.Unlock()
+}
+
 // GetReadFileString gets a formatted version of the current reader-set
 func (s *Batcher) StatusString() string {
 	var sb strings.Builder
@@ -74,4 +81,10 @@ func (s *Batcher) StatusString() string {
 	s.mux.Unlock()
 
 	return sb.String()
+}
+
+func (s *Batcher) ReadErrors() int {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+	return s.errorCount
 }

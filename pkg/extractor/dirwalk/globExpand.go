@@ -25,10 +25,12 @@ func GlobExpand(paths []string, recursive bool) <-chan string {
 				expanded, err := filepath.Glob(p)
 				if err != nil {
 					logger.Printf("Path error: %v", err)
-				} else {
+				} else if len(expanded) > 0 {
 					for _, item := range expanded {
 						c <- item
 					}
+				} else {
+					c <- p
 				}
 			}
 		}
