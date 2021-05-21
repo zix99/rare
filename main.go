@@ -66,15 +66,17 @@ func cliMain(args ...string) error {
 
 	// When showing default help, exit with an error code
 	app.Action = func(c *cli.Context) error {
+		var err error
+
 		args := c.Args()
 		if args.Present() {
-			if err := cli.ShowCommandHelp(c, args.First()); err != nil {
-				return err
-			}
+			err = cli.ShowCommandHelp(c, args.First())
 		} else {
-			if err := cli.ShowAppHelp(c); err != nil {
-				return err
-			}
+			err = cli.ShowAppHelp(c)
+		}
+
+		if err != nil {
+			return err
 		}
 		return cli.NewExitError("", helpers.ExitCodeInvalidUsage)
 	}
