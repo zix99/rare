@@ -3,47 +3,36 @@ package multiterm
 import (
 	"io"
 	"os"
-	"os/exec"
-	"strconv"
-	"strings"
+
+	"golang.org/x/term"
 )
 
 var AutoTrim = true
 
 const defaultRows, defaultCols = 24, 80
 
-func getTermRowsCols() (int, int) {
-	cmd := exec.Command("stty", "size")
-	cmd.Stdin = os.Stdin
-	out, err := cmd.Output()
-	if err != nil {
-		return defaultRows, defaultCols
-	}
-
-	parts := strings.Fields(string(out))
-
-	if len(parts) != 2 {
-		return defaultRows, defaultCols
-	}
-
-	rows, rowsErr := strconv.Atoi(parts[0])
-	cols, colsErr := strconv.Atoi(parts[1])
-	if rowsErr != nil || colsErr != nil || rows <= 0 || cols <= 0 {
-		return defaultRows, defaultCols
-	}
-
-	return rows, cols
-}
-
 var computedRows, computedCols = 0, 0
 
+func getTermRowsCols() (rows, cols int, ok bool) {
+	fd := int(os.Stdout.Fd())
+	if !term.IsTerminal(fd) {
+		return 0, 0, false
+	}
+
+	cols, rows, err := term.GetSize(fd)
+	if err != nil {
+		return 0, 0, false
+	}
+
+	return rows, cols, true
+}
+
 func init() {
-	if _, ok := os.LookupEnv("TERM"); ok {
-		computedRows, computedCols = getTermRowsCols()
+	if rows, cols, ok := getTermRowsCols(); ok {
+		computedRows, computedCols = rows, cols
 	} else {
 		AutoTrim = false
-		computedRows = defaultRows
-		computedCols = defaultCols
+		computedRows, computedCols = defaultRows, defaultCols
 	}
 }
 
