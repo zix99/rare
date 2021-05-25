@@ -1,3 +1,7 @@
+before:
+  hooks:
+    - sh -c "go run . _gendoc --man | gzip > rare.1.gz"
+
 # Make sure to check the documentation at http://goreleaser.com
 builds:
 - id: rare-pcre
@@ -6,6 +10,7 @@ builds:
     - CGO_ENABLED=1
   flags:
     - -tags=pcre2
+    - -trimpath
   ldflags:
     - -s -w
     - -X main.version={{.Version}}
@@ -54,7 +59,7 @@ changelog:
 nfpms:
   - file_name_template: '{{ .ProjectName }}_{{ .Arch }}'
     homepage: https://github.com/zix99/rare
-    description: Fast, realtime regex-extraction, and aggregation into common formats such as histograms, numerical summaries, tables, and more!
+    description: Realtime regex-extraction and aggregation into common formats such as histograms, bar graphs, numerical summaries, tables, and more!
     maintainer: Christopher LaPointe (chris@zdyn.net)
     license: GPLv2
     vendor: zix99
@@ -64,6 +69,9 @@ nfpms:
     - apk
     dependencies:
     - libpcre2-8-0
+    contents:
+    - src: ./rare.1.gz
+      dst: /usr/share/man/man1/
 
 brews:
 - tap:
@@ -74,5 +82,8 @@ brews:
     email: noreply@zdyn.net
   homepage: https://github.com/zix99/rare
   description: Fast, realtime regex-extraction, and aggregation into common formats such as histograms, numerical summaries, tables, and more!
+  install: |
+    bin.install "rare"
+    man1.install Dir["rare.1.gz"]
   test: |
     system "#{bin}/rare -v"

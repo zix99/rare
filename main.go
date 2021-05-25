@@ -87,9 +87,20 @@ func cliMain(args ...string) error {
 		Hidden: true,
 		Usage:  "Generates documentation",
 		Action: func(c *cli.Context) error {
-			text, _ := c.App.ToMarkdown()
+			var text string
+			if c.Bool("man") {
+				text, _ = c.App.ToMan()
+			} else {
+				text, _ = c.App.ToMarkdown()
+			}
 			fmt.Print(text)
 			return nil
+		},
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  "man",
+				Usage: "manpage syntax",
+			},
 		},
 	})
 
