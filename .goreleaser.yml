@@ -1,6 +1,6 @@
 before:
   hooks:
-    - go run . _gendoc --man | gzip > rare.1.gz
+    - sh -c "go run . _gendoc --man | gzip > rare.1.gz"
 
 # Make sure to check the documentation at http://goreleaser.com
 builds:
