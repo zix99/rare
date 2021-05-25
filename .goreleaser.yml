@@ -28,6 +28,7 @@ builds:
     - -X main.buildSha={{.ShortCommit}}
   goarch:
     - amd64
+    - arm64
   goos:
     - linux
     - darwin

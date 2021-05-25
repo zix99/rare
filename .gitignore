@@ -7,3 +7,4 @@ dist/
 /testdata/
 *.prof
 coverage.txt
+rare.1.gz
