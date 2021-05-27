@@ -42,7 +42,7 @@ brew install rare
 
 Clone the repo, and:
 
-Requires GO 1.11 or higher (Uses go modules)
+Requires GO 1.16 or higher
 
 ```sh
 go mod download
