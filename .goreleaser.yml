@@ -72,7 +72,7 @@ nfpms:
     - libpcre2-8-0
     contents:
     - src: ./rare.1.gz
-      dst: /usr/share/man/man1/
+      dst: /usr/share/man/man1/rare.1.gz
 
 brews:
 - tap:
