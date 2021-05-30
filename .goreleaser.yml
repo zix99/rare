@@ -62,7 +62,7 @@ nfpms:
     homepage: https://github.com/zix99/rare
     description: Realtime regex-extraction and aggregation into common formats such as histograms, bar graphs, numerical summaries, tables, and more!
     maintainer: Christopher LaPointe (chris@zdyn.net)
-    license: GPLv2
+    license: GPLv3
     vendor: zix99
     formats:
     - deb
