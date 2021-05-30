@@ -38,6 +38,17 @@ The above parses the method `{1}`, url `{2}`, status `{3}`, and response size `{
 
 It extracts the `<method> <url> <bytesize bucketed to 10k>`. It will ignore `-i` if response size `{4}` is less-than `1024*1024` (1MB).
 
+### Parsing nginx into named groups
+
+Command:
+```sh
+rare histo -m '"(?P<method>\w{3,4}) (?P<url>[A-Za-z0-9/.@_-]+).*" (?P<status>\d{3}) (?P<size>\d+)' \
+	-e "{method} {url} {bytesize {bucket {size} 10000}}" -b access.log`
+```
+
+In addition to extracting the same number-groups as above, in this case, it will also extract the named-keys
+of `{method}`, `{url}`, `{statu}`, and `{size}`.
+
 # Functions
 
 ## Coalesce
