@@ -5,15 +5,15 @@ such as histograms, numerical summaries, tables, and more!
 
 Rare is composed of three parts in the pipeline:
 
-1. Extraction
+1. Extraction (Matching)
 2. Expression Building
 3. Aggregation
 
-## Extraction
+## Extraction (Matching)
 
-Extraction is denoted with `-m` and is the process of reading a line in a file or set
-of files and parsing it with a regular expression into the match-groups denoted
-by the regex.
+Extraction is denoted with `-m` (match) and is the process of reading a line in
+a file or set of files and parsing it with a regular expression into the
+match-groups denoted by the regex.
 
 If the regex doesn't match, the line is discarded (a non-match)
 

@@ -59,7 +59,7 @@ Available tags:
 * `experimental` Enable experimental features (eg. fuzzy search)
 * `pcre2` Enables PCRE 2 (v10) where able. Currently linux only
 
-# Docs
+# Documentation
 
 All documentation may be found here, in the [docs/](docs/) folder, and by running `rare docs` (embedded docs/ folder)
 
