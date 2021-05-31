@@ -63,3 +63,16 @@ $ rare t -m "\"(\w+) (.+).*\" (\d+) (\d+)" -e "{$ {3} {substr {2} 0 20}}" -z tes
 /z.php HTTP/1.1      948                  0                    0
 Matched: 465,348 / 470,163 (R: 2396; C: 8)
 ```
+
+### Bargraph status codes per year
+
+**NOTE:** For stacking (`-s`), the results will be color-coded (not shown here)
+
+```sh
+$ rare bars -z -m "\[(.+?)\].*\" (\d+)" -e "{buckettime {1} year}" -e "{2}" testdata/*
+
+        | 200  | 206  | 301  | 304  | 400  | 404  | 405  | 408
+2019  |||||||||||||||||||||||||||||||||||||||  3,741,444
+2020  |||||||||||||||||||||||||||||||||||||||||||||||||  4,631,884
+Matched: 8,373,328 / 8,383,717
+```
