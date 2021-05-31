@@ -51,6 +51,12 @@ of `{method}`, `{url}`, `{statu}`, and `{size}`.
 
 # Functions
 
+**Note on literals:** Some functions take in constant/literals as 1 or more arguments
+within the expressions.  These literals will be evaluated during compile-time, rather
+than aggregation-time, and will be treated as a literal.  They are denoted below in quotes.
+
+Arguments surrounded by `[]` are optional.
+
 ## Coalesce
 
 Syntax: `{coalesce ...}`
@@ -71,7 +77,7 @@ Create exponentially (base-10) increase buckets.
 
 ## Clamp
 
-Syntax: `{clamp intVal min max}`
+Syntax: `{clamp intVal "min" "max"}`
 
 Clamps a given input `intVal` between `min` and `max`.  If falls outside bucket, returns
 the word "min" or "max" as appropriate.  If you wish to not see these values, you can
@@ -213,7 +219,7 @@ See: [json](json.md) for more information.
 
 ## Time
 
-Syntax: `{time str [format]}` `{timeformat unixtime [format] [utc]}` `{duration dur}` `{buckettime str bucket [format]}`
+Syntax: `{time str "[format]"}` `{timeformat unixtime "[format]" [utc]}` `{duration dur}` `{buckettime str bucket "[format]"}`
 
 These three time functions provide you a way to parse and manipulate time.
 
