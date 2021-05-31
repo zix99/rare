@@ -5,15 +5,15 @@ such as histograms, numerical summaries, tables, and more!
 
 Rare is composed of three parts in the pipeline:
 
-1. Extraction
+1. Extraction (Matching)
 2. Expression Building
 3. Aggregation
 
-## Extraction
+## Extraction (Matching)
 
-Extraction is denoted with `-m` and is the process of reading a line in a file or set
-of files and parsing it with a regular expression into the match-groups denoted
-by the regex.
+Extraction is denoted with `-m` (match) and is the process of reading a line in
+a file or set of files and parsing it with a regular expression into the
+match-groups denoted by the regex.
 
 If the regex doesn't match, the line is discarded (a non-match)
 
@@ -21,7 +21,7 @@ These match groups are then fed into the next stage, the expression.
 
 Read more at:
 
-* rare docs parsing
+* [parsing](extractor.md)
 
 ## Expressions
 
@@ -31,12 +31,12 @@ the string-key (eg arithmatic, json parsing, simple logic).
 
 The result of this key will act as the key for the aggregation stage.
 
-Optionally ignore expressions can be supplied with `-i` which will
+Optional ignore expression(s) can be supplied with `-i` which will
 cause the match to be ignored if the expression evaluates to be truthy.
 
 Read more at:
 
-* rare docs expressions
+* [expressions](expressions.md)
 
 ## Aggregation
 
@@ -45,4 +45,5 @@ key built in the expression stage and uses it to aggregate on. Different aggrega
 aggregate in different ways.  For example, the `histogram` will count instances of the key,
 the `table` will count it in 2D, and the `analyze` will treat the match as a number.
 
-Run `rare --help` for more details on the aggregators.
+Run `rare --help` for more details on the aggregators, or see how some work in
+the [examples](examples.md)

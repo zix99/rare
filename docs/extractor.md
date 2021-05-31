@@ -1,6 +1,6 @@
-# Parsing
+# Extractor (Matcher)
 
-The main component of *rare* is the parser (also called extractor).  There are
+The main component of *rare* is the extractor (or matcher).  There are
 three fundamental concepts around the parser:
 
  * Each line of an input (separated by `\n`) is matched to a regex
