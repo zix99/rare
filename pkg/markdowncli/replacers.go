@@ -18,19 +18,31 @@ func replaceWithColor(clr color.ColorCode) regexReplacerFunc {
 	})
 }
 
+var localLinkRegexp = regexp.MustCompile(`\[\w+\]\((\w+).md\)`)
+
+func replaceLocalLinkWithDocsCommand(match string) string {
+	parts := localLinkRegexp.FindStringSubmatch(match)
+	return color.Wrapf(color.Underline, "rare docs %s", parts[1])
+}
+
 var regexReplacement = []regexReplacer{
 	// Symbol
-	regexReplacer{
+	{
 		match:   regexp.MustCompile("`(.*?)`"),
 		process: replaceWithColor(color.BrightWhite),
 	},
 	// Bold
-	regexReplacer{
+	{
 		match:   regexp.MustCompile(`\*\*(.*?)\*\*`),
 		process: replaceWithColor(color.Bold),
 	},
+	// Local link -> rare docs command
+	{
+		match:   localLinkRegexp,
+		process: replaceLocalLinkWithDocsCommand,
+	},
 	// Raw Link
-	regexReplacer{
+	{
 		match:   regexp.MustCompile(`https?://[A-Za-z0-9.-_!#$&;=?%]+`),
 		process: replaceWithColor(color.Underline),
 	},

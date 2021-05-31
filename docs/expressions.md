@@ -83,13 +83,21 @@ Syntax: `{bytesize intVal}`
 
 Create a human-readable byte-size format (eg 1024 = 1KB)
 
-## SumI, SubI, MultI, DivI
+## Sumi, Subi, Multi, Divi
 
 Syntax: `{sumi ...}`, `{subi ...}`, `{multi ...}`, `{divi ...}`
 
-Evaluates using operator from left to right. Requires at least 2 arguments.
+Evaluates integers using operator from left to right. Requires at least 2 arguments.
 
 Eg: `{sumi 1 2 3}` will result in `6`
+
+## Sumf, Subf, Multf, Divf
+
+Syntax: `{sumf ...}`, `{subf ...}`, `{multf ...}`, `{divf ...}`
+
+Evaluates floating points using operator from left to right. Requires at least 2 arguments.
+
+Eg: `{sumf 1 2 3}` will result in `6`
 
 ## If
 

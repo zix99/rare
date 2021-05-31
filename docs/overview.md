@@ -21,7 +21,7 @@ These match groups are then fed into the next stage, the expression.
 
 Read more at:
 
-* rare docs parsing
+* [parsing](extractor.md)
 
 ## Expressions
 
@@ -36,7 +36,7 @@ cause the match to be ignored if the expression evaluates to be truthy.
 
 Read more at:
 
-* rare docs expressions
+* [expressions](expressions.md)
 
 ## Aggregation
 
