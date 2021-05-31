@@ -110,9 +110,9 @@ If `val` is truthy, then return `ifTrue` else optionally return `ifFalse`
 Syntax: `{eq a b}`, `{neq a b}`, `{not a}`
 
 Uses truthy-logic to evaluate equality.
-eq:  If a == b,  will return "1", otherwise ""
-neq: If a != b,  will return "1", otherwise ""
-not: If a == "", will return "1", otherwise ""
+ * eq:  If a == b,  will return "1", otherwise ""
+ * neq: If a != b,  will return "1", otherwise ""
+ * not: If a == "", will return "1", otherwise ""
 
 ## LessThan, GreaterThan, LessThanEqual, GreaterThanEqual
 
@@ -126,8 +126,8 @@ Syntax: `{and ...}`, `{or ...}`
 
 Uses truthy logic and applies `and` or `or` to the values.
 
-and: All arguments need to be truthy
-or:  At least one argument needs to be truthy
+ * and: All arguments need to be truthy
+ * or:  At least one argument needs to be truthy
 
 ## Like, Prefix, Suffix
 
@@ -165,8 +165,8 @@ Eg. `{select "ab cd ef" 1}` will result in `cd`
 
 Syntax: `{hf val}`, `{hi val}`
 
-hf: Float
-hi: Int
+ * hf: Float
+ * hi: Int
 
 Formats a number based with appropriate placement of commas and decimals
 
@@ -191,9 +191,9 @@ Syntax: `{basename a/b/c}`, `{dirname a/b/c}`, `{extname a/b/c.jpg}`
 
 Selects the base, directory, or extension of a path.
 
-`basename a/b/c` = c
-`dirname  a/b/c` = a/b
-`extname a/b/c.jpg` = .jpg 
+ * `basename a/b/c` = c
+ * `dirname  a/b/c` = a/b
+ * `extname a/b/c.jpg` = .jpg 
 
 ## CSV
 
@@ -217,17 +217,19 @@ Syntax: `{time str [format]}` `{timeformat unixtime [format] [utc]}` `{duration 
 
 These three time functions provide you a way to parse and manipulate time.
 
-time: Parse a given time-string into a unix second time (default: RFC3339)
-timeformat: Takes a unix time, and formats it (default: auto-detection)
-duration: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
-buckettime: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
+ * time: Parse a given time-string into a unix second time (default: RFC3339)
+ * timeformat: Takes a unix time, and formats it (default: auto-detection)
+ * duration: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
+ * buckettime: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
 
 **Format Auto-Detection:**
 
 If the format argument is ommitted or set to "auto", it will attempt to resolve the format of the time.
+
 If the format is unable to be resolved, it must be specific manually with a format below, or a custom format.
 
 If ommitted: The first seen date will determine the format for all dates going forward (faster)
+
 If "auto":   The date format will always be auto-detected. This can be used if the date could be in different formats (slower)
 
 **Special Values:**
