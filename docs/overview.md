@@ -31,7 +31,7 @@ the string-key (eg arithmatic, json parsing, simple logic).
 
 The result of this key will act as the key for the aggregation stage.
 
-Optionally ignore expressions can be supplied with `-i` which will
+Optional ignore expression(s) can be supplied with `-i` which will
 cause the match to be ignored if the expression evaluates to be truthy.
 
 Read more at:
@@ -45,4 +45,5 @@ key built in the expression stage and uses it to aggregate on. Different aggrega
 aggregate in different ways.  For example, the `histogram` will count instances of the key,
 the `table` will count it in 2D, and the `analyze` will treat the match as a number.
 
-Run `rare --help` for more details on the aggregators.
+Run `rare --help` for more details on the aggregators, or see how some work in
+the [examples](examples.md)
