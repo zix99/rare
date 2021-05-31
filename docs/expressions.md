@@ -47,7 +47,7 @@ rare histo -m '"(?P<method>\w{3,4}) (?P<url>[A-Za-z0-9/.@_-]+).*" (?P<status>\d{
 ```
 
 In addition to extracting the same number-groups as above, in this case, it will also extract the named-keys
-of `{method}`, `{url}`, `{statu}`, and `{size}`.
+of `{method}`, `{url}`, `{status}`, and `{size}`.
 
 # Functions
 
@@ -219,7 +219,7 @@ See: [json](json.md) for more information.
 
 ## Time
 
-Syntax: `{time str "[format]"}` `{timeformat unixtime "[format]" [utc]}` `{duration dur}` `{buckettime str bucket "[format]"}`
+Syntax: `{time str "[format]"}` `{timeformat unixtime "[format]" "[utc]"}` `{duration dur}` `{buckettime str bucket "[format]"}`
 
 These three time functions provide you a way to parse and manipulate time.
 
