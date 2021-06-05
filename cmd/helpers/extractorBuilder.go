@@ -6,6 +6,7 @@ import (
 	"rare/pkg/extractor"
 	"rare/pkg/extractor/batchers"
 	"rare/pkg/extractor/dirwalk"
+	"rare/pkg/grok"
 	"rare/pkg/logger"
 	"runtime"
 	"strings"
@@ -54,7 +55,7 @@ func BuildExtractorFromArguments(c *cli.Context, batcher *batchers.Batcher) *ext
 func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, sep string) *extractor.Extractor {
 	config := extractor.Config{
 		Posix:   c.Bool("posix"),
-		Regex:   c.String("match"),
+		Regex:   extractRegex(c),
 		Extract: strings.Join(c.StringSlice("extract"), sep),
 		Workers: c.Int("workers"),
 	}
@@ -98,6 +99,10 @@ func getExtractorFlags() []cli.Flag {
 			Usage: "Regex to create match groups to summarize on",
 			Value: ".*",
 		},
+		cli.StringFlag{
+			Name:  "grok,g",
+			Usage: "Overrides -m with a grok expression",
+		},
 		cli.StringSliceFlag{
 			Name:  "extract,e",
 			Usage: "Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper",
@@ -131,6 +136,21 @@ func getExtractorFlags() []cli.Flag {
 			Usage: "Recursively walk a non-globbing path and search for plain-files",
 		},
 	}
+}
+
+func extractRegex(c *cli.Context) string {
+	if c.IsSet("grok") {
+		if c.IsSet("match") {
+			logger.Fatal("Can not set --match and --grok at the same time")
+		}
+		grokRegex, err := grok.New().RewriteGrokPattern(c.String("grok"))
+		if err != nil {
+			logger.Fatalf("Error compiling grok expression: %s", err)
+		}
+		logger.Printf("Rewrote to: %s", grokRegex)
+		return grokRegex
+	}
+	return c.String("match")
 }
 
 func AdaptCommandForExtractor(command cli.Command) *cli.Command {
