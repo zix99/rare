@@ -2,10 +2,9 @@
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/zix99/rare/rare) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/zix99/rare) [![codecov](https://codecov.io/gh/zix99/rare/branch/master/graph/badge.svg)](https://codecov.io/gh/zix99/rare) ![GitHub all releases](https://img.shields.io/github/downloads/zix99/rare/total)
 
+A fast text scanner/regex extractor and realtime summarizer.
 
-A file fast scanner/regex extractor and realtime summarizer.
-
-Supports various CLI-based graphing and metric formats (histogram, table, bargraph, etc).
+Supports various CLI-based graphing and metric formats (filter (grep-like), histogram, table, bargraph, etc).
 
 `rare` is a play on "more" and "less", but can also stand for "realtime aggregated regular expressions".
 
@@ -13,11 +12,11 @@ Supports various CLI-based graphing and metric formats (histogram, table, bargra
 
 # Features
 
- * Multiple summary formats including: filter (like grep), histogram, and numerical analysis
+ * Multiple summary formats including: filter (like grep), histogram, bar graphs, and numerical analysis
  * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
  * Optional gzip decompression (with `-z`)
  * Following `-f` or re-open following `-F` (use `--poll` to poll)
- * Ignoring lines that match an expression
+ * Ignoring lines that match an expression (with `-i`)
  * Aggregating and realtime summary (Don't have to wait for all data to be scanned)
  * Multi-threaded reading, parsing, and aggregation
  * Color-coded outputs (optionally)
@@ -36,7 +35,7 @@ I will leave it up to the user as to which they find suitable to use for their s
 
 ## Manual
 
-Download appropriate binary from [Releases](https://github.com/zix99/rare/releases), unzip, and put it in `/bin`
+Download appropriate binary or package from [Releases](https://github.com/zix99/rare/releases)
 
 ## Homebrew
 
