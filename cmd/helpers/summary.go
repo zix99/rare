@@ -3,17 +3,22 @@ package helpers
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"rare/pkg/color"
 	"rare/pkg/extractor"
 	"rare/pkg/humanize"
 )
 
+func FWriteMatchSummary(w io.Writer, matched, total uint64) {
+	fmt.Fprintf(w, "Matched: %s / %s",
+		color.Wrapi(color.BrightGreen, humanize.Hi(matched)),
+		color.Wrapi(color.BrightWhite, humanize.Hi(total)))
+}
+
 func FWriteExtractorSummary(extractor *extractor.Extractor, errors uint64, additionalParts ...string) string {
 	var w bytes.Buffer
-	fmt.Fprintf(&w, "Matched: %s / %s",
-		color.Wrapi(color.BrightGreen, humanize.Hi(extractor.MatchedLines())),
-		color.Wrapi(color.BrightWhite, humanize.Hi(extractor.ReadLines())))
+	FWriteMatchSummary(&w, extractor.MatchedLines(), extractor.ReadLines())
 	for _, p := range additionalParts {
 		w.WriteRune(' ')
 		w.WriteString(p)
