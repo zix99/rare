@@ -41,8 +41,7 @@ type pcre2Regexp struct {
 	context   *C.pcre2_match_context
 	jitStack  *C.pcre2_jit_stack
 
-	ovec   *C.ulong // pointer to ovector within matchData
-	goOvec []int    // Converted ovec
+	ovec *C.ulong // pointer to ovector within matchData
 }
 
 var _ Regexp = &pcre2Regexp{}
@@ -111,7 +110,6 @@ func (s *pcre2Compiled) CreateInstance() Regexp {
 		panic("pcre2: match data failure")
 	}
 	pcre.ovec = C.pcre2_get_ovector_pointer(pcre.matchData)
-	pcre.goOvec = make([]int, s.groupCount*2)
 
 	runtime.SetFinalizer(pcre, func(f *pcre2Regexp) {
 		if f.matchData != nil {
@@ -150,8 +148,6 @@ func (s *pcre2Regexp) MatchString(str string) bool {
 
 // FindSubmatchIndex, like regexp, returns a set of string indecies where the results are
 // FindSubmatchIndex is NOT thread-safe.  You need to create an instance of the fastregex engine
-//  the return result is mutable-per response.  If you need after making a 2nd call to this function
-//  a copy needs to be made
 func (s *pcre2Regexp) FindSubmatchIndex(b []byte) []int {
 	if len(b) == 0 {
 		return nil
@@ -164,11 +160,12 @@ func (s *pcre2Regexp) FindSubmatchIndex(b []byte) []int {
 		return nil
 	}
 
+	ret := make([]int, s.re.groupCount*2)
 	for i := 0; i < s.re.groupCount*2; i++ {
-		s.goOvec[i] = int(*(*C.ulong)(unsafe.Pointer(uintptr(unsafe.Pointer(s.ovec)) + unsafe.Sizeof(*s.ovec)*uintptr(i))))
+		ret[i] = int(*(*C.ulong)(unsafe.Pointer(uintptr(unsafe.Pointer(s.ovec)) + unsafe.Sizeof(*s.ovec)*uintptr(i))))
 	}
 
-	return s.goOvec
+	return ret
 }
 
 type compileError struct {
