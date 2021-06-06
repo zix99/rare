@@ -25,6 +25,7 @@ Supports various CLI-based graphing and metric formats (filter (grep-like), hist
 # Installation
 
 **A Note on PCRE**
+
 Besides your standard OS versions, there is an additional `pcre` build which is 4x faster than go's `re2` implementation in moderately complex cases.  In order to use this, you must make sure that libpcre2 is installed (eg `apt install libpcre2-8-0`).  Right now, it is only bundled with the linux distribution.
 
 PCRE2 also comes with pitfalls, two of the most important are:
@@ -72,6 +73,36 @@ All documentation may be found here, in the [docs/](docs/) folder, and by runnin
 You can also see a dump of the CLI options at [cli-help.md](cli-help.md)
 
 # Example
+
+## Create histogram from sample data
+
+```sh
+$ cat input.txt
+1
+2
+1
+3
+1
+0
+
+$ rare histo input.txt
+1                   3         
+0                   1         
+2                   1         
+3                   1         
+
+Matched: 6 / 6 (Groups: 4)
+```
+
+## Extact status and size from nginx logs
+```sh
+$ rare filter -n 4 -m "(\d{3}) (\d+)" -e "{1} {2}" access.log
+404 169
+404 169
+404 571
+404 571
+Matched: 4 / 4
+```
 
 ## Extract status codes from nginx logs
 
