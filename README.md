@@ -2,10 +2,9 @@
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/zix99/rare/rare) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/zix99/rare) [![codecov](https://codecov.io/gh/zix99/rare/branch/master/graph/badge.svg)](https://codecov.io/gh/zix99/rare) ![GitHub all releases](https://img.shields.io/github/downloads/zix99/rare/total)
 
+A fast text scanner/regex extractor and realtime summarizer.
 
-A file fast scanner/regex extractor and realtime summarizer.
-
-Supports various CLI-based graphing and metric formats (histogram, table, bargraph, etc).
+Supports various CLI-based graphing and metric formats (filter (grep-like), histogram, table, bargraph, etc).
 
 `rare` is a play on "more" and "less", but can also stand for "realtime aggregated regular expressions".
 
@@ -13,11 +12,11 @@ Supports various CLI-based graphing and metric formats (histogram, table, bargra
 
 # Features
 
- * Multiple summary formats including: filter (like grep), histogram, and numerical analysis
+ * Multiple summary formats including: filter (like grep), histogram, bar graphs, and numerical analysis
  * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
  * Optional gzip decompression (with `-z`)
  * Following `-f` or re-open following `-F` (use `--poll` to poll)
- * Ignoring lines that match an expression
+ * Ignoring lines that match an expression (with `-i`)
  * Aggregating and realtime summary (Don't have to wait for all data to be scanned)
  * Multi-threaded reading, parsing, and aggregation
  * Color-coded outputs (optionally)
@@ -26,6 +25,7 @@ Supports various CLI-based graphing and metric formats (histogram, table, bargra
 # Installation
 
 **A Note on PCRE**
+
 Besides your standard OS versions, there is an additional `pcre` build which is 4x faster than go's `re2` implementation in moderately complex cases.  In order to use this, you must make sure that libpcre2 is installed (eg `apt install libpcre2-8-0`).  Right now, it is only bundled with the linux distribution.
 
 PCRE2 also comes with pitfalls, two of the most important are:
@@ -36,7 +36,7 @@ I will leave it up to the user as to which they find suitable to use for their s
 
 ## Manual
 
-Download appropriate binary from [Releases](https://github.com/zix99/rare/releases), unzip, and put it in `/bin`
+Download appropriate binary or package from [Releases](https://github.com/zix99/rare/releases)
 
 ## Homebrew
 
@@ -73,6 +73,36 @@ All documentation may be found here, in the [docs/](docs/) folder, and by runnin
 You can also see a dump of the CLI options at [cli-help.md](cli-help.md)
 
 # Example
+
+## Create histogram from sample data
+
+```sh
+$ cat input.txt
+1
+2
+1
+3
+1
+0
+
+$ rare histo input.txt
+1                   3         
+0                   1         
+2                   1         
+3                   1         
+
+Matched: 6 / 6 (Groups: 4)
+```
+
+## Extact status and size from nginx logs
+```sh
+$ rare filter -n 4 -m "(\d{3}) (\d+)" -e "{1} {2}" access.log
+404 169
+404 169
+404 571
+404 571
+Matched: 4 / 4
+```
 
 ## Extract status codes from nginx logs
 

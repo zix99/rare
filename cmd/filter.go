@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"rare/cmd/helpers"
 	"rare/pkg/color"
@@ -13,12 +14,15 @@ func filterFunction(c *cli.Context) error {
 	var (
 		writeLines      = c.Bool("line")
 		customExtractor = c.IsSet("extract")
+		numLineLimit    = uint64(c.Int64("num"))
+		readLines       = uint64(0)
 	)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	extractor := helpers.BuildExtractorFromArgumentsEx(c, batcher, "\t")
 
 	readChan := extractor.ReadChan()
+OUTER_LOOP:
 	for {
 		matchBatch, more := <-readChan
 		if !more {
@@ -39,9 +43,20 @@ func filterFunction(c *cli.Context) error {
 			} else {
 				fmt.Println(match.Extracted)
 			}
+
+			readLines++
+			if numLineLimit > 0 && readLines >= numLineLimit {
+				break OUTER_LOOP
+			}
 		}
 	}
-	helpers.WriteExtractorSummary(extractor)
+
+	if numLineLimit > 0 {
+		helpers.FWriteMatchSummary(os.Stderr, readLines, numLineLimit)
+		os.Stderr.WriteString("\n")
+	} else {
+		helpers.WriteExtractorSummary(extractor)
+	}
 
 	return helpers.DetermineErrorState(batcher, extractor, nil)
 }
@@ -60,6 +75,10 @@ func filterCommand() *cli.Command {
 			cli.BoolFlag{
 				Name:  "line,l",
 				Usage: "Output source file and line number",
+			},
+			cli.Int64Flag{
+				Name:  "n,num",
+				Usage: "Print the first NUM of lines seen (Not necessarily in-order)",
 			},
 		},
 	})

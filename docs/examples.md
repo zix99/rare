@@ -2,9 +2,46 @@
 
 Please feel free to contribute your own examples on github
 
+## Simple Text
+
+### Extract Numbers from Text
+```sh
+$ rare filter --match "(\d+)" input.txt
+```
+
+### Histogram of Numbers in Text
+```sh
+$ rare histo --match "(\d+)" -e "{1}" -x input.txt
+1                   3         
+0                   1         
+2                   1         
+3                   1         
+
+Matched: 6 / 6 (Groups: 4)
+
+# Or with Bars/percentages
+./rare histo --match "(\d+)" -e "{1}" -x simple.log
+1                   3          [50.0%] ||||||||||||||||||||||||||||||||||||||||||||||||||
+0                   1          [16.7%] ||||||||||||||||
+2                   1          [16.7%] ||||||||||||||||
+3                   1          [16.7%] ||||||||||||||||
+
+Matched: 6 / 6 (Groups: 4)
+```
+
 ## Nginx
 
-### HTTP Status
+### Highlight / Extract HTTP Code and Size
+
+```sh
+# Will colorize HTTP code and size in full log
+$ rare filter -m "(\d{3}) (\d+)" access.log
+
+# Will only display http code and size
+$ rare filter -m "(\d{3}) (\d+)" -e "{1} {2}" access.log
+```
+
+### HTTP Status Histogram
 
 Parse error codes and graph in a histogram
 
