@@ -27,6 +27,9 @@ The following are special Keys:
 
  * `{src}`  The source name (eg filename). `stdin` when read from stdin
  * `{line}` The line numbers of the current match
+ * `{.}`    Returns all matched values with match names as JSON
+ * `{#}`    Returns all matched numbered values as JSON
+ * `{.#}`   Returned numbered and named matches as JSON
 
 ## Examples
 
