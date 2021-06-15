@@ -91,3 +91,20 @@ func TestWriteColor(t *testing.T) {
 	})
 	assert.Contains(t, sb.String(), "hi")
 }
+
+func TestLookupColor(t *testing.T) {
+	var c ColorCode
+	var ok bool
+
+	c, ok = LookupColorByName("red")
+	assert.NotEmpty(t, c)
+	assert.True(t, ok)
+
+	c, ok = LookupColorByName("Red")
+	assert.NotEmpty(t, c)
+	assert.True(t, ok)
+
+	c, ok = LookupColorByName("bla")
+	assert.NotEmpty(t, c)
+	assert.False(t, ok)
+}

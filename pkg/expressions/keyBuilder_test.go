@@ -47,9 +47,9 @@ func TestUnterminatedReplacement(t *testing.T) {
 }
 
 func TestEscapedString(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{0} is \\{1\\} cool")
+	kb, _ := NewKeyBuilder().Compile("{0} is \\{1\\} cool\\n\\t\\a")
 	key := kb.BuildKey(&testContext)
-	assert.Equal(t, "ab is {1} cool", key)
+	assert.Equal(t, "ab is {1} cool\n\ta", key)
 	assert.Equal(t, 2, len(kb.stages))
 }
 

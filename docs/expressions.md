@@ -13,6 +13,7 @@ The syntax for rare-expressions looks like this: `{1} {bucket {2} 100}`.
 The basic syntax structure is as follows:
 
  * Anything not surrounded by `{}` is a literal
+ * Characters can be escaped with `\`, including `\{` or `\n`
  * Expressions are surrounded by `{}`. The entire match will always be `{0}`
  * An integer in an expression denotes a matched value from the regex (or other input) eg. `{2}`
  * A string in an expression is a special key or a named regex group eg. `{src}`
@@ -162,6 +163,12 @@ Syntax: `{substr {0} pos length}`
 
 Takes the substring of the first argument starting at `pos` for `length`
 
+## Repeat
+
+Syntax: `{repeat "string" {numtimes}}`
+
+Repeats the "string" the specified number of times
+
 ## Select Field
 
 Syntax: `{select {0} 1}`
@@ -178,6 +185,25 @@ Syntax: `{hf val}`, `{hi val}`
  * hi: Int
 
 Formats a number based with appropriate placement of commas and decimals
+
+
+## Colors
+
+Syntax: `{color "color" {string}}`
+
+Available colors: Black, Red, Green, Yellow, Blue, Magenta, Cyan, White
+
+Note: If colors are disabled, no color will be shown.
+
+Colorizes the 2nd argument.
+
+## Bars
+
+Syntax: `{bar {val} "maxVal" "length"}`
+
+Note: If unicode is disabled, will use pipe character
+
+Draws a "bar" with the length `(val / maxVal) * length`
 
 ## Tab
 

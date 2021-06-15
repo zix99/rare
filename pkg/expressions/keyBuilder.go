@@ -52,7 +52,7 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 
 		if r == '\\' { // Escape
 			i++
-			sb.WriteRune(runes[i])
+			sb.WriteRune(unescape(runes[i]))
 		} else if r == '{' {
 			if inStatement == 0 { // starting a new token
 				if sb.Len() > 0 {
@@ -170,4 +170,16 @@ func (s *CompiledKeyBuilder) joinStages() KeyBuilderStage {
 		}
 		return sb.String()
 	})
+}
+
+func unescape(r rune) rune {
+	switch r {
+	case 'n':
+		return '\n'
+	case 'r':
+		return '\r'
+	case 't':
+		return '\t'
+	}
+	return r
 }

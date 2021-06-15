@@ -77,4 +77,9 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"timeformat": KeyBuilderFunction(kfTimeFormat),
 	"buckettime": KeyBuilderFunction(kfBucketTime),
 	"duration":   KeyBuilderFunction(kfDuration),
+
+	// Color and drawing
+	"color":  KeyBuilderFunction(kfColor),
+	"repeat": KeyBuilderFunction(kfRepeat),
+	"bar":    KeyBuilderFunction(kfBar),
 }
