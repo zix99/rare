@@ -59,7 +59,7 @@ func TestIgnoreLines(t *testing.T) {
 	ignore, _ := NewIgnoreExpressions(`{eq {1} "123"}`)
 	ex, err := New(input, &Config{
 		Regex:   `(\d+)`,
-		Extract: "{src} {line} val:{1} {bad}",
+		Extract: "{src} {line} val:{1} {bad}{500}",
 		Workers: 1,
 		Ignore:  ignore,
 	})
@@ -83,6 +83,19 @@ func TestNamedGroup(t *testing.T) {
 	assert.Equal(t, "abc 123", vals[0].Line)
 	assert.Equal(t, 4, len(vals[0].Indices))
 	assert.Equal(t, "val:123:123", vals[0].Extracted)
+}
+
+func TestJSONOutput(t *testing.T) {
+	input := ConvertReaderToStringChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1)
+	ex, err := New(input, &Config{
+		Regex:   `(?P<num>\d+)`,
+		Extract: "{.} {#} {.#} {#.}",
+		Workers: 1,
+	})
+
+	assert.NoError(t, err)
+	vals := unbatchMatches(ex.ReadChan())
+	assert.Equal(t, `{"num": 123} {"0": 123, "1": 123} {"num": 123, "0": 123, "1": 123} {"num": 123, "0": 123, "1": 123}`, vals[0].Extracted)
 }
 
 func TestGH10SliceBoundsPanic(t *testing.T) {

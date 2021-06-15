@@ -168,7 +168,7 @@ func kfBytesize(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
-func kfSeparate(delim rune) KeyBuilderFunction {
+func kfJoin(delim rune) KeyBuilderFunction {
 	return func(args []KeyBuilderStage) KeyBuilderStage {
 		if len(args) == 0 {
 			return stageLiteral("")

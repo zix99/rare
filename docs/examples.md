@@ -9,6 +9,14 @@ Please feel free to contribute your own examples on github
 $ rare filter --match "(\d+)" input.txt
 ```
 
+### Extract matched value as JSON
+```sh
+$ rare f --match "(?P<val>\d+)" -e "{.}" simple.log
+{"val": 1}
+{"val": 2}
+{"val": 1}
+```
+
 ### Histogram of Numbers in Text
 ```sh
 $ rare histo --match "(\d+)" -e "{1}" -x input.txt

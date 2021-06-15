@@ -53,9 +53,9 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"substr": KeyBuilderFunction(kfSubstr),
 	"select": KeyBuilderFunction(kfSelect),
 
-	// Separation
-	"tab": kfSeparate('\t'),
-	"$":   kfSeparate(ArraySeparator),
+	// Separation (Join)
+	"tab": kfJoin('\t'),
+	"$":   kfJoin(ArraySeparator),
 
 	// Pathing
 	"basename": kfPathBase,
@@ -67,7 +67,7 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"hf": KeyBuilderFunction(kfHumanizeFloat),
 
 	// Json
-	"json": KeyBuilderFunction(kfJson),
+	"json": KeyBuilderFunction(kfJsonQuery),
 
 	// CSV
 	"csv": KeyBuilderFunction(kfCsv),
