@@ -37,6 +37,17 @@ const (
 	Underline = escapeCode + "[4m"
 )
 
+var colorMap = map[string]ColorCode{
+	"black":   Black,
+	"red":     Red,
+	"green":   Green,
+	"yellow":  Yellow,
+	"blue":    Blue,
+	"magenta": Magenta,
+	"cyan":    Cyan,
+	"white":   White,
+}
+
 // Enabled controls whether or not coloring is applied
 var Enabled = true
 
@@ -118,4 +129,11 @@ func WrapIndices(s string, groups []int) string {
 	}
 
 	return sb.String()
+}
+
+func LookupColorByName(s string) (ColorCode, bool) {
+	if c, ok := colorMap[strings.ToLower(s)]; ok {
+		return c, true
+	}
+	return BrightRed, false
 }
