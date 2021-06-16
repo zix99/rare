@@ -53,7 +53,7 @@ rare histo -m '"(?P<method>\w{3,4}) (?P<url>[A-Za-z0-9/.@_-]+).*" (?P<status>\d{
 In addition to extracting the same number-groups as above, in this case, it will also extract the named-keys
 of `{method}`, `{url}`, `{status}`, and `{size}`.
 
-# Functions
+## Functions
 
 **Note on literals:** Some functions take in constant/literals as 1 or more arguments
 within the expressions.  These literals will be evaluated during compile-time, rather
@@ -61,25 +61,25 @@ than aggregation-time, and will be treated as a literal.  They are denoted below
 
 Arguments surrounded by `[]` are optional.
 
-## Coalesce
+### Coalesce
 
 Syntax: `{coalesce ...}`
 
 Evaluates arguments in-order, chosing the first non-empty result.
 
-## Bucket
+### Bucket
 
 Syntax: `{bucket intVal bucketSize}`
 
 Given a value, create equal-sized buckets and place each value in those buckets
 
-## ExpBucket
+### ExpBucket
 
 Syntax: `{expbucket intVal}`
 
 Create exponentially (base-10) increase buckets.
 
-## Clamp
+### Clamp
 
 Syntax: `{clamp intVal "min" "max"}`
 
@@ -87,13 +87,13 @@ Clamps a given input `intVal` between `min` and `max`.  If falls outside bucket,
 the word "min" or "max" as appropriate.  If you wish to not see these values, you can
 filter with `--ignore`
 
-## ByteSize
+### ByteSize
 
 Syntax: `{bytesize intVal}`
 
 Create a human-readable byte-size format (eg 1024 = 1KB)
 
-## Sumi, Subi, Multi, Divi
+### Sumi, Subi, Multi, Divi
 
 Syntax: `{sumi ...}`, `{subi ...}`, `{multi ...}`, `{divi ...}`
 
@@ -101,7 +101,7 @@ Evaluates integers using operator from left to right. Requires at least 2 argume
 
 Eg: `{sumi 1 2 3}` will result in `6`
 
-## Sumf, Subf, Multf, Divf
+### Sumf, Subf, Multf, Divf
 
 Syntax: `{sumf ...}`, `{subf ...}`, `{multf ...}`, `{divf ...}`
 
@@ -109,13 +109,13 @@ Evaluates floating points using operator from left to right. Requires at least 2
 
 Eg: `{sumf 1 2 3}` will result in `6`
 
-## If
+### If
 
 Syntax: `{if val ifTrue ifFalse}` or `{if val ifTrue}`
 
 If `val` is truthy, then return `ifTrue` else optionally return `ifFalse`
 
-## Equals, NotEquals, Not
+### Equals, NotEquals, Not
 
 Syntax: `{eq a b}`, `{neq a b}`, `{not a}`
 
@@ -124,13 +124,13 @@ Uses truthy-logic to evaluate equality.
  * neq: If a != b,  will return "1", otherwise ""
  * not: If a == "", will return "1", otherwise ""
 
-## LessThan, GreaterThan, LessThanEqual, GreaterThanEqual
+### LessThan, GreaterThan, LessThanEqual, GreaterThanEqual
 
 Syntax: `{lt a b}`, `{gt a b}`, `{lte a b}`, `{gte a b}`
 
 Uses truthy-logic to compare two integers.
 
-## And, Or
+### And, Or
 
 Syntax: `{and ...}`, `{or ...}`
 
@@ -139,37 +139,37 @@ Uses truthy logic and applies `and` or `or` to the values.
  * and: All arguments need to be truthy
  * or:  At least one argument needs to be truthy
 
-## Like, Prefix, Suffix
+### Like, Prefix, Suffix
 
 Syntax: `{like val contains}`, `{prefix val startsWith}`, `{suffix val endsWith}`
 
 Truthy check if a value contains a sub-value, starts with, or ends with
 
-## IsInt, IsNum
+### IsInt, IsNum
 
 Syntax: `{isint val}`, `{isnum val}`
 
 Returns truthy if the val is an integer (isint), or a floating point (isnum)
 
-## Format
+### Format
 
 Syntax: `{format "%s" ...}`
 
 Formats a string based on `fmt.Sprintf`
 
-## Substring
+### Substring
 
 Syntax: `{substr {0} pos length}`
 
 Takes the substring of the first argument starting at `pos` for `length`
 
-## Repeat
+### Repeat
 
 Syntax: `{repeat "string" {numtimes}}`
 
 Repeats the "string" the specified number of times
 
-## Select Field
+### Select Field
 
 Syntax: `{select {0} 1}`
 
@@ -177,7 +177,7 @@ Assuming that `{0}` is a whitespace-separated value, split the values and select
 
 Eg. `{select "ab cd ef" 1}` will result in `cd`
 
-## Humanize Number (Add Commas)
+### Humanize Number (Add Commas)
 
 Syntax: `{hf val}`, `{hi val}`
 
@@ -187,7 +187,7 @@ Syntax: `{hf val}`, `{hi val}`
 Formats a number based with appropriate placement of commas and decimals
 
 
-## Colors
+### Colors
 
 Syntax: `{color "color" {string}}`
 
@@ -197,7 +197,7 @@ Note: If colors are disabled, no color will be shown.
 
 Colorizes the 2nd argument.
 
-## Bars
+### Bars
 
 Syntax: `{bar {val} "maxVal" "length"}`
 
@@ -205,13 +205,13 @@ Note: If unicode is disabled, will use pipe character
 
 Draws a "bar" with the length `(val / maxVal) * length`
 
-## Tab
+### Tab
 
 Syntax: `{tab a b c ...}`
 
 Concatenates the values of the arguments separated by a table character.
 
-## Arrays / Null Separator
+### Arrays / Null Separator
 
 Syntax: `{$ a b c}`
 
@@ -220,7 +220,7 @@ to form arrays that have meaning for a given aggregator.
 
 Specifying multiple expressions is equivalent, eg. `{$ a b}` is the same as `-e a -e b`
 
-## Paths
+### Paths
 
 Syntax: `{basename a/b/c}`, `{dirname a/b/c}`, `{extname a/b/c.jpg}`
 
@@ -230,13 +230,13 @@ Selects the base, directory, or extension of a path.
  * `dirname  a/b/c` = a/b
  * `extname a/b/c.jpg` = .jpg 
 
-## CSV
+### CSV
 
 Syntax: `{csv a b c}`
 
 Generate a CSV row given a set of values
 
-## Json
+### Json
 
 Syntax: `{json field expression}` or `{json expression}`
 
@@ -246,7 +246,7 @@ When only 1 argument is present, it will assume the JSON is in `{0}` (Full match
 
 See: [json](json.md) for more information.
 
-## Time
+### Time
 
 Syntax: `{time str "[format]"}` `{timeformat unixtime "[format]" "[utc]"}` `{duration dur}` `{buckettime str bucket "[format]"}`
 
@@ -287,7 +287,7 @@ To define your own format, write down what the reference time would look like fo
 The reference time used in the layouts is the specific time:
 Mon Jan 2 15:04:05 MST 2006
 
-# Errors
+## Errors
 
 The following error strings may be returned while compiling your expression
 

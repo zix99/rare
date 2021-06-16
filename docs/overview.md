@@ -21,7 +21,7 @@ These match groups are then fed into the next stage, the expression.
 
 Read more at:
 
-* [parsing](extractor.md)
+* [extractor](extractor.md)
 
 ## Expressions
 
