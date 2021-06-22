@@ -18,13 +18,14 @@ nav:
       - Regular Expressions: usage/regexp.md
     - CLI Docs: cli-help.md
   - Benchmarks: benchmarks.md
+  - Contributing: contributing.md
   - License: license.md
 
 theme:
   name: material
   features:
     - navigation.expand
-    - toc.integrate
+    #- toc.integrate
 
 markdown_extensions:
   - toc:

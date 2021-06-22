@@ -1,9 +1,10 @@
 # rare
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/zix99/rare/rare)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/zix99/rare)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/zix99/rare/rare)](https://github.com/zix99/rare/actions)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/zix99/rare)](https://github.com/zix99/rare/releases)
 [![codecov](https://codecov.io/gh/zix99/rare/branch/master/graph/badge.svg)](https://codecov.io/gh/zix99/rare)
 ![GitHub all releases](https://img.shields.io/github/downloads/zix99/rare/total)
+![GitHub](https://img.shields.io/github/license/zix99/rare)
 
 A fast text scanner/regex extractor and realtime summarizer.
 
@@ -13,7 +14,7 @@ Supports various CLI-based graphing and metric formats (filter (grep-like), hist
 
 ![rare gif](images/rare.gif)
 
-## Features
+# Features
 
  * Multiple summary formats including: filter (like grep), histogram, bar graphs, and numerical analysis
  * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
@@ -21,34 +22,24 @@ Supports various CLI-based graphing and metric formats (filter (grep-like), hist
  * Following `-f` or re-open following `-F` (use `--poll` to poll)
  * Ignoring lines that match an expression (with `-i`)
  * Aggregating and realtime summary (Don't have to wait for all data to be scanned)
- * Multi-threaded reading, parsing, and aggregation
+ * Multi-threaded reading, parsing, and aggregation (It's fast)
  * Color-coded outputs (optionally)
  * Pipe support (stdin for reading, stdout will disable color) eg. `tail -f | rare ...`
 
-## Installation
+# Installation
 
-**A Note on PCRE**
-
-Besides your standard OS versions, there is an additional `pcre` build which is 4x faster than go's `re2` implementation in moderately complex cases.  In order to use this, you must make sure that libpcre2 is installed (eg `apt install libpcre2-8-0`).  Right now, it is only bundled with the linux distribution.
-
-PCRE2 also comes with pitfalls, two of the most important are:
-1. That *rare* is now dynamically linked, meaning that you need to have libc and libpcre installed
-2. That pcre is an exponential-time algorithm (re2 is linear).  While it can be significantly faster than go's `re2`, it can also be catastropically slower in some situations. There is a good post [here](https://swtch.com/~rsc/regexp/regexp1.html) that talks about regexp timings.
-
-I will leave it up to the user as to which they find suitable to use for their situation.  Generally, if you know what *rare* is getting as an input, the pcre version is perfectly safe and can be much faster.
-
-### Manual
+## Manual
 
 Download appropriate binary or package from [Releases](https://github.com/zix99/rare/releases)
 
-### Homebrew
+## Homebrew
 
 ```sh
 brew tap zix99/rare
 brew install rare
 ```
 
-### From code
+## From code
 
 Clone the repo, and:
 
@@ -68,3 +59,13 @@ Available tags:
 
 * `experimental` Enable experimental features (eg. fuzzy search)
 * `pcre2` Enables PCRE 2 (v10) where able. Currently linux only
+
+**A Note on PCRE (Perl Compatible Regex Library)**
+
+Besides your standard OS versions, there is an additional `pcre` build which is ~4x faster than go's `re2` implementation in moderately complex cases.  In order to use this, you must make sure that **libpcre2** is installed (eg `apt install libpcre2-8-0`).  Right now, it is only bundled with the linux distribution.
+
+PCRE2 also comes with pitfalls, two of the most important are:
+1. That *rare* is now dynamically linked, meaning that you need to have libc and libpcre installed
+2. That pcre is an exponential-time algorithm (re2 is linear).  While it can be significantly faster than go's `re2`, it can also be catastropically slower in some situations. There is a good post [here](https://swtch.com/~rsc/regexp/regexp1.html) that talks about regexp timings.
+
+I will leave it up to the user as to which they find suitable to use for their situation.  Generally, if you know what *rare* is getting as an input, the pcre version is perfectly safe and can be much faster.

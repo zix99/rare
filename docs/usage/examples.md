@@ -4,6 +4,26 @@ Please feel free to contribute your own examples on github
 
 ## Simple Text
 
+### Histogram Values in Text File
+
+```sh
+$ cat input.txt
+1
+2
+1
+3
+1
+0
+
+$ rare histo input.txt
+1                   3         
+0                   1         
+2                   1         
+3                   1         
+
+Matched: 6 / 6 (Groups: 4)
+```
+
 ### Extract Numbers from Text
 ```sh
 $ rare filter --match "(\d+)" input.txt
