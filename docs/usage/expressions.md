@@ -2,7 +2,7 @@
 
 *rare* expressions are handlebars-like in their ability to process data with 
 helpers, and format to a new view of the data.  We chose not to do straight
-handlebars or templating due to the performance concern that comes with it 
+handlebars or go-templating due to the performance concern that comes with it 
 (Processing millions upon millions of templates isn't the use-case html 
 processors were meant for)
 
@@ -16,7 +16,7 @@ The basic syntax structure is as follows:
  * Characters can be escaped with `\`, including `\{` or `\n`
  * Expressions are surrounded by `{}`. The entire match will always be `{0}`
  * An integer in an expression denotes a matched value from the regex (or other input) eg. `{2}`
- * A string in an expression is a special key or a named regex group eg. `{src}`
+ * A string in an expression is a special key or a named regex group eg. `{src}` or `{group1}`
  * When an expression has space(s), the first literal will be the name of a helper function.
    From there, the logic is nested. eg `{coalesce {4} {3} notfound}`
  * Quotes in an argument create a single argument eg. `{coalesce {4} {3} "not found"}`
@@ -120,6 +120,7 @@ If `val` is truthy, then return `ifTrue` else optionally return `ifFalse`
 Syntax: `{eq a b}`, `{neq a b}`, `{not a}`
 
 Uses truthy-logic to evaluate equality.
+
  * eq:  If a == b,  will return "1", otherwise ""
  * neq: If a != b,  will return "1", otherwise ""
  * not: If a == "", will return "1", otherwise ""
@@ -252,10 +253,10 @@ Syntax: `{time str "[format]"}` `{timeformat unixtime "[format]" "[utc]"}` `{dur
 
 These three time functions provide you a way to parse and manipulate time.
 
- * time: Parse a given time-string into a unix second time (default: RFC3339)
- * timeformat: Takes a unix time, and formats it (default: auto-detection)
- * duration: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
- * buckettime: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
+ * `time`: Parse a given time-string into a unix second time (default: RFC3339)
+ * `timeformat`: Takes a unix time, and formats it (default: auto-detection)
+ * `duration`: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
+ * `buckettime`: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
 
 **Format Auto-Detection:**
 
@@ -270,7 +271,7 @@ If "auto":   The date format will always be auto-detected. This can be used if t
 **Special Values:**
 The time `now` will return the current unix timestamp `{time now}`
 
-### Time Formats
+#### Time Formats
 
 **Supported Formats:**
 ASNIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339N, NGINX
@@ -289,7 +290,7 @@ Mon Jan 2 15:04:05 MST 2006
 
 ## Errors
 
-The following error strings may be returned while compiling your expression
+The following error strings may be returned while compiling or evaluating your expression
 
 ```go
 const (

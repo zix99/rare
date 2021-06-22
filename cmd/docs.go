@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"rare/cmd/helpers"
 	"rare/docs"
 	"rare/pkg/markdowncli"
@@ -16,12 +17,12 @@ func docsFunction(c *cli.Context) error {
 
 	if docname == "" || docname == "list" {
 		fmt.Println("Available Docs:")
-		entries, _ := docs.DocFS.ReadDir(".")
+		entries, _ := docs.DocFS.ReadDir(docs.BasePath)
 		for _, entry := range entries {
 			fmt.Printf("  %s\n", strings.Title(strings.TrimSuffix(entry.Name(), ".md")))
 		}
 
-	} else if file, err := docs.DocFS.Open(docname + ".md"); err == nil {
+	} else if file, err := docs.DocFS.Open(filepath.Join(docs.BasePath, docname+".md")); err == nil {
 		if err != nil {
 			return cli.NewExitError(err, helpers.ExitCodeInvalidUsage)
 		} else {
