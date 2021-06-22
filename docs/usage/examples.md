@@ -99,6 +99,27 @@ $ rare h -m "\" (\d+) (\d+)" -e "{bytesize {bucket {2} 1024}}" -i "{lt {2} 1024}
 Matched: 24,693 / 8,383,717 (Groups: 96) (Ignored: 8,348,635)
 ```
 
+### Extract number of bytes sent by bucket, and format
+
+This shows an example of how to bucket the values into size of `1000`. In this case, it doesn't make
+sense to see the histogram by number of bytes, but we might want to know the ratio of various orders-of-magnitudes.
+
+```sh
+$ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3}) (\d+)' -e "{bucket {4} 10000}" -n 10 access.log -b
+0                   144239     ||||||||||||||||||||||||||||||||||||||||||||||||||
+190000              2599       
+10000               1290       
+180000              821        
+20000               496        
+30000               445        
+40000               440        
+200000              427        
+140000              323        
+70000               222        
+Matched: 161622 / 161622
+Groups:  1203
+```
+
 ### Table of URLs to HTTP Status
 
 Know how your URLs are responding by their http statuses
