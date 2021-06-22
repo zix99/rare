@@ -25,7 +25,6 @@ theme:
   name: material
   features:
     - navigation.expand
-    #- toc.integrate
 
 markdown_extensions:
   - toc:

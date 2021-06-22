@@ -16,7 +16,7 @@ See [rare.zdyn.net](https://rare.zdyn.net) or the [docs/ folder](docs/) for the 
 
 ![rare gif](docs/images/rare.gif)
 
-# Features
+## Features
 
  * Multiple summary formats including: filter (like grep), histogram, bar graphs, and numerical analysis
  * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
@@ -28,20 +28,20 @@ See [rare.zdyn.net](https://rare.zdyn.net) or the [docs/ folder](docs/) for the 
  * Color-coded outputs (optionally)
  * Pipe support (stdin for reading, stdout will disable color) eg. `tail -f | rare ...`
 
-# Installation
+## Installation
 
-## Manual
+### Manual
 
 Download appropriate binary or package from [Releases](https://github.com/zix99/rare/releases)
 
-## Homebrew
+### Homebrew
 
 ```sh
 brew tap zix99/rare
 brew install rare
 ```
 
-## From code
+### From code
 
 Clone the repo, and:
 
@@ -72,15 +72,15 @@ PCRE2 also comes with pitfalls, two of the most important are:
 
 I will leave it up to the user as to which they find suitable to use for their situation.  Generally, if you know what *rare* is getting as an input, the pcre version is perfectly safe and can be much faster.
 
-# Documentation
+## Documentation
 
 All documentation may be found here, in the [docs/](docs/) folder, by running `rare docs` (embedded docs/ folder), or on the website [rare.zdyn.net](https://rare.zdyn.net)
 
 You can also see a dump of the CLI options at [cli-help.md](docs/cli-help.md)
 
-# Example
+## Example
 
-## Create histogram from sample data
+### Create histogram from sample data
 
 ```sh
 $ cat input.txt
@@ -100,7 +100,7 @@ $ rare histo input.txt
 Matched: 6 / 6 (Groups: 4)
 ```
 
-## Extact status and size from nginx logs
+### Extact status and size from nginx logs
 ```sh
 $ rare filter -n 4 -m "(\d{3}) (\d+)" -e "{1} {2}" access.log
 404 169
@@ -110,7 +110,7 @@ $ rare filter -n 4 -m "(\d{3}) (\d+)" -e "{1} {2}" access.log
 Matched: 4 / 4
 ```
 
-## Extract status codes from nginx logs
+### Extract status codes from nginx logs
 
 ```sh
 $ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3})' -e '{3} {1}' access.log
@@ -121,7 +121,7 @@ $ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3})' -e '{3} {1}' access.log
 403 GET                          14
 ```
 
-## Extract number of bytes sent by bucket, and format
+### Extract number of bytes sent by bucket, and format
 
 This shows an example of how to bucket the values into size of `1000`. In this case, it doesn't make
 sense to see the histogram by number of bytes, but we might want to know the ratio of various orders-of-magnitudes.
@@ -142,13 +142,13 @@ Matched: 161622 / 161622
 Groups:  1203
 ```
 
-## More Examples
+### More Examples
 
 For more examples, check out the [docs](docs/usage/examples.md) or [the website](https://rare.zdyn.net/usage/examples/)
 
-# Output Formats
+## Output Formats
 
-## Histogram (histo)
+### Histogram (histo)
 
 The histogram format outputs an aggregation by counting the occurences of an extracted match.  That is to say, on every line a regex will be matched (or not), and the matched groups can be used to extract and build a key, that will act as the bucketing name.
 
@@ -186,7 +186,7 @@ OPTIONS:
 
 ```
 
-## Filter (filter)
+### Filter (filter)
 
 Filter is a command used to match and (optionally) extract that match without any aggregation. It's effectively a `grep` or a combination of `grep`, `awk`, and/or `sed`.
 
@@ -218,7 +218,7 @@ OPTIONS:
    --line, -l                   Output line numbers
 ```
 
-## Bar Graph
+### Bar Graph
 
 Similar to histogram or table, bargraph can generate a stacked or grouped bargraph by one or two keys.
 
@@ -261,7 +261,7 @@ OPTIONS:
    --reverse                    Reverses the display sort-order
 ```
 
-## Numerical Analysis
+### Numerical Analysis
 
 This command will extract a number from logs and run basic analysis on that number (Such as mean, median, mode, and quantiles).
 
@@ -312,7 +312,7 @@ P99.9:    395,186,166.0000
 Matched: 161,622 / 161,622
 ```
 
-## Tabulate
+### Tabulate
 
 Create a 2D view (table) of data extracted from a file. Expression needs to yield a two dimensions separated by a tab.  Can either use `\x00` or the `{$ a b}` helper.  First element is the column name, followed by the row name.
 
@@ -376,7 +376,7 @@ Matched: 161,622 / 161,622
 Rows: 223; Cols: 6
 ```
 
-# Performance Benchmarking
+## Performance Benchmarking
 
 I know there are different solutions, and rare accomplishes summarization in a way
 that grep, awk, etc can't, however I think it's worth analyzing the performance of this
@@ -386,7 +386,7 @@ See [benchmarks](docs/benchmarks.md) for comparisons between common tools like `
 silversearcher-ag, etc.
 
 
-# Development
+## Development
 
 New additions to `rare` should pass the following checks
 
@@ -414,7 +414,7 @@ go tool pprof -http=:8080 out.cpu.prof # CPU
 go tool pprof -http=:8080 out_num.prof # Memory
 ```
 
-# License
+## License
 
     Copyright (C) 2019  Christopher LaPointe
 

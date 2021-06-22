@@ -14,7 +14,7 @@ Supports various CLI-based graphing and metric formats (filter (grep-like), hist
 
 ![rare gif](images/rare.gif)
 
-# Features
+## Features
 
  * Multiple summary formats including: filter (like grep), histogram, bar graphs, and numerical analysis
  * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
@@ -26,20 +26,20 @@ Supports various CLI-based graphing and metric formats (filter (grep-like), hist
  * Color-coded outputs (optionally)
  * Pipe support (stdin for reading, stdout will disable color) eg. `tail -f | rare ...`
 
-# Installation
+## Installation
 
-## Manual
+### Manual
 
 Download appropriate binary or package from [Releases](https://github.com/zix99/rare/releases)
 
-## Homebrew
+### Homebrew
 
 ```sh
 brew tap zix99/rare
 brew install rare
 ```
 
-## From code
+### From code
 
 Clone the repo, and:
 
