@@ -34,7 +34,8 @@ results they did perform comparibly.
 
 ## Silver Searcher (ag)
 
-ag version 2.2.0 has a bug where it won't scan all my testdata.  I'll hold on benchmarking until there's a fix.
+!!! warning
+    ag version 2.2.0 has a bug where it won't scan all my testdata.  I'll hold on benchmarking until there's a fix.
 
 ### Old Benchmark (Less data by factor of ~8x)
 ```

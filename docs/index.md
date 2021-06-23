@@ -28,6 +28,16 @@ Supports various CLI-based graphing and metric formats (filter (grep-like), hist
 
 ## Installation
 
+!!! note "A Note on PCRE (Perl Compatible Regex Library)"
+
+    Besides your standard OS versions, there is an additional `pcre` build which is ~4x faster than go's `re2` implementation in moderately complex cases.  In order to use this, you must make sure that **libpcre2** is installed (eg `apt install libpcre2-8-0`).  Right now, it is only bundled with the linux distribution.
+
+    PCRE2 also comes with pitfalls, two of the most important are:
+    1. That *rare* is now dynamically linked, meaning that you need to have libc and libpcre installed
+    2. That pcre is an exponential-time algorithm (re2 is linear).  While it can be significantly faster than go's `re2`, it can also be catastropically slower in some situations. There is a good post [here](https://swtch.com/~rsc/regexp/regexp1.html) that talks about regexp timings.
+
+    I will leave it up to the user as to which they find suitable to use for their situation.  Generally, if you know what *rare* is getting as an input, the pcre version is perfectly safe and can be much faster.
+
 ### Manual
 
 Download appropriate binary or package from [Releases](https://github.com/zix99/rare/releases)
@@ -60,12 +70,3 @@ Available tags:
 * `experimental` Enable experimental features (eg. fuzzy search)
 * `pcre2` Enables PCRE 2 (v10) where able. Currently linux only
 
-**A Note on PCRE (Perl Compatible Regex Library)**
-
-Besides your standard OS versions, there is an additional `pcre` build which is ~4x faster than go's `re2` implementation in moderately complex cases.  In order to use this, you must make sure that **libpcre2** is installed (eg `apt install libpcre2-8-0`).  Right now, it is only bundled with the linux distribution.
-
-PCRE2 also comes with pitfalls, two of the most important are:
-1. That *rare* is now dynamically linked, meaning that you need to have libc and libpcre installed
-2. That pcre is an exponential-time algorithm (re2 is linear).  While it can be significantly faster than go's `re2`, it can also be catastropically slower in some situations. There is a good post [here](https://swtch.com/~rsc/regexp/regexp1.html) that talks about regexp timings.
-
-I will leave it up to the user as to which they find suitable to use for their situation.  Generally, if you know what *rare* is getting as an input, the pcre version is perfectly safe and can be much faster.

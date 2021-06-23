@@ -30,6 +30,8 @@ markdown_extensions:
   - toc:
       permalink: true
       baselevel: 1
+  - admonition
+  - pymdownx.superfences
 
 strict: true
 site_dir: dist/site
