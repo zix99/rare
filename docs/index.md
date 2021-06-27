@@ -26,6 +26,8 @@ Supports various CLI-based graphing and metric formats (filter (grep-like), hist
  * Color-coded outputs (optionally)
  * Pipe support (stdin for reading, stdout will disable color) eg. `tail -f | rare ...`
 
+Take a look at [examples](usage/examples.md) to see more of what *rare* does.
+
 ## Installation
 
 !!! note "A Note on PCRE (Perl Compatible Regex Library)"

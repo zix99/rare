@@ -28,6 +28,18 @@ See [rare.zdyn.net](https://rare.zdyn.net) or the [docs/ folder](docs/) for the 
  * Color-coded outputs (optionally)
  * Pipe support (stdin for reading, stdout will disable color) eg. `tail -f | rare ...`
 
+Take a look at [examples](docs/usage/examples.md) to see more of what *rare* does.
+
+### Output Formats
+
+Output formats include:
+
+* `filter` is grep-like, in that each line will be processed and the extracted key will be output directly to stdout
+* `histogram` will count instances of the extracted key
+* `table` will count the key in 2 dimensions
+* `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
+* `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
+
 ## Installation
 
 ### Manual
@@ -125,235 +137,17 @@ $ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3})' -e '{3} {1}' access.log
 
 For more examples, check out the [docs](docs/usage/examples.md) or [the website](https://rare.zdyn.net/usage/examples/)
 
+
 ## Output Formats
 
-### Histogram (histo)
+* `filter` is grep-like, in that each line will be processed and the extracted key will be output directly to stdout
+* `histogram` will count instances of the extracted key
+* `table` will count the key in 2 dimensions
+* `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
+* `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
 
-The histogram format outputs an aggregation by counting the occurences of an extracted match.  That is to say, on every line a regex will be matched (or not), and the matched groups can be used to extract and build a key, that will act as the bucketing name.
+More details on various output formats and aggregators (including examples) can be found in [aggregators](docs/usage/aggregators.md)
 
-```
-NAME:
-   rare histogram - Summarize results by extracting them to a histogram
-
-USAGE:
-   rare histogram [command options] <-|filename|glob...>
-
-DESCRIPTION:
-   Generates a live-updating histogram of the extracted information from a file
-    Each line in the file will be matched, any the matching part extracted
-    as a key and counted.
-    If an extraction expression is provided with -e, that will be used
-    as the key instead
-
-OPTIONS:
-   --follow, -f                 Read appended data as file grows
-   --reopen, -F                 Same as -f, but will reopen recreated files
-   --poll                       When following a file, poll for changes rather than using inotify
-   --posix, -p                  Compile regex as against posix standard
-   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
-   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
-   --gunzip, -z                 Attempt to decompress file when reading
-   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
-   --workers value, -w value    Set number of data processors (default: 5)
-   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
-   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
-   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
-   --bars, -b                   Display bars as part of histogram
-   --num value, -n value        Number of elements to display (default: 5)
-   --reverse                    Reverses the display sort-order
-   --sortkey, --sk              Sort by key, rather than value
-
-```
-
-### Filter (filter)
-
-Filter is a command used to match and (optionally) extract that match without any aggregation. It's effectively a `grep` or a combination of `grep`, `awk`, and/or `sed`.
-
-```
-NAME:
-   rare filter - Filter incoming results with search criteria, and output raw matches
-
-USAGE:
-   rare filter [command options] <-|filename|glob...>
-
-DESCRIPTION:
-   Filters incoming results by a regex, and output the match or an extracted expression.
-    Unable to output contextual information due to the application's parallelism.  Use grep if you
-    need that
-
-OPTIONS:
-   --follow, -f                 Read appended data as file grows
-   --reopen, -F                 Same as -f, but will reopen recreated files
-   --poll                       When following a file, poll for changes rather than using inotify
-   --posix, -p                  Compile regex as against posix standard
-   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
-   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
-   --gunzip, -z                 Attempt to decompress file when reading
-   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
-   --workers value, -w value    Set number of data processors (default: 5)
-   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
-   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
-   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
-   --line, -l                   Output line numbers
-```
-
-### Bar Graph
-
-Similar to histogram or table, bargraph can generate a stacked or grouped bargraph by one or two keys.
-
-```sh
-$ rare bars -sz -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} year nginx} {bucket {2} {multi 10 10}}}" testdata/*
-
-        █ 200  █ 400  █ 300
-2019  ████████████████████████████████████████  3,741,444
-2020  █████████████████████████████████████████████████  4,631,884
-Matched: 8,373,328 / 8,383,717
-```
-
-```
-NAME:
-   rare bargraph - Create a bargraph of the given 1 or 2 dimension data
-
-USAGE:
-   rare bargraph [command options] <-|filename|glob...>
-
-DESCRIPTION:
-   Creates a bargraph of one or two dimensional data.  Unlike histogram
-    the bargraph can collapse and stack data in different formats.  The key data format
-    is {$ a b [c]}, where a is the base-key, b is the optional sub-key, and c is the increment
-    (defeaults to 1)
-
-OPTIONS:
-   --follow, -f                 Read appended data as file grows
-   --reopen, -F                 Same as -f, but will reopen recreated files
-   --poll                       When following a file, poll for changes rather than using inotify
-   --posix, -p                  Compile regex as against posix standard
-   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
-   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
-   --gunzip, -z                 Attempt to decompress file when reading
-   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
-   --workers value, -w value    Set number of data processors (default: 3)
-   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
-   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
-   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
-   --stacked, -s                Display bargraph as stacked
-   --reverse                    Reverses the display sort-order
-```
-
-### Numerical Analysis
-
-This command will extract a number from logs and run basic analysis on that number (Such as mean, median, mode, and quantiles).
-
-```
-NAME:
-   rare analyze - Numerical analysis on a set of filtered data
-
-USAGE:
-   rare analyze [command options] <-|filename|glob...>
-
-DESCRIPTION:
-   Treat every extracted expression as a numerical input, and run analysis
-    on that input.  Will extract mean, median, mode, min, max.  If specifying --extra
-    will also extract std deviation, and quantiles
-
-OPTIONS:
-   --follow, -f                 Read appended data as file grows
-   --reopen, -F                 Same as -f, but will reopen recreated files
-   --poll                       When following a file, poll for changes rather than using inotify
-   --posix, -p                  Compile regex as against posix standard
-   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
-   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
-   --gunzip, -z                 Attempt to decompress file when reading
-   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
-   --workers value, -w value    Set number of data processors (default: 5)
-   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
-   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
-   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
-   --extra                      Displays extra analysis on the data (Requires more memory and cpu)
-   --reverse, -r                Reverses the numerical series when ordered-analysis takes place (eg Quantile)
-   --quantile value, -q value   Adds a quantile to the output set. Requires --extra (default: "90", "99", "99.9")
-```
-
-**Example:**
-
-```bash
-$ go run *.go --color analyze -m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+).*" (\d{3}) (\d+)' -e "{4}" testdata/access.log 
-Samples:  161,622
-Mean:     2,566,283.9616
-Min:      0.0000
-Max:      1,198,677,592.0000
-
-Median:   1,021.0000
-Mode:     1,021.0000
-P90:      19,506.0000
-P99:      64,757,808.0000
-P99.9:    395,186,166.0000
-Matched: 161,622 / 161,622
-```
-
-### Tabulate
-
-Create a 2D view (table) of data extracted from a file. Expression needs to yield a two dimensions separated by a tab.  Can either use `\x00` or the `{$ a b}` helper.  First element is the column name, followed by the row name.
-
-```
-NAME:
-   rare tabulate - Create a 2D summarizing table of extracted data
-
-USAGE:
-   rare tabulate [command options] <-|filename|glob...>
-
-DESCRIPTION:
-   Summarizes the extracted data as a 2D data table.
-    The key is provided in the expression, and should be separated by a tab \x00
-    character or via {$ a b} Where a is the column header, and b is the row
-
-OPTIONS:
-   --follow, -f                 Read appended data as file grows
-   --reopen, -F                 Same as -f, but will reopen recreated files
-   --poll                       When following a file, poll for changes rather than using inotify
-   --posix, -p                  Compile regex as against posix standard
-   --match value, -m value      Regex to create match groups to summarize on (default: ".*")
-   --extract value, -e value    Expression that will generate the key to group by (default: "{0}")
-   --gunzip, -z                 Attempt to decompress file when reading
-   --batch value                Specifies io batching size. Set to 1 for immediate input (default: 1000)
-   --workers value, -w value    Set number of data processors (default: 5)
-   --readers value, --wr value  Sets the number of concurrent readers (Infinite when -f) (default: 3)
-   --ignore value, -i value     Ignore a match given a truthy expression (Can have multiple)
-   --recursive, -R              Recursively walk a non-globbing path and search for plain-files
-   --delim value                Character to tabulate on. Use {$} helper by default (default: "\x00")
-   --num value, -n value        Number of elements to display (default: 20)
-   --cols value                 Number of columns to display (default: 10)
-   --sortkey, --sk              Sort rows by key name rather than by values
-```
-
-**Example:**
-
-```bash
-$ rare tabulate -m "(\d{3}) (\d+)" -e "{$ {1} {bucket {2} 100000}}" -sk access.log
-
-         200      404      304      403      301      206      
-0        153,271  860      53       14       12       2                 
-1000000  796      0        0        0        0        0                 
-2000000  513      0        0        0        0        0                 
-7000000  262      0        0        0        0        0                 
-4000000  257      0        0        0        0        0                 
-6000000  221      0        0        0        0        0                 
-5000000  218      0        0        0        0        0                 
-9000000  206      0        0        0        0        0                 
-3000000  202      0        0        0        0        0                 
-10000000 201      0        0        0        0        0                 
-11000000 190      0        0        0        0        0                 
-21000000 142      0        0        0        0        0                 
-15000000 138      0        0        0        0        0                 
-8000000  137      0        0        0        0        0                 
-22000000 123      0        0        0        0        0                 
-14000000 121      0        0        0        0        0                 
-16000000 110      0        0        0        0        0                 
-17000000 99       0        0        0        0        0                 
-34000000 91       0        0        0        0        0                 
-Matched: 161,622 / 161,622
-Rows: 223; Cols: 6
-```
 
 ## Performance Benchmarking
 

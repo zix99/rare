@@ -36,7 +36,14 @@ The following are special Keys:
 
 ### Parsing an nginx access.log file
 
-Command: `rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+).*" (\d{3}) (\d+)' -e "{1} {2} {bytesize {bucket {4} 10000}}" -i "{lt {4} {multi 1024 1024}}" -b access.log`
+Command:
+```
+rare histo \
+	-m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+).*" (\d{3}) (\d+)' \
+	-e "{1} {2} {bytesize {bucket {4} 10000}}" \
+	-i "{lt {4} {multi 1024 1024}}" \
+	-b access.log
+```
 
 The above parses the method `{1}`, url `{2}`, status `{3}`, and response size `{4}` in the regex.
 
@@ -46,8 +53,10 @@ It extracts the `<method> <url> <bytesize bucketed to 10k>`. It will ignore `-i`
 
 Command:
 ```sh
-rare histo -m '"(?P<method>\w{3,4}) (?P<url>[A-Za-z0-9/.@_-]+).*" (?P<status>\d{3}) (?P<size>\d+)' \
-	-e "{method} {url} {bytesize {bucket {size} 10000}}" -b access.log`
+rare histo \
+	-m '"(?P<method>\w{3,4}) (?P<url>[A-Za-z0-9/.@_-]+).*" (?P<status>\d{3}) (?P<size>\d+)' \
+	-e "{method} {url} {bytesize {bucket {size} 10000}}" \
+	-b access.log
 ```
 
 In addition to extracting the same number-groups as above, in this case, it will also extract the named-keys

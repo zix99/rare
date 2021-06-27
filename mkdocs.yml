@@ -12,6 +12,7 @@ nav:
     - Overview: usage/overview.md
     - Extractor: usage/extractor.md
     - Expressions: usage/expressions.md
+    - Aggregators: usage/aggregators.md
     - Examples: usage/examples.md
     - Advanced:
       - JSON: usage/json.md

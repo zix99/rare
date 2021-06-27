@@ -1,6 +1,7 @@
 # Examples
 
-Please feel free to contribute your own examples on github
+!!! note
+    Please feel free to contribute your own examples on github
 
 ## Simple Text
 

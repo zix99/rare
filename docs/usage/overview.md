@@ -46,10 +46,11 @@ aggregate in different ways.
 
 Aggregator types:
 
+* `filter` is grep-like, in that each line will be processed and the extracted key will be output directly to stdout
 * `histogram` will count instances of the extracted key
 * `table` will count the key in 2 dimensions
-* `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
 * `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
+* `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
 
-Run `rare --help` for more details on the aggregators, or see how some work in
-the [examples](examples.md)
+For more details, see [aggregators](aggregators.md), run `rare --help` for usage,
+or look at some [examples](examples.md)
