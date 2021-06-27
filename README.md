@@ -125,7 +125,11 @@ Matched: 4 / 4
 ### Extract status codes from nginx logs
 
 ```sh
-$ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3})' -e '{3} {1}' access.log
+$ rare histo \
+    -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3})' \ # The regex that extracts match-groups
+    -e '{3} {1}' \ # The expression will be the key, referencing the match-groups
+    access.log     # One or more files (or -R for recursion)
+
 200 GET                          160663
 404 GET                          857
 304 GET                          53

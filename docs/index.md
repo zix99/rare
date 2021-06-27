@@ -72,3 +72,26 @@ Available tags:
 * `experimental` Enable experimental features (eg. fuzzy search)
 * `pcre2` Enables PCRE 2 (v10) where able. Currently linux only
 
+
+## Quickstart
+
+The easiest way to start using *rare* is by creating a `histogram`.
+
+Each execution is usually composed of two parts, the [regex extracted match](usage/extractor.md) (`-m`) and the [expression](usage/expressions.md) (`-e`).
+
+```sh
+$ rare histo \
+    -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3})' \ # The regex that extracts match-groups
+    -e '{3} {1}' \ # The expression will be the key, referencing the match-groups
+    access.log     # One or more files (or -R for recursion)
+
+200 GET                          160663
+404 GET                          857
+304 GET                          53
+200 HEAD                         18
+403 GET                          14
+```
+
+## Next
+
+To learn more, check out [examples](usage/examples.md) or read the [overview](usage/overview.md)
