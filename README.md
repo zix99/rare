@@ -37,8 +37,10 @@ Output formats include:
 * `filter` is grep-like, in that each line will be processed and the extracted key will be output directly to stdout
 * `histogram` will count instances of the extracted key
 * `table` will count the key in 2 dimensions
-* `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
 * `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
+* `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
+
+More details on various output formats and aggregators (including examples) can be found in [aggregators](docs/usage/aggregators.md)
 
 ## Installation
 
@@ -142,17 +144,6 @@ $ rare histo \
 For more examples, check out the [docs](docs/usage/examples.md) or [the website](https://rare.zdyn.net/usage/examples/)
 
 
-## Output Formats
-
-* `filter` is grep-like, in that each line will be processed and the extracted key will be output directly to stdout
-* `histogram` will count instances of the extracted key
-* `table` will count the key in 2 dimensions
-* `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
-* `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
-
-More details on various output formats and aggregators (including examples) can be found in [aggregators](docs/usage/aggregators.md)
-
-
 ## Performance Benchmarking
 
 I know there are different solutions, and rare accomplishes summarization in a way
@@ -172,14 +163,14 @@ New additions to `rare` should pass the following checks
 - Limit memory allocations (preferably 0!) in the high-throughput functions
 - Tests, and if it makes sense, benchmarks of a given function
 
-## Running/Testing
+### Running/Testing
 
 ```bash
 go run .
 go test ./...
 ```
 
-## Profiling
+### Profiling
 
 New high-throughput changes should be performance benchmarked.
 
