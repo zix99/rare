@@ -1,8 +1,29 @@
 # Examples
 
-Please feel free to contribute your own examples on github
+!!! note
+    Please feel free to contribute your own examples on github
 
 ## Simple Text
+
+### Histogram Values in Text File
+
+```sh
+$ cat input.txt
+1
+2
+1
+3
+1
+0
+
+$ rare histo input.txt
+1                   3         
+0                   1         
+2                   1         
+3                   1         
+
+Matched: 6 / 6 (Groups: 4)
+```
 
 ### Extract Numbers from Text
 ```sh
@@ -77,6 +98,27 @@ $ rare h -m "\" (\d+) (\d+)" -e "{bytesize {bucket {2} 1024}}" -i "{lt {2} 1024}
 192 KB              1,470      [ 6.0%] ||||||||||||||||||||
 191 KB              1,421      [ 5.8%] |||||||||||||||||||
 Matched: 24,693 / 8,383,717 (Groups: 96) (Ignored: 8,348,635)
+```
+
+### Extract number of bytes sent by bucket, and format
+
+This shows an example of how to bucket the values into size of `1000`. In this case, it doesn't make
+sense to see the histogram by number of bytes, but we might want to know the ratio of various orders-of-magnitudes.
+
+```sh
+$ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3}) (\d+)' -e "{bucket {4} 10000}" -n 10 access.log -b
+0                   144239     ||||||||||||||||||||||||||||||||||||||||||||||||||
+190000              2599       
+10000               1290       
+180000              821        
+20000               496        
+30000               445        
+40000               440        
+200000              427        
+140000              323        
+70000               222        
+Matched: 161622 / 161622
+Groups:  1203
 ```
 
 ### Table of URLs to HTTP Status

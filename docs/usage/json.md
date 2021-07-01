@@ -11,11 +11,12 @@ will likely want to leave the match at the default `.*`, and
 provide `{0}` as the field.
 
 For example, this command would extract lastname from below:
+
 `rare filter -e '{json {0} "name.last"}`
 
-Example expressions from their documentation:
+Example expressions from *gjson* documentation:
 
-```GJson Expressions
+```json
 "name.last"          >> "Anderson"
 "age"                >> 37
 "children"           >> ["Sara","Alex","Jack"]

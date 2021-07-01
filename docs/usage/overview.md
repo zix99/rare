@@ -42,8 +42,15 @@ Read more at:
 
 The last stage is the aggregation and realtime presentation.  This takes the
 key built in the expression stage and uses it to aggregate on. Different aggregators
-aggregate in different ways.  For example, the `histogram` will count instances of the key,
-the `table` will count it in 2D, and the `analyze` will treat the match as a number.
+display the data in different ways.
 
-Run `rare --help` for more details on the aggregators, or see how some work in
-the [examples](examples.md)
+Aggregator types:
+
+* `filter` is grep-like, in that each line will be processed and the extracted key will be output directly to stdout
+* `histogram` will count instances of the extracted key
+* `table` will count the key in 2 dimensions
+* `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
+* `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
+
+For more details, see [aggregators](aggregators.md), run `rare --help` for usage,
+or look at some [examples](examples.md)
