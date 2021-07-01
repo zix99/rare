@@ -42,7 +42,7 @@ Read more at:
 
 The last stage is the aggregation and realtime presentation.  This takes the
 key built in the expression stage and uses it to aggregate on. Different aggregators
-aggregate in different ways.
+display the data in different ways.
 
 Aggregator types:
 

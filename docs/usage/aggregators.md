@@ -1,10 +1,11 @@
 # Aggregators
 
 *Aggregators* represent different ways to count and output data as it is processed
-in *rare*. Aggregation takes in different formats of the [matched](extractor.md) and extracted [expression](expressions.md), and either counts or analyzes the values.
+in *rare*. Aggregation takes in different formats of the [matched](extractor.md)
+and extracted [expression](expressions.md), and either counts or analyzes the values.
 
 !!! tip "More Examples"
-    More examples of each can be found in [examples](examples.md). For documentation, see `rare help`
+    More examples of each can be found in [examples](examples.md). For CLI documentation, run `rare help`
 
 ## Filter
 
@@ -14,7 +15,9 @@ rare help filter
 
 ### Summary
 
-Filter is a command used to match and (optionally) extract that match without any aggregation. It's effectively a `grep` or a combination of `grep`, `awk`, and/or `sed`.
+Filter is a command used to match and (optionally) extract that match without
+any aggregation. It's effectively a `grep` or a combination of `grep`, `awk`,
+and/or `sed`.
 
 ### Example
 
@@ -37,7 +40,10 @@ rare help histogram
 
 ### Summary
 
-The histogram format outputs an aggregation by counting the occurences of an extracted match.  That is to say, on every line a regex will be matched (or not), and the matched groups can be used to extract and build a key, that will act as the bucketing name.
+The histogram format outputs an aggregation by counting the occurences
+of an extracted match.  That is to say, on every line a regex will be
+matched (or not), and the matched groups can be used to extract and build
+a key, that will act as the bucketing name.
 
 ### Example
 
@@ -63,7 +69,8 @@ rare help bargraph
 
 ### Summary
 
-Similar to histogram or table, bargraph can generate a stacked or grouped bargraph by one or two keys.
+Similar to histogram or table, bargraph can generate a stacked or grouped
+bargraph by one or two keys.
 
 ### Example
 
@@ -90,7 +97,8 @@ rare help analyze
 
 ### Summary
 
-This command will extract a number from the match and run basic analysis on that number (Such as mean, median, mode, and quantiles).
+This command will extract a number from the match and run basic analysis on that
+number (Such as mean, median, mode, and quantiles).
 
 ### Example
 
@@ -124,7 +132,9 @@ rare help table
 
 ### Summary
 
-Create a 2D view (table) of data extracted from a file. Expression needs to yield a two dimensions separated by a tab.  Can either use `\x00` or the `{$ a b}` helper.  First element is the column name, followed by the row name.
+Create a 2D view (table) of data extracted from a file. Expression needs to
+yield a two dimensions.  Can either use `\x00` or the `{$ a b}` helper.  First
+element is the column name, followed by the row name.
 
 ### Example
 

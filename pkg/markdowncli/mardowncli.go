@@ -13,6 +13,7 @@ var headerColors = []color.ColorCode{color.Green, color.BrightBlue, color.Yellow
 const (
 	tokenCode   = "```"
 	tokenHeader = "#"
+	tokenNote   = "!!!"
 )
 
 // WriteMarkdownToTerm does pseudo-markdown formatting
@@ -22,10 +23,11 @@ func WriteMarkdownToTerm(out io.Writer, reader io.Reader) {
 
 	headerDepth := 0
 	isCodeBlock := false
+	inNoteBlock := false
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, tokenHeader) && !isCodeBlock { // header
+		if strings.HasPrefix(line, tokenHeader) && !isCodeBlock && !inNoteBlock { // header
 			headerDepth = strings.Count(line, tokenHeader) - 1
 			headerColor := headerColors[headerDepth%len(headerColors)]
 			fmt.Fprintf(out, "%s%s\n", strings.Repeat(" ", headerDepth), color.Wrap(color.Bold, color.Wrap(headerColor, line)))
@@ -43,8 +45,16 @@ func WriteMarkdownToTerm(out io.Writer, reader io.Reader) {
 			} else {
 				headerDepth--
 			}
+		} else if strings.HasPrefix(line, tokenNote) { // note block begin
+			inNoteBlock = true
+			fmt.Fprintf(out, "%s%s\n", strings.Repeat(" ", headerDepth+1), color.Wrap(color.BrightCyan, line))
+		} else if inNoteBlock && line == "" { // note block end
+			inNoteBlock = false
+			fmt.Fprint(out, "\n")
 		} else {
-			if isCodeBlock {
+			if inNoteBlock {
+				line = color.Wrap(color.BrightBlack, line)
+			} else if isCodeBlock {
 				line = color.Wrap(color.BrightMagenta, line)
 			} else {
 				for _, replacer := range regexReplacement {
