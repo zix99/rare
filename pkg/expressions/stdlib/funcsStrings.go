@@ -94,12 +94,37 @@ func kfSelect(args []KeyBuilderStage) KeyBuilderStage {
 			return ErrorParsing
 		}
 
-		fields := strings.Fields(s)
-		if idx >= 0 && idx < len(fields) {
-			return fields[idx]
-		}
-		return ""
+		return selectField(s, idx)
 	})
+}
+
+func selectField(s string, idx int) string {
+	currIdx := 0
+	wordStart := 0
+	inDelim := false
+	quoted := false
+
+	for i, c := range s {
+		if (quoted && c == '"') || (!quoted && (c == ' ' || c == '\t' || c == '\n' || c == '\x00')) {
+			if currIdx == idx {
+				return s[wordStart:i]
+			}
+			inDelim = true
+			quoted = false
+		} else if c == '"' {
+			quoted = !quoted
+		} else if inDelim {
+			wordStart = i
+			currIdx++
+			inDelim = false
+		}
+	}
+
+	if currIdx == idx {
+		return s[wordStart:]
+	}
+
+	return ""
 }
 
 // {format str args...}
