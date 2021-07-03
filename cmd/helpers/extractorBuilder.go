@@ -59,6 +59,10 @@ func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, se
 		Workers: c.Int("workers"),
 	}
 
+	if c.Bool("ignore-case") {
+		config.Regex = "(?i)" + config.Regex
+	}
+
 	ignoreSlice := c.StringSlice("ignore")
 	if len(ignoreSlice) > 0 {
 		ignoreExp, err := extractor.NewIgnoreExpressions(ignoreSlice...)
@@ -129,6 +133,10 @@ func getExtractorFlags() []cli.Flag {
 		cli.BoolFlag{
 			Name:  "recursive,R",
 			Usage: "Recursively walk a non-globbing path and search for plain-files",
+		},
+		cli.BoolFlag{
+			Name:  "ignore-case,I",
+			Usage: "Augment regex to be case insensitive",
 		},
 	}
 }
