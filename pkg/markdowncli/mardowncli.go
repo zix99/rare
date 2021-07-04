@@ -18,7 +18,7 @@ const (
 
 // WriteMarkdownToTerm does pseudo-markdown formatting
 //   it doesn't follow correctly to the spec, but is close enough for our docs
-func WriteMarkdownToTerm(out io.Writer, reader io.Reader) {
+func WriteMarkdownToBuf(out io.Writer, reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 
 	headerDepth := 0

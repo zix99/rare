@@ -11,6 +11,6 @@ import (
 func TestMarkdown(t *testing.T) {
 	r := strings.NewReader("# Hello World\nThis is a `string`\n\n```\nandsomecode\n```")
 	w := &bytes.Buffer{}
-	WriteMarkdownToTerm(w, r)
+	WriteMarkdownToBuf(w, r)
 	fmt.Println(w.String())
 }
