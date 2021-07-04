@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"path/filepath"
 	"rare/cmd/helpers"
 	"rare/docs"
 	"rare/pkg/markdowncli"
@@ -46,7 +45,7 @@ func openDocFileByPartialName(s string) (fs.File, error) {
 	s = strings.ToLower(s)
 
 	// Try exact match
-	if f, err := docs.DocFS.Open(filepath.Join(docs.BasePath, s+".md")); err == nil {
+	if f, err := docs.DocFS.Open(docs.BasePath + "/" + s + ".md"); err == nil {
 		return f, nil
 	}
 
@@ -54,8 +53,7 @@ func openDocFileByPartialName(s string) (fs.File, error) {
 	entries, _ := docs.DocFS.ReadDir(docs.BasePath)
 	for _, entry := range entries {
 		if strings.HasPrefix(entry.Name(), s) {
-			fullPath := filepath.Join(docs.BasePath, entry.Name())
-
+			fullPath := docs.BasePath + "/" + entry.Name()
 			f, err := docs.DocFS.Open(fullPath)
 			if err == nil {
 				return f, nil
