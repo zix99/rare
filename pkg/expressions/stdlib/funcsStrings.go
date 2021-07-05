@@ -171,25 +171,22 @@ func kfHumanizeFloat(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
-var byteSizes = [...]string{"B", "KB", "MB", "GB", "TB", "PB"}
-
 func kfBytesize(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
 		return stageError(ErrorArgCount)
 	}
+
+	precision, err := strconv.Atoi(EvalStageIndexOrDefault(args, 1, "0"))
+	if err != nil {
+		return stageError(ErrorType)
+	}
+
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		val, err := strconv.Atoi(args[0](context))
+		val, err := strconv.ParseUint(args[0](context), 10, 64)
 		if err != nil {
 			return ErrorType
 		}
-
-		labelIdx := 0
-		for val >= 1024 && labelIdx < len(byteSizes)-1 {
-			val = val / 1024
-			labelIdx++
-		}
-
-		return strconv.Itoa(val) + " " + byteSizes[labelIdx]
+		return humanize.AlwaysByteSize(val, precision)
 	})
 }
 

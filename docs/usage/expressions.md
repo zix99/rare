@@ -98,9 +98,10 @@ filter with `--ignore`
 
 ### ByteSize
 
-Syntax: `{bytesize intVal}`
+Syntax: `{bytesize intVal [precision=0]}`
 
-Create a human-readable byte-size format (eg 1024 = 1KB)
+Create a human-readable byte-size format (eg 1024 = 1KB).  An optional precision
+allows adding decimals.
 
 ### Sumi, Subi, Multi, Divi
 

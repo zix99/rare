@@ -74,9 +74,8 @@ func TestClamp(t *testing.T) {
 }
 
 func TestByteSize(t *testing.T) {
-	kb, _ := NewStdKeyBuilder().Compile("{bytesize {2}}")
-	key := kb.BuildKey(&testFuncContext)
-	assert.Equal(t, "976 KB", key)
+	testExpression(t, &testFuncContext, "{bytesize {2}}", "977 KB")
+	testExpression(t, &testFuncContext, "{bytesize {2} 2}", "976.56 KB")
 }
 
 func TestIfStatement(t *testing.T) {
