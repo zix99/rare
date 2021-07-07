@@ -66,16 +66,17 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 }
 
 func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
-	var file io.ReadCloser
-	file, err := os.Open(filename)
+	baseFile, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
+	var file io.ReadCloser = baseFile
 
 	if gunzip {
 		zfile, err := gzip.NewReader(file)
 		if err != nil {
 			logger.Printf("Gunzip error for file %s: %v; Reading as plain file", filename, err)
+			baseFile.Seek(0, io.SeekStart) // Rewind, since it probably took a few bytes to figure out this wasn't a gzip file
 		} else {
 			file = zfile
 		}
