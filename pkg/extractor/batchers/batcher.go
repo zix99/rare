@@ -109,12 +109,20 @@ func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batch
 	for readahead.Scan() {
 		batch = append(batch, readahead.Bytes())
 		if len(batch) >= batchSize {
-			s.c <- extractor.InputBatch{batch, sourceName, batchStart}
+			s.c <- extractor.InputBatch{
+				Batch:      batch,
+				Source:     sourceName,
+				BatchStart: batchStart,
+			}
 			batchStart += uint64(len(batch))
 			batch = make([]extractor.BString, 0, batchSize)
 		}
 	}
 	if len(batch) > 0 {
-		s.c <- extractor.InputBatch{batch, sourceName, batchStart}
+		s.c <- extractor.InputBatch{
+			Batch:      batch,
+			Source:     sourceName,
+			BatchStart: batchStart,
+		}
 	}
 }
