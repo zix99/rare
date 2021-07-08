@@ -4,14 +4,9 @@ import (
 	"compress/gzip"
 	"io"
 	"os"
-	"rare/pkg/extractor"
 	"rare/pkg/logger"
-	"rare/pkg/readahead"
 	"sync"
 )
-
-// ReadAheadBufferSize is the default size of the read-ahead buffer
-const ReadAheadBufferSize = 128 * 1024
 
 // openFilesToChan takes an iterated channel of filenames, options, and loads them all with
 //  a max concurrency.  Returns a channel that will populate with input batches
@@ -49,12 +44,7 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 				}
 				defer file.Close()
 
-				ra := readahead.New(file, ReadAheadBufferSize)
-				ra.OnError = func(e error) {
-					out.incErrors()
-					logger.Printf("Error reading %s: %v", goFilename, e)
-				}
-				extractor.SyncReadAheadToBatchChannel(goFilename, ra, batchSize, out.c)
+				out.syncReaderToBatcher(goFilename, file, batchSize)
 			}(filename)
 		}
 

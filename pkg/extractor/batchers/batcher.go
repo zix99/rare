@@ -2,10 +2,16 @@ package batchers
 
 import (
 	"fmt"
+	"io"
 	"rare/pkg/extractor"
+	"rare/pkg/logger"
+	"rare/pkg/readahead"
 	"strings"
 	"sync"
 )
+
+// ReadAheadBufferSize is the default size of the read-ahead buffer
+const ReadAheadBufferSize = 128 * 1024
 
 type Batcher struct {
 	c chan extractor.InputBatch
@@ -87,4 +93,36 @@ func (s *Batcher) ReadErrors() int {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 	return s.errorCount
+}
+
+// syncReaderToBatcher reads a reader buffer and breaks up its scans to `batchSize`
+//  and writes the batch-sized results to a channel
+func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batchSize int) {
+	readahead := readahead.New(reader, ReadAheadBufferSize)
+	readahead.OnError = func(e error) {
+		s.incErrors()
+		logger.Printf("Error reading %s: %v", sourceName, e)
+	}
+
+	batch := make([]extractor.BString, 0, batchSize)
+	var batchStart uint64 = 1
+	for readahead.Scan() {
+		batch = append(batch, readahead.Bytes())
+		if len(batch) >= batchSize {
+			s.c <- extractor.InputBatch{
+				Batch:      batch,
+				Source:     sourceName,
+				BatchStart: batchStart,
+			}
+			batchStart += uint64(len(batch))
+			batch = make([]extractor.BString, 0, batchSize)
+		}
+	}
+	if len(batch) > 0 {
+		s.c <- extractor.InputBatch{
+			Batch:      batch,
+			Source:     sourceName,
+			BatchStart: batchStart,
+		}
+	}
 }
