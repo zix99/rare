@@ -28,8 +28,8 @@ func TestReaderToBatcher(t *testing.T) {
 	s := newBatcher(10)
 
 	testData := `line1
-	line2
-	line3`
+line2
+line3`
 
 	s.syncReaderToBatcher("string", strings.NewReader(testData), 2)
 
@@ -39,4 +39,5 @@ func TestReaderToBatcher(t *testing.T) {
 	assert.Len(t, b1.Batch, 2)
 	assert.Len(t, b2.Batch, 1)
 	assert.Equal(t, s.errorCount, 0)
+	assert.Equal(t, s.readBytes, uint64(17))
 }

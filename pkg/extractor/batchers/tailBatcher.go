@@ -4,6 +4,7 @@ import (
 	"rare/pkg/extractor"
 	"rare/pkg/logger"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/hpcloud/tail"
@@ -33,7 +34,7 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 					return
 				}
 
-				err = tailLineToChan(filename, fileTail.Lines, batchSize, out.c)
+				err = out.tailLineToChan(filename, fileTail.Lines, batchSize)
 				if err != nil {
 					logger.Print("Error tailing file: ", err)
 					out.incErrors()
@@ -48,9 +49,10 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 	return out
 }
 
-func tailLineToChan(sourceName string, lines <-chan *tail.Line, batchSize int, output chan<- extractor.InputBatch) (err error) {
+func (s *Batcher) tailLineToChan(sourceName string, lines <-chan *tail.Line, batchSize int) (err error) {
 	batch := make([]extractor.BString, 0, batchSize)
 	var batchStart uint64 = 1
+	var batchBytes uint64
 
 MAIN_LOOP:
 	for {
@@ -64,25 +66,32 @@ MAIN_LOOP:
 				break MAIN_LOOP
 			}
 			batch = append(batch, extractor.BString(line.Text))
+			batchBytes += uint64(len(line.Text) + 1)
 			if len(batch) >= batchSize {
-				output <- extractor.InputBatch{
+				s.c <- extractor.InputBatch{
 					Batch:      batch,
 					Source:     sourceName,
 					BatchStart: batchStart,
 				}
 				batchStart += uint64(len(batch))
 				batch = make([]extractor.BString, 0, batchSize)
+
+				atomic.AddUint64(&s.readBytes, batchBytes)
+				batchBytes = 0
 			}
 		case <-time.After(500 * time.Millisecond):
 			// Since we're tailing, if we haven't received any line in a bit, lets flush what we have
 			if len(batch) > 0 {
-				output <- extractor.InputBatch{
+				s.c <- extractor.InputBatch{
 					Batch:      batch,
 					Source:     sourceName,
 					BatchStart: batchStart,
 				}
 				batchStart += uint64(len(batch))
 				batch = make([]extractor.BString, 0, batchSize)
+
+				atomic.AddUint64(&s.readBytes, batchBytes)
+				batchBytes = 0
 			}
 		}
 	}

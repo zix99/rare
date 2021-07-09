@@ -10,14 +10,14 @@ import (
 
 func TestTailLineToChan(t *testing.T) {
 	tailchan := make(chan *tail.Line)
-	ret := make(chan extractor.InputBatch, 10)
-	go tailLineToChan("test", tailchan, 1, ret)
+	batcher := newBatcher(10)
+	go batcher.tailLineToChan("test", tailchan, 1)
 
 	tailchan <- &tail.Line{
 		Text: "Hello",
 	}
 
-	val := <-ret
+	val := <-batcher.BatchChan()
 	assert.Equal(t, "test", val.Source)
 	assert.Equal(t, extractor.BString("Hello"), val.Batch[0])
 	assert.Equal(t, uint64(1), val.BatchStart)
@@ -34,4 +34,6 @@ func TestBatchTailFile(t *testing.T) {
 	batch := <-batcher.c
 	assert.Equal(t, "tailBatcher_test.go", batch.Source)
 	assert.Len(t, batch.Batch, 5)
+	assert.Greater(t, batcher.readBytes, uint64(0))
+	assert.NotZero(t, batcher.readBytes)
 }
