@@ -51,6 +51,12 @@ type Extractor struct {
 	ignore         IgnoreSet
 }
 
+type extractorInstance struct {
+	*Extractor
+	re      fastregex.Regexp
+	context *SliceSpaceExpressionContext
+}
+
 func (s *Extractor) ReadLines() uint64 {
 	return atomic.LoadUint64(&s.readLines)
 }
@@ -68,9 +74,9 @@ func (s *Extractor) ReadChan() <-chan []Match {
 }
 
 // async safe
-func (s *Extractor) processLineSync(source string, lineNum uint64, line BString, re fastregex.Regexp) (Match, bool) {
+func (s *extractorInstance) processLineSync(source string, lineNum uint64, line BString) (Match, bool) {
 	atomic.AddUint64(&s.readLines, 1)
-	matches := re.FindSubmatchIndex(line)
+	matches := s.re.FindSubmatchIndex(line)
 
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
@@ -79,20 +85,20 @@ func (s *Extractor) processLineSync(source string, lineNum uint64, line BString,
 		//   a string instance, but we can safely point to the existing bytes
 		//   as a pointer instead
 		lineStringPtr := *(*string)(unsafe.Pointer(&line))
-		expContext := SliceSpaceExpressionContext{
-			linePtr:   lineStringPtr,
-			indices:   matches,
-			nameTable: re.SubexpNameTable(),
-			source:    source,
-			lineNum:   lineNum,
-		}
-		if s.ignore == nil || !s.ignore.IgnoreMatch(&expContext) {
-			extractedKey := s.keyBuilder.BuildKey(&expContext)
+		// A context is created for each "instance", and since a context isn't shared beyond building a key
+		//   it's significantly faster to re-use a single context per goroutine
+		expContext := s.context
+		expContext.linePtr = lineStringPtr
+		expContext.indices = matches
+		expContext.source = source
+		expContext.lineNum = lineNum
+		if s.ignore == nil || !s.ignore.IgnoreMatch(expContext) {
+			extractedKey := s.keyBuilder.BuildKey(expContext)
 
 			if len(extractedKey) > 0 {
 				atomic.AddUint64(&s.matchedLines, 1)
 				return Match{
-					bLine:      line,
+					bLine:      line, // Need to keep around what lineStringPtr is pointing to
 					Line:       lineStringPtr,
 					Indices:    matches,
 					Extracted:  extractedKey,
@@ -112,7 +118,14 @@ func (s *Extractor) processLineSync(source string, lineNum uint64, line BString,
 func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch) {
 	defer wg.Done()
 
-	reInst := s.compiledRegexp.CreateInstance()
+	re := s.compiledRegexp.CreateInstance()
+	si := extractorInstance{
+		Extractor: s,
+		re:        re,
+		context: &SliceSpaceExpressionContext{
+			nameTable: re.SubexpNameTable(),
+		},
+	}
 
 	for {
 		batch, more := <-inputBatch
@@ -122,7 +135,7 @@ func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch
 
 		var matchBatch []Match
 		for idx, str := range batch.Batch {
-			if match, ok := s.processLineSync(batch.Source, batch.BatchStart+uint64(idx), str, reInst); ok {
+			if match, ok := si.processLineSync(batch.Source, batch.BatchStart+uint64(idx), str); ok {
 				if matchBatch == nil {
 					// Initialize to expected cap (only if we have any matches)
 					matchBatch = make([]Match, 0, len(batch.Batch))
