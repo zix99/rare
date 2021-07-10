@@ -34,7 +34,7 @@ func TestHfd(t *testing.T) {
 
 func TestByteSize(t *testing.T) {
 	assert.Equal(t, "123 B", ByteSize(123))
-	assert.Equal(t, "1,000 B", ByteSize(1000))
+	assert.Equal(t, "1000 B", ByteSize(1000))
 	assert.Equal(t, "1.46 KB", ByteSize(1500))
 	assert.Equal(t, "2.00 MB", ByteSize(2*1024*1024))
 	assert.Equal(t, "5.10 GB", ByteSize(5*1024*1024*1024+100*1024*1024))
