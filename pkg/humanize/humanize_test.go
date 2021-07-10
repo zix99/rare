@@ -40,3 +40,11 @@ func TestByteSize(t *testing.T) {
 	assert.Equal(t, "5.10 GB", ByteSize(5*1024*1024*1024+100*1024*1024))
 	assert.Equal(t, "5 GB", AlwaysByteSize(5*1024*1024*1024+100*1024*1024, 0))
 }
+
+// 459.8 ns/op	      40 B/op	       3 allocs/op
+func BenchmarkByteSize(b *testing.B) {
+	Enabled = false
+	for i := 0; i < b.N; i++ {
+		AlwaysByteSize(5*1024*1024*1024+100*1024*1024, 2)
+	}
+}

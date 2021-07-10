@@ -2,6 +2,7 @@ package humanize
 
 import (
 	"fmt"
+	"strconv"
 
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -46,7 +47,7 @@ var byteSizes = [...]string{"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"}
 
 func ByteSize(n uint64) string {
 	if !Enabled {
-		return fmt.Sprintf("%d", n)
+		return strconv.FormatUint(n, 10)
 	}
 	return AlwaysByteSize(n, 2)
 }
@@ -54,7 +55,7 @@ func ByteSize(n uint64) string {
 // AlwaysByteSize formats bytesize without checking `Enabled` first
 func AlwaysByteSize(n uint64, precision int) string {
 	if n < 1024 { // Never a decimal for byte-unit
-		return printer.Sprintf("%d %s", n, byteSizes[0])
+		return strconv.FormatUint(n, 10) + " " + byteSizes[0]
 	}
 
 	var nf float64 = float64(n)
@@ -64,5 +65,5 @@ func AlwaysByteSize(n uint64, precision int) string {
 		labelIdx++
 	}
 
-	return printer.Sprintf("%.[2]*[1]f %[3]s", nf, precision, byteSizes[labelIdx])
+	return strconv.FormatFloat(nf, 'f', precision, 64) + " " + byteSizes[labelIdx]
 }
