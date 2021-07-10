@@ -4,7 +4,6 @@ import (
 	"rare/pkg/extractor"
 	"rare/pkg/logger"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/hpcloud/tail"
@@ -76,7 +75,7 @@ MAIN_LOOP:
 				batchStart += uint64(len(batch))
 				batch = make([]extractor.BString, 0, batchSize)
 
-				atomic.AddUint64(&s.readBytes, batchBytes)
+				s.incReadBytes(batchBytes)
 				batchBytes = 0
 			}
 		case <-time.After(500 * time.Millisecond):
@@ -90,7 +89,7 @@ MAIN_LOOP:
 				batchStart += uint64(len(batch))
 				batch = make([]extractor.BString, 0, batchSize)
 
-				atomic.AddUint64(&s.readBytes, batchBytes)
+				s.incReadBytes(batchBytes)
 				batchBytes = 0
 			}
 		}

@@ -39,5 +39,5 @@ line3`
 	assert.Len(t, b1.Batch, 2)
 	assert.Len(t, b2.Batch, 1)
 	assert.Equal(t, s.errorCount, 0)
-	assert.Equal(t, s.readBytes, uint64(17))
+	assert.Equal(t, s.ReadBytes(), uint64(17))
 }

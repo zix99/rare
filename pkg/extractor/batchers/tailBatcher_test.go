@@ -34,6 +34,5 @@ func TestBatchTailFile(t *testing.T) {
 	batch := <-batcher.c
 	assert.Equal(t, "tailBatcher_test.go", batch.Source)
 	assert.Len(t, batch.Batch, 5)
-	assert.Greater(t, batcher.readBytes, uint64(0))
-	assert.NotZero(t, batcher.readBytes)
+	assert.NotZero(t, batcher.ReadBytes())
 }

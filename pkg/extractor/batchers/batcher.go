@@ -76,6 +76,20 @@ func (s *Batcher) incErrors() {
 	s.mux.Unlock()
 }
 
+func (s *Batcher) incReadBytes(n uint64) {
+	atomic.AddUint64(&s.readBytes, n)
+}
+
+func (s *Batcher) ReadBytes() uint64 {
+	return atomic.LoadUint64(&s.readBytes)
+}
+
+func (s *Batcher) ReadErrors() int {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+	return s.errorCount
+}
+
 // StatusString gets a formatted version of the current reader-set
 func (s *Batcher) StatusString() string {
 	var sb strings.Builder
@@ -117,12 +131,6 @@ func (s *Batcher) StatusString() string {
 	return sb.String()
 }
 
-func (s *Batcher) ReadErrors() int {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-	return s.errorCount
-}
-
 // syncReaderToBatcher reads a reader buffer and breaks up its scans to `batchSize`
 //  and writes the batch-sized results to a channel
 func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batchSize int) {
@@ -146,7 +154,7 @@ func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batch
 			batchStart += uint64(len(batch))
 			batch = make([]extractor.BString, 0, batchSize)
 
-			atomic.AddUint64(&s.readBytes, readerMetrics.CountReset())
+			s.incReadBytes(readerMetrics.CountReset())
 		}
 	}
 	if len(batch) > 0 {
@@ -155,6 +163,6 @@ func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batch
 			Source:     sourceName,
 			BatchStart: batchStart,
 		}
-		atomic.AddUint64(&s.readBytes, readerMetrics.CountReset())
+		s.incReadBytes(readerMetrics.CountReset())
 	}
 }
