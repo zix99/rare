@@ -3,7 +3,6 @@ package extractor
 import (
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/stdlib"
-	"strings"
 )
 
 type IgnoreSet interface {
@@ -38,7 +37,7 @@ func (s *ExpressionIgnoreSet) IgnoreMatch(context expressions.KeyBuilderContext)
 		return false
 	}
 	for _, exp := range s.expressions {
-		result := strings.TrimSpace(exp.BuildKey(context))
+		result := exp.BuildKey(context)
 		if expressions.Truthy(result) {
 			return true
 		}

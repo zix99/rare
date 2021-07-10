@@ -15,6 +15,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"rare/pkg/slicepool"
 	"runtime"
 	"unsafe"
 )
@@ -35,7 +36,8 @@ var _ CompiledRegexp = &pcre2Compiled{}
 
 // instance version
 type pcre2Regexp struct {
-	re *pcre2Compiled
+	re        *pcre2Compiled
+	groupPool *slicepool.IntPool
 
 	matchData *C.pcre2_match_data
 	context   *C.pcre2_match_context
@@ -93,7 +95,8 @@ func CompileEx(expr string, posix bool) (CompiledRegexp, error) {
 
 func (s *pcre2Compiled) CreateInstance() Regexp {
 	pcre := &pcre2Regexp{
-		re: s,
+		re:        s,
+		groupPool: slicepool.NewIntPool(32 * 1024),
 	}
 
 	if s.jitted {
@@ -160,7 +163,7 @@ func (s *pcre2Regexp) FindSubmatchIndex(b []byte) []int {
 		return nil
 	}
 
-	ret := make([]int, s.re.groupCount*2)
+	ret := s.groupPool.Get(s.re.groupCount * 2)
 	for i := 0; i < s.re.groupCount*2; i++ {
 		ret[i] = int(*(*C.ulong)(unsafe.Pointer(uintptr(unsafe.Pointer(s.ovec)) + unsafe.Sizeof(*s.ovec)*uintptr(i))))
 	}
