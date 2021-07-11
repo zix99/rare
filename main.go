@@ -24,9 +24,9 @@ func cliMain(args ...string) error {
 	app.Version = fmt.Sprintf("%s, %s; regex: %s", version, buildSha, fastregex.Version)
 
 	app.Description = `Aggregate and display information parsed from text files using
-	regex and a simple handlebars-like expression syntax.
+	regex and a simple handlebars-like expressions.
 
-	Run "rare docs overview" for more information
+	Run "rare docs overview" or go to https://rare.zdyn.net for more information
 	
 	https://github.com/zix99/rare`
 
