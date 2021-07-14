@@ -77,32 +77,29 @@ func (s *JsonObjectBuilder) writeKey(key string) {
 	s.keyCount++
 }
 
+var escapeLookup = [128]string{'\b': "\\b", '\f': "\\f", '\n': "\\n", '\r': "\\r", '\t': "\\t", '"': `\"`, '\\': `\\`}
+
 func escape(s string) string {
 	var sb strings.Builder
-	sb.Grow(len(s) + 5)
+	hasMapped := false
 
-	for _, v := range s {
-		switch v {
-		case '\b':
-			sb.WriteString("\\b")
-		case '\f':
-			sb.WriteString("\\f")
-		case '\n':
-			sb.WriteString("\\n")
-		case '\r':
-			sb.WriteString("\\r")
-		case '\t':
-			sb.WriteString("\\t")
-		case '"':
-			sb.WriteString(`\"`)
-		case '\\':
-			sb.WriteString(`\\`)
-		default:
-			sb.WriteRune(v)
+	for i, r := range s {
+		if int(r) < len(escapeLookup) && escapeLookup[r] != "" {
+			if !hasMapped {
+				sb.Grow(len(s) + 5)
+				sb.WriteString(s[:i])
+				hasMapped = true
+			}
+			sb.WriteString(escapeLookup[r])
+		} else if hasMapped {
+			sb.WriteRune(r)
 		}
 	}
 
-	return sb.String()
+	if hasMapped {
+		return sb.String()
+	}
+	return s
 }
 
 func isNumeric(s string) bool {

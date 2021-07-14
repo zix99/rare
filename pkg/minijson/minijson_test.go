@@ -76,22 +76,30 @@ var mapData = map[string]string{
 	"fa": "FALSE",
 }
 
+// BenchmarkJsonMarshal-4   	  268815	      4149 ns/op	     776 B/op	      17 allocs/op
 func BenchmarkJsonMarshal(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		json.Marshal(mapData)
 	}
 }
 
-// BenchmarkJsonBuilder-4   	  807200	      1344 ns/op	     256 B/op	       1 allocs/op
+// BenchmarkJsonBuilder-4   	 1598509	       805.2 ns/op	     256 B/op	       1 allocs/op
 func BenchmarkJsonBuilder(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		MarshalStringMapInferred(mapData)
 	}
 }
 
-// BenchmarkEscape-4   	 1938726	       567.6 ns/op	      32 B/op	       1 allocs/op
+// BenchmarkEscape-4   	 5186359	       208.9 ns/op	      24 B/op	       1 allocs/op
 func BenchmarkEscape(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		escape("\nthis is a test!")
+	}
+}
+
+// BenchmarkEmptyEscape-4   	20728896	        53.13 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkEmptyEscape(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		escape("this is a test!")
 	}
 }
