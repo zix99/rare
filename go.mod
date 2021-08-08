@@ -10,7 +10,7 @@ require (
 	github.com/hpcloud/tail v1.0.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/tidwall/gjson v1.3.5
+	github.com/tidwall/gjson v1.6.5
 	github.com/urfave/cli v1.22.5
 	golang.org/x/sys v0.0.0-20210521090106-6ca3eb03dfc2
 	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
