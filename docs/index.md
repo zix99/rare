@@ -51,6 +51,13 @@ brew tap zix99/rare
 brew install rare
 ```
 
+### MacPorts
+
+```sh
+sudo port selfupdate
+sudo port install rare
+```
+
 ### From code
 
 Clone the repo, and:
