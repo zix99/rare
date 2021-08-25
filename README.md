@@ -55,7 +55,11 @@ brew tap zix99/rare
 brew install rare
 ```
 
-### MacPorts
+### Community Contributed
+
+The below install methods have been contributed by the community, and aren't maintained directly.
+
+#### MacPorts
 
 ```sh
 sudo port selfupdate
