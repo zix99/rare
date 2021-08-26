@@ -72,8 +72,8 @@ func tabulateCommand() *cli.Command {
 		ShortName: "t",
 		Usage:     "Create a 2D summarizing table of extracted data",
 		Description: `Summarizes the extracted data as a 2D data table.
-		The key is provided in the expression, and should be separated by a tab \x00
-		character or via {$ a b} Where a is the column header, and b is the row`,
+		The expression key data format is {$ a b [c]}, where a is the column key,
+		b is the rowkey, and optionally c is the increment value (Default: 1)`,
 		Action: tabulateFunction,
 		Flags: []cli.Flag{
 			cli.StringFlag{

@@ -85,8 +85,8 @@ func histogramCommand() *cli.Command {
 		as a key and counted.
 		If an extraction expression is provided with -e, that will be used
 		as the key instead
-		If multiple values are provided via the array syntax {$}, then the
-		2nd value will be used as the count incrementor`,
+		If multiple values are provided via the array syntax {$} or multiple expressions,
+		then the 2nd value will be used as the count incrementor`,
 		Action:    histoFunction,
 		Aliases:   []string{"histo"},
 		ShortName: "h",

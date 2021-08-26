@@ -66,9 +66,8 @@ func filterCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
 		Name:  "filter",
 		Usage: "Filter incoming results with search criteria, and output raw matches",
-		Description: `Filters incoming results by a regex, and output the match or an extracted expression.
-		Unable to output contextual information due to the application's parallelism.  Use grep if you
-		need that`,
+		Description: `Filters incoming results by a regex, and output the match of a single line
+		or an extracted expression.`,
 		ShortName: "f",
 		Action:    filterFunction,
 		Flags: []cli.Flag{
