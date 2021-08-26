@@ -106,4 +106,4 @@ $ rare histo \
 
 ## Next
 
-To learn more, check out [examples](usage/examples.md) or read the [overview](usage/overview.md)
+To learn more, check out the [aggregators](usage/aggregators.md), read some [examples](usage/examples.md) or dig into the [overview](usage/overview.md).
