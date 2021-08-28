@@ -32,6 +32,10 @@ $ rare filter -n 4 -m "(\d{3}) (\d+)" -e "{1} {2}" access.log
 Matched: 4 / 4
 ```
 
+![Gif of Filter](../images/rare-filter.gif)
+
+![Gif of Filter with JSON](../images/rare-json.gif)
+
 ## Histogram
 
 ```sh
@@ -61,6 +65,8 @@ $ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3})' -e '{3} {1}' access.log
 403 GET                          14
 ```
 
+![Gif of histogram](../images/rare-histogram.gif)
+
 ## Bar Graph
 
 ```sh
@@ -88,6 +94,8 @@ $ rare bars -sz -m "\[(.+?)\].*\" (\d+)" \
 2020  █████████████████████████████████████████████████  4,631,884
 Matched: 8,373,328 / 8,383,717
 ```
+
+![Gif of bargraph](../images/rare-bars.gif)
 
 ## Numerical Analysis
 
@@ -123,6 +131,8 @@ P99:      64,757,808.0000
 P99.9:    395,186,166.0000
 Matched: 161,622 / 161,622
 ```
+
+![Gif of Analyze](../images/rare-analyze.gif)
 
 ## Table
 
@@ -165,3 +175,5 @@ $ rare tabulate -m "(\d{3}) (\d+)" \
 Matched: 161,622 / 161,622
 Rows: 223; Cols: 6
 ```
+
+![Gif of table](../images/rare-table.gif)
