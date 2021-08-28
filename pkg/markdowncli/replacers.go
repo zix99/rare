@@ -25,6 +25,12 @@ func replaceLocalLinkWithDocsCommand(match string) string {
 	return color.Wrapf(color.Underline, "rare docs %s", parts[1])
 }
 
+var localImageRegexp = regexp.MustCompile(`!\[(.+)\]\((.+)\)`)
+
+func replaceWithNothing(_ string) string {
+	return ""
+}
+
 var regexReplacement = []regexReplacer{
 	// Symbol
 	{
@@ -35,6 +41,11 @@ var regexReplacement = []regexReplacer{
 	{
 		match:   regexp.MustCompile(`\*\*(.*?)\*\*`),
 		process: replaceWithColor(color.Bold),
+	},
+	// Hide images
+	{
+		match:   localImageRegexp,
+		process: replaceWithNothing,
 	},
 	// Local link -> rare docs command
 	{
