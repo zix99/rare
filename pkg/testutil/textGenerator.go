@@ -2,7 +2,6 @@ package testutil
 
 import (
 	"io"
-	"math/rand"
 )
 
 type textGeneratingReader struct {
@@ -11,7 +10,7 @@ type textGeneratingReader struct {
 
 var _ io.Reader = &textGeneratingReader{}
 
-var validText []byte = []byte("abcdefghijklmnopqrstuvwxyz\n\n")
+var validText []byte = []byte("abcdefghijklmnopqrstuvwxyz\n")
 
 // NewTextGenerator creates a io.reader that generates random alphaetical text separated by new-lines
 // Will generate infinitely
@@ -27,8 +26,8 @@ func (s *textGeneratingReader) Read(buf []byte) (int, error) {
 		size = s.maxChunk
 	}
 
-	for i := 0; i < size; i++ {
-		buf[i] = validText[rand.Intn(len(validText))]
+	for i := 0; i < size; i += len(validText) {
+		copy(buf[i:size], validText)
 	}
 
 	return size, nil
