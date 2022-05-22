@@ -15,7 +15,7 @@ func unbatchMatches(c <-chan []Match) []Match {
 
 func convertReaderToBatches(sourceName string, reader io.Reader, batchSize int) <-chan InputBatch {
 	out := make(chan InputBatch)
-	ra := readahead.New(reader, 128*1024)
+	ra := readahead.NewImmediate(reader, 128*1024)
 
 	go func() {
 		batch := make([]BString, 0, batchSize)

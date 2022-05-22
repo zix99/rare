@@ -30,12 +30,21 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 		logger.Fatalf("Batch size must be >= 1, is %d", batchSize)
 	}
 	if concurrentReaders < 1 {
-		logger.Fatalf("Must have at least 1 readers")
+		logger.Fatalf("Must have at least 1 reader")
+	}
+	if followPoll && !follow {
+		logger.Fatalf("Follow (-f) must be enabled for --poll")
 	}
 
 	fileglobs := c.Args()
 
 	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
+		if gunzip {
+			logger.Fatalln("Cannot decompress (-z) with stdin")
+		}
+		if follow {
+			logger.Println("Cannot follow a stdin stream, not a file")
+		}
 		return batchers.OpenReaderToChan("<stdin>", os.Stdin, batchSize)
 	} else if follow { // Read from source file
 		if gunzip {

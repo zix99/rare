@@ -5,22 +5,7 @@ import (
 	"io"
 )
 
-/*
-Buffered read-ahead similar to Scanner, except it will leave the large-buffers in place
-(rather than shifting them) so that a given slice is good for the duration of its life
-
-This allows a slice reference to be passed around without worrying that the underlying data will change
-which limits the amount the data needs to be copied around
-
-Initial benchmarks shows a 8% savings over Scanner
-*/
-
-type LineScanner interface {
-	Scan() bool
-	Bytes() []byte
-}
-
-type ReadAhead struct {
+type BufferedReadAhead struct {
 	r         io.Reader
 	maxBufLen int
 
@@ -31,29 +16,25 @@ type ReadAhead struct {
 	token []byte
 	delim byte
 
-	OnError func(error) // OnError is called if there are any downstream errors
+	onError func(error) // OnError is called if there are any downstream errors
 }
 
-// dropCR drops a terminal \r from the data.
-func dropCR(data []byte) []byte {
-	if len(data) > 0 && data[len(data)-1] == '\r' {
-		return data[0 : len(data)-1]
-	}
-	return data
-}
+var _ Scanner = &BufferedReadAhead{}
 
-func maxi(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
+/*
+Buffered read-ahead similar to Scanner, except it will leave the large-buffers in place
+(rather than shifting them) so that a given slice is good for the duration of its life
 
-func New(reader io.Reader, maxBufLen int) *ReadAhead {
-	if maxBufLen <= 0 {
-		panic("Buf length must be > 0")
+This allows a slice reference to be passed around without worrying that the underlying data will change
+which limits the amount the data needs to be copied around
+
+Initial benchmarks shows a 8% savings over Scanner
+*/
+func NewBuffered(reader io.Reader, maxBufLen int) *BufferedReadAhead {
+	if maxBufLen <= 1 {
+		panic("Buf length must be > 1")
 	}
-	return &ReadAhead{
+	return &BufferedReadAhead{
 		r:         reader,
 		maxBufLen: maxBufLen,
 		delim:     '\n',
@@ -61,7 +42,7 @@ func New(reader io.Reader, maxBufLen int) *ReadAhead {
 }
 
 // Scan for the next token with a new line
-func (s *ReadAhead) Scan() bool {
+func (s *BufferedReadAhead) Scan() bool {
 	for {
 		//var a chars
 		relIndex := bytes.IndexByte(s.buf[s.offset:], s.delim)
@@ -97,8 +78,8 @@ func (s *ReadAhead) Scan() bool {
 				n, err := s.r.Read(s.buf[readOffset:])
 				readOffset += n
 				if err != nil {
-					if err != io.EOF && s.OnError != nil {
-						s.OnError(err)
+					if err != io.EOF && s.onError != nil {
+						s.onError(err)
 					}
 					s.eof = true
 					break
@@ -117,14 +98,18 @@ func (s *ReadAhead) Scan() bool {
 }
 
 // Bytes retrieves the current bytes of the current token (line)
-func (s *ReadAhead) Bytes() []byte {
+func (s *BufferedReadAhead) Bytes() []byte {
 	return s.token
 }
 
 // ReadLine is shorthand for Scan() Token()
-func (s *ReadAhead) ReadLine() []byte {
+func (s *BufferedReadAhead) ReadLine() []byte {
 	if !s.Scan() {
 		return nil
 	}
 	return s.token
+}
+
+func (s *BufferedReadAhead) OnError(onError OnScannerError) {
+	s.onError = onError
 }

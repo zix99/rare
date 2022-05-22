@@ -135,11 +135,11 @@ func (s *Batcher) StatusString() string {
 //  and writes the batch-sized results to a channel
 func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batchSize int) {
 	readerMetrics := newReaderMetrics(reader)
-	readahead := readahead.New(readerMetrics, ReadAheadBufferSize)
-	readahead.OnError = func(e error) {
+	readahead := readahead.NewImmediate(readerMetrics, ReadAheadBufferSize)
+	readahead.OnError(func(e error) {
 		s.incErrors()
 		logger.Printf("Error reading %s: %v", sourceName, e)
-	}
+	})
 
 	batch := make([]extractor.BString, 0, batchSize)
 	var batchStart uint64 = 1
