@@ -1,18 +1,15 @@
 package readahead
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDropCR(t *testing.T) {
-	r := strings.NewReader("test\r\nthing")
-	ra := NewBuffered(r, 3)
-	assert.Equal(t, []byte("test"), ra.ReadLine())
-	assert.Equal(t, []byte("thing"), ra.ReadLine())
-	assert.Nil(t, ra.ReadLine())
+	assert.Equal(t, []byte("test"), dropCR([]byte("test")))
+	assert.Equal(t, []byte("test\n"), dropCR([]byte("test\n")))
+	assert.Equal(t, []byte("test"), dropCR([]byte("test\r")))
 }
 
 func TestMaxi(t *testing.T) {

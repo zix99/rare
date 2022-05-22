@@ -54,6 +54,14 @@ func TestReadSingleCharString(t *testing.T) {
 	assert.Equal(t, []byte("A"), ra.ReadLine())
 }
 
+func TestBufferedDropCR(t *testing.T) {
+	r := strings.NewReader("test\r\nthing")
+	ra := NewBuffered(r, 3)
+	assert.Equal(t, []byte("test"), ra.ReadLine())
+	assert.Equal(t, []byte("thing"), ra.ReadLine())
+	assert.Nil(t, ra.ReadLine())
+}
+
 func TestErrorHandling(t *testing.T) {
 	errReader := iotest.TimeoutReader(strings.NewReader("Hello there you\nthis is a line\n"))
 	ra := NewBuffered(errReader, 20)
