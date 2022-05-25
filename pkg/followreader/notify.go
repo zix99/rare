@@ -8,7 +8,7 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
-type NotifyTailReader struct {
+type NotifyFollowReader struct {
 	filename string
 	f        io.ReadSeekCloser
 
@@ -19,16 +19,16 @@ type NotifyTailReader struct {
 	eventDelete chan struct{}
 }
 
-var _ FollowReader = &NotifyTailReader{}
+var _ FollowReader = &NotifyFollowReader{}
 
-func NewNotify(filename string, reopen bool) (*NotifyTailReader, error) {
+func NewNotify(filename string, reopen bool) (*NotifyFollowReader, error) {
 	f, err := os.Open(filename)
 
 	if err != nil && !reopen {
 		return nil, fmt.Errorf("unable to open file and cannot reopen: %w", err)
 	}
 
-	ret := &NotifyTailReader{
+	ret := &NotifyFollowReader{
 		filename:    filename,
 		f:           f,
 		watcherExit: make(chan struct{}),
@@ -45,7 +45,7 @@ func NewNotify(filename string, reopen bool) (*NotifyTailReader, error) {
 	return ret, nil
 }
 
-func (s *NotifyTailReader) Close() error {
+func (s *NotifyFollowReader) Close() error {
 	if s.f != nil {
 		s.f.Close()
 		s.f = nil
@@ -56,12 +56,12 @@ func (s *NotifyTailReader) Close() error {
 	return nil
 }
 
-func (s *NotifyTailReader) Drain() error {
+func (s *NotifyFollowReader) Drain() error {
 	_, err := s.f.Seek(0, os.SEEK_END)
 	return err
 }
 
-func (s *NotifyTailReader) Read(buf []byte) (int, error) {
+func (s *NotifyFollowReader) Read(buf []byte) (int, error) {
 	for {
 		n, err := s.f.Read(buf)
 		if err != nil && err != io.EOF {
@@ -81,7 +81,7 @@ func (s *NotifyTailReader) Read(buf []byte) (int, error) {
 	}
 }
 
-func (s *NotifyTailReader) startWatchEvents() error {
+func (s *NotifyFollowReader) startWatchEvents() error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return err
@@ -115,7 +115,7 @@ func (s *NotifyTailReader) startWatchEvents() error {
 	return nil
 }
 
-func (s *NotifyTailReader) callOnError(err error) {
+func (s *NotifyFollowReader) callOnError(err error) {
 	if s.OnError != nil {
 		s.OnError(err)
 	}

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type PollingTailReader struct {
+type PollingFollowReader struct {
 	filename string
 	f        io.ReadSeekCloser
 
@@ -21,16 +21,16 @@ type PollingTailReader struct {
 	OnError      OnTailError   // Called on unhandled error
 }
 
-var _ FollowReader = &PollingTailReader{}
+var _ FollowReader = &PollingFollowReader{}
 
-func NewPolling(filename string, reopen bool) (*PollingTailReader, error) {
+func NewPolling(filename string, reopen bool) (*PollingFollowReader, error) {
 	f, err := os.Open(filename)
 
 	if err != nil && !reopen {
 		return nil, fmt.Errorf("unable to open file and cannot reopen: %w", err)
 	}
 
-	ret := &PollingTailReader{
+	ret := &PollingFollowReader{
 		filename:     filename,
 		f:            f,
 		PollDelay:    250 * time.Millisecond,
@@ -42,13 +42,13 @@ func NewPolling(filename string, reopen bool) (*PollingTailReader, error) {
 }
 
 // Drain navigates to the end of the stream
-func (s *PollingTailReader) Drain() error {
+func (s *PollingFollowReader) Drain() error {
 	_, err := s.f.Seek(0, os.SEEK_END)
 	return err
 }
 
 // Close file and underlying resources
-func (s *PollingTailReader) Close() error {
+func (s *PollingFollowReader) Close() error {
 	if s.f != nil {
 		s.f.Close()
 		s.f = nil
@@ -57,7 +57,7 @@ func (s *PollingTailReader) Close() error {
 	return nil
 }
 
-func (s *PollingTailReader) Read(buf []byte) (int, error) {
+func (s *PollingFollowReader) Read(buf []byte) (int, error) {
 	for {
 		if s.f != nil {
 			for i := 0; i < s.ReadAttempts; i++ {
@@ -104,7 +104,7 @@ func (s *PollingTailReader) Read(buf []byte) (int, error) {
 	}
 }
 
-func (s *PollingTailReader) callOnError(err error) {
+func (s *PollingFollowReader) callOnError(err error) {
 	if s.OnError != nil {
 		s.OnError(err)
 	}
