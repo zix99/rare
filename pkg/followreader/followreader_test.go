@@ -1,7 +1,6 @@
 package followreader
 
 import (
-	"io"
 	"io/ioutil"
 	"os"
 	"sync"
@@ -96,20 +95,4 @@ func (s *testAppendingFile) Close() {
 	s.Stop()
 	s.f.Close()
 	os.Remove(s.f.Name())
-}
-
-// Alternates between EOF and returning some bytes
-type testAppendingReader struct {
-	readNum int
-}
-
-func (s *testAppendingReader) Read(buf []byte) (int, error) {
-	s.readNum++
-
-	if s.readNum%2 == 0 {
-		return 0, io.EOF
-	}
-
-	data := []byte("This is a test\n")
-	return copy(buf, data), nil
 }
