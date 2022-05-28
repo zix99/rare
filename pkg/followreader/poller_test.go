@@ -1,7 +1,6 @@
 package followreader
 
 import (
-	"fmt"
 	"io"
 	"testing"
 
@@ -84,8 +83,7 @@ func TestTailFileDeletedCloses(t *testing.T) {
 	gotEof := false
 	buf := make([]byte, 100)
 	for i := 0; i < 100; i++ {
-		n, err := tail.Read(buf)
-		fmt.Printf("Got data: %d\n", n)
+		_, err := tail.Read(buf)
 		if err == io.EOF {
 			gotEof = true
 			break

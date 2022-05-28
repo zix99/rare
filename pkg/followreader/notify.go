@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 
 	"gopkg.in/fsnotify.v1"
 )
 
 type NotifyFollowReader struct {
 	filename string
-	f        io.ReadSeekCloser
+	f        *os.File
 
-	OnError OnTailError
+	ReOpen bool
 
-	watcherExit chan struct{}
+	closed      bool
+	watcher     *fsnotify.Watcher
 	eventWrite  chan struct{}
 	eventDelete chan struct{}
 }
@@ -31,14 +33,16 @@ func NewNotify(filename string, reopen bool) (*NotifyFollowReader, error) {
 	ret := &NotifyFollowReader{
 		filename:    filename,
 		f:           f,
-		watcherExit: make(chan struct{}),
-		eventWrite:  make(chan struct{}),
+		ReOpen:      reopen,
+		eventWrite:  make(chan struct{}, 1),
 		eventDelete: make(chan struct{}, 1),
 	}
 
-	err = ret.startWatchEvents()
+	ret.watcher, err = ret.startWatcher()
 	if err != nil {
-		f.Close()
+		if f != nil {
+			f.Close()
+		}
 		return nil, fmt.Errorf("unable to start notify: %w", err)
 	}
 
@@ -46,78 +50,97 @@ func NewNotify(filename string, reopen bool) (*NotifyFollowReader, error) {
 }
 
 func (s *NotifyFollowReader) Close() error {
-	if s.f != nil {
-		s.f.Close()
-		s.f = nil
-	}
+	if !s.closed {
+		s.closeFile()
+		s.watcher.Close()
 
-	s.watcherExit <- struct{}{}
+		s.closed = true
+	}
 
 	return nil
 }
 
 func (s *NotifyFollowReader) Drain() error {
-	_, err := s.f.Seek(0, os.SEEK_END)
-	return err
+	if s.f != nil {
+		_, err := s.f.Seek(0, os.SEEK_END)
+		return err
+	}
+	return nil
 }
 
 func (s *NotifyFollowReader) Read(buf []byte) (int, error) {
+	if s.closed {
+		return 0, io.EOF
+	}
+
 	for {
-		n, err := s.f.Read(buf)
-		if err != nil && err != io.EOF {
-			s.callOnError(err)
-			return n, err
+		if s.f != nil {
+			n, err := s.f.Read(buf)
+			if err != nil && err != io.EOF {
+				return n, err
+			}
+
+			if n > 0 {
+				return n, err
+			}
 		}
 
-		if n > 0 {
-			return n, err
-		}
-
+		// Wait for changes
 		select {
-		case <-s.eventDelete:
-			return 0, io.EOF // TODO: Implement re-open
 		case <-s.eventWrite:
+			if s.f == nil && s.ReOpen { // Re-open if able and willing
+				if f, err := os.Open(s.filename); err == nil {
+					s.f = f
+				}
+			}
+		case <-s.eventDelete:
+			if s.ReOpen {
+				s.closeFile()
+			} else {
+				s.Close()
+				return 0, io.EOF
+			}
 		}
 	}
 }
 
-func (s *NotifyFollowReader) startWatchEvents() error {
+func (s *NotifyFollowReader) startWatcher() (*fsnotify.Watcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		return err
-	}
-	if watcher.Add(s.filename) != nil {
-		return err
+		return nil, err
 	}
 
-	s.watcherExit = make(chan struct{})
-	s.eventWrite = make(chan struct{})
-	s.eventDelete = make(chan struct{}, 1)
+	if err := watcher.Add(path.Dir(s.filename)); err != nil {
+		watcher.Close()
+		return nil, err
+	}
 
 	go func() {
 		defer watcher.Close()
 		for {
-			select {
-			case <-s.watcherExit:
+			event, ok := <-watcher.Events
+			switch {
+			case !ok:
 				return
-			case event, ok := <-watcher.Events:
-				if !ok {
-					return
-				} else if event.Op&fsnotify.Write != 0 {
-					writeSignalNonBlock(s.eventWrite)
-				} else if event.Op&fsnotify.Remove != 0 {
-					writeSignalNonBlock(s.eventDelete)
-				}
+			case path.Base(s.filename) != path.Base(event.Name):
+				// nop
+			case event.Op&fsnotify.Write != 0:
+				writeSignalNonBlock(s.eventWrite)
+			case event.Op&fsnotify.Remove != 0:
+				writeSignalNonBlock(s.eventDelete)
+			case event.Op&fsnotify.Create != 0:
+				writeSignalNonBlock(s.eventWrite)
 			}
 		}
 	}()
 
-	return nil
+	return watcher, nil
 }
 
-func (s *NotifyFollowReader) callOnError(err error) {
-	if s.OnError != nil {
-		s.OnError(err)
+func (s *NotifyFollowReader) closeFile() {
+	if s.f != nil {
+		s.f.Close()
+		s.f = nil
 	}
 }
 

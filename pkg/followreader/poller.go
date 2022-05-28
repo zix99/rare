@@ -18,7 +18,6 @@ type PollingFollowReader struct {
 	ReadAttempts int           // Number of read-attempts before checking to re-open
 	PollDelay    time.Duration // Delay between read attempts
 	Reopen       bool          // If true, will try to open() file again if it looks different after a delay; false will send EOF if file goes away
-	OnError      OnTailError   // Called on unhandled error
 }
 
 var _ FollowReader = &PollingFollowReader{}
@@ -69,8 +68,6 @@ func (s *PollingFollowReader) Read(buf []byte) (int, error) {
 				}
 
 				if err != nil && err != io.EOF {
-					// Any error other than EOF is raised
-					s.callOnError(err)
 					return n, err
 				}
 
@@ -101,11 +98,5 @@ func (s *PollingFollowReader) Read(buf []byte) (int, error) {
 			}
 		}
 
-	}
-}
-
-func (s *PollingFollowReader) callOnError(err error) {
-	if s.OnError != nil {
-		s.OnError(err)
 	}
 }

@@ -4,8 +4,6 @@ import (
 	"io"
 )
 
-type OnTailError func(error)
-
 type FollowReader interface {
 	io.ReadCloser
 	Drain() error

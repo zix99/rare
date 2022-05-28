@@ -3,6 +3,9 @@ package followreader
 import (
 	"fmt"
 	"io"
+	"math/rand"
+	"os"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,12 +19,7 @@ func TestSimpleFileNotifyTail(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, tail)
 
-	ret := make([]byte, 100)
-	for i := 0; i < 10; i++ {
-		n, err := tail.Read(ret)
-		assert.NoError(t, err)
-		assert.NotZero(t, n)
-	}
+	assertSequentialReads(t, tail, 10)
 
 	assert.NoError(t, tail.Close())
 }
@@ -45,7 +43,6 @@ func TestTailNotifyFileAppendingExisting(t *testing.T) {
 	assert.NoError(t, tail.Close())
 }
 
-// TODO:
 func TestTailNotifyFileRecreatedReopen(t *testing.T) {
 	af := CreateAppendingTempFile()
 
@@ -99,4 +96,37 @@ func TestTailNotifyFileDeletedCloses(t *testing.T) {
 	}
 
 	assert.NoError(t, tail.Close())
+}
+
+func TestWatchingNonExistantFile(t *testing.T) {
+	tp := path.Join(os.TempDir(), fmt.Sprintf("go-test-%d", rand.Int()))
+
+	tail, err := NewNotify(tp, true)
+	if err != nil {
+		panic(err)
+	}
+
+	af := CreateAppendingFromFile(tp)
+
+	assertSequentialReads(t, tail, 10)
+
+	af.Close()
+	tail.Close()
+}
+
+func TestWatchingNonExistingFileFails(t *testing.T) {
+	tp := path.Join(os.TempDir(), fmt.Sprintf("go-test-%d", rand.Int()))
+	tail, err := NewNotify(tp, false)
+
+	assert.Nil(t, tail)
+	assert.Error(t, err)
+}
+
+func TestNonBlockingSignal(t *testing.T) {
+	c := make(chan struct{}, 1)
+	assert.Len(t, c, 0)
+	writeSignalNonBlock(c)
+	writeSignalNonBlock(c)
+	assert.Len(t, c, 1)
+	assert.NotNil(t, <-c)
 }
