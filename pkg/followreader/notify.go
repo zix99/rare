@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	"gopkg.in/fsnotify.v1"
+	"github.com/fsnotify/fsnotify"
 )
 
 type NotifyFollowReader struct {

@@ -50,7 +50,7 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 		if gunzip {
 			logger.Println("Cannot combine -f and -z")
 		}
-		return batchers.TailFilesToChan2(dirwalk.GlobExpand(fileglobs, recursive), batchSize, followReopen, followPoll)
+		return batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, followReopen, followPoll)
 	} else { // Read (no-follow) source file(s)
 		return batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize)
 	}
