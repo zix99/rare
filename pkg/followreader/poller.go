@@ -83,11 +83,12 @@ func (s *PollingFollowReader) Read(buf []byte) (int, error) {
 			if st != nil && st.Size() != s.readBytes {
 				s.f, _ = os.Open(s.filename)
 				if st.Size() >= s.readBytes {
-					// Assume new file
+					// Likely existing file that is re-opened, start reading where we left off
 					if seeker, ok := s.f.(io.Seeker); ok {
 						seeker.Seek(s.readBytes, io.SeekStart)
 					}
 				} else {
+					// Assume new file, restart reading from beginning
 					s.readBytes = 0
 				}
 			}
