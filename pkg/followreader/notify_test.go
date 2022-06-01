@@ -91,10 +91,7 @@ func TestTailNotifyFileDeletedCloses(t *testing.T) {
 		}
 	}
 
-	if !gotEof {
-		assert.Fail(t, "Never received EOF")
-	}
-
+	assert.True(t, gotEof)
 	assert.NoError(t, tail.Close())
 }
 
@@ -102,9 +99,7 @@ func TestWatchingNonExistantFile(t *testing.T) {
 	tp := path.Join(os.TempDir(), fmt.Sprintf("go-test-%d", rand.Int()))
 
 	tail, err := NewNotify(tp, true)
-	if err != nil {
-		panic(err)
-	}
+	assert.NoError(t, err)
 
 	af := CreateAppendingFromFile(tp)
 

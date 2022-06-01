@@ -76,11 +76,11 @@ func (s *NotifyFollowReader) Read(buf []byte) (int, error) {
 	for {
 		if s.f != nil {
 			n, err := s.f.Read(buf)
-			if err != nil && err != io.EOF {
-				return n, err
-			}
 
 			if n > 0 {
+				return n, nil
+			}
+			if err != nil && err != io.EOF {
 				return n, err
 			}
 		}

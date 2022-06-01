@@ -42,7 +42,10 @@ func NewPolling(filename string, reopen bool) (*PollingFollowReader, error) {
 
 // Drain navigates to the end of the stream
 func (s *PollingFollowReader) Drain() error {
-	_, err := s.f.Seek(0, os.SEEK_END)
+	offset, err := s.f.Seek(0, os.SEEK_END)
+	if err == nil {
+		s.readBytes = offset
+	}
 	return err
 }
 
@@ -84,9 +87,7 @@ func (s *PollingFollowReader) Read(buf []byte) (int, error) {
 				s.f, _ = os.Open(s.filename)
 				if st.Size() >= s.readBytes {
 					// Likely existing file that is re-opened, start reading where we left off
-					if seeker, ok := s.f.(io.Seeker); ok {
-						seeker.Seek(s.readBytes, io.SeekStart)
-					}
+					s.f.Seek(s.readBytes, io.SeekStart)
 				} else {
 					// Assume new file, restart reading from beginning
 					s.readBytes = 0
