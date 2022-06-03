@@ -44,7 +44,6 @@ func TestTailFileAppendingExisting(t *testing.T) {
 	assert.NoError(t, tail.Close())
 }
 
-// TODO:
 func TestTailFileRecreatedReopen(t *testing.T) {
 	af := CreateAppendingTempFile()
 
@@ -92,9 +91,19 @@ func TestTailFileDeletedCloses(t *testing.T) {
 		}
 	}
 
-	if !gotEof {
-		assert.Fail(t, "Never received EOF")
-	}
-
+	assert.True(t, gotEof)
 	assert.NoError(t, tail.Close())
+}
+
+func TestPollingCloseReturnsEOF(t *testing.T) {
+	af := CreateAppendingTempFile()
+	defer af.Close()
+
+	tail, err := NewPolling(af.Name(), true)
+	assert.NoError(t, err)
+	tail.Close()
+
+	n, err := tail.Read(nil)
+	assert.Zero(t, n)
+	assert.ErrorIs(t, err, io.EOF)
 }

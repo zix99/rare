@@ -93,6 +93,13 @@ func (s *testAppendingFile) Stop() {
 // Close and stop writing to the file
 func (s *testAppendingFile) Close() {
 	s.Stop()
-	s.f.Close()
-	os.Remove(s.f.Name())
+	err := s.f.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.Remove(s.f.Name())
+	if err != nil {
+		panic(err)
+	}
 }

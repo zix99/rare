@@ -9,10 +9,11 @@ import (
 
 type PollingFollowReader struct {
 	filename string
-	f        io.ReadSeekCloser
+	f        *os.File
 
-	// Metrics
+	// State
 	readBytes int64
+	closed    bool
 
 	// Options
 	ReadAttempts int           // Number of read-attempts before checking to re-open
@@ -56,10 +57,16 @@ func (s *PollingFollowReader) Close() error {
 		s.f = nil
 	}
 
+	s.closed = true
+
 	return nil
 }
 
 func (s *PollingFollowReader) Read(buf []byte) (int, error) {
+	if s.closed {
+		return 0, io.EOF
+	}
+
 	for {
 		if s.f != nil {
 			for i := 0; i < s.ReadAttempts; i++ {
@@ -96,6 +103,7 @@ func (s *PollingFollowReader) Read(buf []byte) (int, error) {
 		} else { // No re-open, if the file's missing, that's EOF
 			_, err := os.Stat(s.filename)
 			if err != nil {
+				s.Close()
 				return 0, io.EOF
 			}
 		}

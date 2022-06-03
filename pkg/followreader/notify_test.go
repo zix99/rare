@@ -125,3 +125,17 @@ func TestNonBlockingSignal(t *testing.T) {
 	assert.Len(t, c, 1)
 	assert.NotNil(t, <-c)
 }
+
+func TestNotifyClosedReaderReturnsEOF(t *testing.T) {
+	af := CreateAppendingTempFile()
+	defer af.Close()
+
+	tail, err := NewNotify(af.f.Name(), false)
+	assert.NoError(t, err)
+	assert.NotNil(t, tail)
+
+	tail.Close()
+	n, err := tail.Read(nil)
+	assert.Zero(t, n)
+	assert.ErrorIs(t, err, io.EOF)
+}
