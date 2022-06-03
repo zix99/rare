@@ -45,6 +45,10 @@ archives:
   format_overrides:
     - goos: windows
       format: zip
+  files:
+    - LICENSE*
+    - README*
+    - rare.1.gz
 
 checksum:
   name_template: 'checksums.txt'
