@@ -61,7 +61,7 @@ func (s *testAppendingFile) Name() string {
 	return s.f.Name()
 }
 
-func (s *testAppendingFile) startWriteRandomData(interval time.Duration) chan<- bool {
+func (s *testAppendingFile) startWriteRandomData(interval time.Duration) {
 	stop := make(chan bool)
 	s.stop = stop
 	s.wg.Add(1)
@@ -77,8 +77,6 @@ func (s *testAppendingFile) startWriteRandomData(interval time.Duration) chan<- 
 			}
 		}
 	}()
-
-	return nil
 }
 
 // Stop writing to the file
