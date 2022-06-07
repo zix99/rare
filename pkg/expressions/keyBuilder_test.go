@@ -120,8 +120,19 @@ func TestManyStagesOptimize(t *testing.T) {
 	assert.Equal(t, "value: -1 8", kb.BuildKey(&KeyBuilderContextArray{}))
 }
 
+// BenchmarkSimpleFunc-4   	 5198154	       221.5 ns/op	      32 B/op	       2 allocs/op
 func BenchmarkSimpleFunc(b *testing.B) {
-	k := NewKeyBuilder()
+	k := NewKeyBuilderEx(false)
+	k.Funcs(simpleFuncs)
+	kb, _ := k.Compile("value: {addi {addi 1 2} 2}")
+	for i := 0; i < b.N; i++ {
+		kb.BuildKey(&KeyBuilderContextArray{})
+	}
+}
+
+// BenchmarkOptimizedFunc-4   	13708504	        79.70 ns/op	      24 B/op	       1 allocs/op
+func BenchmarkOptimizedFunc(b *testing.B) {
+	k := NewKeyBuilderEx(true)
 	k.Funcs(simpleFuncs)
 	kb, _ := k.Compile("value: {addi {addi 1 2} 2}")
 	for i := 0; i < b.N; i++ {

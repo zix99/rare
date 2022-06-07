@@ -128,18 +128,6 @@ func TestHumanize(t *testing.T) {
 		"12,345 12,345.1235 <BAD-TYPE> <BAD-TYPE>")
 }
 
-func TestJson(t *testing.T) {
-	testExpression(t, mockContext(`{"abc":123}`), `{json {0} abc}`, "123")
-}
-
-func TestJsonSingleArg(t *testing.T) {
-	testExpression(t, mockContext(`{"abc":456}`), `{json abc}`, "456")
-}
-
-func TestJsonManyArgs(t *testing.T) {
-	testExpression(t, mockContext(`{"abc":456}`), `{json {0} abc woops}`, "<ARGN>")
-}
-
 func TestFormat(t *testing.T) {
 	testExpression(t, mockContext(), `{format "%10s" abc}`, "       abc")
 }

@@ -8,7 +8,7 @@ import (
 
 func kfJsonQuery(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) == 1 {
-		// Assumes "{0}" is the json blog to extract, so arg[0] is the key
+		// Assumes "{0}" is the json blob to extract, so arg[0] is the key
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			json := context.GetMatch(0)
 			expression := args[0](context)

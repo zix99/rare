@@ -9,7 +9,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/tidwall/gjson v1.3.5
+	github.com/tidwall/gjson v1.14.1
 	github.com/urfave/cli v1.22.5
 	golang.org/x/sys v0.0.0-20211019181941-9d821ace8654
 	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
@@ -22,8 +22,8 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
-	github.com/tidwall/match v1.0.1 // indirect
-	github.com/tidwall/pretty v1.0.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20220218215828-6cf2b201936e // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/tools v0.1.11-0.20220513221640-090b14e8501f // indirect
