@@ -16,6 +16,9 @@ import (
 // ReadAheadBufferSize is the default size of the read-ahead buffer
 const ReadAheadBufferSize = 128 * 1024
 
+// AutoFlushTimeout sets time before an auto-flushing reader will write a batch
+const AutoFlushTimeout = 250 * time.Millisecond
+
 type Batcher struct {
 	c chan extractor.InputBatch
 
@@ -155,6 +158,46 @@ func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batch
 			batch = make([]extractor.BString, 0, batchSize)
 
 			s.incReadBytes(readerMetrics.CountReset())
+		}
+	}
+	if len(batch) > 0 {
+		s.c <- extractor.InputBatch{
+			Batch:      batch,
+			Source:     sourceName,
+			BatchStart: batchStart,
+		}
+		s.incReadBytes(readerMetrics.CountReset())
+	}
+}
+
+// syncReaderToBatcherWithTimeFlush is similar to `syncReaderToBatcher`, except if it gets a new line
+// it will flush the batch if n time has elapsed since the last flush, irregardless of how many items are in the current batch
+// Good for potentially slow or more interactive workloads (tail, stdin, etc)
+func (s *Batcher) syncReaderToBatcherWithTimeFlush(sourceName string, reader io.Reader, batchSize int, autoFlush time.Duration) {
+	readerMetrics := newReaderMetrics(reader)
+	readahead := readahead.NewImmediate(readerMetrics, ReadAheadBufferSize)
+	readahead.OnError(func(e error) {
+		s.incErrors()
+		logger.Printf("Error reading %s: %v", sourceName, e)
+	})
+
+	batch := make([]extractor.BString, 0, batchSize)
+	var batchStart uint64 = 1
+	lastBatchFlush := time.Now()
+
+	for readahead.Scan() {
+		batch = append(batch, readahead.Bytes())
+		if len(batch) >= batchSize || time.Since(lastBatchFlush) >= autoFlush {
+			s.c <- extractor.InputBatch{
+				Batch:      batch,
+				Source:     sourceName,
+				BatchStart: batchStart,
+			}
+			batchStart += uint64(len(batch))
+			batch = make([]extractor.BString, 0, batchSize)
+
+			s.incReadBytes(readerMetrics.CountReset())
+			lastBatchFlush = time.Now()
 		}
 	}
 	if len(batch) > 0 {

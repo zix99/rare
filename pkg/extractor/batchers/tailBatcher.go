@@ -29,7 +29,7 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 					return
 				}
 
-				out.syncReaderToBatcher(filename, r, batchSize)
+				out.syncReaderToBatcherWithTimeFlush(filename, r, batchSize, AutoFlushTimeout)
 			}(filename)
 		}
 
