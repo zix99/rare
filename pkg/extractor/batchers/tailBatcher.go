@@ -4,7 +4,6 @@ import (
 	"rare/pkg/followreader"
 	"rare/pkg/logger"
 	"sync"
-	"time"
 )
 
 // TailFilesToChan tails a set of files to an input batcher that can be consumed by extractor
@@ -30,7 +29,7 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll bool) 
 					return
 				}
 
-				out.syncReaderToBatcherWithTimeFlush(filename, r, batchSize, 250*time.Millisecond)
+				out.syncReaderToBatcherWithTimeFlush(filename, r, batchSize, AutoFlushTimeout)
 			}(filename)
 		}
 

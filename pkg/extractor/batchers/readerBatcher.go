@@ -2,7 +2,6 @@ package batchers
 
 import (
 	"io"
-	"time"
 )
 
 func OpenReaderToChan(sourceName string, reader io.ReadCloser, batchSize int) *Batcher {
@@ -12,7 +11,7 @@ func OpenReaderToChan(sourceName string, reader io.ReadCloser, batchSize int) *B
 		defer reader.Close()
 		defer out.close()
 		out.startFileReading(sourceName)
-		out.syncReaderToBatcherWithTimeFlush(sourceName, reader, batchSize, 250*time.Millisecond)
+		out.syncReaderToBatcherWithTimeFlush(sourceName, reader, batchSize, AutoFlushTimeout)
 	}()
 
 	return out
