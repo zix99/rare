@@ -18,6 +18,7 @@ const DefaultArgumentDescriptor = "<-|filename|glob...>"
 func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 	var (
 		follow            = c.Bool("follow") || c.Bool("reopen")
+		followTail        = c.Bool("tail")
 		followReopen      = c.Bool("reopen")
 		followPoll        = c.Bool("poll")
 		concurrentReaders = c.Int("readers")
@@ -35,6 +36,9 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 	if followPoll && !follow {
 		logger.Fatalf("Follow (-f) must be enabled for --poll")
 	}
+	if followTail && !follow {
+		logger.Fatalf("Follow (-f) must be enabled for --tail")
+	}
 
 	fileglobs := c.Args()
 
@@ -50,7 +54,7 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 		if gunzip {
 			logger.Println("Cannot combine -f and -z")
 		}
-		return batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, followReopen, followPoll)
+		return batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, followReopen, followPoll, followTail)
 	} else { // Read (no-follow) source file(s)
 		return batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize)
 	}
@@ -101,6 +105,10 @@ func getExtractorFlags() []cli.Flag {
 		cli.BoolFlag{
 			Name:  "poll",
 			Usage: "When following a file, poll for changes rather than using inotify",
+		},
+		cli.BoolFlag{
+			Name:  "tail,t",
+			Usage: "When following a file, navigate to the end of the file to skip existing content",
 		},
 		cli.BoolFlag{
 			Name:  "posix,p",

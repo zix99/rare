@@ -45,3 +45,7 @@ get something that will count based on keys.
 ```bash
 rare histogram -m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+)' -e '{1} {2}' -b access.log
 ```
+
+## See Also
+
+* [Regular Expressions](regexp.md)

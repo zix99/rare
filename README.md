@@ -21,7 +21,7 @@ See [rare.zdyn.net](https://rare.zdyn.net) or the [docs/ folder](docs/) for the 
  * Multiple summary formats including: filter (like grep), histogram, bar graphs, and numerical analysis
  * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
  * Optional gzip decompression (with `-z`)
- * Following `-f` or re-open following `-F` (use `--poll` to poll)
+ * Following `-f` or re-open following `-F` (use `--poll` to poll, and `--tail` to tail)
  * Ignoring lines that match an expression (with `-i`)
  * Aggregating and realtime summary (Don't have to wait for all data to be scanned)
  * Multi-threaded reading, parsing, and aggregation (It's fast)
