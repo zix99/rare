@@ -19,10 +19,14 @@ You can also use simple expansions, such as:
 
 In this case, all `*.log` files in any nested directory under `path/` will be read.
 
+or you can use recursion, which will read all plain files in the path
+
+`rare <aggregator> -R path/`
+
 #### gzip
 
 If the files *may* be gzip'd you can specify `-z`, and will be gunzip'd if able.  If a
-file can't be opened as a gzip file, a warning will be logged, and it will be interpretted
+file can't be opened as a gzip file, a warning will be logged, and it will be interpreted
 as a raw file.
 
 `rare <aggregator> -z *.log.gz`
@@ -30,7 +34,7 @@ as a raw file.
 ### Following File(s)
 
 Like `tail -f`, following files allows you to watch files actively being written to. This is
-useful, for example, for a log of an actively running application.
+useful, for example, to read a log of an actively running application.
 
 **Note:** When following files, all files are open at once, and max readers are ignored.
 
@@ -83,14 +87,14 @@ Specify with:
 
 ### Batch Sizes
 
-Rare reads (by default) 1000 lines for a file, in a batch, before providing it
+Rare reads (by default) 1000 lines in a file, for a batch, before providing it
 to the extractor stage.  This significantly speeds up processing, but comes
 at the cost of being less real-time if input generation is slow.
 
 To counteract this, in the *follow* or *stdin* cases, there's also a flush timeout of
 250ms. This means if a new line has been received, and the duration has passed,
-that the batch will be passed on irregardless of its size.
+that the batch will be processed irregardless of its current size.
 
-You can tweak this value with `--batch=10`
+You can tweak this value with `--batch`
 
 `rare <aggreagator> --batch=10 ...`
