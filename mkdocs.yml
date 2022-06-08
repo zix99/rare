@@ -10,6 +10,7 @@ nav:
   - Home: index.md
   - Usage:
     - Overview: usage/overview.md
+    - Input: usage/input.md
     - Extractor: usage/extractor.md
     - Expressions: usage/expressions.md
     - Aggregators: usage/aggregators.md

@@ -3,11 +3,23 @@
 Rare is a fast, realtime regex-extraction, and aggregation into common formats
 such as histograms, numerical summaries, tables, and more!
 
-Rare is composed of three parts in the pipeline:
+Rare is composed of four parts in the pipeline:
 
-1. Extraction (Matching)
-2. Expression Building
-3. Aggregation
+1. Batching (Loading)
+2. Extraction (Matching)
+3. Expression Building
+4. Aggregation
+
+## Input (Batching/Loading)
+
+Input (or batching) is the act of feeding contents read from a file (or stdin/pipe) into
+the next stages.  Many times this is invisible, and is simply the pipe or specified filename.
+
+It is possible to tune the batcher to follow the file or batch in different ways.
+
+Read more at:
+
+* [input](input.md)
 
 ## Extraction (Matching)
 
