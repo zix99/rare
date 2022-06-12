@@ -21,7 +21,6 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll, tail 
 					out.stopFileReading(filename)
 				}()
 
-				out.startFileReading(filename)
 				r, err := followreader.New(filename, reopen, poll)
 				if err != nil {
 					logger.Print("Unable to open file: ", err)
@@ -34,6 +33,8 @@ func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll, tail 
 						out.incErrors()
 					}
 				}
+
+				out.startFileReading(filename)
 
 				out.syncReaderToBatcherWithTimeFlush(filename, r, batchSize, AutoFlushTimeout)
 			}(filename)

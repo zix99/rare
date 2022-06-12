@@ -33,7 +33,6 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 					wg.Done()
 					out.stopFileReading(goFilename)
 				}()
-				out.startFileReading(goFilename)
 
 				var file io.ReadCloser
 				file, err := openFileToReader(goFilename, gunzip)
@@ -44,6 +43,7 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 				}
 				defer file.Close()
 
+				out.startFileReading(goFilename)
 				out.syncReaderToBatcher(goFilename, file, batchSize)
 			}(filename)
 		}

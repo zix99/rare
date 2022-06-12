@@ -40,7 +40,9 @@ func TestBatchFollowTailFile(t *testing.T) {
 
 	batcher := TailFilesToChan(filenames, 1, false, false, true)
 
-	time.Sleep(300 * time.Millisecond) // Uhg hack cause auto-flushing
+	for len(batcher.activeFiles) == 0 {
+		time.Sleep(time.Millisecond) // Semi-hack: Wait for the go-routine reader to start and the source to be drained
+	}
 
 	// And write some more data
 	const testLines = 5
@@ -58,4 +60,6 @@ func TestBatchFollowTailFile(t *testing.T) {
 			assert.Len(t, batch.Batch, 1)
 		}
 	}
+
+	assert.Len(t, batcher.BatchChan(), 0)
 }
