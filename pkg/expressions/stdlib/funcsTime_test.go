@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/araddon/dateparse"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestTimeExpression(t *testing.T) {
@@ -56,6 +57,19 @@ func TestTimeExpressionDetection(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{time {0}}",
 		"1460653945")
+}
+
+func TestTimeNow(t *testing.T) {
+	kb, err := NewStdKeyBuilder().Compile("{time now}")
+	assert.NoError(t, err)
+
+	val := kb.BuildKey(mockContext())
+	assert.NotEmpty(t, val)
+
+	ival, err := strconv.ParseInt(val, 10, 64)
+	assert.NoError(t, err)
+	assert.NotZero(t, ival)
+
 }
 
 func TestTimeExpressionDetectionFailure(t *testing.T) {
