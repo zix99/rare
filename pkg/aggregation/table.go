@@ -98,6 +98,16 @@ func (s *TableAggregator) OrderedColumns() []string {
 	return keys
 }
 
+func (s *TableAggregator) OrderedColumnsByName() []string {
+	keys := s.Columns()
+
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] > keys[j]
+	})
+
+	return keys
+}
+
 func (s *TableAggregator) RowCount() int {
 	return len(s.rows)
 }

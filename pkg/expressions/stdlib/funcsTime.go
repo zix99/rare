@@ -28,6 +28,8 @@ var timeFormats = map[string]string{
 	"NGINX": "_2/Jan/2006:15:04:05 -0700",
 	// Parts,
 	"MONTH":     "01",
+	"MONTHNAME": "January",
+	"MONTHN":    "Jan",
 	"DAY":       "_2",
 	"YEAR":      "2006",
 	"HOUR":      "15",
@@ -36,6 +38,8 @@ var timeFormats = map[string]string{
 	"TIMEZONE":  "MST",
 	"NTIMEZONE": "-0700",
 	"NTZ":       "-0700",
+	"WEEKDAY":   "Monday",
+	"WDAY":      "Mon",
 }
 
 func namedTimeFormatToFormat(f string) string {
