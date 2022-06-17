@@ -17,12 +17,14 @@ func TestBatcherTracking(t *testing.T) {
 
 	s.startFileReading("abc")
 	assert.Contains(t, s.StatusString(), "0/5")
+	assert.Equal(t, s.ActiveFileCount(), 1)
 
 	s.stopFileReading("abc")
 	assert.Equal(t, 5, s.sourceCount)
 	assert.Equal(t, 1, s.readCount)
 	assert.Equal(t, 0, s.ReadErrors())
 	assert.Contains(t, s.StatusString(), "1/5")
+	assert.Equal(t, s.ActiveFileCount(), 0)
 }
 
 func TestReaderToBatcher(t *testing.T) {
@@ -41,6 +43,7 @@ line3`
 	assert.Len(t, b2.Batch, 1)
 	assert.Equal(t, s.errorCount, 0)
 	assert.Equal(t, s.ReadBytes(), uint64(17))
+	assert.Equal(t, s.ActiveFileCount(), 0)
 }
 
 func TestBatcherWithAutoFlush(t *testing.T) {

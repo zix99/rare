@@ -40,7 +40,7 @@ func TestBatchFollowTailFile(t *testing.T) {
 
 	batcher := TailFilesToChan(filenames, 1, false, false, true)
 
-	for len(batcher.activeFiles) == 0 {
+	for batcher.ActiveFileCount() == 0 {
 		time.Sleep(time.Millisecond) // Semi-hack: Wait for the go-routine reader to start and the source to be drained
 	}
 

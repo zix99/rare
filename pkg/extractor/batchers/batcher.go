@@ -93,6 +93,12 @@ func (s *Batcher) ReadErrors() int {
 	return s.errorCount
 }
 
+func (s *Batcher) ActiveFileCount() int {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+	return len(s.activeFiles)
+}
+
 // StatusString gets a formatted version of the current reader-set
 func (s *Batcher) StatusString() string {
 	var sb strings.Builder
