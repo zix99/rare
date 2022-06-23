@@ -2,6 +2,7 @@ package termrenderers
 
 import (
 	"rare/pkg/aggregation"
+	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termunicode"
@@ -34,20 +35,34 @@ func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
 	colNames := agg.OrderedColumnsByName() // TODO: Smart? eg. by number?
 	colCount := mini(len(colNames), s.colCount)
 
+	// Write header
 	{ // TODO: Make func?
 		var sb strings.Builder
 		sb.WriteString(strings.Repeat(" ", s.maxRowKeyWidth+1))
+		const headerDelim = ".."
 
-		var lastWrite int
 		for i := 0; i < colCount; {
 			name := colNames[i]
-			sb.WriteString(name)
-			sb.WriteRune(' ')
-			lastWrite = i
-			i += len(name) + 1
-		}
-		if lastWrite < colCount-1 { // TODO: Some smarter context for the last key
-			sb.WriteString(colNames[len(colNames)-1])
+
+			if i != 0 {
+				sb.WriteString(headerDelim)
+				i += len(headerDelim)
+			}
+
+			if i+len(name)+len(headerDelim) > colCount {
+				// Too long, jump to last key
+				last := colNames[len(colNames)-1]
+				indent := colCount - i - len(last)
+				if indent > 0 { // Align last name with last col
+					sb.WriteString(strings.Repeat(headerDelim[0:1], indent))
+					i += indent
+				}
+				sb.WriteString(singleUnderline(last, colCount-i-1))
+				break
+			}
+
+			sb.WriteString(singleUnderline(name, 0))
+			i += len(name)
 		}
 		s.term.WriteForLine(1, sb.String())
 	}
@@ -119,4 +134,11 @@ func mini(i, j int) int {
 		return i
 	}
 	return j
+}
+
+func singleUnderline(word string, letter int) string {
+	if letter >= 0 && letter < len(word) {
+		return word[:letter] + color.Wrap(color.Underline, string(word[letter])) + word[letter+1:]
+	}
+	return word
 }
