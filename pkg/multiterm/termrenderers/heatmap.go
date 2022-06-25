@@ -1,6 +1,7 @@
 package termrenderers
 
 import (
+	"fmt"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
 	"rare/pkg/humanize"
@@ -51,7 +52,7 @@ func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
 
 			if i+len(name)+len(headerDelim) > colCount {
 				// Too long, jump to last key
-				last := colNames[len(colNames)-1]
+				last := colNames[colCount-1]
 				indent := colCount - i - len(last)
 				if indent > 0 { // Align last name with last col
 					sb.WriteString(strings.Repeat(headerDelim[0:1], indent))
@@ -64,12 +65,18 @@ func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
 			sb.WriteString(singleUnderline(name, 0))
 			i += len(name)
 		}
+
+		if colCount < len(colNames) {
+			sb.WriteString(fmt.Sprintf(" (%d more)", len(colNames)-s.colCount))
+		}
+
 		s.term.WriteForLine(1, sb.String())
 	}
 
 	// Each row...
 	rows := agg.OrderedRowsByName()
-	for i := 0; i < len(rows); i++ {
+	rowCount := mini(len(rows), s.rowCount)
+	for i := 0; i < rowCount; i++ {
 		row := rows[i]
 		if len(row.Name()) > s.maxRowKeyWidth {
 			s.maxRowKeyWidth = len(row.Name())
@@ -94,7 +101,13 @@ func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
 		s.term.WriteForLine(2+i, sb.String())
 	}
 
-	s.currentRows = 2 + len(rows)
+	// If more rows than can display, write how many were missed
+	if len(rows) > rowCount {
+		s.term.WriteForLine(2+rowCount, fmt.Sprintf("(%d more)", len(rows)-rowCount))
+		s.currentRows = 3 + rowCount
+	} else {
+		s.currentRows = 2 + rowCount
+	}
 }
 
 func (s *Heatmap) WriteFooter(idx int, line string) {

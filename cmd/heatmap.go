@@ -16,7 +16,7 @@ func heatmapFunction(c *cli.Context) error {
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
 
-	writer := termrenderers.NewHeatmap(multiterm.New(), 40, 60) // TODO: Configurable size
+	writer := termrenderers.NewHeatmap(multiterm.New(), 20, 10) // TODO: Configurable size
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		writer.WriteTable(counter)
