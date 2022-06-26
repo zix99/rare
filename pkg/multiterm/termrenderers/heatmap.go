@@ -29,76 +29,17 @@ func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
 }
 
 func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
-	// TODO: Correct update of heatmap range
-	s.SetMinMax(s.minVal, s.maxVal)
+	s.SetMinMax(agg.Min(), agg.Max())
 
 	// Write header
 	colNames := agg.OrderedColumnsByName() // TODO: Smart? eg. by number?
-	colCount := mini(len(colNames), s.colCount)
-
-	// Write header
-	{ // TODO: Make func?
-		var sb strings.Builder
-		sb.WriteString(strings.Repeat(" ", s.maxRowKeyWidth+1))
-		const headerDelim = ".."
-
-		for i := 0; i < colCount; {
-			name := colNames[i]
-
-			if i != 0 {
-				sb.WriteString(headerDelim)
-				i += len(headerDelim)
-			}
-
-			if i+len(name)+len(headerDelim) > colCount {
-				// Too long, jump to last key
-				last := colNames[colCount-1]
-				indent := colCount - i - len(last)
-				if indent > 0 { // Align last name with last col
-					sb.WriteString(strings.Repeat(headerDelim[0:1], indent))
-					i += indent
-				}
-				sb.WriteString(singleUnderline(last, colCount-i-1))
-				break
-			}
-
-			sb.WriteString(singleUnderline(name, 0))
-			i += len(name)
-		}
-
-		if colCount < len(colNames) {
-			sb.WriteString(fmt.Sprintf(" (%d more)", len(colNames)-s.colCount))
-		}
-
-		s.term.WriteForLine(1, sb.String())
-	}
+	colCount := s.WriteHeader(colNames)
 
 	// Each row...
 	rows := agg.OrderedRowsByName()
 	rowCount := mini(len(rows), s.rowCount)
 	for i := 0; i < rowCount; i++ {
-		row := rows[i]
-		if len(row.Name()) > s.maxRowKeyWidth {
-			s.maxRowKeyWidth = len(row.Name())
-		}
-
-		var sb strings.Builder
-		sb.WriteString(row.Name())
-		sb.WriteString(strings.Repeat(" ", s.maxRowKeyWidth-len(row.Name())+1))
-
-		for j := 0; j < colCount; j++ {
-			// TODO: Interpolation
-			val := row.Value(colNames[j])
-			if val < s.minVal {
-				s.minVal = val
-			}
-			if val > s.maxVal {
-				s.maxVal = val
-			}
-			termunicode.HeatWriteLinear(&sb, val, s.minVal, s.maxVal)
-		}
-
-		s.term.WriteForLine(2+i, sb.String())
+		s.WriteRow(i, rows[i], colNames[:colCount])
 	}
 
 	// If more rows than can display, write how many were missed
@@ -140,6 +81,62 @@ func (s *Heatmap) SetMinMax(min, max int64) {
 	sb.WriteString(humanize.Hi(s.maxVal))
 
 	s.term.WriteForLine(0, sb.String())
+}
+
+func (s *Heatmap) WriteHeader(colNames []string) (colCount int) {
+	colCount = mini(len(colNames), s.colCount)
+
+	var sb strings.Builder
+	sb.WriteString(strings.Repeat(" ", s.maxRowKeyWidth+1))
+	const headerDelim = ".."
+
+	for i := 0; i < colCount; {
+		name := colNames[i]
+
+		if i != 0 {
+			sb.WriteString(headerDelim)
+			i += len(headerDelim)
+		}
+
+		if i+len(name)+len(headerDelim) > colCount {
+			// Too long, jump to last key
+			last := colNames[colCount-1]
+			indent := colCount - i - len(last)
+			if indent > 0 { // Align last name with last col
+				sb.WriteString(strings.Repeat(headerDelim[0:1], indent))
+				i += indent
+			}
+			sb.WriteString(singleUnderline(last, colCount-i-1))
+			break
+		}
+
+		sb.WriteString(singleUnderline(name, 0))
+		i += len(name)
+	}
+
+	if colCount < len(colNames) {
+		sb.WriteString(fmt.Sprintf(" (%d more)", len(colNames)-s.colCount))
+	}
+
+	s.term.WriteForLine(1, sb.String())
+	return
+}
+
+func (s *Heatmap) WriteRow(idx int, row *aggregation.TableRow, cols []string) {
+	if len(row.Name()) > s.maxRowKeyWidth {
+		s.maxRowKeyWidth = len(row.Name())
+	}
+
+	var sb strings.Builder
+	sb.WriteString(row.Name())
+	sb.WriteString(strings.Repeat(" ", s.maxRowKeyWidth-len(row.Name())+1))
+
+	for i := 0; i < len(cols); i++ {
+		val := row.Value(cols[i])
+		termunicode.HeatWriteLinear(&sb, val, s.minVal, s.maxVal)
+	}
+
+	s.term.WriteForLine(2+idx, sb.String())
 }
 
 func mini(i, j int) int {
