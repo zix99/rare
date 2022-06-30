@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"fmt"
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
+	"rare/pkg/color"
 	"rare/pkg/expressions"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
@@ -11,16 +13,23 @@ import (
 )
 
 func heatmapFunction(c *cli.Context) error {
-	counter := aggregation.NewTable(expressions.ArraySeparatorString)
+	var (
+		delim   = c.String("delim")
+		numRows = c.Int("num")
+		numCols = c.Int("cols")
+	)
+
+	counter := aggregation.NewTable(delim)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
 
-	writer := termrenderers.NewHeatmap(multiterm.New(), 20, 10) // TODO: Configurable size
+	writer := termrenderers.NewHeatmap(multiterm.New(), numRows, numCols)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		writer.WriteTable(counter)
-		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors()))
+		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
+			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
 		writer.WriteFooter(1, batcher.StatusString())
 	})
 
@@ -29,7 +38,30 @@ func heatmapFunction(c *cli.Context) error {
 
 func heatmapCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
-		Name:   "heatmap",
+		Name:      "heatmap",
+		Aliases:   []string{"heat"},
+		ShortName: "hm",
+		Usage:     "Create a 2D heatmap of extracted data",
+		Description: `Creates a dense 2D visual of extracted data.  Each character
+		represents a single data-point, and can create an alternative visualization to
+		a table.  Unicode and color support required for effective display`,
 		Action: heatmapFunction,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "delim",
+				Usage: "Character to tabulate on. Use {$} helper by default",
+				Value: expressions.ArraySeparatorString,
+			},
+			cli.IntFlag{
+				Name:  "num,n",
+				Usage: "Number of elements (rows) to display",
+				Value: 20,
+			},
+			cli.IntFlag{
+				Name:  "cols",
+				Usage: "Number of columns to display",
+				Value: multiterm.TermCols() - 15,
+			},
+		},
 	})
 }
