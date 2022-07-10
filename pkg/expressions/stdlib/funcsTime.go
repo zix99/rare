@@ -32,7 +32,7 @@ var timeFormats = map[string]string{
 	// Parts,
 	"MONTH":     "01",
 	"MONTHNAME": "January",
-	"MONTHA":    "Jan", // a for abbreviated
+	"MNTH":      "Jan",
 	"DAY":       "02",
 	"YEAR":      "2006",
 	"HOUR":      "15",
@@ -41,6 +41,8 @@ var timeFormats = map[string]string{
 	"TIMEZONE":  "MST",
 	"NTIMEZONE": "-0700",
 	"NTZ":       "-0700",
+	"WEEKDAY":   "Monday",
+	"WDAY":      "Mon",
 }
 
 // namedTimeFormatToFormat converts a string to a go-format. If not listed above, assumes the string is the format
