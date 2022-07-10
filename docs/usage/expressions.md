@@ -259,14 +259,15 @@ See: [json](json.md) for more information.
 
 ### Time
 
-Syntax: `{time str "[format]"}` `{timeformat unixtime "[format]" "[utc]"}` `{duration dur}` `{buckettime str bucket "[format]"}`
+Syntax: `{time str "[format]"}` `{timeformat unixtime "[format]" "[utc/local]"}` `{duration dur}` `{buckettime str bucket "[format]"}` `{timeattr unixtime attr [utc/local]"}`
 
 These three time functions provide you a way to parse and manipulate time.
 
  * `time`: Parse a given time-string into a unix second time (default: RFC3339)
- * `timeformat`: Takes a unix time, and formats it (default: auto-detection)
+ * `timeformat`: Takes a unix time, and formats it (default: auto-detection). Defaults to UTC, unless tz is known
  * `duration`: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
  * `buckettime`: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
+ * `timeattr`: Extracts an attribute about a given datetime (weekday, week, yearweek, quarter)
 
 **Format Auto-Detection:**
 

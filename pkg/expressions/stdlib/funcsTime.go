@@ -227,7 +227,7 @@ var attrType = map[string](func(t time.Time) string){
 	},
 }
 
-// {func <time> <attr> [utc?]}
+// {func <time> <attr> [utc/local]}
 func kfTimeAttr(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 2 || len(args) > 3 {
 		return stageError(ErrorArgCount)
