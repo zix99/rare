@@ -104,12 +104,24 @@ func TestTimeAttrToDefaultLocal(t *testing.T) {
 }
 
 func TestTimeAttrToBadTZ(t *testing.T) {
-	DefaultLocalTime = true
 	testExpression(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} weekday asdf}",
 		"<<PARSE-ERROR>>")
-	DefaultLocalTime = false
+}
+
+func TestTimeAttrArgError(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {time {0}}}",
+		"<<ARGN>>")
+}
+
+func TestTimeAttrArgErrorExtra(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {time {0}} a b c}",
+		"<<ARGN>>")
 }
 
 func TestTimeExpressionDetection(t *testing.T) {
