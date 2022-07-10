@@ -38,18 +38,78 @@ func TestDuration(t *testing.T) {
 		strconv.Itoa(60*60*24))
 }
 
-func TestTimeFormat(t *testing.T) {
+func TestTimeBucketFormat(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{buckettime {0} d nginx}",
 		"2016-04-14")
 }
 
-func TestTimeFormatDetection(t *testing.T) {
+func TestTimeBucketFormatDetection(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{buckettime {0} d}",
 		"2016-04-14")
+}
+
+func TestTimeBucketUtc(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016 23:00:00"),
+		"{buckettime {0} d}",
+		"2016-04-14")
+}
+
+func TestTimeAttrWeekday(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {time {0}} weekday}",
+		"4")
+}
+
+func TestTimeAttrWeek(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {time {0}} week}",
+		"15")
+}
+
+func TestTimeAttrYearWeek(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {time {0}} Yearweek}",
+		"2016-15")
+}
+
+func TestTimeAttrQuarter(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {time {0}} quarter}",
+		"2")
+}
+
+func TestTimeAttrToLocal(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {time {0}} weekday local}",
+		"3")
+}
+
+func TestTimeAttrToDefaultLocal(t *testing.T) {
+	DefaultLocalTime = true
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {time {0}} weekday}",
+		"3")
+	DefaultLocalTime = false
+}
+
+func TestTimeAttrToBadTZ(t *testing.T) {
+	DefaultLocalTime = true
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {time {0}} weekday asdf}",
+		"<<PARSE-ERROR>>")
+	DefaultLocalTime = false
 }
 
 func TestTimeExpressionDetection(t *testing.T) {
@@ -86,6 +146,7 @@ func TestTimeExpressionDetectionAuto(t *testing.T) {
 		"1460653945")
 }
 
+// BenchmarkTimeParseExpression-4   	  537970	      2133 ns/op	     536 B/op	       9 allocs/op
 func BenchmarkTimeParseExpression(b *testing.B) {
 	stage := kfTimeParse([]expressions.KeyBuilderStage{
 		func(kbc expressions.KeyBuilderContext) string {
@@ -102,12 +163,14 @@ func BenchmarkTimeParseExpression(b *testing.B) {
 	}
 }
 
+// BenchmarkTimeParse-4   	 1686390	       654.7 ns/op	     120 B/op	       4 allocs/op
 func BenchmarkTimeParse(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		time.Parse(time.RFC3339, "2012-05-02T15:04:05Z07:00")
 	}
 }
 
+// BenchmarkDateParse-4   	  757498	      1559 ns/op	     440 B/op	       7 allocs/op
 func BenchmarkDateParse(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		dateparse.ParseAny("2012-05-02T15:04:05Z07:00")

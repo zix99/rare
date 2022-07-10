@@ -11,6 +11,9 @@ import (
 	"github.com/araddon/dateparse"
 )
 
+// Global to allow changing default time formatting
+var DefaultLocalTime = false
+
 const defaultTimeFormat = time.RFC3339
 
 var timeFormats = map[string]string{
@@ -28,7 +31,9 @@ var timeFormats = map[string]string{
 	"NGINX": "_2/Jan/2006:15:04:05 -0700",
 	// Parts,
 	"MONTH":     "01",
-	"DAY":       "_2",
+	"MONTHNAME": "January",
+	"MONTHA":    "Jan", // a for abbreviated
+	"DAY":       "02",
 	"YEAR":      "2006",
 	"HOUR":      "15",
 	"MINUTE":    "04",
@@ -38,6 +43,7 @@ var timeFormats = map[string]string{
 	"NTZ":       "-0700",
 }
 
+// namedTimeFormatToFormat converts a string to a go-format. If not listed above, assumes the string is the format
 func namedTimeFormatToFormat(f string) string {
 	if mapped, ok := timeFormats[strings.ToUpper(f)]; ok {
 		return mapped
@@ -45,6 +51,7 @@ func namedTimeFormatToFormat(f string) string {
 	return f
 }
 
+// smartDateParseWrapper wraps different types of date parsing and manipulation into a stage
 func smartDateParseWrapper(format string, dateStage KeyBuilderStage, f func(time time.Time) string) KeyBuilderStage {
 	switch strings.ToLower(format) {
 	case "auto": // Auto will attempt to parse every time
@@ -100,6 +107,8 @@ func smartDateParseWrapper(format string, dateStage KeyBuilderStage, f func(time
 }
 
 // Parse time into standard unix epoch time (easier to use)
+// By default, will attempt to auto-detect and cache format
+// {func <time> [format]}
 func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
 		return stageError(ErrorArgCount)
@@ -124,18 +133,25 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
+// {func <unixtime> [format] [*utc*/local]}
 func kfTimeFormat(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
 		return stageError(ErrorArgCount)
 	}
 	format := namedTimeFormatToFormat(EvalStageIndexOrDefault(args, 1, defaultTimeFormat))
-	utc := Truthy(EvalStageIndexOrDefault(args, 2, ""))
+
+	utc, utcOk := parseTimeIsUtc(EvalStageIndexOrDefault(args, 2, ""))
+	if !utcOk {
+		return stageError(ErrorParsing)
+	}
+
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		strUnixTime := args[0](context)
 		unixTime, err := strconv.ParseInt(strUnixTime, 10, 64)
 		if err != nil {
 			return ErrorType
 		}
+
 		t := time.Unix(unixTime, 0)
 		if utc {
 			t = t.UTC()
@@ -161,19 +177,6 @@ func kfDuration(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
-func kfBucketTime(args []KeyBuilderStage) KeyBuilderStage {
-	if len(args) < 2 {
-		return stageError(ErrorArgCount)
-	}
-
-	bucketFormat := timeBucketToFormat(EvalStageOrDefault(args[1], "day"))
-	parseFormat := EvalStageIndexOrDefault(args, 2, "")
-
-	return smartDateParseWrapper(parseFormat, args[0], func(t time.Time) string {
-		return t.Format(bucketFormat)
-	})
-}
-
 func timeBucketToFormat(name string) string {
 	name = strings.ToLower(name)
 
@@ -193,4 +196,83 @@ func timeBucketToFormat(name string) string {
 		return "2006"
 	}
 	return ErrorBucket
+}
+
+func kfBucketTime(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) < 2 {
+		return stageError(ErrorArgCount)
+	}
+
+	bucketFormat := timeBucketToFormat(EvalStageOrDefault(args[1], "day"))
+	parseFormat := EvalStageIndexOrDefault(args, 2, "")
+
+	return smartDateParseWrapper(parseFormat, args[0], func(t time.Time) string {
+		return t.Format(bucketFormat)
+	})
+}
+
+var attrType = map[string](func(t time.Time) string){
+	"WEEKDAY": func(t time.Time) string { return strconv.Itoa(int(t.Weekday())) },
+	"WEEK": func(t time.Time) string {
+		_, week := t.ISOWeek()
+		return strconv.Itoa(week)
+	},
+	"YEARWEEK": func(t time.Time) string {
+		year, week := t.ISOWeek()
+		return strconv.Itoa(year) + "-" + strconv.Itoa(week)
+	},
+	"QUARTER": func(t time.Time) string {
+		month := int(t.Month())
+		return strconv.Itoa(month/3 + 1)
+	},
+}
+
+// {func <time> <attr> [utc?]}
+func kfTimeAttr(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) < 2 || len(args) > 3 {
+		return stageError(ErrorArgCount)
+	}
+
+	attrName, hasAttrName := EvalStaticStage(args[1])
+	if !hasAttrName {
+		return stageError(ErrorType)
+	}
+	utc, utcOk := parseTimeIsUtc(EvalStageIndexOrDefault(args, 2, ""))
+	if !utcOk {
+		return stageError(ErrorParsing)
+	}
+
+	attrFunc, hasAttrFunc := attrType[strings.ToUpper(attrName)]
+	if !hasAttrFunc {
+		return stageError(ErrorBucket)
+	}
+
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		unixTime, err := strconv.ParseInt(args[0](context), 10, 64)
+		if err != nil {
+			return ErrorType
+		}
+
+		t := time.Unix(unixTime, 0)
+
+		if utc {
+			t = t.UTC()
+		}
+
+		return attrFunc(t)
+	})
+}
+
+// Pass in "", "local" or "utc"
+func parseTimeIsUtc(tzf string) (utc, ok bool) {
+	switch strings.ToUpper(tzf) {
+	case "":
+		return !DefaultLocalTime, true
+	case "LOCAL":
+		return false, true
+	case "UTC":
+		return true, true
+	default:
+		return true, false
+	}
 }
