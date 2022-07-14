@@ -278,7 +278,7 @@ These three time functions provide you a way to parse and manipulate time.
 
 The following values are accepted for a `tz` (timezone): `utc`, `local`, or a valid *IANA Time Zone*
 
-By default, all datetimes are processed as UTC, unless explicit in the datetime itself, or overriden via a parameter.
+By default, all datetimes are processed as UTC, unless explicit in the datetime itself, or overridden via a parameter.
 
 **Format Auto-Detection:**
 
@@ -286,9 +286,9 @@ If the format argument is ommitted or set to "auto", it will attempt to resolve 
 
 If the format is unable to be resolved, it must be specific manually with a format below, or a custom format.
 
-If ommitted: The first seen date will determine the format for all dates going forward (faster)
+If ommitted or "cache": The first seen date will determine the format for all dates going forward (faster)
 
-If "auto":   The date format will always be auto-detected. This can be used if the date could be in different formats (slower)
+If "auto":   The date format will always be auto-detected each time. This can be used if the date could be in different formats (slower)
 
 **Special Values:**
 The time `now` will return the current unix timestamp `{time now}`
@@ -299,7 +299,7 @@ The time `now` will return the current unix timestamp `{time now}`
 ASNIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339N, NGINX
 
 **Additional formats for formatting:**
-MONTH, DAY, YEAR, HOUR, MINUTE, SECOND, TIMEZONE, NTIMEZONE
+MONTH, MONTHNAME, MNTH, DAY, WEEKDAY, WDAY, YEAR, HOUR, MINUTE, SECOND, TIMEZONE, NTIMEZONE
 
 **Custom formats:**
 You can provide a custom format using go's well-known date. Here's an exercept from their docs:
