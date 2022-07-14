@@ -161,6 +161,7 @@ func kfTimeFormat(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
+// {func <duration_string>}
 func kfDuration(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 1 {
 		return stageError(ErrorArgCount)
@@ -199,6 +200,7 @@ func timeBucketToFormat(name string) string {
 	return ErrorBucket
 }
 
+// {func <time> <bucket> [format:auto] [tz:utc]}
 func kfBucketTime(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 2 {
 		return stageError(ErrorArgCount)
@@ -216,6 +218,7 @@ func kfBucketTime(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
+// valid time attributes
 var attrType = map[string](func(t time.Time) string){
 	"WEEKDAY": func(t time.Time) string { return strconv.Itoa(int(t.Weekday())) },
 	"WEEK": func(t time.Time) string {
@@ -232,7 +235,7 @@ var attrType = map[string](func(t time.Time) string){
 	},
 }
 
-// {func <time> <attr> [utc/local]}
+// {func <time> <attr> [tz:utc]}
 func kfTimeAttr(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 2 || len(args) > 3 {
 		return stageError(ErrorArgCount)
@@ -264,12 +267,10 @@ func kfTimeAttr(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
-// Pass in "", "local" or "utc"
+// Pass in "", "local", "utc" or a valid unix timezone
 func parseTimezoneLocation(tzf string) (loc *time.Location, ok bool) {
 	switch strings.ToUpper(tzf) {
-	case "":
-		return time.UTC, true
-	case "UTC":
+	case "", "UTC":
 		return time.UTC, true
 	case "LOCAL":
 		return time.Local, true

@@ -268,8 +268,8 @@ Syntax:
 
 These three time functions provide you a way to parse and manipulate time.
 
- * `time`: Parse a given time-string into a unix second time (default: RFC3339)
- * `timeformat`: Takes a unix time, and formats it (default: auto-detection)
+ * `time`: Parse a given time-string into a unix second time (default: auto-detection)
+ * `timeformat`: Takes a unix time, and formats it (default: RFC3339)
  * `duration`: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
  * `buckettime`: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
  * `timeattr`: Extracts an attribute about a given datetime (weekday, week, yearweek, quarter)

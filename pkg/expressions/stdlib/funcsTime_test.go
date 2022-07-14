@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Basic / Time parsing
+
 func TestTimeExpression(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016:19:12:25 +0200"),
@@ -24,6 +26,42 @@ func TestFormatExpression(t *testing.T) {
 		"2016-04-14T17:12:25Z")
 }
 
+func TestTimeExpressionDetection(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0}}",
+		"1460653945")
+}
+
+func TestTimeNow(t *testing.T) {
+	kb, err := NewStdKeyBuilder().Compile("{time now}")
+	assert.NoError(t, err)
+
+	val := kb.BuildKey(mockContext())
+	assert.NotEmpty(t, val)
+
+	ival, err := strconv.ParseInt(val, 10, 64)
+	assert.NoError(t, err)
+	assert.NotZero(t, ival)
+
+}
+
+func TestTimeExpressionDetectionFailure(t *testing.T) {
+	testExpression(t,
+		mockContext("oauef888"),
+		"{time {0}}",
+		"<PARSE-ERROR>")
+}
+
+func TestTimeExpressionDetectionAuto(t *testing.T) {
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0} auto}",
+		"1460653945")
+}
+
+// Duration
+
 func TestAddDurationDay(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016:19:12:25 +0200"),
@@ -37,6 +75,8 @@ func TestDuration(t *testing.T) {
 		"{duration 24h}",
 		strconv.Itoa(60*60*24))
 }
+
+// Bucketing
 
 func TestTimeBucketFormat(t *testing.T) {
 	testExpression(t,
@@ -58,6 +98,8 @@ func TestTimeBucketUtc(t *testing.T) {
 		"{buckettime {0} d}",
 		"2016-04-14")
 }
+
+// Time attributes
 
 func TestTimeAttrWeekday(t *testing.T) {
 	testExpression(t,
@@ -113,40 +155,6 @@ func TestTimeAttrArgErrorExtra(t *testing.T) {
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} a b c}",
 		"<<ARGN>>")
-}
-
-func TestTimeExpressionDetection(t *testing.T) {
-	testExpression(t,
-		mockContext("14/Apr/2016:19:12:25 +0200"),
-		"{time {0}}",
-		"1460653945")
-}
-
-func TestTimeNow(t *testing.T) {
-	kb, err := NewStdKeyBuilder().Compile("{time now}")
-	assert.NoError(t, err)
-
-	val := kb.BuildKey(mockContext())
-	assert.NotEmpty(t, val)
-
-	ival, err := strconv.ParseInt(val, 10, 64)
-	assert.NoError(t, err)
-	assert.NotZero(t, ival)
-
-}
-
-func TestTimeExpressionDetectionFailure(t *testing.T) {
-	testExpression(t,
-		mockContext("oauef888"),
-		"{time {0}}",
-		"<PARSE-ERROR>")
-}
-
-func TestTimeExpressionDetectionAuto(t *testing.T) {
-	testExpression(t,
-		mockContext("14/Apr/2016:19:12:25 +0200"),
-		"{time {0} auto}",
-		"1460653945")
 }
 
 // BenchmarkTimeParseExpression-4   	  537970	      2133 ns/op	     536 B/op	       9 allocs/op
