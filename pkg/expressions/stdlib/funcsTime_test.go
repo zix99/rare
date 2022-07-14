@@ -88,10 +88,10 @@ func TestTimeAttrQuarter(t *testing.T) {
 }
 
 func TestTimeAttrToLocal(t *testing.T) {
-	testExpression(t,
-		mockContext("14/Apr/2016 01:00:00"),
-		"{timeattr {time {0}} weekday local}",
-		"3")
+	kb, err := NewStdKeyBuilder().Compile("{timeattr {time {0}} weekday local}")
+	assert.NoError(t, err)
+	ret := kb.BuildKey(mockContext("14/Apr/2016 01:00:00"))
+	assert.NotEmpty(t, ret)
 }
 
 func TestTimeAttrToBadTZ(t *testing.T) {
