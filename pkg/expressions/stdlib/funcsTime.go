@@ -107,7 +107,7 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 
 // Parse time into standard unix epoch time (easier to use)
 // By default, will attempt to auto-detect and cache format
-// {func <time> [format]}
+// {func <time> [format:cache] [tz:utc]}
 func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
 		return stageError(ErrorArgCount)
@@ -136,7 +136,7 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
-// {func <unixtime> [format] [*utc*/local]}
+// {func <unixtime> [format:RFC3339] [tz:utc]}
 func kfTimeFormat(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
 		return stageError(ErrorArgCount)

@@ -101,28 +101,19 @@ func TestTimeBucketUtc(t *testing.T) {
 
 // Time attributes
 
-func TestTimeAttrWeekday(t *testing.T) {
+func TestTimeAttr(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} weekday}",
 		"4")
-}
-
-func TestTimeAttrWeek(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} week}",
 		"15")
-}
-
-func TestTimeAttrYearWeek(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} Yearweek}",
 		"2016-15")
-}
-
-func TestTimeAttrQuarter(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} quarter}",
