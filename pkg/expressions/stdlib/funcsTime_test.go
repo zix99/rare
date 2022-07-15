@@ -148,6 +148,25 @@ func TestTimeAttrArgErrorExtra(t *testing.T) {
 		"<<ARGN>>")
 }
 
+// Utilities
+func TestLoadingTimezone(t *testing.T) {
+	tz, ok := parseTimezoneLocation("utc")
+	assert.Equal(t, tz, time.UTC)
+	assert.True(t, ok)
+
+	tz, ok = parseTimezoneLocation("Local")
+	assert.Equal(t, tz, time.Local)
+	assert.True(t, ok)
+
+	tz, ok = parseTimezoneLocation("America/New_York")
+	assert.NotNil(t, tz)
+	assert.True(t, ok)
+
+	tz, ok = parseTimezoneLocation("not a real timezone")
+	assert.Equal(t, tz, time.UTC)
+	assert.False(t, ok)
+}
+
 // BenchmarkTimeParseExpression-4   	  537970	      2133 ns/op	     536 B/op	       9 allocs/op
 func BenchmarkTimeParseExpression(b *testing.B) {
 	stage := kfTimeParse([]expressions.KeyBuilderStage{
