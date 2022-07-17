@@ -260,11 +260,11 @@ See: [json](json.md) for more information.
 ### Time
 
 Syntax:
-`{time str "[format]" "[tz]"}`
-`{timeformat unixtime "[format]" "[tz]"}`
+`{time str "[format:cache]" "[tz:utc]"}`
+`{timeformat unixtime "[format:RFC3339]" "[tz:utc]"}`
 `{duration dur}`
-`{buckettime str bucket "[format]" "[tz]"}`
-`{timeattr unixtime attr [utc/local]"}`
+`{buckettime str bucket "[format]" "[tz:utc]"}`
+`{timeattr unixtime attr [tz:utc]"}`
 
 These three time functions provide you a way to parse and manipulate time.
 
