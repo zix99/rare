@@ -179,6 +179,22 @@ func kfDuration(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
+// {func <secs>} format seconds to duration
+func kfDurationFormat(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 1 {
+		return stageError(ErrorArgCount)
+	}
+
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		secs, err := strconv.ParseInt(args[0](context), 10, 64)
+		if err != nil {
+			return ErrorType
+		}
+
+		return (time.Duration(secs) * time.Second).String()
+	})
+}
+
 func timeBucketToFormat(name string) string {
 	name = strings.ToLower(name)
 

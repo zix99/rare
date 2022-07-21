@@ -73,11 +73,12 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"csv": KeyBuilderFunction(kfCsv),
 
 	// Time
-	"time":       KeyBuilderFunction(kfTimeParse),
-	"timeformat": KeyBuilderFunction(kfTimeFormat),
-	"buckettime": KeyBuilderFunction(kfBucketTime),
-	"duration":   KeyBuilderFunction(kfDuration),
-	"timeattr":   KeyBuilderFunction(kfTimeAttr),
+	"time":           KeyBuilderFunction(kfTimeParse),
+	"timeformat":     KeyBuilderFunction(kfTimeFormat),
+	"timeattr":       KeyBuilderFunction(kfTimeAttr),
+	"buckettime":     KeyBuilderFunction(kfBucketTime),
+	"duration":       KeyBuilderFunction(kfDuration),
+	"durationformat": KeyBuilderFunction(kfDurationFormat),
 
 	// Color and drawing
 	"color":  KeyBuilderFunction(kfColor),

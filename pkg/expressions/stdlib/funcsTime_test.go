@@ -24,6 +24,10 @@ func TestFormatExpression(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{timeformat {time {0} NGINX} RFC3339 utc}",
 		"2016-04-14T17:12:25Z")
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		`{timeformat {time {0} "_2/Jan/2006:15:04:05 -0700"} RFC3339 utc}`,
+		"2016-04-14T17:12:25Z")
 }
 
 func TestTimeExpressionDetection(t *testing.T) {
@@ -74,6 +78,17 @@ func TestDuration(t *testing.T) {
 		mockContext(),
 		"{duration 24h}",
 		strconv.Itoa(60*60*24))
+}
+
+func TestDurationFormat(t *testing.T) {
+	testExpression(t,
+		mockContext("14400"),
+		"{durationformat {0}}",
+		"4h0m0s")
+	testExpression(t,
+		mockContext("14400"),
+		"{durationformat {0} b}",
+		"<<ARGN>>")
 }
 
 // Bucketing
