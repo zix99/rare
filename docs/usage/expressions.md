@@ -259,14 +259,29 @@ See: [json](json.md) for more information.
 
 ### Time
 
-Syntax: `{time str "[format]"}` `{timeformat unixtime "[format]" "[utc]"}` `{duration dur}` `{buckettime str bucket "[format]"}`
+Syntax:
+`{time str "[format:cache]" "[tz:utc]"}`
+`{timeformat unixtime "[format:RFC3339]" "[tz:utc]"}`
+`{timeattr unixtime attr [tz:utc]"}`
+`{duration dur}`
+`{durationformat secs}`
+`{buckettime str bucket "[format]" "[tz:utc]"}`
 
 These three time functions provide you a way to parse and manipulate time.
 
- * `time`: Parse a given time-string into a unix second time (default: RFC3339)
- * `timeformat`: Takes a unix time, and formats it (default: auto-detection)
+ * `time`: Parse a given time-string into a unix second time (default: auto-detection)
+ * `timeformat`: Takes a unix time, and formats it (default: RFC3339)
+ * `timeattr`: Extracts an attribute about a given datetime (weekday, week, yearweek, quarter)
  * `duration`: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
+ * `durationformat`: Formats a duration (in seconds) to a human-readable time, (eg. 4h0m0s)
  * `buckettime`: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
+
+
+**Timezones:**
+
+The following values are accepted for a `tz` (timezone): `utc`, `local`, or a valid *IANA Time Zone*
+
+By default, all datetimes are processed as UTC, unless explicit in the datetime itself, or overridden via a parameter.
 
 **Format Auto-Detection:**
 
@@ -274,9 +289,9 @@ If the format argument is ommitted or set to "auto", it will attempt to resolve 
 
 If the format is unable to be resolved, it must be specific manually with a format below, or a custom format.
 
-If ommitted: The first seen date will determine the format for all dates going forward (faster)
+If ommitted or "cache": The first seen date will determine the format for all dates going forward (faster)
 
-If "auto":   The date format will always be auto-detected. This can be used if the date could be in different formats (slower)
+If "auto":   The date format will always be auto-detected each time. This can be used if the date could be in different formats (slower)
 
 **Special Values:**
 The time `now` will return the current unix timestamp `{time now}`
@@ -287,7 +302,7 @@ The time `now` will return the current unix timestamp `{time now}`
 ASNIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339N, NGINX
 
 **Additional formats for formatting:**
-MONTH, DAY, YEAR, HOUR, MINUTE, SECOND, TIMEZONE, NTIMEZONE
+MONTH, MONTHNAME, MNTH, DAY, WEEKDAY, WDAY, YEAR, HOUR, MINUTE, SECOND, TIMEZONE, NTIMEZONE
 
 **Custom formats:**
 You can provide a custom format using go's well-known date. Here's an exercept from their docs:
