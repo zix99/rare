@@ -14,6 +14,7 @@ import (
 const defaultTimeFormat = time.RFC3339
 
 var timeFormats = map[string]string{
+	"": defaultTimeFormat,
 	// Standard formats
 	"ASNIC":    time.ANSIC,
 	"UNIX":     time.UnixDate,

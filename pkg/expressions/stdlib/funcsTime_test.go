@@ -20,13 +20,20 @@ func TestTimeExpression(t *testing.T) {
 }
 
 func TestFormatExpression(t *testing.T) {
+	// Defined type
 	testExpression(t,
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{timeformat {time {0} NGINX} RFC3339 utc}",
 		"2016-04-14T17:12:25Z")
+	// Explicit
 	testExpression(t,
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		`{timeformat {time {0} "_2/Jan/2006:15:04:05 -0700"} RFC3339 utc}`,
+		"2016-04-14T17:12:25Z")
+	// Default/empty-string
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		`{timeformat {time {0}} "" utc}`,
 		"2016-04-14T17:12:25Z")
 }
 
