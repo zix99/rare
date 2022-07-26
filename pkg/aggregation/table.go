@@ -83,6 +83,7 @@ func (s *TableAggregator) Columns() []string {
 	return keys
 }
 
+// OrderedColumns returns columns ordered by the column's value first
 func (s *TableAggregator) OrderedColumns() []string {
 	keys := s.Columns()
 
@@ -95,6 +96,14 @@ func (s *TableAggregator) OrderedColumns() []string {
 		return c0 > c1
 	})
 
+	return keys
+}
+
+func (s *TableAggregator) OrderedColumnsByName() []string {
+	keys := s.Columns()
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
 	return keys
 }
 
@@ -112,6 +121,7 @@ func (s *TableAggregator) Rows() []*TableRow {
 	return rows
 }
 
+// OrderedRows returns rows ordered first by the sum of the row, and then by name if equal
 func (s *TableAggregator) OrderedRows() []*TableRow {
 	rows := s.Rows()
 
@@ -125,11 +135,12 @@ func (s *TableAggregator) OrderedRows() []*TableRow {
 	return rows
 }
 
+// OrderedRowsByName orders rows by name
 func (s *TableAggregator) OrderedRowsByName() []*TableRow {
 	rows := s.Rows()
 
 	sort.Slice(rows, func(i, j int) bool {
-		return rows[i].name > rows[j].name
+		return rows[i].name < rows[j].name
 	})
 
 	return rows

@@ -41,8 +41,11 @@ func TestTableMultiIncrement(t *testing.T) {
 	table.Sample("b c -1")
 
 	rows := table.OrderedRowsByName()
-	assert.Equal(t, "c", rows[0].Name())
-	assert.Equal(t, int64(5), rows[0].Value("b"))
-	assert.Equal(t, "b", rows[1].Name())
-	assert.Equal(t, int64(1), rows[1].Value("a"))
+	assert.Equal(t, "b", rows[0].Name())
+	assert.Equal(t, int64(1), rows[0].Value("a"))
+	assert.Equal(t, "c", rows[1].Name())
+	assert.Equal(t, int64(5), rows[1].Value("b"))
+
+	assert.Equal(t, []string{"a", "b"}, table.OrderedColumnsByName())
+	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns())
 }

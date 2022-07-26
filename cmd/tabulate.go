@@ -35,7 +35,13 @@ func tabulateFunction(c *cli.Context) error {
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
-		cols := minColSlice(numCols, append([]string{""}, counter.OrderedColumns()...))
+		var cols []string
+		if sortByKeys {
+			cols = counter.OrderedColumnsByName()
+		} else {
+			cols = counter.OrderedColumns()
+		}
+		cols = minColSlice(numCols, append([]string{""}, cols...))
 		writer.WriteRow(0, cols...)
 
 		var rows []*aggregation.TableRow
