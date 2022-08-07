@@ -16,7 +16,7 @@ type TableAggregator struct {
 	delim  string
 	errors uint64
 	rows   map[string]*TableRow
-	cols   map[string]uint64 // Columns that track usage count (to sort)
+	cols   map[string]int64 // Columns that track totals
 }
 
 func NewTable(delim string) *TableAggregator {
@@ -24,7 +24,7 @@ func NewTable(delim string) *TableAggregator {
 		delim:  delim,
 		errors: 0,
 		rows:   make(map[string]*TableRow),
-		cols:   make(map[string]uint64),
+		cols:   make(map[string]int64),
 	}
 }
 
@@ -56,7 +56,7 @@ func (s *TableAggregator) Sample(ele string) {
 }
 
 func (s *TableAggregator) SampleItem(colKey, rowKey string, inc int64) {
-	s.cols[colKey]++
+	s.cols[colKey] += inc
 
 	row := s.rows[rowKey]
 	if row == nil {
@@ -146,10 +146,27 @@ func (s *TableAggregator) OrderedRowsByName() []*TableRow {
 	return rows
 }
 
+// ColTotals returns column oriented totals (Do not change!)
+func (s *TableAggregator) ColTotal(k string) int64 {
+	return s.cols[k]
+}
+
+func (s *TableAggregator) Sum() (ret int64) {
+	for _, v := range s.cols {
+		ret += v
+	}
+	return
+}
+
 func (s *TableRow) Name() string {
 	return s.name
 }
 
 func (s *TableRow) Value(colKey string) int64 {
 	return s.cols[colKey]
+}
+
+// Sum is the total sum of all values in the row
+func (s *TableRow) Sum() int64 {
+	return s.sum
 }

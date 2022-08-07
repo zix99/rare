@@ -21,6 +21,8 @@ func TestSimpleTable(t *testing.T) {
 	assert.Equal(t, 2, len(rows))
 	assert.Equal(t, "c", rows[0].Name())
 	assert.Equal(t, "b", rows[1].Name())
+	assert.Equal(t, int64(4), rows[0].Sum())
+	assert.Equal(t, int64(1), rows[1].Sum())
 	assert.Equal(t, int64(3), rows[0].Value("b"))
 	assert.Equal(t, int64(1), rows[0].Value("a"))
 
@@ -31,6 +33,14 @@ func TestSimpleTable(t *testing.T) {
 	assert.Contains(t, table.Columns(), "b")
 	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns())
 	assert.Equal(t, uint64(1), table.ParseErrors())
+
+	// Col totals
+	assert.Equal(t, int64(2), table.ColTotal("a"))
+	assert.Equal(t, int64(3), table.ColTotal("b"))
+	assert.Equal(t, int64(0), table.ColTotal("c"))
+
+	// Totals
+	assert.Equal(t, int64(5), table.Sum())
 }
 
 func TestTableMultiIncrement(t *testing.T) {
@@ -40,12 +50,19 @@ func TestTableMultiIncrement(t *testing.T) {
 	table.Sample("b c 3")
 	table.Sample("b c -1")
 
+	// Row names and col vals
 	rows := table.OrderedRowsByName()
 	assert.Equal(t, "b", rows[0].Name())
 	assert.Equal(t, int64(1), rows[0].Value("a"))
 	assert.Equal(t, "c", rows[1].Name())
 	assert.Equal(t, int64(5), rows[1].Value("b"))
 
+	// Column names
 	assert.Equal(t, []string{"a", "b"}, table.OrderedColumnsByName())
 	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns())
+
+	// Totals
+	assert.Equal(t, int64(5), table.ColTotal("b"))
+	assert.Equal(t, int64(1), table.ColTotal("a"))
+	assert.Equal(t, int64(6), table.Sum())
 }
