@@ -27,7 +27,7 @@ func NewTable(term multiterm.MultilineTerm, maxCols, maxRows int) *TableWriter {
 }
 
 func (s *TableWriter) WriteFooter(idx int, line string) {
-	s.term.WriteForLine(s.activeRows+idx+1, line)
+	s.term.WriteForLine(s.activeRows+idx, line)
 }
 
 func (s *TableWriter) Close() {

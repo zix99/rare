@@ -26,7 +26,7 @@ func tabulateFunction(c *cli.Context) error {
 		numRows    = c.Int("num")
 		numCols    = c.Int("cols")
 		sortByKeys = c.Bool("sortkey")
-		rowtotals  = c.Bool("rowtotals") || c.Bool("x")
+		rowtotals  = c.Bool("rowtotal") || c.Bool("x")
 		coltotals  = c.Bool("coltotal") || c.Bool("x")
 	)
 
