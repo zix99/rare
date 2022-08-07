@@ -26,10 +26,12 @@ func tabulateFunction(c *cli.Context) error {
 		numRows    = c.Int("num")
 		numCols    = c.Int("cols")
 		sortByKeys = c.Bool("sortkey")
+		rowtotals  = c.Bool("rowtotals") || c.Bool("x")
+		coltotals  = c.Bool("coltotal") || c.Bool("x")
 	)
 
 	counter := aggregation.NewTable(delim)
-	writer := termrenderers.NewTable(multiterm.New(), numCols, numRows)
+	writer := termrenderers.NewTable(multiterm.New(), numCols+2, numRows+2)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
@@ -41,26 +43,59 @@ func tabulateFunction(c *cli.Context) error {
 		} else {
 			cols = counter.OrderedColumns()
 		}
-		cols = minColSlice(numCols, append([]string{""}, cols...))
-		writer.WriteRow(0, cols...)
+		cols = minColSlice(numCols, cols) // Cap columns
 
+		// Write header row
+		{
+			colNames := make([]string, len(cols)+2)
+			for i, name := range cols {
+				colNames[i+1] = color.Wrap(color.Underline+color.BrightBlue, name)
+			}
+			if rowtotals {
+				colNames[len(cols)+1] = color.Wrap(color.Underline+color.BrightBlack, "Total")
+			}
+			writer.WriteRow(0, colNames...)
+		}
+
+		// Write each row
 		var rows []*aggregation.TableRow
 		if sortByKeys {
 			rows = counter.OrderedRowsByName()
 		} else {
 			rows = counter.OrderedRows()
 		}
+
 		line := 1
-		for i := 0; i < len(rows) && line < writer.MaxRows(); i++ {
+		for i := 0; i < len(rows) && i < numRows; i++ {
 			row := rows[i]
-			rowVals := make([]string, len(cols)+1)
-			rowVals[0] = row.Name()
-			for idx, colName := range cols[1:] {
-				rowVals[1+idx] = humanize.Hi(row.Value(colName))
+			rowVals := make([]string, len(cols)+2)
+			rowVals[0] = color.Wrap(color.Yellow, row.Name())
+			for idx, colName := range cols {
+				rowVals[idx+1] = humanize.Hi(row.Value(colName))
+			}
+			if rowtotals {
+				rowVals[len(rowVals)-1] = color.Wrap(color.BrightBlack, humanize.Hi(row.Sum()))
 			}
 			writer.WriteRow(line, rowVals...)
 			line++
 		}
+
+		// Write totals
+		if coltotals {
+			rowVals := make([]string, len(cols)+2)
+			rowVals[0] = color.Wrap(color.BrightBlack+color.Underline, "Total")
+			for idx, colName := range cols {
+				rowVals[idx+1] = color.Wrap(color.BrightBlack, humanize.Hi(counter.ColTotal(colName)))
+			}
+
+			if rowtotals { // super total
+				sum := counter.Sum()
+				rowVals[len(rowVals)-1] = color.Wrap(color.BrightWhite, humanize.Hi(sum))
+			}
+
+			writer.WriteRow(line, rowVals...)
+		}
+
 		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
 		writer.WriteFooter(1, batcher.StatusString())
@@ -88,7 +123,7 @@ func tabulateCommand() *cli.Command {
 				Value: expressions.ArraySeparatorString,
 			},
 			cli.IntFlag{
-				Name:  "num,n",
+				Name:  "num,n,rows",
 				Usage: "Number of elements to display",
 				Value: 20,
 			},
@@ -100,6 +135,18 @@ func tabulateCommand() *cli.Command {
 			cli.BoolFlag{
 				Name:  "sortkey,sk",
 				Usage: "Sort rows by key name rather than by values",
+			},
+			cli.BoolFlag{
+				Name:  "rowtotal",
+				Usage: "Show row totals",
+			},
+			cli.BoolFlag{
+				Name:  "coltotal",
+				Usage: "Show column totals",
+			},
+			cli.BoolFlag{
+				Name:  "extra,x",
+				Usage: "Display row and column totals",
 			},
 		},
 	})
