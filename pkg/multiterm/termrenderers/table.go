@@ -10,29 +10,24 @@ import (
 
 type TableWriter struct {
 	maxCols, maxRows int
-	currentRows      int
+	activeRows       int
 	term             multiterm.MultilineTerm
-	maxElementLen    int
+	colWidth         []int
 	rows             [][]string
-
-	HighlightRow0 bool
-	HighlightCol0 bool
 }
 
 func NewTable(term multiterm.MultilineTerm, maxCols, maxRows int) *TableWriter {
 	return &TableWriter{
-		maxCols:       maxCols,
-		maxRows:       maxRows,
-		term:          term,
-		rows:          make([][]string, maxRows),
-		maxElementLen: 8,
-		HighlightRow0: true,
-		HighlightCol0: true,
+		maxCols:  maxCols,
+		maxRows:  maxRows,
+		term:     term,
+		rows:     make([][]string, maxRows),
+		colWidth: make([]int, maxCols),
 	}
 }
 
 func (s *TableWriter) WriteFooter(idx int, line string) {
-	s.term.WriteForLine(s.currentRows+idx+1, line)
+	s.term.WriteForLine(s.activeRows+idx, line)
 }
 
 func (s *TableWriter) Close() {
@@ -51,21 +46,23 @@ func (s *TableWriter) WriteRow(rowNum int, cols ...string) {
 	if rowNum >= s.maxRows {
 		return
 	}
-	if rowNum > s.currentRows {
-		s.currentRows = rowNum
+	if rowNum >= s.activeRows {
+		s.activeRows = rowNum + 1
 	}
 
 	s.rows[rowNum] = cols
 
 	needFullUpdate := false
-	for _, val := range cols {
-		if len(val) > s.maxElementLen {
-			s.maxElementLen = len(val)
+	for i := 0; i < len(cols) && i < s.maxCols; i++ {
+		runeLen := color.StrLen(cols[i])
+		if runeLen > s.colWidth[i] {
+			s.colWidth[i] = runeLen
+			needFullUpdate = true
 		}
 	}
 
 	if needFullUpdate {
-		for i := 0; i < s.currentRows; i++ {
+		for i := 0; i < s.activeRows; i++ {
 			s.writeRow(i, s.rows[i]...)
 		}
 	} else {
@@ -75,18 +72,15 @@ func (s *TableWriter) WriteRow(rowNum int, cols ...string) {
 
 func (s *TableWriter) writeRow(rowNum int, cols ...string) {
 	var sb strings.Builder
+
 	for i := 0; i < len(cols) && i < s.maxCols; i++ {
-		if rowNum == 0 && s.HighlightRow0 {
-			sb.WriteString(color.Wrap(color.Underline+color.BrightBlue, cols[i]))
-		} else if i == 0 && s.HighlightCol0 {
-			sb.WriteString(color.Wrap(color.Yellow, cols[i]))
-		} else {
-			sb.WriteString(cols[i])
-		}
-		for j := 0; j < s.maxElementLen-len(cols[i]); j++ {
+		runeLen := color.StrLen(cols[i])
+		sb.WriteString(cols[i])
+		for j := 0; j < s.colWidth[i]-runeLen; j++ {
 			sb.WriteRune(' ')
 		}
 		sb.WriteRune(' ')
 	}
+
 	s.term.WriteForLine(rowNum, sb.String())
 }
