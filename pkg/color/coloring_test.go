@@ -108,3 +108,13 @@ func TestLookupColor(t *testing.T) {
 	assert.NotEmpty(t, c)
 	assert.False(t, ok)
 }
+
+func TestStringLength(t *testing.T) {
+	assert.Equal(t, 4, StrLen("test"))
+	assert.Equal(t, 4, StrLen(Wrap(Red, "test")))
+	assert.Equal(t, 12, StrLen(Wrap(Underline, Wrap(Red, "test")+" another")))
+
+	Enabled = false
+	assert.Equal(t, 4, StrLen(Wrap(Red, "test")))
+	Enabled = true
+}

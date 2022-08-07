@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	escapeRune     = '\x1b'
 	escapeCode     = "\x1b"
 	foregroundCode = "[3"
 )
@@ -136,4 +137,23 @@ func LookupColorByName(s string) (ColorCode, bool) {
 		return c, true
 	}
 	return BrightRed, false
+}
+
+// StrLen ignoring any color codes. If color disabled, returns len(s)
+func StrLen(s string) (ret int) {
+	if !Enabled {
+		return len(s)
+	}
+
+	inCode := false
+	for _, r := range s {
+		if r == escapeRune {
+			inCode = true
+		} else if inCode && r == 'm' {
+			inCode = false
+		} else if !inCode {
+			ret++
+		}
+	}
+	return
 }
