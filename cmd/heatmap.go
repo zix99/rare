@@ -53,7 +53,7 @@ func heatmapCommand() *cli.Command {
 				Value: expressions.ArraySeparatorString,
 			},
 			cli.IntFlag{
-				Name:  "num,n",
+				Name:  "num,n,rows",
 				Usage: "Number of elements (rows) to display",
 				Value: 20,
 			},
