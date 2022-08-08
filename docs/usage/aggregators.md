@@ -177,3 +177,24 @@ Rows: 223; Cols: 6
 ```
 
 ![Gif of table](../images/rare-table.gif)
+
+## Heatmap
+
+```sh
+rare help heatmap
+```
+
+### Summary
+
+Create a dense, color-coded, version of table-data by using cells to display
+the strength of a value. Can either use `\x00` or the `{$ a b}` helper.  First
+element is the column name, followed by the row name.
+
+### Example
+
+```bash
+$ rare heatmap -m '\[(.+?)\].*" (\d+)' \
+    -e "{timeattr {time {1}} yearweek}" -e "{2}" access.log
+```
+
+![Gif of heatmap](../images/heatmap.gif)
