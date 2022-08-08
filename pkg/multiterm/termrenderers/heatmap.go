@@ -23,7 +23,7 @@ func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
 		rowCount:       rows,
 		colCount:       cols,
 		term:           term,
-		maxRowKeyWidth: 8,
+		maxRowKeyWidth: 4,
 		maxVal:         1,
 	}
 }
@@ -106,11 +106,11 @@ func (s *Heatmap) WriteHeader(colNames []string) (colCount int) {
 				sb.WriteString(strings.Repeat(headerDelim[0:1], indent))
 				i += indent
 			}
-			sb.WriteString(singleUnderline(last, colCount-i-1))
+			sb.WriteString(underlineHeaderChar(last, colCount-i-1))
 			break
 		}
 
-		sb.WriteString(singleUnderline(name, 0))
+		sb.WriteString(underlineHeaderChar(name, 0))
 		i += len(name)
 	}
 
@@ -128,7 +128,7 @@ func (s *Heatmap) WriteRow(idx int, row *aggregation.TableRow, cols []string) {
 	}
 
 	var sb strings.Builder
-	sb.WriteString(row.Name())
+	sb.WriteString(color.Wrap(color.Yellow, row.Name()))
 	sb.WriteString(strings.Repeat(" ", s.maxRowKeyWidth-len(row.Name())+1))
 
 	for i := 0; i < len(cols); i++ {
@@ -146,9 +146,17 @@ func mini(i, j int) int {
 	return j
 }
 
-func singleUnderline(word string, letter int) string {
-	if letter >= 0 && letter < len(word) {
-		return word[:letter] + color.Wrap(color.Underline, string(word[letter])) + word[letter+1:]
+func underlineHeaderChar(word string, letter int) string {
+	if !color.Enabled {
+		return word
 	}
-	return word
+	if letter >= 0 && letter < len(word) {
+		var sb strings.Builder
+		sb.Grow(len(word) * 2)
+		sb.WriteString(color.Wrap(color.BrightBlue, word[:letter]))
+		sb.WriteString(color.Wrap(color.Underline+color.BrightCyan, string(word[letter])))
+		sb.WriteString(color.Wrap(color.BrightBlue, word[letter+1:]))
+		return sb.String()
+	}
+	return color.Wrap(color.BrightBlue, word)
 }

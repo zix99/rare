@@ -1,7 +1,7 @@
 package multiterm
 
 import (
-	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,5 +16,8 @@ func TestVirtualTerm(t *testing.T) {
 	assert.Equal(t, "", vt.Get(1))
 	assert.Equal(t, 3, vt.LineCount())
 
-	vt.WriteToOutput(os.Stdout)
+	var sb strings.Builder
+	vt.WriteToOutput(&sb)
+
+	assert.Equal(t, "Hello\n\nThar\n", sb.String())
 }
