@@ -11,17 +11,20 @@ type VirtualTerm struct {
 var _ MultilineTerm = &VirtualTerm{}
 
 func NewVirtualTerm() *VirtualTerm {
+	return NewVirtualTermEx(0, 10)
+}
+
+func NewVirtualTermEx(size, cap int) *VirtualTerm {
 	return &VirtualTerm{
-		lines: make([]string, 0),
+		lines: make([]string, size, cap),
 	}
 }
 
 func (s *VirtualTerm) WriteForLine(line int, text string) {
-	if line >= len(s.lines) {
-		old := s.lines
-		s.lines = make([]string, line+1)
-		copy(s.lines, old)
+	for line >= len(s.lines) {
+		s.lines = append(s.lines, "")
 	}
+
 	s.lines[line] = text
 }
 

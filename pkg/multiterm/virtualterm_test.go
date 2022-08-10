@@ -16,6 +16,11 @@ func TestVirtualTerm(t *testing.T) {
 	assert.Equal(t, "", vt.Get(1))
 	assert.Equal(t, 3, vt.LineCount())
 
+	// Out of bounds
+	assert.Equal(t, "", vt.Get(-1))
+	assert.Equal(t, "", vt.Get(3))
+
+	// Full write
 	var sb strings.Builder
 	vt.WriteToOutput(&sb)
 
