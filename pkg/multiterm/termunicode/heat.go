@@ -41,7 +41,7 @@ func HeatWriteLinear(w io.StringWriter, val, min, max int64) {
 		blockChar = fullBlock
 	}
 
-	if max-min == 0 {
+	if max-min <= 0 {
 		w.WriteString(color.Wrap(heatmapColors[0], string(blockChar)))
 	} else {
 		blockIdx := (val * int64(len(heatmapColors))) / (max - min)

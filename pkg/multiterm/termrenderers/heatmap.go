@@ -29,7 +29,7 @@ func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
 }
 
 func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
-	s.SetMinMax(agg.Min(), agg.Max())
+	s.UpdateMinMax(agg.Min(), agg.Max())
 
 	// Write header
 	colNames := agg.OrderedColumnsByName() // TODO: Smart? eg. by number?
@@ -55,7 +55,7 @@ func (s *Heatmap) WriteFooter(idx int, line string) {
 	s.term.WriteForLine(s.currentRows+idx, line)
 }
 
-func (s *Heatmap) SetMinMax(min, max int64) {
+func (s *Heatmap) UpdateMinMax(min, max int64) {
 	s.minVal = min
 	s.maxVal = max
 

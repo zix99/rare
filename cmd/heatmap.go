@@ -33,7 +33,7 @@ func heatmapFunction(c *cli.Context) error {
 		writer.WriteFooter(1, batcher.StatusString())
 	})
 
-	return helpers.DetermineErrorState(batcher, ext, nil)
+	return helpers.DetermineErrorState(batcher, ext, counter)
 }
 
 func heatmapCommand() *cli.Command {
