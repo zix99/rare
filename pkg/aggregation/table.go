@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"math"
 	"rare/pkg/stringSplitter"
 	"sort"
 	"strconv"
@@ -13,19 +14,16 @@ type TableRow struct {
 }
 
 type TableAggregator struct {
-	delim    string
-	errors   uint64
-	min, max int64
-	rows     map[string]*TableRow
-	cols     map[string]int64 // Columns that track totals
+	delim  string
+	errors uint64
+	rows   map[string]*TableRow
+	cols   map[string]int64 // Columns that track totals
 }
 
 func NewTable(delim string) *TableAggregator {
 	return &TableAggregator{
 		delim:  delim,
 		errors: 0,
-		min:    0,
-		max:    0,
 		rows:   make(map[string]*TableRow),
 		cols:   make(map[string]int64),
 	}
@@ -70,15 +68,7 @@ func (s *TableAggregator) SampleItem(colKey, rowKey string, inc int64) {
 		s.rows[rowKey] = row
 	}
 
-	curr := row.cols[colKey]
-	curr += inc
-	if curr > s.max {
-		s.max = curr
-	}
-	if curr < s.min {
-		s.min = curr
-	}
-	row.cols[colKey] = curr
+	row.cols[colKey] += inc
 	row.sum += inc
 }
 
@@ -159,12 +149,34 @@ func (s *TableAggregator) OrderedRowsByName() []*TableRow {
 	return rows
 }
 
-func (s *TableAggregator) Min() int64 {
-	return s.min
+func (s *TableAggregator) ComputeMin() (ret int64) {
+	ret = math.MaxInt64
+	for _, r := range s.rows {
+		for colKey := range s.cols {
+			if val := r.cols[colKey]; val < ret {
+				ret = val
+			}
+		}
+	}
+	if ret == math.MaxInt64 {
+		return 0
+	}
+	return
 }
 
-func (s *TableAggregator) Max() int64 {
-	return s.max
+func (s *TableAggregator) ComputeMax() (ret int64) {
+	ret = math.MinInt64
+	for _, r := range s.rows {
+		for colKey := range s.cols {
+			if val := r.cols[colKey]; val > ret {
+				ret = val
+			}
+		}
+	}
+	if ret == math.MinInt64 {
+		return 0
+	}
+	return
 }
 
 // ColTotals returns column oriented totals (Do not change!)

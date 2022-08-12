@@ -14,9 +14,13 @@ import (
 
 func heatmapFunction(c *cli.Context) error {
 	var (
-		delim   = c.String("delim")
-		numRows = c.Int("num")
-		numCols = c.Int("cols")
+		delim    = c.String("delim")
+		numRows  = c.Int("num")
+		numCols  = c.Int("cols")
+		minFixed = c.IsSet("min")
+		minVal   = c.Int64("min")
+		maxFixed = c.IsSet("max")
+		maxVal   = c.Int64("max")
 	)
 
 	counter := aggregation.NewTable(delim)
@@ -25,6 +29,12 @@ func heatmapFunction(c *cli.Context) error {
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
 
 	writer := termrenderers.NewHeatmap(multiterm.New(), numRows, numCols)
+
+	writer.FixedMin = minFixed
+	writer.FixedMax = maxFixed
+	if minFixed || maxFixed {
+		writer.UpdateMinMax(minVal, maxVal)
+	}
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		writer.WriteTable(counter)
@@ -61,6 +71,14 @@ func heatmapCommand() *cli.Command {
 				Name:  "cols",
 				Usage: "Number of columns to display",
 				Value: multiterm.TermCols() - 15,
+			},
+			cli.Int64Flag{
+				Name:  "min",
+				Usage: "Sets the lower bounds of the heatmap (default: auto)",
+			},
+			cli.Int64Flag{
+				Name:  "max",
+				Usage: "Sets the upper bounds of the heatmap (default: auto)",
 			},
 		},
 	})

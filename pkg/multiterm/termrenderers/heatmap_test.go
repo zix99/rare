@@ -19,7 +19,7 @@ func TestSimpleHeatmap(t *testing.T) {
 	hm.WriteTable(agg)
 
 	assert.Equal(t, 3, vt.LineCount())
-	assert.Equal(t, "        █ 0    █ 0    █ 1", vt.Get(0))
+	assert.Equal(t, "        █ 1    █ 1    █ 1", vt.Get(0))
 	assert.Equal(t, "     test", vt.Get(1))
 	assert.Equal(t, "abc  █", vt.Get(2))
 	assert.Equal(t, "", vt.Get(3))

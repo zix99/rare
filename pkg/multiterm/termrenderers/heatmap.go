@@ -14,6 +14,7 @@ type Heatmap struct {
 	term               multiterm.MultilineTerm
 	rowCount, colCount int
 	minVal, maxVal     int64
+	FixedMin, FixedMax bool
 	maxRowKeyWidth     int // Max row width
 	currentRows        int // Currently used row count for non-footer
 }
@@ -29,7 +30,7 @@ func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
 }
 
 func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
-	s.UpdateMinMax(agg.Min(), agg.Max())
+	s.UpdateMinMaxFromData(agg)
 
 	// Write header
 	colNames := agg.OrderedColumnsByName() // TODO: Smart? eg. by number?
@@ -53,6 +54,19 @@ func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
 
 func (s *Heatmap) WriteFooter(idx int, line string) {
 	s.term.WriteForLine(s.currentRows+idx, line)
+}
+
+func (s *Heatmap) UpdateMinMaxFromData(agg *aggregation.TableAggregator) {
+	min := s.minVal
+	if !s.FixedMin {
+		min = agg.ComputeMin()
+	}
+	max := s.maxVal
+	if !s.FixedMax {
+		max = agg.ComputeMax()
+	}
+
+	s.UpdateMinMax(min, max)
 }
 
 func (s *Heatmap) UpdateMinMax(min, max int64) {

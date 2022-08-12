@@ -43,8 +43,8 @@ func TestSimpleTable(t *testing.T) {
 	assert.Equal(t, int64(5), table.Sum())
 
 	// Minmax
-	assert.Equal(t, int64(0), table.Min())
-	assert.Equal(t, int64(3), table.Max())
+	assert.Equal(t, int64(0), table.ComputeMin())
+	assert.Equal(t, int64(3), table.ComputeMax())
 }
 
 func TestTableMultiIncrement(t *testing.T) {
@@ -71,6 +71,6 @@ func TestTableMultiIncrement(t *testing.T) {
 	assert.Equal(t, int64(6), table.Sum())
 
 	// Minmax
-	assert.Equal(t, int64(0), table.Min())
-	assert.Equal(t, int64(6), table.Max())
+	assert.Equal(t, int64(0), table.ComputeMin())
+	assert.Equal(t, int64(5), table.ComputeMax())
 }
