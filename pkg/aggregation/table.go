@@ -52,7 +52,7 @@ func (s *TableAggregator) Sample(ele string) {
 	} else if has1 {
 		s.SampleItem(part0, part1, 1)
 	} else {
-		s.errors++
+		s.SampleItem(part0, "", 1)
 	}
 }
 

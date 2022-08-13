@@ -23,7 +23,7 @@ func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
 		rowCount:       rows,
 		colCount:       cols,
 		term:           term,
-		maxRowKeyWidth: 4,
+		maxRowKeyWidth: 0,
 		maxVal:         1,
 	}
 }
@@ -73,7 +73,9 @@ func (s *Heatmap) UpdateMinMax(min, max int64) {
 	s.maxVal = max
 
 	var sb strings.Builder
-	sb.WriteString("        ")
+	for i := 0; i < s.maxRowKeyWidth+1; i++ {
+		sb.WriteRune(' ')
+	}
 
 	// Min
 	termunicode.HeatWriteLinear(&sb, s.minVal, s.minVal, s.maxVal)

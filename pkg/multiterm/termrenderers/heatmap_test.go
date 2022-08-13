@@ -16,10 +16,11 @@ func TestSimpleHeatmap(t *testing.T) {
 	agg := aggregation.NewTable(" ")
 	agg.Sample("test abc")
 
+	hm.maxRowKeyWidth = 4
 	hm.WriteTable(agg)
 
 	assert.Equal(t, 3, vt.LineCount())
-	assert.Equal(t, "        - 1    - 1    - 1", vt.Get(0))
+	assert.Equal(t, "     - 1    - 1    - 1", vt.Get(0))
 	assert.Equal(t, "     test", vt.Get(1))
 	assert.Equal(t, "abc  -", vt.Get(2))
 	assert.Equal(t, "", vt.Get(3))
@@ -39,11 +40,12 @@ func TestCompressedHeatmap(t *testing.T) {
 	agg.Sample("test abc3")
 	agg.Sample("test abc4")
 
+	hm.maxRowKeyWidth = 4
 	hm.WriteTable(agg)
 	hm.WriteFooter(0, "footer")
 
 	assert.Equal(t, 6, vt.LineCount())
-	assert.Equal(t, "        - 0    - 0    9 1", vt.Get(0))
+	assert.Equal(t, "     - 0    - 0    9 1", vt.Get(0))
 	assert.Equal(t, "     test1 (2 more)", vt.Get(1))
 	assert.Equal(t, "abc  99", vt.Get(2))
 	assert.Equal(t, "abc1 9-", vt.Get(3))

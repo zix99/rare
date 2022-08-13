@@ -13,7 +13,7 @@ func TestSimpleTable(t *testing.T) {
 	table.Sample("a b")
 	table.Sample("a c")
 	table.Sample("b c")
-	table.Sample("b")
+	table.Sample("b b q") // invalid
 
 	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns())
 
@@ -73,4 +73,20 @@ func TestTableMultiIncrement(t *testing.T) {
 	// Minmax
 	assert.Equal(t, int64(0), table.ComputeMin())
 	assert.Equal(t, int64(5), table.ComputeMax())
+}
+
+func TestSingleRowTable(t *testing.T) {
+	table := NewTable(" ")
+	table.Sample("a")
+	table.Sample("b")
+	table.Sample("a")
+
+	rows := table.Rows()
+	assert.Len(t, rows, 1)
+	assert.Empty(t, rows[0].Name())
+
+	assert.Len(t, table.Columns(), 2)
+
+	assert.Equal(t, int64(2), rows[0].Value("a"))
+	assert.Equal(t, int64(1), rows[0].Value("b"))
 }
