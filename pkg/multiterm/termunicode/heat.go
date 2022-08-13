@@ -26,6 +26,19 @@ var heatmapColors = []color.ColorCode{
 	heatmapEscape + "196m",
 }
 
+var heatmapAscii = []string{
+	"-",
+	"1",
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
+	"7",
+	"8",
+	"9",
+}
+
 var heatmapNonUnicode rune = '#'
 
 func HeatWriteLinear(w io.StringWriter, val, min, max int64) {
@@ -36,17 +49,27 @@ func HeatWriteLinear(w io.StringWriter, val, min, max int64) {
 		val = min
 	}
 
-	var blockChar = heatmapNonUnicode
-	if UnicodeEnabled {
-		blockChar = fullBlock
-	}
-
-	if max-min <= 0 {
-		w.WriteString(color.Wrap(heatmapColors[0], string(blockChar)))
+	if !color.Enabled {
+		// Fallback to numeric single-digit display when no colors are available
+		if max <= min {
+			w.WriteString(heatmapAscii[0])
+		} else {
+			idx := ((val - min) * int64(len(heatmapAscii))) / (max - min)
+			w.WriteString(heatmapAscii[idx])
+		}
 	} else {
-		blockIdx := ((val - min) * int64(len(heatmapColors))) / (max - min)
-		hc := heatmapColors[blockIdx]
+		var blockChar = heatmapNonUnicode
+		if UnicodeEnabled {
+			blockChar = fullBlock
+		}
 
-		w.WriteString(color.Wrap(hc, string(blockChar)))
+		if max <= min {
+			w.WriteString(color.Wrap(heatmapColors[0], string(blockChar)))
+		} else {
+			blockIdx := ((val - min) * int64(len(heatmapColors))) / (max - min)
+			hc := heatmapColors[blockIdx]
+
+			w.WriteString(color.Wrap(hc, string(blockChar)))
+		}
 	}
 }
