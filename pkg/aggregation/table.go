@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"math"
 	"rare/pkg/stringSplitter"
 	"sort"
 	"strconv"
@@ -101,9 +102,11 @@ func (s *TableAggregator) OrderedColumns() []string {
 
 func (s *TableAggregator) OrderedColumnsByName() []string {
 	keys := s.Columns()
+
 	sort.Slice(keys, func(i, j int) bool {
 		return keys[i] < keys[j]
 	})
+
 	return keys
 }
 
@@ -144,6 +147,36 @@ func (s *TableAggregator) OrderedRowsByName() []*TableRow {
 	})
 
 	return rows
+}
+
+func (s *TableAggregator) ComputeMin() (ret int64) {
+	ret = math.MaxInt64
+	for _, r := range s.rows {
+		for colKey := range s.cols {
+			if val := r.cols[colKey]; val < ret {
+				ret = val
+			}
+		}
+	}
+	if ret == math.MaxInt64 {
+		return 0
+	}
+	return
+}
+
+func (s *TableAggregator) ComputeMax() (ret int64) {
+	ret = math.MinInt64
+	for _, r := range s.rows {
+		for colKey := range s.cols {
+			if val := r.cols[colKey]; val > ret {
+				ret = val
+			}
+		}
+	}
+	if ret == math.MinInt64 {
+		return 0
+	}
+	return
 }
 
 // ColTotals returns column oriented totals (Do not change!)

@@ -10,6 +10,12 @@ terminalizer render -o temp.gif output.yml
 gifsicle -O3 --colors 128 -i temp.gif -o output.gif
 ```
 
+Note on environment; Make sure bashrc when terminalizer starts is set by changing `command:` in config yaml
+```bash
+export PS1="$ "
+export PATH="./:$PATH"
+```
+
 ### Recording
 
 ```bash
@@ -39,6 +45,10 @@ rare bars -s -m '\[(.+?)\].*" (\d+)' -e '{buckettime {1} year}' -e '{2}' access.
 ### Table
 
 rare table -m '\[(.+?)\].*" (\d+)' -e '{buckettime {1} year}' -e '{2}' access.log
+
+### Heatmap
+
+rare heatmap -m '\[(.+?)\].*" (\d+)' -e "{timeattr {time {1}} yearweek}" -e "{2}" access.log
 
 ### Analyze bytes sent, only looking at 200's
 

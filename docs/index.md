@@ -16,7 +16,7 @@ Supports various CLI-based graphing and metric formats (filter (grep-like), hist
 
 ## Features
 
- * Multiple summary formats including: filter (like grep), histogram, bar graphs, and numerical analysis
+ * Multiple summary formats including: filter (like grep), histogram, bar graphs, tables, heatmaps, and numerical analysis
  * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
  * Optional gzip decompression (with `-z`)
  * Following `-f` or re-open following `-F` (use `--poll` to poll, and `--tail` to tail)

@@ -18,7 +18,7 @@ See [rare.zdyn.net](https://rare.zdyn.net) or the [docs/ folder](docs/) for the 
 
 ## Features
 
- * Multiple summary formats including: filter (like grep), histogram, bar graphs, and numerical analysis
+ * Multiple summary formats including: filter (like grep), histogram, bar graphs, tables, heatmaps, and numerical analysis
  * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
  * Optional gzip decompression (with `-z`)
  * Following `-f` or re-open following `-F` (use `--poll` to poll, and `--tail` to tail)
@@ -37,6 +37,7 @@ Output formats include:
 * `filter` is grep-like, in that each line will be processed and the extracted key will be output directly to stdout
 * `histogram` will count instances of the extracted key
 * `table` will count the key in 2 dimensions
+* `heatmap` will display a color-coded version of the strength of a cell in a dense format
 * `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
 * `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
 
