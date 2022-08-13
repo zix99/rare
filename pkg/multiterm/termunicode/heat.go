@@ -7,7 +7,7 @@ import (
 
 const heatmapEscape = "\x1b[38;5;"
 
-var heatmapColors = []color.ColorCode{
+var heatmapColors = [...]color.ColorCode{
 	heatmapEscape + "16m",
 	heatmapEscape + "17m",
 	heatmapEscape + "18m",
@@ -26,7 +26,9 @@ var heatmapColors = []color.ColorCode{
 	heatmapEscape + "196m",
 }
 
-var heatmapAscii = []string{
+const heatmapColorsLen int64 = int64(len(heatmapColors))
+
+var heatmapAscii = [...]string{
 	"-",
 	"1",
 	"2",
@@ -39,11 +41,13 @@ var heatmapAscii = []string{
 	"9",
 }
 
-var heatmapNonUnicode rune = '#'
+const heatmapAsciiLen int64 = int64(len(heatmapAscii))
+
+const heatmapNonUnicode rune = '#'
 
 func HeatWriteLinear(w io.StringWriter, val, min, max int64) {
-	if val >= max {
-		val = max - 1
+	if val > max {
+		val = max
 	}
 	if val < min {
 		val = min
@@ -54,7 +58,7 @@ func HeatWriteLinear(w io.StringWriter, val, min, max int64) {
 		if max <= min {
 			w.WriteString(heatmapAscii[0])
 		} else {
-			idx := ((val - min) * int64(len(heatmapAscii))) / (max - min)
+			idx := ((val - min) * (heatmapAsciiLen - 1)) / (max - min)
 			w.WriteString(heatmapAscii[idx])
 		}
 	} else {
@@ -66,7 +70,7 @@ func HeatWriteLinear(w io.StringWriter, val, min, max int64) {
 		if max <= min {
 			w.WriteString(color.Wrap(heatmapColors[0], string(blockChar)))
 		} else {
-			blockIdx := ((val - min) * int64(len(heatmapColors))) / (max - min)
+			blockIdx := ((val - min) * (heatmapColorsLen - 1)) / (max - min)
 			hc := heatmapColors[blockIdx]
 
 			w.WriteString(color.Wrap(hc, string(blockChar)))
