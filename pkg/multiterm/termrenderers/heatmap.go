@@ -1,7 +1,6 @@
 package termrenderers
 
 import (
-	"fmt"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
 	"rare/pkg/humanize"
@@ -45,7 +44,7 @@ func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
 
 	// If more rows than can display, write how many were missed
 	if len(rows) > rowCount {
-		s.term.WriteForLine(2+rowCount, fmt.Sprintf("(%d more)", len(rows)-rowCount))
+		s.term.WriteForLine(2+rowCount, color.Wrapf(color.BrightBlack, "(%d more)", len(rows)-rowCount))
 		s.currentRows = 3 + rowCount
 	} else {
 		s.currentRows = 2 + rowCount
@@ -129,7 +128,7 @@ func (s *Heatmap) WriteHeader(colNames []string) (colCount int) {
 	}
 
 	if colCount < len(colNames) {
-		sb.WriteString(fmt.Sprintf(" (%d more)", len(colNames)-s.colCount))
+		sb.WriteString(color.Wrapf(color.BrightBlack, " (%d more)", len(colNames)-s.colCount))
 	}
 
 	s.term.WriteForLine(1, sb.String())
