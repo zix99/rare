@@ -33,7 +33,7 @@ func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
 
 	// Write header
 	colNames := agg.OrderedColumnsByName() // TODO: Smart? eg. by number?
-	colCount := s.WriteHeader(colNames)
+	colCount := s.WriteHeader(colNames...)
 
 	// Each row...
 	rows := agg.OrderedRowsByName()
@@ -98,7 +98,7 @@ func (s *Heatmap) UpdateMinMax(min, max int64) {
 	s.term.WriteForLine(0, sb.String())
 }
 
-func (s *Heatmap) WriteHeader(colNames []string) (colCount int) {
+func (s *Heatmap) WriteHeader(colNames ...string) (colCount int) {
 	colCount = mini(len(colNames), s.colCount)
 
 	var sb strings.Builder
@@ -106,22 +106,25 @@ func (s *Heatmap) WriteHeader(colNames []string) (colCount int) {
 	const headerDelim = ".."
 
 	for i := 0; i < colCount; {
-		name := colNames[i]
-
 		if i != 0 {
 			sb.WriteString(headerDelim)
 			i += len(headerDelim)
+			if i >= colCount {
+				break
+			}
 		}
 
-		if i+len(name)+len(headerDelim) > colCount {
-			// Too long, jump to last key
-			last := colNames[colCount-1]
-			indent := colCount - i - len(last)
+		name := colNames[i]
+
+		if i != 0 && i+len(name)+len(headerDelim) >= colCount {
+			// Too long, jump to last displayable key
+			name = colNames[colCount-1]
+			indent := colCount - i - len(name)
 			if indent > 0 { // Align last name with last col
 				sb.WriteString(strings.Repeat(headerDelim[0:1], indent))
 				i += indent
 			}
-			sb.WriteString(underlineHeaderChar(last, colCount-i-1))
+			sb.WriteString(underlineHeaderChar(name, colCount-i-1))
 			break
 		}
 
