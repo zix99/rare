@@ -2,7 +2,6 @@ package termrenderers
 
 import (
 	"rare/pkg/aggregation"
-	"rare/pkg/color"
 	"rare/pkg/multiterm"
 	"testing"
 
@@ -94,14 +93,8 @@ func TestHeatmapHeader(t *testing.T) {
 
 	hm.WriteHeader("abc", "d", "e", "f")
 	assert.Equal(t, " abc.", vt.Get(1))
-}
 
-func TestUnderlineHeaderChar(t *testing.T) {
-	color.Enabled = true
-	assert.Equal(t, "\x1b[34;1m\x1b[0m", underlineHeaderChar("", 0))
-	assert.Equal(t, "\x1b[34;1m\x1b[0m\x1b[4m\x1b[36;1ma\x1b[0m\x1b[34;1mbc\x1b[0m", underlineHeaderChar("abc", 0))
-	assert.Equal(t, "\x1b[34;1ma\x1b[0m\x1b[4m\x1b[36;1mb\x1b[0m\x1b[34;1mc\x1b[0m", underlineHeaderChar("abc", 1))
-	assert.Equal(t, "\x1b[34;1mab\x1b[0m\x1b[4m\x1b[36;1mc\x1b[0m\x1b[34;1m\x1b[0m", underlineHeaderChar("abc", 2))
-	assert.Equal(t, "\x1b[34;1mabc\x1b[0m", underlineHeaderChar("abc", 3))
-	color.Enabled = false
+	// Lastly, some unicode
+	hm.WriteHeader("a", "c", "d", "✤", "✤a", "✤h", "✤i")
+	assert.Equal(t, " a..✤..✤i", vt.Get(1))
 }

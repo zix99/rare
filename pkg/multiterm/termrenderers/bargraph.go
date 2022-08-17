@@ -51,8 +51,8 @@ func (s *BarGraph) SetKeys(keyItems ...string) {
 
 // Writes bar graph values, assuming vals map to the keyItems for each index
 func (s *BarGraph) WriteBar(idx int, key string, vals ...int64) {
-	if len(key) > s.maxKeyLength {
-		s.maxKeyLength = len(key)
+	if klen := color.StrLen(key); klen > s.maxKeyLength {
+		s.maxKeyLength = klen
 	}
 
 	if s.Stacked {
