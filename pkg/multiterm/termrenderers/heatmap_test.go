@@ -89,8 +89,11 @@ func TestHeatmapHeader(t *testing.T) {
 	assert.Equal(t, " a..d..g..j (2 more)", vt.Get(1))
 
 	// short, by slightly more
-	hm.WriteHeader("abc", "d", "e", "f")
+	hm.WriteHeader("abc", "d", "e", "f", "g")
 	assert.Equal(t, " abc..", vt.Get(1))
+
+	hm.WriteHeader("abc", "d", "e", "f")
+	assert.Equal(t, " abc.", vt.Get(1))
 }
 
 func TestUnderlineHeaderChar(t *testing.T) {

@@ -102,13 +102,15 @@ func (s *Heatmap) WriteHeader(colNames ...string) (colCount int) {
 	colCount = mini(len(colNames), s.colCount)
 
 	var sb strings.Builder
-	sb.WriteString(strings.Repeat(" ", s.maxRowKeyWidth+1))
-	const headerDelim = ".."
+	writeRepeat(&sb, ' ', s.maxRowKeyWidth+1)
+	const delim = '.'
+	const delimCount = 2
 
 	for i := 0; i < colCount; {
 		if i != 0 {
-			sb.WriteString(headerDelim)
-			i += len(headerDelim)
+			count := mini(colCount-i, delimCount)
+			writeRepeat(&sb, delim, count)
+			i += count
 			if i >= colCount {
 				break
 			}
@@ -116,12 +118,12 @@ func (s *Heatmap) WriteHeader(colNames ...string) (colCount int) {
 
 		name := colNames[i]
 
-		if i != 0 && i+len(name)+len(headerDelim) >= colCount {
+		if i != 0 && i+len(name)+delimCount >= colCount {
 			// Too long, jump to last displayable key
 			name = colNames[colCount-1]
 			indent := colCount - i - len(name)
 			if indent > 0 { // Align last name with last col
-				sb.WriteString(strings.Repeat(headerDelim[0:1], indent))
+				writeRepeat(&sb, delim, indent)
 				i += indent
 			}
 			sb.WriteString(underlineHeaderChar(name, colCount-i-1))
@@ -147,7 +149,7 @@ func (s *Heatmap) WriteRow(idx int, row *aggregation.TableRow, cols []string) {
 
 	var sb strings.Builder
 	sb.WriteString(color.Wrap(color.Yellow, row.Name()))
-	sb.WriteString(strings.Repeat(" ", s.maxRowKeyWidth-len(row.Name())+1))
+	writeRepeat(&sb, ' ', s.maxRowKeyWidth-len(row.Name())+1)
 
 	for i := 0; i < len(cols); i++ {
 		val := row.Value(cols[i])
@@ -162,6 +164,12 @@ func mini(i, j int) int {
 		return i
 	}
 	return j
+}
+
+func writeRepeat(sb *strings.Builder, r rune, count int) {
+	for i := 0; i < count; i++ {
+		sb.WriteRune(r)
+	}
 }
 
 func underlineHeaderChar(word string, letter int) string {
