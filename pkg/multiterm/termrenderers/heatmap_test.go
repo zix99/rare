@@ -25,6 +25,25 @@ func TestSimpleHeatmap(t *testing.T) {
 	assert.Equal(t, "", vt.Get(3))
 }
 
+func TestUnicodeHeatmap(t *testing.T) {
+	vt := multiterm.NewVirtualTerm()
+	hm := NewHeatmap(vt, 10, 10)
+
+	agg := aggregation.NewTable(" ")
+	agg.Sample("a✤c test")
+	agg.Sample("a✤c ✤✥✦")
+	agg.Sample("qef test")
+
+	hm.maxRowKeyWidth = 4
+	hm.WriteTable(agg)
+
+	assert.Equal(t, 4, vt.LineCount())
+	assert.Equal(t, "     - 0    - 0    9 1", vt.Get(0))
+	assert.Equal(t, "     a✤c", vt.Get(1))
+	assert.Equal(t, "test 99", vt.Get(2))
+	assert.Equal(t, "✤✥✦  9-", vt.Get(3))
+}
+
 func TestCompressedHeatmap(t *testing.T) {
 	vt := multiterm.NewVirtualTerm()
 	hm := NewHeatmap(vt, 2, 2)

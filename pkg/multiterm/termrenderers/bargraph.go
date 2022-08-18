@@ -75,8 +75,7 @@ func (s *BarGraph) writeBarGrouped(idx int, key string, vals ...int64) {
 
 	line := s.prefixLines + idx*len(s.subKeys)
 
-	maxRow := line + len(s.subKeys)
-	if maxRow > s.maxRows {
+	if maxRow := line + len(s.subKeys); maxRow > s.maxRows {
 		s.maxRows = maxRow
 	}
 
@@ -110,8 +109,7 @@ func (s *BarGraph) writeBarStacked(idx int, key string, vals ...int64) {
 	sb.WriteString("  ")
 
 	line := idx + s.prefixLines
-	maxRow := line + 1
-	if maxRow > s.maxRows {
+	if maxRow := line + 1; maxRow > s.maxRows {
 		s.maxRows = maxRow
 	}
 

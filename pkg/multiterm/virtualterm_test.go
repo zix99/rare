@@ -25,4 +25,11 @@ func TestVirtualTerm(t *testing.T) {
 	vt.WriteToOutput(&sb)
 
 	assert.Equal(t, "Hello\n\nThar\n", sb.String())
+
+	// And close
+	vt.Close()
+	assert.True(t, vt.IsClosed())
+	assert.Panics(t, func() {
+		vt.WriteForLine(0, "will panic")
+	})
 }
