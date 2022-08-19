@@ -9,11 +9,17 @@ import (
 	"strings"
 )
 
+type barGraphPair struct {
+	name string
+	vals []int64
+}
+
 type BarGraph struct {
 	writer multiterm.MultilineTerm
 
 	maxKeyLength int
 	subKeys      []string
+	rows         []barGraphPair
 	maxLineVal   int64
 	maxRows      int
 	prefixLines  int
@@ -51,10 +57,63 @@ func (s *BarGraph) SetKeys(keyItems ...string) {
 
 // Writes bar graph values, assuming vals map to the keyItems for each index
 func (s *BarGraph) WriteBar(idx int, key string, vals ...int64) {
+	// Update max key-len
 	if klen := color.StrLen(key); klen > s.maxKeyLength {
 		s.maxKeyLength = klen
 	}
 
+	// Save row data for re-draw's
+	for idx >= len(s.rows) {
+		s.rows = append(s.rows, barGraphPair{})
+	}
+
+	s.rows[idx] = barGraphPair{
+		name: key,
+		vals: vals,
+	}
+
+	// Compute the updated max
+	redraw := false
+	{
+		var max int64
+		if s.Stacked {
+			max = sumi64(vals...)
+		} else {
+			max = maxi64(vals...)
+		}
+		if max > s.maxLineVal {
+			s.maxLineVal = max
+			redraw = true
+		}
+	}
+
+	// Draw or redraw
+	if redraw {
+		for idx, row := range s.rows {
+			s.writeBar(idx, row.name, row.vals...)
+		}
+	} else {
+		s.writeBar(idx, key, vals...)
+	}
+}
+
+func maxi64(vals ...int64) (ret int64) {
+	for _, v := range vals {
+		if v > ret {
+			ret = v
+		}
+	}
+	return
+}
+
+func sumi64(vals ...int64) (ret int64) {
+	for _, v := range vals {
+		ret += v
+	}
+	return
+}
+
+func (s *BarGraph) writeBar(idx int, key string, vals ...int64) {
 	if s.Stacked {
 		s.writeBarStacked(idx, key, vals...)
 	} else {

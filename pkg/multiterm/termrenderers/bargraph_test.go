@@ -18,8 +18,8 @@ func TestBargraphRendering(t *testing.T) {
 	bg.WriteFooter(0, "abc")
 
 	assert.Equal(t, "        █ a  █ b", v.Get(0))
-	assert.Equal(t, "test  █████████████████████████ 1", v.Get(1))
-	assert.Equal(t, "      ██████████████████████████████████████████████████ 2", v.Get(2))
+	assert.Equal(t, "test  ████████████████▊ 1", v.Get(1))
+	assert.Equal(t, "      █████████████████████████████████▍ 2", v.Get(2))
 	assert.Equal(t, "tes2  ████████████████▊ 1", v.Get(3))
 	assert.Equal(t, "      ██████████████████████████████████████████████████ 3", v.Get(4))
 	assert.Equal(t, "abc", v.Get(5))
@@ -53,7 +53,7 @@ func TestBargraphBadSubkeys(t *testing.T) {
 	bg.WriteFooter(0, "abc")
 
 	assert.Equal(t, "        █ a", v.Get(0))
-	assert.Equal(t, "test  █████████████████████████ 1", v.Get(1))
+	assert.Equal(t, "test  ████████████████▊ 1", v.Get(1))
 	assert.Equal(t, "tes2  ████████████████▊ 1", v.Get(2))
 	assert.Equal(t, "      ██████████████████████████████████████████████████ 3", v.Get(3))
 	assert.Equal(t, "abc", v.Get(4))
@@ -76,4 +76,9 @@ func TestBargraphUnicode(t *testing.T) {
 	assert.Equal(t, "tes2  █████████████████████████████████████████████████  3", v.Get(2))
 	assert.Equal(t, "✤✥✦a  █████████████████████████████████████████████████  3", v.Get(3))
 	assert.Equal(t, "abc", v.Get(4))
+}
+
+func TestMaxSumUtils(t *testing.T) {
+	assert.Equal(t, int64(5), maxi64(1, 2, 3, 5, 4))
+	assert.Equal(t, int64(15), sumi64(1, 2, 3, 5, 4))
 }
