@@ -37,7 +37,7 @@ func listDocFiles() {
 	fmt.Println("Available Docs:")
 	entries, _ := docs.DocFS.ReadDir(docs.BasePath)
 	for _, entry := range entries {
-		fmt.Printf("  %s\n", strings.Title(strings.TrimSuffix(entry.Name(), ".md")))
+		fmt.Printf("  %s\n", strings.TrimSuffix(entry.Name(), ".md"))
 	}
 }
 
