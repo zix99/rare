@@ -5,7 +5,8 @@ import (
 )
 
 type VirtualTerm struct {
-	lines []string
+	lines  []string
+	closed bool
 }
 
 var _ MultilineTerm = &VirtualTerm{}
@@ -21,6 +22,10 @@ func NewVirtualTermEx(size, cap int) *VirtualTerm {
 }
 
 func (s *VirtualTerm) WriteForLine(line int, text string) {
+	if s.closed {
+		panic("virtualterm closed")
+	}
+
 	for line >= len(s.lines) {
 		s.lines = append(s.lines, "")
 	}
@@ -28,7 +33,15 @@ func (s *VirtualTerm) WriteForLine(line int, text string) {
 	s.lines[line] = text
 }
 
-func (s *VirtualTerm) Close() {}
+// Close the virtual term. Doesn't ever really need to close, but useful in testing
+func (s *VirtualTerm) Close() {
+	s.closed = true
+}
+
+// IsClosed checks if Close() was called
+func (s *VirtualTerm) IsClosed() bool {
+	return s.closed
+}
 
 func (s *VirtualTerm) Get(line int) string {
 	if line >= len(s.lines) || line < 0 {

@@ -109,12 +109,28 @@ func TestLookupColor(t *testing.T) {
 	assert.False(t, ok)
 }
 
+func TestHighlightSingleRune(t *testing.T) {
+	assert.Equal(t, "\x1b[34;1m\x1b[0m", HighlightSingleRune("", 0, BrightBlue, Underline))
+	assert.Equal(t, "\x1b[34;1m\x1b[4m\x1b[36;1ma\x1b[0m\x1b[34;1mbc\x1b[0m", HighlightSingleRune("abc", 0, BrightBlue, Underline+BrightCyan))
+	assert.Equal(t, "\x1b[34;1ma\x1b[4m\x1b[36;1mb\x1b[0m\x1b[34;1mc\x1b[0m", HighlightSingleRune("abc", 1, BrightBlue, Underline+BrightCyan))
+	assert.Equal(t, "\x1b[34;1mab\x1b[4m\x1b[36;1mc\x1b[0m\x1b[34;1m\x1b[0m", HighlightSingleRune("abc", 2, BrightBlue, Underline+BrightCyan))
+	assert.Equal(t, "\x1b[34;1mabc\x1b[0m", HighlightSingleRune("abc", 3, BrightBlue, Underline+BrightCyan))                                   // Out of bounds
+	assert.Equal(t, "\x1b[34;1m✤b\x1b[4m\x1b[36;1mc\x1b[0m\x1b[34;1m\x1b[0m", HighlightSingleRune("✤bc", 2, BrightBlue, Underline+BrightCyan)) // Unicode
+
+	Enabled = false
+	assert.Equal(t, "test", HighlightSingleRune("test", 1, BrightBlue, BrightCyan))
+	Enabled = true
+}
+
 func TestStringLength(t *testing.T) {
 	assert.Equal(t, 4, StrLen("test"))
 	assert.Equal(t, 4, StrLen(Wrap(Red, "test")))
 	assert.Equal(t, 12, StrLen(Wrap(Underline, Wrap(Red, "test")+" another")))
+	assert.Equal(t, 4, StrLen(Wrap(Red, Wrap(Yellow, "test"))))
+	assert.Equal(t, 3, StrLen(Wrap(Red, "ab✤")))
 
 	Enabled = false
 	assert.Equal(t, 4, StrLen(Wrap(Red, "test")))
+	assert.Equal(t, 3, StrLen("ab✤"))
 	Enabled = true
 }

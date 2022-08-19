@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"unicode/utf8"
 )
 
 const (
@@ -139,10 +140,40 @@ func LookupColorByName(s string) (ColorCode, bool) {
 	return BrightRed, false
 }
 
+// UnderlineSingleRune is a special-use-case colorer for headers with a single character called out
+func HighlightSingleRune(word string, runeIndex int, base, highlight ColorCode) string {
+	if !Enabled {
+		return word
+	}
+
+	if runeIndex >= 0 && runeIndex < len(word) {
+		var sb strings.Builder
+		sb.Grow(len(word) * 2)
+
+		sb.WriteString(string(base))
+		idx := 0
+		for _, r := range word {
+			if idx == runeIndex {
+				sb.WriteString(string(highlight))
+				sb.WriteRune(r)
+				sb.WriteString(string(Reset + base))
+			} else {
+				sb.WriteRune(r)
+			}
+			idx++
+		}
+		sb.WriteString(string(Reset))
+
+		return sb.String()
+	}
+
+	return Wrap(base, word)
+}
+
 // StrLen ignoring any color codes. If color disabled, returns len(s)
 func StrLen(s string) (ret int) {
 	if !Enabled {
-		return len(s)
+		return utf8.RuneCountInString(s)
 	}
 
 	inCode := false
