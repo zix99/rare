@@ -27,7 +27,7 @@ func docsFunction(c *cli.Context) error {
 			io.Copy(os.Stdout, &buf)
 		}
 	} else {
-		return cli.NewExitError(fmt.Sprintf("No such doc '%s'", docname), helpers.ExitCodeInvalidUsage)
+		return cli.Exit(fmt.Sprintf("No such doc '%s'", docname), helpers.ExitCodeInvalidUsage)
 	}
 
 	return nil
