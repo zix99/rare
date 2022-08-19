@@ -13,7 +13,7 @@ import (
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termunicode"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func cliMain(args ...string) error {
@@ -36,29 +36,33 @@ func cliMain(args ...string) error {
 	under certain conditions`
 
 	app.UseShortOptionHandling = true
+	app.Suggest = true
 
 	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:  "nocolor,nc",
-			Usage: "Disables color output",
+		&cli.BoolFlag{
+			Name:    "nocolor",
+			Aliases: []string{"nc"},
+			Usage:   "Disables color output",
 		},
-		cli.BoolFlag{
-			Name:  "noformat,nf",
-			Usage: "Disable number formatting",
+		&cli.BoolFlag{
+			Name:    "noformat",
+			Aliases: []string{"nf"},
+			Usage:   "Disable number formatting",
 		},
-		cli.BoolFlag{
-			Name:  "nounicode,nu",
-			Usage: "Disable usage of unicode characters",
+		&cli.BoolFlag{
+			Name:    "nounicode",
+			Aliases: []string{"nu"},
+			Usage:   "Disable usage of unicode characters",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "color",
 			Usage: "Force-enable color output",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "notrim",
 			Usage: "By default, rare will trim output text for in-place updates. Setting this flag will disable that",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "profile",
 			Usage: "Write application profiling information as part of execution. Specify base-name",
 		},
@@ -78,11 +82,11 @@ func cliMain(args ...string) error {
 		if err != nil {
 			return err
 		}
-		return cli.NewExitError("", helpers.ExitCodeInvalidUsage)
+		return cli.Exit("", helpers.ExitCodeInvalidUsage)
 	}
 
 	app.Commands = cmd.GetSupportedCommands()
-	app.Commands = append(app.Commands, cli.Command{
+	app.Commands = append(app.Commands, &cli.Command{
 		Name:   "_gendoc",
 		Hidden: true,
 		Usage:  "Generates documentation",
@@ -97,7 +101,7 @@ func cliMain(args ...string) error {
 			return nil
 		},
 		Flags: []cli.Flag{
-			cli.BoolFlag{
+			&cli.BoolFlag{
 				Name:  "man",
 				Usage: "manpage syntax",
 			},

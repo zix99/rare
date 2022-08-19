@@ -10,7 +10,7 @@ import (
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func minColSlice(count int, cols []string) []string {
@@ -108,45 +108,47 @@ func tabulateFunction(c *cli.Context) error {
 
 func tabulateCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
-		Name:      "tabulate",
-		Aliases:   []string{"table"},
-		ShortName: "t",
-		Usage:     "Create a 2D summarizing table of extracted data",
+		Name:    "tabulate",
+		Aliases: []string{"table", "t"},
+		Usage:   "Create a 2D summarizing table of extracted data",
 		Description: `Summarizes the extracted data as a 2D data table.
 		The expression key data format is {$ a b [c]}, where a is the column key,
 		b is the rowkey, and optionally c is the increment value (Default: 1)`,
 		Action: tabulateFunction,
 		Flags: []cli.Flag{
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name:  "delim",
 				Usage: "Character to tabulate on. Use {$} helper by default",
 				Value: expressions.ArraySeparatorString,
 			},
-			cli.IntFlag{
-				Name:  "num,n,rows",
-				Usage: "Number of elements to display",
-				Value: 20,
+			&cli.IntFlag{
+				Name:    "num",
+				Aliases: []string{"rows", "n"},
+				Usage:   "Number of elements to display",
+				Value:   20,
 			},
-			cli.IntFlag{
+			&cli.IntFlag{
 				Name:  "cols",
 				Usage: "Number of columns to display",
 				Value: 10,
 			},
-			cli.BoolFlag{
-				Name:  "sortkey,sk",
-				Usage: "Sort rows by key name rather than by values",
+			&cli.BoolFlag{
+				Name:    "sortkey",
+				Aliases: []string{"sk"},
+				Usage:   "Sort rows by key name rather than by values",
 			},
-			cli.BoolFlag{
+			&cli.BoolFlag{
 				Name:  "rowtotal",
 				Usage: "Show row totals",
 			},
-			cli.BoolFlag{
+			&cli.BoolFlag{
 				Name:  "coltotal",
 				Usage: "Show column totals",
 			},
-			cli.BoolFlag{
-				Name:  "extra,x",
-				Usage: "Display row and column totals",
+			&cli.BoolFlag{
+				Name:    "extra",
+				Aliases: []string{"x"},
+				Usage:   "Display row and column totals",
 			},
 		},
 	})

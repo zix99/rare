@@ -9,7 +9,7 @@ import (
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func heatmapFunction(c *cli.Context) error {
@@ -48,35 +48,35 @@ func heatmapFunction(c *cli.Context) error {
 
 func heatmapCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
-		Name:      "heatmap",
-		Aliases:   []string{"heat"},
-		ShortName: "hm",
-		Usage:     "Create a 2D heatmap of extracted data",
+		Name:    "heatmap",
+		Aliases: []string{"heat", "hm"},
+		Usage:   "Create a 2D heatmap of extracted data",
 		Description: `Creates a dense 2D visual of extracted data.  Each character
 		represents a single data-point, and can create an alternative visualization to
 		a table.  Unicode and color support required for effective display`,
 		Action: heatmapFunction,
 		Flags: []cli.Flag{
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name:  "delim",
 				Usage: "Character to tabulate on. Use {$} helper by default",
 				Value: expressions.ArraySeparatorString,
 			},
-			cli.IntFlag{
-				Name:  "num,n,rows",
-				Usage: "Number of elements (rows) to display",
-				Value: 20,
+			&cli.IntFlag{
+				Name:    "num",
+				Aliases: []string{"rows", "n"},
+				Usage:   "Number of elements (rows) to display",
+				Value:   20,
 			},
-			cli.IntFlag{
+			&cli.IntFlag{
 				Name:  "cols",
 				Usage: "Number of columns to display",
 				Value: multiterm.TermCols() - 15,
 			},
-			cli.Int64Flag{
+			&cli.Int64Flag{
 				Name:  "min",
 				Usage: "Sets the lower bounds of the heatmap (default: auto)",
 			},
-			cli.Int64Flag{
+			&cli.Int64Flag{
 				Name:  "max",
 				Usage: "Sets the upper bounds of the heatmap (default: auto)",
 			},

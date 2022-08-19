@@ -7,7 +7,7 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/color"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func filterFunction(c *cli.Context) error {
@@ -68,16 +68,18 @@ func filterCommand() *cli.Command {
 		Usage: "Filter incoming results with search criteria, and output raw matches",
 		Description: `Filters incoming results by a regex, and output the match of a single line
 		or an extracted expression.`,
-		ShortName: "f",
-		Action:    filterFunction,
+		Aliases: []string{"f"},
+		Action:  filterFunction,
 		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "line,l",
-				Usage: "Output source file and line number",
+			&cli.BoolFlag{
+				Name:    "line",
+				Aliases: []string{"l"},
+				Usage:   "Output source file and line number",
 			},
-			cli.Int64Flag{
-				Name:  "n,num",
-				Usage: "Print the first NUM of lines seen (Not necessarily in-order)",
+			&cli.Int64Flag{
+				Name:    "num",
+				Aliases: []string{"n"},
+				Usage:   "Print the first NUM of lines seen (Not necessarily in-order)",
 			},
 		},
 	})

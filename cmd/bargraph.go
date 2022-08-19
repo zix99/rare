@@ -6,7 +6,7 @@ import (
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 /*
@@ -47,21 +47,21 @@ func bargraphFunction(c *cli.Context) error {
 
 func bargraphCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
-		Name:      "bargraph",
-		Aliases:   []string{"bar", "bars"},
-		ShortName: "b",
-		Usage:     "Create a bargraph of the given 1 or 2 dimension data",
+		Name:    "bargraph",
+		Aliases: []string{"bars", "bar", "b"},
+		Usage:   "Create a bargraph of the given 1 or 2 dimension data",
 		Description: `Creates a bargraph of one or two dimensional data.  Unlike histogram
 		the bargraph can collapse and stack data in different formats.  The key data format
 		is {$ a b [c]}, where a is the base-key, b is the optional sub-key, and c is the increment
 		(defaults to 1)`,
 		Action: bargraphFunction,
 		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "stacked,s",
-				Usage: "Display bargraph as stacked",
+			&cli.BoolFlag{
+				Name:    "stacked",
+				Aliases: []string{"s"},
+				Usage:   "Display bargraph as stacked",
 			},
-			cli.BoolFlag{
+			&cli.BoolFlag{
 				Name:  "reverse",
 				Usage: "Reverses the display sort-order",
 			},
