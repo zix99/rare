@@ -9,8 +9,10 @@ builds:
   env:
     - CGO_ENABLED=1
   flags:
-    - -tags=pcre2
     - -trimpath
+  tags:
+    - pcre2
+    - urfave_cli_no_docs
   ldflags:
     - -s -w
     - -X main.version={{.Version}}
@@ -22,6 +24,10 @@ builds:
 - id: rare
   env:
     - CGO_ENABLED=0
+  flags:
+    - -trimpath
+  tags:
+    - urfave_cli_no_docs
   ldflags:
     - -s -w
     - -X main.version={{.Version}}
