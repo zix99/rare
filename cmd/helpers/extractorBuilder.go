@@ -15,6 +15,12 @@ import (
 
 const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
+const (
+	cliCategoryRead     = "Input"
+	cliCategoryMatching = "Matching"
+	cliCategoryTweaking = "Tweaking"
+)
+
 func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 	var (
 		follow            = c.Bool("follow") || c.Bool("reopen")
@@ -95,77 +101,91 @@ func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, se
 func getExtractorFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.BoolFlag{
-			Name:    "follow",
-			Aliases: []string{"f"},
-			Usage:   "Read appended data as file grows",
+			Name:     "follow",
+			Aliases:  []string{"f"},
+			Category: cliCategoryRead,
+			Usage:    "Read appended data as file grows",
 		},
 		&cli.BoolFlag{
-			Name:    "reopen",
-			Aliases: []string{"F"},
-			Usage:   "Same as -f, but will reopen recreated files",
+			Name:     "reopen",
+			Aliases:  []string{"F"},
+			Category: cliCategoryRead,
+			Usage:    "Same as -f, but will reopen recreated files",
 		},
 		&cli.BoolFlag{
-			Name:  "poll",
-			Usage: "When following a file, poll for changes rather than using inotify",
+			Name:     "poll",
+			Category: cliCategoryRead,
+			Usage:    "When following a file, poll for changes rather than using inotify",
 		},
 		&cli.BoolFlag{
-			Name:    "tail",
-			Aliases: []string{"t"},
-			Usage:   "When following a file, navigate to the end of the file to skip existing content",
+			Name:     "tail",
+			Aliases:  []string{"t"},
+			Category: cliCategoryRead,
+			Usage:    "When following a file, navigate to the end of the file to skip existing content",
 		},
 		&cli.BoolFlag{
-			Name:    "posix",
-			Aliases: []string{"p"},
-			Usage:   "Compile regex as against posix standard",
+			Name:     "gunzip",
+			Aliases:  []string{"z"},
+			Category: cliCategoryRead,
+			Usage:    "Attempt to decompress file when reading",
+		},
+		&cli.BoolFlag{
+			Name:     "recursive",
+			Aliases:  []string{"R"},
+			Category: cliCategoryRead,
+			Usage:    "Recursively walk a non-globbing path and search for plain-files",
+		},
+		&cli.BoolFlag{
+			Name:     "posix",
+			Aliases:  []string{"p"},
+			Category: cliCategoryMatching,
+			Usage:    "Compile regex as against posix standard",
 		},
 		&cli.StringFlag{
-			Name:    "match,m",
-			Aliases: []string{"m"},
-			Usage:   "Regex to create match groups to summarize on",
-			Value:   ".*",
+			Name:     "match,m",
+			Aliases:  []string{"m"},
+			Category: cliCategoryMatching,
+			Usage:    "Regex to create match groups to summarize on",
+			Value:    ".*",
 		},
 		&cli.StringSliceFlag{
-			Name:    "extract",
-			Aliases: []string{"e"},
-			Usage:   "Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper",
-			Value:   cli.NewStringSlice("{0}"),
-		},
-		&cli.BoolFlag{
-			Name:    "gunzip",
-			Aliases: []string{"z"},
-			Usage:   "Attempt to decompress file when reading",
-		},
-		&cli.IntFlag{
-			Name:  "batch",
-			Usage: "Specifies io batching size. Set to 1 for immediate input",
-			Value: 1000,
-		},
-		&cli.IntFlag{
-			Name:    "workers",
-			Aliases: []string{"w"},
-			Usage:   "Set number of data processors",
-			Value:   runtime.NumCPU()/2 + 1,
-		},
-		&cli.IntFlag{
-			Name:    "readers",
-			Aliases: []string{"wr"},
-			Usage:   "Sets the number of concurrent readers (Infinite when -f)",
-			Value:   3,
+			Name:     "extract",
+			Aliases:  []string{"e"},
+			Category: cliCategoryMatching,
+			Usage:    "Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper",
+			Value:    cli.NewStringSlice("{0}"),
 		},
 		&cli.StringSliceFlag{
-			Name:    "ignore",
-			Aliases: []string{"i"},
-			Usage:   "Ignore a match given a truthy expression (Can have multiple)",
+			Name:     "ignore",
+			Aliases:  []string{"i"},
+			Category: cliCategoryMatching,
+			Usage:    "Ignore a match given a truthy expression (Can have multiple)",
 		},
 		&cli.BoolFlag{
-			Name:    "recursive",
-			Aliases: []string{"R"},
-			Usage:   "Recursively walk a non-globbing path and search for plain-files",
+			Name:     "ignore-case",
+			Aliases:  []string{"I"},
+			Category: cliCategoryMatching,
+			Usage:    "Augment regex to be case insensitive",
 		},
-		&cli.BoolFlag{
-			Name:    "ignore-case",
-			Aliases: []string{"I"},
-			Usage:   "Augment regex to be case insensitive",
+		&cli.IntFlag{
+			Name:     "batch",
+			Category: cliCategoryTweaking,
+			Usage:    "Specifies io batching size. Set to 1 for immediate input",
+			Value:    1000,
+		},
+		&cli.IntFlag{
+			Name:     "workers",
+			Aliases:  []string{"w"},
+			Category: cliCategoryTweaking,
+			Usage:    "Set number of data processors",
+			Value:    runtime.NumCPU()/2 + 1,
+		},
+		&cli.IntFlag{
+			Name:     "readers",
+			Aliases:  []string{"wr"},
+			Category: cliCategoryTweaking,
+			Usage:    "Sets the number of concurrent readers (Infinite when -f)",
+			Value:    3,
 		},
 	}
 }
