@@ -20,7 +20,7 @@ type appModifier func(app *cli.App)
 
 var appModifiers []appModifier
 
-func cliMain(args ...string) error {
+func buildApp() *cli.App {
 	app := cli.NewApp()
 
 	app.Usage = "A fast regex parser, extractor and realtime aggregator"
@@ -116,7 +116,11 @@ func cliMain(args ...string) error {
 		modifier(app)
 	}
 
-	return app.Run(args)
+	return app
+}
+
+func cliMain(args ...string) error {
+	return buildApp().Run(args)
 }
 
 func main() {
