@@ -9,7 +9,7 @@ import (
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool, sortByKey bool, atLeast int64) {
@@ -88,43 +88,47 @@ func histogramCommand() *cli.Command {
 		If multiple values are provided via the array syntax {$} or multiple expressions,
 		then the 2nd value will be used as the count incrementor`,
 		Action:    histoFunction,
-		Aliases:   []string{"histo"},
-		ShortName: "h",
+		Aliases:   []string{"histo", "h"},
 		ArgsUsage: helpers.DefaultArgumentDescriptor,
 		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "all,a",
-				Usage: "After summarization is complete, print all histogram buckets",
+			&cli.BoolFlag{
+				Name:    "all",
+				Aliases: []string{"a"},
+				Usage:   "After summarization is complete, print all histogram buckets",
 			},
-			cli.BoolFlag{
-				Name:  "bars,b",
-				Usage: "Display bars as part of histogram",
+			&cli.BoolFlag{
+				Name:    "bars",
+				Aliases: []string{"b"},
+				Usage:   "Display bars as part of histogram",
 			},
-			cli.BoolFlag{
+			&cli.BoolFlag{
 				Name:  "percentage",
 				Usage: "Display percentage of total next to the value",
 			},
-			cli.BoolFlag{
-				Name:  "extra,x",
-				Usage: "Alias for -b --percentage",
+			&cli.BoolFlag{
+				Name:    "extra",
+				Aliases: []string{"x"},
+				Usage:   "Alias for -b --percentage",
 			},
-			cli.IntFlag{
-				Name:  "num,n",
-				Usage: "Number of elements to display",
-				Value: 5,
+			&cli.IntFlag{
+				Name:    "num",
+				Aliases: []string{"n"},
+				Usage:   "Number of elements to display",
+				Value:   5,
 			},
-			cli.Int64Flag{
+			&cli.Int64Flag{
 				Name:  "atleast",
 				Usage: "Only show results if there are at least this many samples",
 				Value: 0,
 			},
-			cli.BoolFlag{
+			&cli.BoolFlag{
 				Name:  "reverse",
 				Usage: "Reverses the display sort-order",
 			},
-			cli.BoolFlag{
-				Name:  "sortkey,sk",
-				Usage: "Sort by key, rather than value",
+			&cli.BoolFlag{
+				Name:    "sortkey",
+				Aliases: []string{"sk"},
+				Usage:   "Sort by key, rather than value",
 			},
 		},
 	})

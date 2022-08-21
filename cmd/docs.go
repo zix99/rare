@@ -12,7 +12,7 @@ import (
 	"rare/pkg/markdowncli"
 	"strings"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func docsFunction(c *cli.Context) error {
@@ -27,7 +27,7 @@ func docsFunction(c *cli.Context) error {
 			io.Copy(os.Stdout, &buf)
 		}
 	} else {
-		return cli.NewExitError(fmt.Sprintf("No such doc '%s'", docname), helpers.ExitCodeInvalidUsage)
+		return cli.Exit(fmt.Sprintf("No such doc '%s'", docname), helpers.ExitCodeInvalidUsage)
 	}
 
 	return nil
@@ -71,9 +71,10 @@ func docsCommand() *cli.Command {
 		ArgsUsage: "[doc]",
 		Action:    docsFunction,
 		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "no-pager,n",
-				Usage: "Don't use pager to view documentation",
+			&cli.BoolFlag{
+				Name:    "no-pager",
+				Aliases: []string{"n"},
+				Usage:   "Don't use pager to view documentation",
 			},
 		},
 	}

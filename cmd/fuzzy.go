@@ -1,4 +1,4 @@
-// +build experimental
+//go:build experimental
 
 package cmd
 
@@ -11,7 +11,7 @@ import (
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func fuzzyFunction(c *cli.Context) error {
@@ -64,69 +64,76 @@ func fuzzyFunction(c *cli.Context) error {
 
 func fuzzyCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
-		Name:      "fuzzy",
-		ShortName: "z",
-		Aliases:   []string{"fuz"},
-		Usage:     "(EXPERIMENTAL) Look for similar matches by using a fuzzy search algorithm",
+		Name:    "fuzzy",
+		Aliases: []string{"fuz", "z"},
+		Usage:   "(EXPERIMENTAL) Look for similar matches by using a fuzzy search algorithm",
 		Description: `Generates a live-updating histogram of the input data, looking
 		for a relative distance between various results.  This is useful to find
 		similar log messages that may have slight differences to them (eg ids)
 		and aggregating and search for these messages`,
 		Action: fuzzyFunction,
 		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "all,a",
-				Usage: "After summarization is complete, print all histogram buckets",
+			&cli.BoolFlag{
+				Name:    "all",
+				Aliases: []string{"a"},
+				Usage:   "After summarization is complete, print all histogram buckets",
 			},
-			cli.BoolFlag{
-				Name:  "bars,b",
-				Usage: "Display bars as part of histogram",
+			&cli.BoolFlag{
+				Name:    "bars",
+				Aliases: []string{"b"},
+				Usage:   "Display bars as part of histogram",
 			},
-			cli.BoolFlag{
+			&cli.BoolFlag{
 				Name:  "percentage",
 				Usage: "Display percentage of total next to the value",
 			},
-			cli.BoolFlag{
-				Name:  "extra,x",
-				Usage: "Alias for -b --percentage",
+			&cli.BoolFlag{
+				Name:    "extra",
+				Aliases: []string{"x"},
+				Usage:   "Alias for -b --percentage",
 			},
-			cli.IntFlag{
-				Name:  "num,n",
-				Usage: "Number of elements to display",
-				Value: 5,
+			&cli.IntFlag{
+				Name:    "num",
+				Aliases: []string{"n"},
+				Usage:   "Number of elements to display",
+				Value:   5,
 			},
-			cli.Int64Flag{
+			&cli.Int64Flag{
 				Name:  "atleast",
 				Usage: "Only show results if there are at least this many samples",
 				Value: 0,
 			},
-			cli.BoolFlag{
+			&cli.BoolFlag{
 				Name:  "reverse",
 				Usage: "Reverses the display sort-order",
 			},
-			cli.BoolFlag{
-				Name:  "sortkey,sk",
-				Usage: "Sort by key, rather than value",
+			&cli.BoolFlag{
+				Name:    "sortkey",
+				Aliases: []string{"sk"},
+				Usage:   "Sort by key, rather than value",
 			},
-			cli.Float64Flag{
-				Name:  "similarity,s",
-				Usage: "The expression string has to be at least this percent similar to qualify as a fuzzy match",
-				Value: 0.75,
+			&cli.Float64Flag{
+				Name:    "similarity",
+				Aliases: []string{"s"},
+				Usage:   "The expression string has to be at least this percent similar to qualify as a fuzzy match",
+				Value:   0.75,
 			},
-			cli.Int64Flag{
-				Name:  "similarity-offset,so",
-				Usage: "The max offset to examine in the string to look for a similarity",
-				Value: 10,
+			&cli.Int64Flag{
+				Name:    "similarity-offset",
+				Aliases: []string{"so"},
+				Usage:   "The max offset to examine in the string to look for a similarity",
+				Value:   10,
 			},
-			cli.Int64Flag{
-				Name:  "similarity-size,ss",
-				Usage: "The maximum size a similarity table can grow to.  Keeps the top most-likely keys at all times",
-				Value: 100,
+			&cli.Int64Flag{
+				Name:    "similarity-size",
+				Aliases: []string{"ss"},
+				Usage:   "The maximum size a similarity table can grow to.  Keeps the top most-likely keys at all times",
+				Value:   100,
 			},
 		},
 	})
 }
 
 func init() {
-	commands = append(commands, *fuzzyCommand())
+	commands = append(commands, fuzzyCommand())
 }

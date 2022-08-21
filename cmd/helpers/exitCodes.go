@@ -5,7 +5,7 @@ import (
 	"rare/pkg/extractor"
 	"rare/pkg/extractor/batchers"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -15,13 +15,13 @@ const (
 
 func DetermineErrorState(b *batchers.Batcher, e *extractor.Extractor, agg aggregation.Aggregator) error {
 	if b.ReadErrors() > 0 {
-		return cli.NewExitError("Read errors", ExitCodeInvalidUsage)
+		return cli.Exit("Read errors", ExitCodeInvalidUsage)
 	}
 	if agg != nil && agg.ParseErrors() > 0 {
-		return cli.NewExitError("Parse errors", ExitCodeInvalidUsage)
+		return cli.Exit("Parse errors", ExitCodeInvalidUsage)
 	}
 	if e.MatchedLines() == 0 {
-		return cli.NewExitError("", ExitCodeNoData)
+		return cli.Exit("", ExitCodeNoData)
 	}
 	return nil
 }
