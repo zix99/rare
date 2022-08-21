@@ -16,6 +16,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+type appModifier func(app *cli.App)
+
+var appModifiers []appModifier
+
 func cliMain(args ...string) error {
 	app := cli.NewApp()
 
@@ -62,10 +66,6 @@ func cliMain(args ...string) error {
 			Name:  "notrim",
 			Usage: "By default, rare will trim output text for in-place updates. Setting this flag will disable that",
 		},
-		&cli.StringFlag{
-			Name:  "profile",
-			Usage: "Write application profiling information as part of execution. Specify base-name",
-		},
 	}
 
 	// When showing default help, exit with an error code
@@ -102,20 +102,6 @@ func cliMain(args ...string) error {
 		if c.Bool("nounicode") {
 			termunicode.UnicodeEnabled = false
 		}
-
-		// Profiling
-		if c.IsSet("profile") {
-			basename := c.String("profile")
-			startProfiler(basename)
-		}
-
-		return nil
-	})
-
-	app.After = cli.AfterFunc(func(c *cli.Context) error {
-		if c.IsSet("profile") {
-			stopProfile()
-		}
 		return nil
 	})
 
@@ -123,6 +109,11 @@ func cliMain(args ...string) error {
 		// Suppress built-in handler (Which will exit before running any After())
 		// Handle exit-codes in main()
 		// This also allows for better unit testing...
+	}
+
+	// Apply any plugin/modifiers
+	for _, modifier := range appModifiers {
+		modifier(app)
 	}
 
 	return app.Run(args)

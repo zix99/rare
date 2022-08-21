@@ -1,3 +1,5 @@
+//go:build !rare_no_pprof
+
 package main
 
 import (
@@ -5,6 +7,8 @@ import (
 	"os"
 	"runtime/pprof"
 	"time"
+
+	"github.com/urfave/cli/v2"
 )
 
 var profilerDone chan bool
@@ -35,4 +39,38 @@ func startProfiler(basename string) {
 func stopProfile() {
 	pprof.StopCPUProfile()
 	profilerDone <- true
+}
+
+func init() {
+	appModifiers = append(appModifiers, func(app *cli.App) {
+		app.Flags = append(app.Flags, &cli.StringFlag{
+			Name:  "profile",
+			Usage: "Write application profiling information as part of execution. Specify base-name",
+		})
+
+		oldBefore := app.Before
+		app.Before = func(c *cli.Context) error {
+			if c.IsSet("profile") {
+				basename := c.String("profile")
+				startProfiler(basename)
+			}
+
+			if oldBefore != nil {
+				return oldBefore(c)
+			}
+			return nil
+		}
+
+		oldAfter := app.After
+		app.After = func(c *cli.Context) error {
+			if c.IsSet("profile") {
+				stopProfile()
+			}
+
+			if oldAfter != nil {
+				return oldAfter(c)
+			}
+			return nil
+		}
+	})
 }

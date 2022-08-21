@@ -1,3 +1,5 @@
+//go:build !urfave_cli_no_docs
+
 package cmd
 
 import (
