@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"rare/pkg/aggregation/sorting"
 	"rare/pkg/expressions"
 	"rare/pkg/stringSplitter"
 	"sort"
@@ -112,6 +113,12 @@ func (s *MatchCounter) ItemsSorted(count int, reverse bool) []MatchPair {
 	return minSlice(items, count)
 }
 
+func (s *MatchCounter) ItemsSortedBy(count int, sorter sorting.NameValueSorter) []MatchPair {
+	items := s.Items()
+	sorting.SortNameValue(items, sorter)
+	return minSlice(items, count)
+}
+
 func (s *MatchCounter) ItemsSortedByKey(count int, reverse bool) []MatchPair {
 	items := s.Items()
 
@@ -140,4 +147,12 @@ func (s *MatchCounter) ItemsTop(count int) []MatchPair {
 
 func (s *MatchItem) Count() int64 {
 	return s.count
+}
+
+func (s MatchPair) SortName() string {
+	return s.Name
+}
+
+func (s MatchPair) SortValue() int64 {
+	return s.Item.count
 }
