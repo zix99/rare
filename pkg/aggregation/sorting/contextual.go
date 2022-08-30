@@ -81,7 +81,7 @@ func ByContextualEx(fallbackSort NameSorter) NameSorter {
 			if !ok0 || !ok1 {
 				fallback = true
 			} else {
-				return v0 < v1 // Right order?
+				return v0 < v1
 			}
 		}
 

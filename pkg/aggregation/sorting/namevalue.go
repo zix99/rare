@@ -2,12 +2,12 @@ package sorting
 
 import "sort"
 
-type NameValueSorter Sorter[NameValue]
-
 type NameValue interface {
 	SortName() string
 	SortValue() int64
 }
+
+type NameValueSorter Sorter[NameValue]
 
 func ValueSorter() NameValueSorter {
 	return ValueSorterEx(ByName)
@@ -23,7 +23,7 @@ func ValueSorterEx(fallback NameSorter) NameValueSorter {
 	}
 }
 
-func ValueNilSorter(sorter NameSorter) NameValueSorter {
+func ValueNameSorter(sorter NameSorter) NameValueSorter {
 	return func(a, b NameValue) bool {
 		return sorter(a.SortName(), b.SortName())
 	}

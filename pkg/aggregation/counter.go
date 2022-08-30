@@ -4,7 +4,6 @@ import (
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/expressions"
 	"rare/pkg/stringSplitter"
-	"sort"
 	"strconv"
 )
 
@@ -91,58 +90,10 @@ func minSlice(items []MatchPair, count int) []MatchPair {
 	return items[:count]
 }
 
-func (s *MatchCounter) ItemsSorted(count int, reverse bool) []MatchPair {
-	items := s.Items()
-
-	sorter := func(i, j int) bool {
-		c0 := items[i].Item.count
-		c1 := items[j].Item.count
-		if c0 == c1 {
-			return items[i].Name < items[j].Name
-		}
-		return c0 > c1
-	}
-
-	if reverse {
-		sort.Slice(items, func(i, j int) bool {
-			return !sorter(i, j)
-		})
-	} else {
-		sort.Slice(items, sorter)
-	}
-	return minSlice(items, count)
-}
-
 func (s *MatchCounter) ItemsSortedBy(count int, sorter sorting.NameValueSorter) []MatchPair {
 	items := s.Items()
 	sorting.SortNameValue(items, sorter)
 	return minSlice(items, count)
-}
-
-func (s *MatchCounter) ItemsSortedByKey(count int, reverse bool) []MatchPair {
-	items := s.Items()
-
-	smartKeySort := func(i, j int) bool {
-		num0, err0 := strconv.ParseFloat(items[i].Name, 64)
-		num1, err1 := strconv.ParseFloat(items[j].Name, 64)
-		if err0 != nil || err1 != nil {
-			return items[i].Name < items[j].Name
-		}
-		return num0 < num1
-	}
-
-	if reverse {
-		sort.Slice(items, func(i, j int) bool {
-			return !smartKeySort(i, j)
-		})
-	} else {
-		sort.Slice(items, smartKeySort)
-	}
-	return minSlice(items, count)
-}
-
-func (s *MatchCounter) ItemsTop(count int) []MatchPair {
-	return s.ItemsSorted(count, false)
 }
 
 func (s *MatchItem) Count() int64 {

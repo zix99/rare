@@ -11,13 +11,13 @@ func DecideSorterByName(name string) (sorting.NameValueSorter, error) {
 	name = strings.ToLower(name)
 	switch name {
 	case "text", "":
-		return sorting.ValueNilSorter(sorting.ByName), nil
+		return sorting.ValueNameSorter(sorting.ByName), nil
 	case "smart", "numeric":
-		return sorting.ValueNilSorter(sorting.ByNameSmart), nil
+		return sorting.ValueNameSorter(sorting.ByNameSmart), nil
 	case "contextual", "context":
-		return sorting.ValueNilSorter(sorting.ByContextual()), nil
+		return sorting.ValueNameSorter(sorting.ByContextual()), nil
 	case "value":
-		return sorting.ValueSorter(), nil
+		return sorting.ValueSorterEx(sorting.ByName), nil
 	}
 	return nil, errors.New("unknown sort")
 }
