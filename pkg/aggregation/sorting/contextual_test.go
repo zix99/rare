@@ -14,7 +14,7 @@ func TestDayOfWeekSort(t *testing.T) {
 		"thurs",
 	}
 	sorter := ByContextual()
-	SortStrings(list, sorter)
+	Sort(list, sorter)
 
 	assert.Equal(t, []string{"mon", "tues", "wed", "thurs"}, list)
 }
@@ -22,7 +22,7 @@ func TestDayOfWeekSort(t *testing.T) {
 func TestFallbackSort(t *testing.T) {
 	list := []string{"wed", "abc", "00"}
 	sorter := ByContextual()
-	SortStrings(list, sorter)
+	Sort(list, sorter)
 
 	assert.Equal(t, []string{"00", "abc", "wed"}, list)
 }

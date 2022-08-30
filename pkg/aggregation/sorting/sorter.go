@@ -28,13 +28,23 @@ func (s *wrappedSorter[T]) Less(i, j int) bool {
 
 // Sorting helpers
 
-func SortBy[T any](arr []T, sorter Sorter[T]) {
-	ws := wrappedSorter[T]{arr, sorter}
+// Sort an array that can be sorted by Sorter
+func Sort[TElem any, TSort ~func(a, b TElem) bool](arr []TElem, sorter TSort) {
+	ws := wrappedSorter[TElem]{arr, sorter}
 	sort.Sort(&ws)
 }
 
-func Reverse[T ~func(a, b Q) bool, Q any](sorter T) T {
-	return func(a, b Q) bool {
+// Sort an array of elements, by a sub-element, than be sorted by T
+func SortBy[TElem any, TBy any, TSort ~func(a, b TBy) bool](arr []TElem, sorter TSort, extractor func(obj TElem) TBy) {
+	ws := wrappedSorter[TElem]{arr, func(a, b TElem) bool {
+		return sorter(extractor(a), extractor(b))
+	}}
+	sort.Sort(&ws)
+}
+
+// Reverse a sorter (`not` the comparer)
+func Reverse[TElem any, TSort ~func(a, b TElem) bool](sorter TSort) TSort {
+	return func(a, b TElem) bool {
 		return !sorter(a, b)
 	}
 }

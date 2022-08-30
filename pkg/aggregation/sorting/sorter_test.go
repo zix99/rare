@@ -21,16 +21,38 @@ func TestWrappedSorter(t *testing.T) {
 	assert.Equal(t, []int{1, 2, 3, 5}, ws.arr)
 }
 
-func TestSortBy(t *testing.T) {
+func TestSort(t *testing.T) {
 	arr := []int{5, 4, 1, 2, 3}
-	SortBy(arr, func(a, b int) bool { return a < b })
+	Sort(arr, func(a, b int) bool { return a < b })
 	assert.Equal(t, []int{1, 2, 3, 4, 5}, arr)
 }
 
 func TestReverseSort(t *testing.T) {
 	arr := []int{5, 4, 1, 2, 3}
-	SortBy(arr, Reverse(func(a, b int) bool { return a < b }))
+	Sort(arr, Reverse(func(a, b int) bool { return a < b }))
 	assert.Equal(t, []int{5, 4, 3, 2, 1}, arr)
+}
+
+func TestSortBy(t *testing.T) {
+	type w struct {
+		a string
+	}
+	list := []w{
+		{"b"},
+		{"c"},
+		{"d"},
+		{"a"},
+		{"b"},
+	}
+	SortBy(list, ByName, func(obj w) string { return obj.a })
+
+	assert.Equal(t, []w{
+		{"a"},
+		{"b"},
+		{"b"},
+		{"c"},
+		{"d"},
+	}, list)
 }
 
 // BenchmarkExtractSort-4   	 3838752	       329.0 ns/op	      64 B/op	       2 allocs/op
@@ -46,6 +68,6 @@ func BenchmarkExtractSort(b *testing.B) {
 		{"f"},
 	}
 	for i := 0; i < b.N; i++ {
-		SortStringsBy(list, ByName, func(obj wrappedStruct) string { return obj.s })
+		SortBy(list, ByName, func(obj wrappedStruct) string { return obj.s })
 	}
 }

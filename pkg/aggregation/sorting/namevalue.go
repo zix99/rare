@@ -29,6 +29,8 @@ func ValueNameSorter(sorter NameSorter) NameValueSorter {
 	}
 }
 
+// SortNameValue interfaces.
+// Needs to be separate because of the coersion into the interface itself
 func SortNameValue[T NameValue](arr []T, sorter NameValueSorter) {
 	ws := wrappedSorter[T]{arr, func(a, b T) bool {
 		return sorter(a, b)
