@@ -28,12 +28,10 @@ func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.Ma
 
 func histoFunction(c *cli.Context) error {
 	var (
-		topItems    = c.Int("n")
-		reverseSort = c.Bool("sort-reverse")
-		sortName    = c.String("sort")
-		atLeast     = c.Int64("atleast")
-		extra       = c.Bool("extra")
-		all         = c.Bool("all")
+		topItems = c.Int("n")
+		atLeast  = c.Int64("atleast")
+		extra    = c.Bool("extra")
+		all      = c.Bool("all")
 	)
 
 	counter := aggregation.NewCounter()
@@ -43,7 +41,7 @@ func histoFunction(c *cli.Context) error {
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
-	sorter := helpers.BuildSorter(sortName, reverseSort)
+	sorter := helpers.BuildSorterFromFlags(c)
 
 	progressString := func() string {
 		return helpers.FWriteExtractorSummary(ext,
@@ -118,16 +116,8 @@ func histogramCommand() *cli.Command {
 				Usage: "Only show results if there are at least this many samples",
 				Value: 0,
 			},
-			&cli.StringFlag{
-				Name:  "sort",
-				Usage: "Sets sorting method (value, text, numeric, contextual)",
-				Value: "value",
-			},
-			&cli.BoolFlag{
-				Name:    "sort-reverse",
-				Aliases: []string{"reverse"},
-				Usage:   "Reverses the display sort-order",
-			},
+			helpers.SortFlag,
+			helpers.SortReverseFlag,
 		},
 	})
 }

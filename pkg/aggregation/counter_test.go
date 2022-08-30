@@ -44,7 +44,7 @@ func TestInOrderItemsByKey(t *testing.T) {
 	val.Sample("qq\x002")
 	val.Sample("qq\x00bad")
 
-	items := val.ItemsSortedBy(3, sorting.ValueNameSorter(sorting.ByName))
+	items := val.ItemsSortedBy(3, sorting.ValueNilSorter(sorting.ByName))
 
 	assert.Equal(t, 3, len(items))
 	assert.Equal(t, 3, val.GroupCount())
@@ -56,7 +56,7 @@ func TestInOrderItemsByKey(t *testing.T) {
 	assert.Equal(t, int64(3), items[1].Item.Count())
 	assert.Equal(t, "test", items[2].Name)
 
-	reverseSort := val.ItemsSortedBy(3, sorting.Reverse(sorting.ValueNameSorter(sorting.ByName)))
+	reverseSort := val.ItemsSortedBy(3, sorting.Reverse(sorting.ValueNilSorter(sorting.ByName)))
 	assert.Equal(t, 3, len(reverseSort))
 	assert.Equal(t, "test", reverseSort[0].Name)
 }

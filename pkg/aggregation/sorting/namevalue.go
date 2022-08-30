@@ -23,11 +23,16 @@ func ValueSorterEx(fallback NameSorter) NameValueSorter {
 	}
 }
 
-func ValueNameSorter(sorter NameSorter) NameValueSorter {
+func ValueNilSorter(sorter NameSorter) NameValueSorter {
 	return func(a, b NameValue) bool {
 		return sorter(a.SortName(), b.SortName())
 	}
 }
+
+var (
+	ValueNameSorter  = ValueNilSorter(ByName)
+	ValueSmartSorter = ValueNilSorter(ByNameSmart)
+)
 
 // SortNameValue interfaces.
 // Needs to be separate because of the coersion into the interface itself

@@ -5,17 +5,35 @@ import (
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/logger"
 	"strings"
+
+	"github.com/urfave/cli/v2"
 )
+
+func SortFlagWithDefault(dflt string) *cli.StringFlag {
+	return &cli.StringFlag{
+		Name:  "sort",
+		Usage: "Sets sorting method (value, text, numeric, contextual)",
+		Value: dflt,
+	}
+}
+
+var SortFlag = SortFlagWithDefault("value")
+
+var SortReverseFlag = &cli.BoolFlag{
+	Name:    "sort-reverse",
+	Aliases: []string{"reverse"},
+	Usage:   "Reverses the display sort-order",
+}
 
 func DecideSorterByName(name string) (sorting.NameValueSorter, error) {
 	name = strings.ToLower(name)
 	switch name {
 	case "text", "":
-		return sorting.ValueNameSorter(sorting.ByName), nil
+		return sorting.ValueNilSorter(sorting.ByName), nil
 	case "smart", "numeric":
-		return sorting.ValueNameSorter(sorting.ByNameSmart), nil
+		return sorting.ValueNilSorter(sorting.ByNameSmart), nil
 	case "contextual", "context":
-		return sorting.ValueNameSorter(sorting.ByContextual()), nil
+		return sorting.ValueNilSorter(sorting.ByContextual()), nil
 	case "value":
 		return sorting.ValueSorterEx(sorting.ByName), nil
 	}
@@ -32,4 +50,8 @@ func BuildSorter(name string, reverse bool) sorting.NameValueSorter {
 		sorter = sorting.Reverse(sorter)
 	}
 	return sorter
+}
+
+func BuildSorterFromFlags(c *cli.Context) sorting.NameValueSorter {
+	return BuildSorter(c.String("sort"), c.Bool("sort-reverse"))
 }

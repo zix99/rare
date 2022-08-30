@@ -42,7 +42,7 @@ func TestNameValueNilSorter(t *testing.T) {
 		{"a", 44},
 	}
 
-	SortNameValue(arr, ValueNameSorter(ByName))
+	SortNameValue(arr, ValueNilSorter(ByName))
 
 	expected := []pair{
 		{"a", 44},
