@@ -140,7 +140,12 @@ func (s *SubKeyCounter) Items() []SubKeyNamedItem {
 
 func (s *SubKeyCounter) ItemsSorted(sorter sorting.NameValueSorter) []SubKeyNamedItem {
 	items := s.Items()
-	sorting.SortNameValue(items, sorter)
+	sorting.SortBy(items, sorter, func(obj SubKeyNamedItem) sorting.NameValuePair {
+		return sorting.NameValuePair{
+			Name:  obj.Name,
+			Value: obj.Item.count,
+		}
+	})
 	return items
 }
 
@@ -154,12 +159,4 @@ func (s *SubKeyItem) Count() int64 {
 
 func (s *SubKeyItem) Items() []int64 {
 	return s.submatches
-}
-
-func (s SubKeyNamedItem) SortName() string {
-	return s.Name
-}
-
-func (s SubKeyNamedItem) SortValue() int64 {
-	return s.Item.count
 }

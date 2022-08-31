@@ -6,28 +6,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type pair struct {
-	s string
-	v int64
-}
-
-func (s pair) SortName() string {
-	return s.s
-}
-func (s pair) SortValue() int64 {
-	return s.v
-}
-
 func TestNameValueSorter(t *testing.T) {
-	arr := []pair{
+	arr := []NameValuePair{
 		{"b", 123},
 		{"q", 44},
 		{"a", 44},
 	}
 
-	SortNameValue(arr, ValueSorter())
+	Sort(arr, ValueSorter)
 
-	expected := []pair{
+	expected := []NameValuePair{
 		{"b", 123},
 		{"a", 44},
 		{"q", 44},
@@ -36,15 +24,15 @@ func TestNameValueSorter(t *testing.T) {
 }
 
 func TestNameValueNilSorter(t *testing.T) {
-	arr := []pair{
+	arr := []NameValuePair{
 		{"b", 123},
 		{"q", 44},
 		{"a", 44},
 	}
 
-	SortNameValue(arr, ValueNilSorter(ByName))
+	Sort(arr, ValueNilSorter(ByName))
 
-	expected := []pair{
+	expected := []NameValuePair{
 		{"a", 44},
 		{"b", 123},
 		{"q", 44},

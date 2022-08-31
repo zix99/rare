@@ -92,18 +92,15 @@ func minSlice(items []MatchPair, count int) []MatchPair {
 
 func (s *MatchCounter) ItemsSortedBy(count int, sorter sorting.NameValueSorter) []MatchPair {
 	items := s.Items()
-	sorting.SortNameValue(items, sorter)
+	sorting.SortBy(items, sorter, func(obj MatchPair) sorting.NameValuePair {
+		return sorting.NameValuePair{
+			Name:  obj.Name,
+			Value: obj.Item.count,
+		}
+	})
 	return minSlice(items, count)
 }
 
 func (s *MatchItem) Count() int64 {
 	return s.count
-}
-
-func (s MatchPair) SortName() string {
-	return s.Name
-}
-
-func (s MatchPair) SortValue() int64 {
-	return s.Item.count
 }
