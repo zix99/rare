@@ -22,12 +22,11 @@ func minColSlice(count int, cols []string) []string {
 
 func tabulateFunction(c *cli.Context) error {
 	var (
-		delim      = c.String("delim")
-		numRows    = c.Int("num")
-		numCols    = c.Int("cols")
-		sortByKeys = c.Bool("sortkey")
-		rowtotals  = c.Bool("rowtotal") || c.Bool("x")
-		coltotals  = c.Bool("coltotal") || c.Bool("x")
+		delim     = c.String("delim")
+		numRows   = c.Int("num")
+		numCols   = c.Int("cols")
+		rowtotals = c.Bool("rowtotal") || c.Bool("x")
+		coltotals = c.Bool("coltotal") || c.Bool("x")
 	)
 
 	counter := aggregation.NewTable(delim)
@@ -35,14 +34,10 @@ func tabulateFunction(c *cli.Context) error {
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
+	sorter := helpers.BuildSorterFromFlags(c)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
-		var cols []string
-		if sortByKeys {
-			cols = counter.OrderedColumnsByName()
-		} else {
-			cols = counter.OrderedColumns()
-		}
+		cols := counter.OrderedColumns(sorter)
 		cols = minColSlice(numCols, cols) // Cap columns
 
 		// Write header row
@@ -58,12 +53,7 @@ func tabulateFunction(c *cli.Context) error {
 		}
 
 		// Write each row
-		var rows []*aggregation.TableRow
-		if sortByKeys {
-			rows = counter.OrderedRowsByName()
-		} else {
-			rows = counter.OrderedRows()
-		}
+		rows := counter.OrderedRows(sorter)
 
 		line := 1
 		for i := 0; i < len(rows) && i < numRows; i++ {
@@ -133,11 +123,6 @@ func tabulateCommand() *cli.Command {
 				Value: 10,
 			},
 			&cli.BoolFlag{
-				Name:    "sortkey",
-				Aliases: []string{"sk"},
-				Usage:   "Sort rows by key name rather than by values",
-			},
-			&cli.BoolFlag{
 				Name:  "rowtotal",
 				Usage: "Show row totals",
 			},
@@ -150,6 +135,8 @@ func tabulateCommand() *cli.Command {
 				Aliases: []string{"x"},
 				Usage:   "Display row and column totals",
 			},
+			helpers.SortFlag,
+			helpers.SortReverseFlag,
 		},
 	})
 }

@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"rare/pkg/aggregation/sorting"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,9 +16,9 @@ func TestSimpleTable(t *testing.T) {
 	table.Sample("b c")
 	table.Sample("b b q") // invalid
 
-	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns())
+	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns(sorting.ValueSorter))
 
-	rows := table.OrderedRows()
+	rows := table.OrderedRows(sorting.ValueSorter)
 	assert.Equal(t, 2, len(rows))
 	assert.Equal(t, "c", rows[0].Name())
 	assert.Equal(t, "b", rows[1].Name())
@@ -31,7 +32,7 @@ func TestSimpleTable(t *testing.T) {
 
 	assert.Contains(t, table.Columns(), "a")
 	assert.Contains(t, table.Columns(), "b")
-	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns())
+	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns(sorting.ValueSorter))
 	assert.Equal(t, uint64(1), table.ParseErrors())
 
 	// Col totals
@@ -55,15 +56,15 @@ func TestTableMultiIncrement(t *testing.T) {
 	table.Sample("b c -1")
 
 	// Row names and col vals
-	rows := table.OrderedRowsByName()
+	rows := table.OrderedRows(sorting.ValueNameSorter)
 	assert.Equal(t, "b", rows[0].Name())
 	assert.Equal(t, int64(1), rows[0].Value("a"))
 	assert.Equal(t, "c", rows[1].Name())
 	assert.Equal(t, int64(5), rows[1].Value("b"))
 
 	// Column names
-	assert.Equal(t, []string{"a", "b"}, table.OrderedColumnsByName())
-	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns())
+	assert.Equal(t, []string{"a", "b"}, table.OrderedColumns(sorting.ValueNameSorter))
+	assert.Equal(t, []string{"b", "a"}, table.OrderedColumns(sorting.ValueSorter))
 
 	// Totals
 	assert.Equal(t, int64(5), table.ColTotal("b"))

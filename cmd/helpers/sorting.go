@@ -17,6 +17,7 @@ func SortFlagWithDefault(dflt string) *cli.StringFlag {
 	}
 }
 
+// Defaults by-value
 var SortFlag = SortFlagWithDefault("value")
 
 var SortReverseFlag = &cli.BoolFlag{
@@ -25,7 +26,26 @@ var SortReverseFlag = &cli.BoolFlag{
 	Usage:   "Reverses the display sort-order",
 }
 
-func DecideSorterByName(name string) (sorting.NameValueSorter, error) {
+func AddSortFlag(command *cli.Command, defaultMode string) {
+	if _, err := lookupSorter(defaultMode); err != nil {
+		panic(err)
+	}
+
+	command.Flags = append(command.Flags,
+		&cli.StringFlag{
+			Name:  "sort",
+			Usage: "Sets sorting method (value, text, numeric, contextual)",
+			Value: defaultMode,
+		},
+		&cli.BoolFlag{
+			Name:    "sort-reverse",
+			Aliases: []string{"reverse"},
+			Usage:   "Reverses the display sort-order",
+		},
+	)
+}
+
+func lookupSorter(name string) (sorting.NameValueSorter, error) {
 	name = strings.ToLower(name)
 	switch name {
 	case "text", "":
@@ -41,7 +61,7 @@ func DecideSorterByName(name string) (sorting.NameValueSorter, error) {
 }
 
 func BuildSorter(name string, reverse bool) sorting.NameValueSorter {
-	sorter, err := DecideSorterByName(name)
+	sorter, err := lookupSorter(name)
 	if err != nil {
 		logger.Fatalf("Unknown sort: %s (%v)", name, err)
 		return nil
