@@ -9,23 +9,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func SortFlagWithDefault(dflt string) *cli.StringFlag {
-	return &cli.StringFlag{
-		Name:  "sort",
-		Usage: "Sets sorting method (value, text, numeric, contextual)",
-		Value: dflt,
-	}
-}
-
-// Defaults by-value
-var SortFlag = SortFlagWithDefault("value")
-
-var SortReverseFlag = &cli.BoolFlag{
-	Name:    "sort-reverse",
-	Aliases: []string{"reverse"},
-	Usage:   "Reverses the display sort-order",
-}
-
 func AddSortFlag(command *cli.Command, defaultMode string) {
 	if _, err := lookupSorter(defaultMode); err != nil {
 		panic(err)

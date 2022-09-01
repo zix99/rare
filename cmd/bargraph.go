@@ -46,7 +46,7 @@ func bargraphFunction(c *cli.Context) error {
 }
 
 func bargraphCommand() *cli.Command {
-	return helpers.AdaptCommandForExtractor(cli.Command{
+	cmd := helpers.AdaptCommandForExtractor(cli.Command{
 		Name:    "bargraph",
 		Aliases: []string{"bars", "bar", "b"},
 		Usage:   "Create a bargraph of the given 1 or 2 dimension data",
@@ -61,8 +61,10 @@ func bargraphCommand() *cli.Command {
 				Aliases: []string{"s"},
 				Usage:   "Display bargraph as stacked",
 			},
-			helpers.SortFlagWithDefault("smart"),
-			helpers.SortReverseFlag,
 		},
 	})
+
+	helpers.AddSortFlag(cmd, "smart")
+
+	return cmd
 }
