@@ -13,7 +13,7 @@ func TestNameValueSorter(t *testing.T) {
 		{"a", 44},
 	}
 
-	Sort(arr, ValueSorter)
+	Sort(arr, NVValueSorter)
 
 	expected := []NameValuePair{
 		{"b", 123},

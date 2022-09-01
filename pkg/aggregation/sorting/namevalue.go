@@ -16,14 +16,14 @@ func ValueSorterEx(fallback NameSorter) NameValueSorter {
 	}
 }
 
-var (
-	ValueSorter      = ValueSorterEx(ByName)
-	ValueNameSorter  = ValueNilSorter(ByName)
-	ValueSmartSorter = ValueNilSorter(ByNameSmart)
-)
-
 func ValueNilSorter(sorter NameSorter) NameValueSorter {
 	return func(a, b NameValuePair) bool {
 		return sorter(a.Name, b.Name)
 	}
 }
+
+var (
+	NVValueSorter = ValueSorterEx(ByName)
+	NVNameSorter  = ValueNilSorter(ByName)
+	NVSmartSorter = ValueNilSorter(ByNameSmart)
+)

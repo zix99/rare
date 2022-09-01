@@ -26,7 +26,7 @@ func TestInOrderItems(t *testing.T) {
 	val.Sample("abc")
 	val.Sample("qq")
 
-	items := val.ItemsSortedBy(2, sorting.ValueSorter)
+	items := val.ItemsSortedBy(2, sorting.NVValueSorter)
 
 	assert.Equal(t, 2, len(items), "Expected top 2")
 	assert.Equal(t, "abc", items[0].Name)

@@ -27,6 +27,7 @@ func heatmapFunction(c *cli.Context) error {
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
+	sorter := helpers.BuildSorterFromFlags(c)
 
 	writer := termrenderers.NewHeatmap(multiterm.New(), numRows, numCols)
 
@@ -37,7 +38,7 @@ func heatmapFunction(c *cli.Context) error {
 	}
 
 	helpers.RunAggregationLoop(ext, counter, func() {
-		writer.WriteTable(counter)
+		writer.WriteTable(counter, sorter)
 		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
 		writer.WriteFooter(1, batcher.StatusString())
@@ -47,7 +48,7 @@ func heatmapFunction(c *cli.Context) error {
 }
 
 func heatmapCommand() *cli.Command {
-	return helpers.AdaptCommandForExtractor(cli.Command{
+	cmd := helpers.AdaptCommandForExtractor(cli.Command{
 		Name:    "heatmap",
 		Aliases: []string{"heat", "hm"},
 		Usage:   "Create a 2D heatmap of extracted data",
@@ -82,4 +83,8 @@ func heatmapCommand() *cli.Command {
 			},
 		},
 	})
+
+	helpers.AddSortFlag(cmd, "smart")
+
+	return cmd
 }
