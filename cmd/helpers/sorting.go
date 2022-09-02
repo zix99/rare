@@ -17,7 +17,7 @@ func AddSortFlag(command *cli.Command, defaultMode string) {
 	command.Flags = append(command.Flags,
 		&cli.StringFlag{
 			Name:  "sort",
-			Usage: "Sets sorting method (value, text, numeric, contextual)",
+			Usage: "Sets sorting method (value, text, numeric, contextual, date)",
 			Value: defaultMode,
 		},
 		&cli.BoolFlag{
@@ -37,6 +37,8 @@ func lookupSorter(name string) (sorting.NameValueSorter, error) {
 		return sorting.ValueNilSorter(sorting.ByNameSmart), nil
 	case "contextual", "context":
 		return sorting.ValueNilSorter(sorting.ByContextual()), nil
+	case "date":
+		return sorting.ValueNilSorter(sorting.ByDateWithContextual()), nil
 	case "value":
 		return sorting.ValueSorterEx(sorting.ByName), nil
 	}
