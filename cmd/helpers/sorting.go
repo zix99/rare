@@ -17,7 +17,7 @@ func AddSortFlag(command *cli.Command, defaultMode string) {
 	command.Flags = append(command.Flags,
 		&cli.StringFlag{
 			Name:  "sort",
-			Usage: "Sets sorting method (value, text, numeric, contextual, date)",
+			Usage: "Sorting method for display (value, text, numeric, contextual, date)",
 			Value: defaultMode,
 		},
 		&cli.BoolFlag{
@@ -48,7 +48,7 @@ func lookupSorter(name string) (sorting.NameValueSorter, error) {
 func BuildSorter(name string, reverse bool) sorting.NameValueSorter {
 	sorter, err := lookupSorter(name)
 	if err != nil {
-		logger.Fatalf("Unknown sort: %s (%v)", name, err)
+		logger.Fatalf("Unknown sort: %s", name, err)
 		return nil
 	}
 	if reverse {
