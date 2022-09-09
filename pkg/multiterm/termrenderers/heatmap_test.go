@@ -17,7 +17,7 @@ func TestSimpleHeatmap(t *testing.T) {
 	agg.Sample("test abc")
 
 	hm.maxRowKeyWidth = 4
-	hm.WriteTable(agg, sorting.NVNameSorter)
+	hm.WriteTable(agg, sorting.NVNameSorter, sorting.NVNameSorter)
 
 	assert.Equal(t, 3, vt.LineCount())
 	assert.Equal(t, "     - 1    - 1    - 1", vt.Get(0))
@@ -36,7 +36,7 @@ func TestUnicodeHeatmap(t *testing.T) {
 	agg.Sample("qef test")
 
 	hm.maxRowKeyWidth = 4
-	hm.WriteTable(agg, sorting.NVNameSorter)
+	hm.WriteTable(agg, sorting.NVNameSorter, sorting.NVNameSorter)
 
 	assert.Equal(t, 4, vt.LineCount())
 	assert.Equal(t, "     - 0    - 0    9 1", vt.Get(0))
@@ -60,7 +60,7 @@ func TestCompressedHeatmap(t *testing.T) {
 	agg.Sample("test abc4")
 
 	hm.maxRowKeyWidth = 4
-	hm.WriteTable(agg, sorting.NVNameSorter)
+	hm.WriteTable(agg, sorting.NVNameSorter, sorting.NVNameSorter)
 	hm.WriteFooter(0, "footer")
 
 	assert.Equal(t, 6, vt.LineCount())

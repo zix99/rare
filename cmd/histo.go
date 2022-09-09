@@ -32,6 +32,7 @@ func histoFunction(c *cli.Context) error {
 		atLeast  = c.Int64("atleast")
 		extra    = c.Bool("extra")
 		all      = c.Bool("all")
+		sortName = c.String(helpers.DefaultSortFlag.Name)
 	)
 
 	counter := aggregation.NewCounter()
@@ -41,7 +42,7 @@ func histoFunction(c *cli.Context) error {
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
-	sorter := helpers.BuildSorterFromFlags(c)
+	sorter := helpers.BuildSorterOrFail(sortName)
 
 	progressString := func() string {
 		return helpers.FWriteExtractorSummary(ext,
@@ -116,10 +117,9 @@ func histogramCommand() *cli.Command {
 				Usage: "Only show results if there are at least this many samples",
 				Value: 0,
 			},
+			helpers.DefaultSortFlagWithDefault("value"),
 		},
 	})
-
-	helpers.AddSortFlag(cmd, "value")
 
 	return cmd
 }

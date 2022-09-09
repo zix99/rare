@@ -29,15 +29,15 @@ func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
 	}
 }
 
-func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator, sorter sorting.NameValueSorter) {
+func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator, rowSorter, colSorter sorting.NameValueSorter) {
 	s.UpdateMinMaxFromData(agg)
 
 	// Write header
-	colNames := agg.OrderedColumns(sorter)
+	colNames := agg.OrderedColumns(colSorter)
 	colCount := s.WriteHeader(colNames...)
 
 	// Each row...
-	rows := agg.OrderedRows(sorter)
+	rows := agg.OrderedRows(rowSorter)
 	rowCount := mini(len(rows), s.rowCount)
 	for i := 0; i < rowCount; i++ {
 		s.WriteRow(i, rows[i], colNames[:colCount])

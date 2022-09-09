@@ -4,28 +4,69 @@ import (
 	"errors"
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/logger"
+	"rare/pkg/stringSplitter"
 	"strings"
 
 	"github.com/urfave/cli/v2"
 )
 
-func AddSortFlag(command *cli.Command, defaultMode string) {
-	if _, err := lookupSorter(defaultMode); err != nil {
+var DefaultSortFlag = &cli.StringFlag{
+	Name:  "sort",
+	Usage: "Sorting method for display (value, text, numeric, contextual, date)",
+	Value: "smart",
+}
+
+func DefaultSortFlagWithDefault(dflt string) *cli.StringFlag {
+	if _, err := lookupSorter(dflt); err != nil {
 		panic(err)
 	}
 
-	command.Flags = append(command.Flags,
-		&cli.StringFlag{
-			Name:  "sort",
-			Usage: "Sorting method for display (value, text, numeric, contextual, date)",
-			Value: defaultMode,
-		},
-		&cli.BoolFlag{
-			Name:    "sort-reverse",
-			Aliases: []string{"reverse"},
-			Usage:   "Reverses the display sort-order",
-		},
-	)
+	flag := *DefaultSortFlag
+	flag.Value = dflt
+	return &flag
+}
+
+func BuildSorterOrFail(fullName string) sorting.NameValueSorter {
+	name, reverse, err := parseSort(fullName)
+	if err != nil {
+		logger.Fatalf("Error parsing sort: %s", err)
+		return nil
+	}
+
+	sorter, err := lookupSorter(name)
+	if err != nil {
+		logger.Fatalf("Unknown sort: %s", name)
+		return nil
+	}
+	if reverse {
+		sorter = sorting.Reverse(sorter)
+	}
+	return sorter
+}
+
+func parseSort(name string) (realname string, reverse bool, err error) {
+	splitter := stringSplitter.Splitter{
+		S:     name,
+		Delim: ":",
+	}
+
+	realname = strings.ToLower(splitter.Next())
+	reverse = (realname == "value") // Value defaults descending
+
+	if modifier, hasModifier := splitter.NextOk(); hasModifier {
+		switch strings.ToLower(modifier) {
+		case "rev", "reverse":
+			reverse = !reverse
+		case "desc":
+			reverse = true
+		case "asc":
+			reverse = false
+		default:
+			return "", false, errors.New("invalid modifier")
+		}
+	}
+
+	return
 }
 
 func lookupSorter(name string) (sorting.NameValueSorter, error) {
@@ -43,20 +84,4 @@ func lookupSorter(name string) (sorting.NameValueSorter, error) {
 		return sorting.ValueSorterEx(sorting.ByName), nil
 	}
 	return nil, errors.New("unknown sort")
-}
-
-func BuildSorter(name string, reverse bool) sorting.NameValueSorter {
-	sorter, err := lookupSorter(name)
-	if err != nil {
-		logger.Fatalf("Unknown sort: %s", name, err)
-		return nil
-	}
-	if reverse {
-		sorter = sorting.Reverse(sorter)
-	}
-	return sorter
-}
-
-func BuildSorterFromFlags(c *cli.Context) sorting.NameValueSorter {
-	return BuildSorter(c.String("sort"), c.Bool("sort-reverse"))
 }

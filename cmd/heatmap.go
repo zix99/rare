@@ -21,13 +21,16 @@ func heatmapFunction(c *cli.Context) error {
 		minVal   = c.Int64("min")
 		maxFixed = c.IsSet("max")
 		maxVal   = c.Int64("max")
+		sortRows = c.String("sort-rows")
+		sortCols = c.String("sort-cols")
 	)
 
 	counter := aggregation.NewTable(delim)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
-	sorter := helpers.BuildSorterFromFlags(c)
+	rowSorter := helpers.BuildSorterOrFail(sortRows)
+	colSorter := helpers.BuildSorterOrFail(sortCols)
 
 	writer := termrenderers.NewHeatmap(multiterm.New(), numRows, numCols)
 
@@ -38,7 +41,7 @@ func heatmapFunction(c *cli.Context) error {
 	}
 
 	helpers.RunAggregationLoop(ext, counter, func() {
-		writer.WriteTable(counter, sorter)
+		writer.WriteTable(counter, rowSorter, colSorter)
 		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
 		writer.WriteFooter(1, batcher.StatusString())
@@ -81,10 +84,18 @@ func heatmapCommand() *cli.Command {
 				Name:  "max",
 				Usage: "Sets the upper bounds of the heatmap (default: auto)",
 			},
+			&cli.StringFlag{
+				Name:  "sort-rows",
+				Usage: "Sort method for rows; " + helpers.DefaultSortFlag.Usage,
+				Value: helpers.DefaultSortFlag.Value,
+			},
+			&cli.StringFlag{
+				Name:  "sort-cols",
+				Usage: "Sort method for cols; " + helpers.DefaultSortFlag.Usage,
+				Value: helpers.DefaultSortFlag.Value,
+			},
 		},
 	})
-
-	helpers.AddSortFlag(cmd, "smart")
 
 	return cmd
 }

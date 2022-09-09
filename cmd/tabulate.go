@@ -27,6 +27,8 @@ func tabulateFunction(c *cli.Context) error {
 		numCols   = c.Int("cols")
 		rowtotals = c.Bool("rowtotal") || c.Bool("x")
 		coltotals = c.Bool("coltotal") || c.Bool("x")
+		sortRows  = c.String("sort-rows")
+		sortCols  = c.String("sort-cols")
 	)
 
 	counter := aggregation.NewTable(delim)
@@ -34,10 +36,11 @@ func tabulateFunction(c *cli.Context) error {
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
-	sorter := helpers.BuildSorterFromFlags(c)
+	rowSorter := helpers.BuildSorterOrFail(sortRows)
+	colSorter := helpers.BuildSorterOrFail(sortCols)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
-		cols := counter.OrderedColumns(sorter)
+		cols := counter.OrderedColumns(colSorter)
 		cols = minColSlice(numCols, cols) // Cap columns
 
 		// Write header row
@@ -53,7 +56,7 @@ func tabulateFunction(c *cli.Context) error {
 		}
 
 		// Write each row
-		rows := counter.OrderedRows(sorter)
+		rows := counter.OrderedRows(rowSorter)
 
 		line := 1
 		for i := 0; i < len(rows) && i < numRows; i++ {
@@ -135,10 +138,18 @@ func tabulateCommand() *cli.Command {
 				Aliases: []string{"x"},
 				Usage:   "Display row and column totals",
 			},
+			&cli.StringFlag{
+				Name:  "sort-rows",
+				Usage: "Sort method for rows; " + helpers.DefaultSortFlag.Usage,
+				Value: "value",
+			},
+			&cli.StringFlag{
+				Name:  "sort-cols",
+				Usage: "Sort method for cols; " + helpers.DefaultSortFlag.Usage,
+				Value: "value",
+			},
 		},
 	})
-
-	helpers.AddSortFlag(cmd, "value")
 
 	return cmd
 }
