@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"errors"
+	"fmt"
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/logger"
 	"rare/pkg/stringSplitter"
@@ -27,21 +28,27 @@ func DefaultSortFlagWithDefault(dflt string) *cli.StringFlag {
 }
 
 func BuildSorterOrFail(fullName string) sorting.NameValueSorter {
+	sorter, err := BuildSorter(fullName)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	return sorter
+}
+
+func BuildSorter(fullName string) (sorting.NameValueSorter, error) {
 	name, reverse, err := parseSort(fullName)
 	if err != nil {
-		logger.Fatalf("Error parsing sort: %s", err)
-		return nil
+		return nil, fmt.Errorf("error parsing sort: %v", err)
 	}
 
 	sorter, err := lookupSorter(name)
 	if err != nil {
-		logger.Fatalf("Unknown sort: %s", name)
-		return nil
+		return nil, fmt.Errorf("unknown sort: %s", name)
 	}
 	if reverse {
 		sorter = sorting.Reverse(sorter)
 	}
-	return sorter
+	return sorter, nil
 }
 
 func parseSort(name string) (realname string, reverse bool, err error) {
