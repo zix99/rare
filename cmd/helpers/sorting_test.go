@@ -8,7 +8,7 @@ import (
 
 func TestBuildSorter(t *testing.T) {
 	assert.NotNil(t, BuildSorterOrFail("text"))
-	assert.NotNil(t, BuildSorterOrFail("smart"))
+	assert.NotNil(t, BuildSorterOrFail("numeric"))
 	assert.NotNil(t, BuildSorterOrFail("contextual"))
 	assert.NotNil(t, BuildSorterOrFail("value"))
 	assert.NotNil(t, BuildSorterOrFail("value:reverse"))

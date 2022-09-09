@@ -13,7 +13,7 @@ import (
 var DefaultSortFlag = &cli.StringFlag{
 	Name:  "sort",
 	Usage: "Sorting method for display (value, text, numeric, contextual, date)",
-	Value: "smart",
+	Value: "numeric",
 }
 
 func DefaultSortFlagWithDefault(dflt string) *cli.StringFlag {
@@ -74,7 +74,7 @@ func lookupSorter(name string) (sorting.NameValueSorter, error) {
 	switch name {
 	case "text", "":
 		return sorting.ValueNilSorter(sorting.ByName), nil
-	case "smart", "numeric":
+	case "numeric":
 		return sorting.ValueNilSorter(sorting.ByNameSmart), nil
 	case "contextual", "context":
 		return sorting.ValueNilSorter(sorting.ByContextual()), nil
