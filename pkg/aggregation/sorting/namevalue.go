@@ -12,7 +12,7 @@ func ValueSorterEx(fallback NameSorter) NameValueSorter {
 		if a.Value == b.Value {
 			return fallback(a.Name, b.Name)
 		}
-		return a.Value > b.Value
+		return a.Value < b.Value
 	}
 }
 
@@ -23,7 +23,7 @@ func ValueNilSorter(sorter NameSorter) NameValueSorter {
 }
 
 var (
-	NVValueSorter = ValueSorterEx(ByName)
+	NVValueSorter = Reverse(ValueSorterEx(Reverse(ByName)))
 	NVNameSorter  = ValueNilSorter(ByName)
 	NVSmartSorter = ValueNilSorter(ByNameSmart)
 )
