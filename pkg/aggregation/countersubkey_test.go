@@ -2,6 +2,7 @@ package aggregation
 
 import (
 	"fmt"
+	"rare/pkg/aggregation/sorting"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,8 +13,7 @@ func TestSubKeyEmpty(t *testing.T) {
 	assert.Equal(t, uint64(0), sk.ParseErrors())
 	assert.Len(t, sk.SubKeys(), 0)
 	assert.Len(t, sk.Items(), 0)
-	assert.Len(t, sk.ItemsSorted(false), 0)
-	assert.Len(t, sk.ItemsSorted(true), 0)
+	assert.Len(t, sk.ItemsSorted(sorting.NVNameSorter), 0)
 }
 
 func TestSubKeyWithOnlyKeys(t *testing.T) {
@@ -25,7 +25,7 @@ func TestSubKeyWithOnlyKeys(t *testing.T) {
 	assert.Len(t, sk.SubKeys(), 1)
 	assert.Len(t, sk.Items(), 2)
 
-	items := sk.ItemsSorted(false)
+	items := sk.ItemsSorted(sorting.NVNameSorter)
 	assert.Equal(t, "test", items[0].Name)
 	assert.Equal(t, int64(1), items[0].Item.Count())
 	assert.Equal(t, "test2", items[1].Name)
@@ -42,7 +42,7 @@ func TestSubKeyWithSubKeys(t *testing.T) {
 	assert.Len(t, sk.SubKeys(), 2)
 	assert.Len(t, sk.Items(), 2)
 
-	items := sk.ItemsSorted(false)
+	items := sk.ItemsSorted(sorting.NVNameSorter)
 	assert.Len(t, items[0].Item.Items(), 2)
 	assert.Len(t, items[1].Item.Items(), 2)
 }
@@ -54,7 +54,7 @@ func TestComplexSubKeys(t *testing.T) {
 	sk.SampleValue("test", "100", 3)
 	sk.SampleValue("test", "200", 1)
 
-	items := sk.ItemsSorted(false)
+	items := sk.ItemsSorted(sorting.NVNameSorter)
 	assert.Equal(t, items[0].Name, "test")
 	assert.Len(t, items[0].Item.Items(), 3)
 	assert.Equal(t, items[0].Item.Items()[0], int64(3))

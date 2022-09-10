@@ -1,9 +1,9 @@
 package aggregation
 
 import (
+	"rare/pkg/aggregation/sorting"
 	"rare/pkg/expressions"
 	"rare/pkg/stringSplitter"
-	"sort"
 	"strconv"
 )
 
@@ -138,21 +138,14 @@ func (s *SubKeyCounter) Items() []SubKeyNamedItem {
 	return ret
 }
 
-func (s *SubKeyCounter) ItemsSorted(reverse bool) []SubKeyNamedItem {
+func (s *SubKeyCounter) ItemsSorted(sorter sorting.NameValueSorter) []SubKeyNamedItem {
 	items := s.Items()
-
-	sorter := func(i, j int) bool {
-		return items[i].Name < items[j].Name
-	}
-
-	if reverse {
-		sort.Slice(items, func(i, j int) bool {
-			return !sorter(i, j)
-		})
-	} else {
-		sort.Slice(items, sorter)
-	}
-
+	sorting.SortBy(items, sorter, func(obj SubKeyNamedItem) sorting.NameValuePair {
+		return sorting.NameValuePair{
+			Name:  obj.Name,
+			Value: obj.Item.count,
+		}
+	})
 	return items
 }
 

@@ -16,8 +16,8 @@ go run . bars -sz -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} year nginx} {2
 
 func bargraphFunction(c *cli.Context) error {
 	var (
-		stacked     = c.Bool("stacked")
-		reverseSort = c.Bool("reverse")
+		stacked  = c.Bool("stacked")
+		sortName = c.String(helpers.DefaultSortFlag.Name)
 	)
 
 	counter := aggregation.NewSubKeyCounter()
@@ -26,12 +26,13 @@ func bargraphFunction(c *cli.Context) error {
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
+	sorter := helpers.BuildSorterOrFail(sortName)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		line := 0
 
 		writer.SetKeys(counter.SubKeys()...)
-		for _, row := range counter.ItemsSorted(reverseSort) {
+		for _, row := range counter.ItemsSorted(sorter) {
 			writer.WriteBar(line, row.Name, row.Item.Items()...)
 			line++
 		}
@@ -61,10 +62,7 @@ func bargraphCommand() *cli.Command {
 				Aliases: []string{"s"},
 				Usage:   "Display bargraph as stacked",
 			},
-			&cli.BoolFlag{
-				Name:  "reverse",
-				Usage: "Reverses the display sort-order",
-			},
+			helpers.DefaultSortFlag,
 		},
 	})
 }

@@ -2,8 +2,8 @@ package aggregation
 
 import (
 	"math"
+	"rare/pkg/aggregation/sorting"
 	"rare/pkg/stringSplitter"
-	"sort"
 	"strconv"
 )
 
@@ -84,29 +84,14 @@ func (s *TableAggregator) Columns() []string {
 	return keys
 }
 
-// OrderedColumns returns columns ordered by the column's value first
-func (s *TableAggregator) OrderedColumns() []string {
+func (s *TableAggregator) OrderedColumns(sorter sorting.NameValueSorter) []string {
 	keys := s.Columns()
-
-	sort.Slice(keys, func(i, j int) bool {
-		c0 := s.cols[keys[i]]
-		c1 := s.cols[keys[j]]
-		if c0 == c1 {
-			return keys[i] < keys[j]
+	sorting.SortBy(keys, sorter, func(name string) sorting.NameValuePair {
+		return sorting.NameValuePair{
+			Name:  name,
+			Value: s.cols[name],
 		}
-		return c0 > c1
 	})
-
-	return keys
-}
-
-func (s *TableAggregator) OrderedColumnsByName() []string {
-	keys := s.Columns()
-
-	sort.Slice(keys, func(i, j int) bool {
-		return keys[i] < keys[j]
-	})
-
 	return keys
 }
 
@@ -124,28 +109,14 @@ func (s *TableAggregator) Rows() []*TableRow {
 	return rows
 }
 
-// OrderedRows returns rows ordered first by the sum of the row, and then by name if equal
-func (s *TableAggregator) OrderedRows() []*TableRow {
+func (s *TableAggregator) OrderedRows(sorter sorting.NameValueSorter) []*TableRow {
 	rows := s.Rows()
-
-	sort.Slice(rows, func(i, j int) bool {
-		if rows[i].sum == rows[j].sum {
-			return rows[i].name < rows[j].name
+	sorting.SortBy(rows, sorter, func(obj *TableRow) sorting.NameValuePair {
+		return sorting.NameValuePair{
+			Name:  obj.name,
+			Value: obj.sum,
 		}
-		return rows[i].sum > rows[j].sum
 	})
-
-	return rows
-}
-
-// OrderedRowsByName orders rows by name
-func (s *TableAggregator) OrderedRowsByName() []*TableRow {
-	rows := s.Rows()
-
-	sort.Slice(rows, func(i, j int) bool {
-		return rows[i].name < rows[j].name
-	})
-
 	return rows
 }
 

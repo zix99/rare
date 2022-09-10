@@ -210,3 +210,27 @@ Matched: 1,035,666 / 1,035,666 (R: 8; C: 61)
 ```
 
 ![Gif of heatmap](../images/heatmap.gif)
+
+## Sorting
+
+Many of the aggregators support changing the order in which the data is displayed in. You
+can change this from default either by setting the `--sort` flag or `--sort-rows` and `--sort-cols`
+flags for tables.
+
+These are the supported sorters:
+
+* `text` -- Pure alphanumeric sort.  Fastest, but can sort numbers oddly (eg. would sort 1, 11, 2, ...)
+* `numeric` -- Attempts to parse the value as numeric.  If unable to parse, falls back to alphanumeric (Default)
+* `contextual` -- Tries to use context to be smart about sorting, eg if it sees a month or weekday name, will sort by that. Falls back to numeric
+* `date` -- Parses the value as if it were a date. Falls back to contextual
+* `value` -- Orders the results based on their aggregated *value*. eg. would put the most frequent item at the top. Defaults to descending order
+
+### Modifiers
+
+In addition to the sorting method, you can also modify the sort by adding a colon and the modifier, eg: `numeric:desc`
+
+These are the supported modifiers:
+
+* `:reverse` -- Reverse of the "default"
+* `:asc` -- Ascending order
+* `:desc` -- Descending order

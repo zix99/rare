@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"rare/pkg/aggregation/sorting"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,7 +26,7 @@ func TestInOrderItems(t *testing.T) {
 	val.Sample("abc")
 	val.Sample("qq")
 
-	items := val.ItemsTop(2)
+	items := val.ItemsSortedBy(2, sorting.NVValueSorter)
 
 	assert.Equal(t, 2, len(items), "Expected top 2")
 	assert.Equal(t, "abc", items[0].Name)
@@ -43,7 +44,7 @@ func TestInOrderItemsByKey(t *testing.T) {
 	val.Sample("qq\x002")
 	val.Sample("qq\x00bad")
 
-	items := val.ItemsSortedByKey(3, false)
+	items := val.ItemsSortedBy(3, sorting.ValueNilSorter(sorting.ByName))
 
 	assert.Equal(t, 3, len(items))
 	assert.Equal(t, 3, val.GroupCount())
@@ -55,7 +56,7 @@ func TestInOrderItemsByKey(t *testing.T) {
 	assert.Equal(t, int64(3), items[1].Item.Count())
 	assert.Equal(t, "test", items[2].Name)
 
-	reverseSort := val.ItemsSortedByKey(3, true)
+	reverseSort := val.ItemsSortedBy(3, sorting.Reverse(sorting.ValueNilSorter(sorting.ByName)))
 	assert.Equal(t, 3, len(reverseSort))
 	assert.Equal(t, "test", reverseSort[0].Name)
 }

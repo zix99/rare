@@ -5,6 +5,7 @@ import (
 	"os"
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
+	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
@@ -12,13 +13,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool, sortByKey bool, atLeast int64) {
-	var items []aggregation.MatchPair
-	if sortByKey {
-		items = counter.ItemsSortedByKey(count, reverse)
-	} else {
-		items = counter.ItemsSorted(count, reverse)
-	}
+func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.MatchCounter, count int, sorter sorting.NameValueSorter, atLeast int64) {
+	items := counter.ItemsSortedBy(count, sorter)
 	line := 0
 	writer.UpdateSamples(counter.Count())
 	for _, match := range items {
@@ -32,12 +28,11 @@ func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.Ma
 
 func histoFunction(c *cli.Context) error {
 	var (
-		topItems    = c.Int("n")
-		reverseSort = c.Bool("reverse")
-		sortByKey   = c.Bool("sk")
-		atLeast     = c.Int64("atleast")
-		extra       = c.Bool("extra")
-		all         = c.Bool("all")
+		topItems = c.Int("n")
+		atLeast  = c.Int64("atleast")
+		extra    = c.Bool("extra")
+		all      = c.Bool("all")
+		sortName = c.String(helpers.DefaultSortFlag.Name)
 	)
 
 	counter := aggregation.NewCounter()
@@ -47,6 +42,7 @@ func histoFunction(c *cli.Context) error {
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
+	sorter := helpers.BuildSorterOrFail(sortName)
 
 	progressString := func() string {
 		return helpers.FWriteExtractorSummary(ext,
@@ -55,7 +51,7 @@ func histoFunction(c *cli.Context) error {
 	}
 
 	helpers.RunAggregationLoop(ext, counter, func() {
-		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey, atLeast)
+		writeHistoOutput(writer, counter, topItems, sorter, atLeast)
 		writer.WriteFooter(0, progressString())
 		writer.WriteFooter(1, batcher.StatusString())
 	})
@@ -66,7 +62,7 @@ func histoFunction(c *cli.Context) error {
 		fmt.Println("Full Table:")
 		vterm := multiterm.NewVirtualTerm()
 		vWriter := termrenderers.NewHistogram(vterm, counter.GroupCount())
-		writeHistoOutput(vWriter, counter, counter.GroupCount(), reverseSort, sortByKey, atLeast)
+		writeHistoOutput(vWriter, counter, counter.GroupCount(), sorter, atLeast)
 
 		vterm.WriteToOutput(os.Stdout)
 		fmt.Println(progressString())
@@ -121,15 +117,7 @@ func histogramCommand() *cli.Command {
 				Usage: "Only show results if there are at least this many samples",
 				Value: 0,
 			},
-			&cli.BoolFlag{
-				Name:  "reverse",
-				Usage: "Reverses the display sort-order",
-			},
-			&cli.BoolFlag{
-				Name:    "sortkey",
-				Aliases: []string{"sk"},
-				Usage:   "Sort by key, rather than value",
-			},
+			helpers.DefaultSortFlagWithDefault("value"),
 		},
 	})
 }

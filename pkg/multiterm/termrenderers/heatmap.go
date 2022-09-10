@@ -2,6 +2,7 @@ package termrenderers
 
 import (
 	"rare/pkg/aggregation"
+	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
@@ -28,15 +29,15 @@ func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
 	}
 }
 
-func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator) {
+func (s *Heatmap) WriteTable(agg *aggregation.TableAggregator, rowSorter, colSorter sorting.NameValueSorter) {
 	s.UpdateMinMaxFromData(agg)
 
 	// Write header
-	colNames := agg.OrderedColumnsByName() // TODO: Smart? eg. by number?
+	colNames := agg.OrderedColumns(colSorter)
 	colCount := s.WriteHeader(colNames...)
 
 	// Each row...
-	rows := agg.OrderedRowsByName()
+	rows := agg.OrderedRows(rowSorter)
 	rowCount := mini(len(rows), s.rowCount)
 	for i := 0; i < rowCount; i++ {
 		s.WriteRow(i, rows[i], colNames[:colCount])
