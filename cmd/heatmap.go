@@ -51,7 +51,7 @@ func heatmapFunction(c *cli.Context) error {
 }
 
 func heatmapCommand() *cli.Command {
-	cmd := helpers.AdaptCommandForExtractor(cli.Command{
+	return helpers.AdaptCommandForExtractor(cli.Command{
 		Name:    "heatmap",
 		Aliases: []string{"heat", "hm"},
 		Usage:   "Create a 2D heatmap of extracted data",
@@ -86,16 +86,14 @@ func heatmapCommand() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "sort-rows",
-				Usage: "Sort method for rows; " + helpers.DefaultSortFlag.Usage,
+				Usage: helpers.DefaultSortFlag.Usage,
 				Value: helpers.DefaultSortFlag.Value,
 			},
 			&cli.StringFlag{
 				Name:  "sort-cols",
-				Usage: "Sort method for cols; " + helpers.DefaultSortFlag.Usage,
+				Usage: helpers.DefaultSortFlag.Usage,
 				Value: helpers.DefaultSortFlag.Value,
 			},
 		},
 	})
-
-	return cmd
 }

@@ -100,7 +100,7 @@ func tabulateFunction(c *cli.Context) error {
 }
 
 func tabulateCommand() *cli.Command {
-	cmd := helpers.AdaptCommandForExtractor(cli.Command{
+	return helpers.AdaptCommandForExtractor(cli.Command{
 		Name:    "tabulate",
 		Aliases: []string{"table", "t"},
 		Usage:   "Create a 2D summarizing table of extracted data",
@@ -140,16 +140,14 @@ func tabulateCommand() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "sort-rows",
-				Usage: "Sort method for rows; " + helpers.DefaultSortFlag.Usage,
+				Usage: helpers.DefaultSortFlag.Usage,
 				Value: "value",
 			},
 			&cli.StringFlag{
 				Name:  "sort-cols",
-				Usage: "Sort method for cols; " + helpers.DefaultSortFlag.Usage,
+				Usage: helpers.DefaultSortFlag.Usage,
 				Value: "value",
 			},
 		},
 	})
-
-	return cmd
 }

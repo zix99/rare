@@ -73,7 +73,7 @@ func histoFunction(c *cli.Context) error {
 
 // HistogramCommand Exported command
 func histogramCommand() *cli.Command {
-	cmd := helpers.AdaptCommandForExtractor(cli.Command{
+	return helpers.AdaptCommandForExtractor(cli.Command{
 		Name:  "histogram",
 		Usage: "Summarize results by extracting them to a histogram",
 		Description: `Generates a live-updating histogram of the extracted information from a file
@@ -120,6 +120,4 @@ func histogramCommand() *cli.Command {
 			helpers.DefaultSortFlagWithDefault("value"),
 		},
 	})
-
-	return cmd
 }

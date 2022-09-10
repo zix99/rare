@@ -17,6 +17,7 @@ var DefaultSortFlag = &cli.StringFlag{
 	Value: "numeric",
 }
 
+// Create a sort flag with a different default value
 func DefaultSortFlagWithDefault(dflt string) *cli.StringFlag {
 	if _, err := lookupSorter(dflt); err != nil {
 		panic(err)
@@ -69,7 +70,7 @@ func parseSort(name string) (realname string, reverse bool, err error) {
 		case "asc":
 			reverse = false
 		default:
-			return "", false, errors.New("invalid modifier")
+			return "", false, errors.New("invalid sort modifier")
 		}
 	}
 
