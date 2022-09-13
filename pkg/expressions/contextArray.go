@@ -3,6 +3,7 @@ package expressions
 // KeyBuilderContextArray is a simple implementation of context with an array of elements
 type KeyBuilderContextArray struct {
 	Elements []string
+	Keys     map[string]string
 }
 
 // GetMatch implements `KeyBuilderContext`
@@ -15,6 +16,5 @@ func (s *KeyBuilderContextArray) GetMatch(idx int) string {
 
 // GetKey gets a key for a given element
 func (s *KeyBuilderContextArray) GetKey(key string) string {
-	// Unimplemented
-	return ""
+	return s.Keys[key]
 }
