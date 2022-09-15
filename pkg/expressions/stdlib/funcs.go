@@ -1,6 +1,8 @@
 package stdlib
 
-import . "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+import (
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+)
 
 var StandardFunctions = map[string]KeyBuilderFunction{
 	"coalesce":  KeyBuilderFunction(kfCoalesce),
@@ -52,6 +54,8 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"format": KeyBuilderFunction(kfFormat),
 	"substr": KeyBuilderFunction(kfSubstr),
 	"select": KeyBuilderFunction(kfSelect),
+	"upper":  KeyBuilderFunction(kfUpper),
+	"lower":  KeyBuilderFunction(kfLower),
 
 	// Separation (Join)
 	"tab": kfJoin('\t'),

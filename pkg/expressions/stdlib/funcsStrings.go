@@ -41,6 +41,24 @@ func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
+func kfUpper(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 1 {
+		return stageLiteral(ErrorArgCount)
+	}
+	return func(context KeyBuilderContext) string {
+		return strings.ToUpper(args[0](context))
+	}
+}
+
+func kfLower(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 1 {
+		return stageLiteral(ErrorArgCount)
+	}
+	return func(context KeyBuilderContext) string {
+		return strings.ToLower(args[0](context))
+	}
+}
+
 // {substr {0} }
 func kfSubstr(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 3 {

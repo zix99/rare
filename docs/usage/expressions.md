@@ -184,6 +184,12 @@ Syntax: `{substr {0} pos length}`
 
 Takes the substring of the first argument starting at `pos` for `length`
 
+### Upper, Lower
+
+Syntax: `{upper val}`, `{lower val}`
+
+Converts a string to all-upper or all-lower case
+
 ### Repeat
 
 Syntax: `{repeat "string" {numtimes}}`

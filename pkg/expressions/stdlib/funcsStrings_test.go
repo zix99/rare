@@ -7,6 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestUpperLower(t *testing.T) {
+	testExpression(t, mockContext("aBc"), "{upper {0}} {upper a b}", "ABC <ARGN>")
+	testExpression(t, mockContext("aBc"), "{lower {0}} {lower a b}", "abc <ARGN>")
+}
+
 func TestSubstring(t *testing.T) {
 	testExpression(t,
 		mockContext("abcd"),
