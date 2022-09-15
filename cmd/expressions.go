@@ -23,6 +23,10 @@ func expressionFunction(c *cli.Context) error {
 		stats      = c.Bool("stats")
 	)
 
+	if c.NArg() != 1 {
+		return errors.New("expected exactly 1 expression argument")
+	}
+
 	if expString == "" {
 		return errors.New("empty expression")
 	}
