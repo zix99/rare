@@ -10,6 +10,7 @@ var commands []*cli.Command = []*cli.Command{
 	analyzeCommand(),
 	tabulateCommand(),
 	docsCommand(),
+	expressionCommand(),
 }
 
 func GetSupportedCommands() []*cli.Command {

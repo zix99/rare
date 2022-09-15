@@ -22,7 +22,7 @@ The basic syntax structure is as follows:
  * Quotes in an argument create a single argument eg. `{coalesce {4} {3} "not found"}`
  * Truthiness is the presence of a value.  False is an empty value (or only whitespace)
 
-## Special Keys
+### Special Keys
 
 The following are special Keys:
 
@@ -31,6 +31,16 @@ The following are special Keys:
  * `{.}`    Returns all matched values with match names as JSON
  * `{#}`    Returns all matched numbered values as JSON
  * `{.#}`   Returned numbered and named matches as JSON
+
+### Testing
+
+You can test and benchmark expressions with the `rare expression` command. For example
+
+```sh
+$ rare expression -d 15 -d 20 -k key=30 "The sum is {sumi {0} {1} {key}}"
+Expression: The sum is {sumi {0} {1} {key}}
+Result:     The sum is 65
+```
 
 ## Examples
 
