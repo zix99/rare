@@ -315,7 +315,7 @@ The time `now` will return the current unix timestamp `{time now}`
 #### Time Formats
 
 **Supported Formats:**
-ASNIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339N, NGINX
+ANSIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339N, NGINX
 
 **Additional formats for formatting:**
 MONTH, MONTHNAME, MNTH, DAY, WEEKDAY, WDAY, YEAR, HOUR, MINUTE, SECOND, TIMEZONE, NTIMEZONE

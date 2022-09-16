@@ -16,7 +16,7 @@ const defaultTimeFormat = time.RFC3339
 var timeFormats = map[string]string{
 	"": defaultTimeFormat,
 	// Standard formats
-	"ASNIC":    time.ANSIC,
+	"ANSIC":    time.ANSIC,
 	"UNIX":     time.UnixDate,
 	"RUBY":     time.RubyDate,
 	"RFC822":   time.RFC822,
