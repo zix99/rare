@@ -61,6 +61,7 @@ Aggregator types:
 * `filter` is grep-like, in that each line will be processed and the extracted key will be output directly to stdout
 * `histogram` will count instances of the extracted key
 * `table` will count the key in 2 dimensions
+* `heatmap` will generate a 2D visualization using colored blocks to denote value
 * `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
 * `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
 
