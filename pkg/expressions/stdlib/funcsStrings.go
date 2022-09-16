@@ -12,7 +12,7 @@ import (
 // {prefix string prefix}
 func kfPrefix(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 2 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val := args[0](context)
@@ -28,7 +28,7 @@ func kfPrefix(args []KeyBuilderStage) KeyBuilderStage {
 // {suffix string suffix}
 func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 2 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val := args[0](context)
@@ -149,7 +149,7 @@ func selectField(s string, idx int) string {
 // just like fmt.Sprintf
 func kfFormat(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		format := args[0](context)
@@ -165,7 +165,7 @@ func kfFormat(args []KeyBuilderStage) KeyBuilderStage {
 
 func kfHumanizeInt(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(args[0](context))
@@ -178,7 +178,7 @@ func kfHumanizeInt(args []KeyBuilderStage) KeyBuilderStage {
 
 func kfHumanizeFloat(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.ParseFloat(args[0](context), 64)
@@ -191,12 +191,12 @@ func kfHumanizeFloat(args []KeyBuilderStage) KeyBuilderStage {
 
 func kfBytesize(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 
 	precision, err := strconv.Atoi(EvalStageIndexOrDefault(args, 1, "0"))
 	if err != nil {
-		return stageError(ErrorType)
+		return stageLiteral(ErrorType)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {

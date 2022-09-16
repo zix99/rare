@@ -111,7 +111,7 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 // {func <time> [format:cache] [tz:utc]}
 func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 
 	// Special key-words for time (eg "now")
@@ -129,7 +129,7 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	format := EvalStageIndexOrDefault(args, 1, "")
 	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 2, ""))
 	if !tzOk {
-		return stageError(ErrorParsing)
+		return stageLiteral(ErrorParsing)
 	}
 
 	return smartDateParseWrapper(format, tz, args[0], func(t time.Time) string {
@@ -140,13 +140,13 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 // {func <unixtime> [format:RFC3339] [tz:utc]}
 func kfTimeFormat(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	format := namedTimeFormatToFormat(EvalStageIndexOrDefault(args, 1, defaultTimeFormat))
 
 	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 2, ""))
 	if !tzOk {
-		return stageError(ErrorParsing)
+		return stageLiteral(ErrorParsing)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -165,7 +165,7 @@ func kfTimeFormat(args []KeyBuilderStage) KeyBuilderStage {
 // {func <duration_string>}
 func kfDuration(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -183,7 +183,7 @@ func kfDuration(args []KeyBuilderStage) KeyBuilderStage {
 // {func <secs>} format seconds to duration
 func kfDurationFormat(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -220,14 +220,14 @@ func timeBucketToFormat(name string) string {
 // {func <time> <bucket> [format:auto] [tz:utc]}
 func kfBucketTime(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 2 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 
 	bucketFormat := timeBucketToFormat(EvalStageOrDefault(args[1], "day"))
 	parseFormat := EvalStageIndexOrDefault(args, 2, "")
 	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 3, ""))
 	if !tzOk {
-		return stageError(ErrorParsing)
+		return stageLiteral(ErrorParsing)
 	}
 
 	return smartDateParseWrapper(parseFormat, tz, args[0], func(t time.Time) string {
@@ -255,21 +255,21 @@ var attrType = map[string](func(t time.Time) string){
 // {func <time> <attr> [tz:utc]}
 func kfTimeAttr(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 2 || len(args) > 3 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 
 	attrName, hasAttrName := EvalStaticStage(args[1])
 	if !hasAttrName {
-		return stageError(ErrorType)
+		return stageLiteral(ErrorType)
 	}
 	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 2, ""))
 	if !tzOk {
-		return stageError(ErrorParsing)
+		return stageLiteral(ErrorParsing)
 	}
 
 	attrFunc, hasAttrFunc := attrType[strings.ToUpper(attrName)]
 	if !hasAttrFunc {
-		return stageError(ErrorEnum)
+		return stageLiteral(ErrorEnum)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {

@@ -95,7 +95,7 @@ func TestDurationFormat(t *testing.T) {
 	testExpression(t,
 		mockContext("14400"),
 		"{durationformat {0} b}",
-		"<<ARGN>>")
+		"<ARGN>")
 }
 
 // Bucketing
@@ -153,21 +153,21 @@ func TestTimeAttrToBadTZ(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} weekday asdf}",
-		"<<PARSE-ERROR>>")
+		"<PARSE-ERROR>")
 }
 
 func TestTimeAttrArgError(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}}}",
-		"<<ARGN>>")
+		"<ARGN>")
 }
 
 func TestTimeAttrArgErrorExtra(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} a b c}",
-		"<<ARGN>>")
+		"<ARGN>")
 }
 
 // Utilities
