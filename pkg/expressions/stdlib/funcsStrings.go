@@ -75,7 +75,7 @@ func kfSubstr(args []KeyBuilderStage) KeyBuilderStage {
 		left, err1 := strconv.Atoi(args[1](context))
 		length, err2 := strconv.Atoi(args[2](context))
 		if err1 != nil || err2 != nil {
-			return ErrorParsing
+			return ErrorType
 		}
 
 		if length < 0 {
@@ -109,7 +109,7 @@ func kfSelect(args []KeyBuilderStage) KeyBuilderStage {
 		s := args[0](context)
 		idx, err := strconv.Atoi(args[1](context))
 		if err != nil {
-			return ErrorParsing
+			return ErrorType
 		}
 
 		return selectField(s, idx)
