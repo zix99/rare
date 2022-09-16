@@ -214,7 +214,7 @@ func timeBucketToFormat(name string) string {
 	} else if isPartialString(name, "years") {
 		return "2006"
 	}
-	return ErrorBucket
+	return ErrorEnum
 }
 
 // {func <time> <bucket> [format:auto] [tz:utc]}
@@ -269,7 +269,7 @@ func kfTimeAttr(args []KeyBuilderStage) KeyBuilderStage {
 
 	attrFunc, hasAttrFunc := attrType[strings.ToUpper(attrName)]
 	if !hasAttrFunc {
-		return stageError(ErrorBucket)
+		return stageError(ErrorEnum)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {

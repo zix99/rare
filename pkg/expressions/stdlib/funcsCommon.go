@@ -26,12 +26,12 @@ func kfBucket(args []KeyBuilderStage) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(args[0](context))
 		if err != nil {
-			return ErrorBucket
+			return ErrorType
 		}
 
 		bucketSize, err := strconv.Atoi(args[1](context))
 		if err != nil {
-			return ErrorBucketSize
+			return ErrorType
 		}
 
 		return strconv.Itoa((val / bucketSize) * bucketSize)
