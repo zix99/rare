@@ -80,40 +80,37 @@ than aggregation-time, and will be treated as a literal.  They are denoted below
 
 Arguments surrounded by `[]` are optional.
 
-### Coalesce
+### Aggregation
+
+#### Coalesce
 
 Syntax: `{coalesce ...}`
 
 Evaluates arguments in-order, chosing the first non-empty result.
 
-### Bucket
+#### Select Field
+
+Syntax: `{select {0} 1}`
+
+Assuming that `{0}` is a whitespace-separated value, split the values and select the item at index `1`
+
+Eg. `{select "ab cd ef" 1}` will result in `cd`
+
+#### Bucket
 
 Syntax: `{bucket intVal "bucketSize"}`
 
 Given a value, create equal-sized buckets and place each value in those buckets
 
-### ExpBucket
+#### ExpBucket
 
 Syntax: `{expbucket intVal}`
 
 Create exponentially (base-10) increase buckets.
 
-### Clamp
+### Arithmetic
 
-Syntax: `{clamp intVal "min" "max"}`
-
-Clamps a given input `intVal` between `min` and `max`.  If falls outside bucket, returns
-the word "min" or "max" as appropriate.  If you wish to not see these values, you can
-filter with `--ignore`
-
-### ByteSize
-
-Syntax: `{bytesize intVal [precision=0]}`
-
-Create a human-readable byte-size format (eg 1024 = 1KB).  An optional precision
-allows adding decimals.
-
-### Sumi, Subi, Multi, Divi
+#### Sumi, Subi, Multi, Divi
 
 Syntax: `{sumi ...}`, `{subi ...}`, `{multi ...}`, `{divi ...}`
 
@@ -121,7 +118,7 @@ Evaluates integers using operator from left to right. Requires at least 2 argume
 
 Eg: `{sumi 1 2 3}` will result in `6`
 
-### Sumf, Subf, Multf, Divf
+#### Sumf, Subf, Multf, Divf
 
 Syntax: `{sumf ...}`, `{subf ...}`, `{multf ...}`, `{divf ...}`
 
@@ -129,13 +126,23 @@ Evaluates floating points using operator from left to right. Requires at least 2
 
 Eg: `{sumf 1 2 3}` will result in `6`
 
-### If
+#### Clamp
+
+Syntax: `{clamp intVal "min" "max"}`
+
+Clamps a given input `intVal` between `min` and `max`.  If falls outside bucket, returns
+the word "min" or "max" as appropriate.  If you wish to not see these values, you can
+filter with `--ignore`
+
+### Logic
+
+#### If
 
 Syntax: `{if val ifTrue ifFalse}` or `{if val ifTrue}`
 
 If `val` is truthy, then return `ifTrue` else optionally return `ifFalse`
 
-### Equals, NotEquals, Not
+#### Equals, NotEquals, Not
 
 Syntax: `{eq a b}`, `{neq a b}`, `{not a}`
 
@@ -145,13 +152,13 @@ Uses truthy-logic to evaluate equality.
  * neq: If a != b,  will return "1", otherwise ""
  * not: If a == "", will return "1", otherwise ""
 
-### LessThan, GreaterThan, LessThanEqual, GreaterThanEqual
+#### LessThan, GreaterThan, LessThanEqual, GreaterThanEqual
 
 Syntax: `{lt a b}`, `{gt a b}`, `{lte a b}`, `{gte a b}`
 
 Uses truthy-logic to compare two integers.
 
-### And, Or
+#### And, Or
 
 Syntax: `{and ...}`, `{or ...}`
 
@@ -160,51 +167,44 @@ Uses truthy logic and applies `and` or `or` to the values.
  * and: All arguments need to be truthy
  * or:  At least one argument needs to be truthy
 
-### Like, Prefix, Suffix
+#### Like, Prefix, Suffix
 
 Syntax: `{like val contains}`, `{prefix val startsWith}`, `{suffix val endsWith}`
 
 Truthy check if a value contains a sub-value, starts with, or ends with
 
-### IsInt, IsNum
+#### IsInt, IsNum
 
 Syntax: `{isint val}`, `{isnum val}`
 
 Returns truthy if the val is an integer (isint), or a floating point (isnum)
 
-### Format
+### Formatting
+#### Format
 
 Syntax: `{format "%s" ...}`
 
-Formats a string based on `fmt.Sprintf`
+Formats a string based on `fmt.Sprintf`: [Go Docs](https://pkg.go.dev/fmt)
 
-### Substring
+#### Substring
 
 Syntax: `{substr {0} pos length}`
 
 Takes the substring of the first argument starting at `pos` for `length`
 
-### Upper, Lower
+#### Upper, Lower
 
 Syntax: `{upper val}`, `{lower val}`
 
 Converts a string to all-upper or all-lower case
 
-### Repeat
+#### Repeat
 
 Syntax: `{repeat "string" {numtimes}}`
 
 Repeats the "string" the specified number of times
 
-### Select Field
-
-Syntax: `{select {0} 1}`
-
-Assuming that `{0}` is a whitespace-separated value, split the values and select the item at index `1`
-
-Eg. `{select "ab cd ef" 1}` will result in `cd`
-
-### Humanize Number (Add Commas)
+#### Humanize Number (Add Commas)
 
 Syntax: `{hf val}`, `{hi val}`
 
@@ -213,8 +213,39 @@ Syntax: `{hf val}`, `{hi val}`
 
 Formats a number based with appropriate placement of commas and decimals
 
+#### ByteSize
 
-### Colors
+Syntax: `{bytesize intVal [precision=0]}`
+
+Create a human-readable byte-size format (eg 1024 = 1KB).  An optional precision
+allows adding decimals.
+
+### Collecting
+
+#### Tab
+
+Syntax: `{tab a b c ...}`
+
+Concatenates the values of the arguments separated by a table character.
+
+#### CSV
+
+Syntax: `{csv a b c}`
+
+Generate a CSV row given a set of values
+#### Arrays / Null Separator
+
+Syntax: `{$ a b c}`
+
+Concatenates a set of arguments with a null separator.  Commonly used
+to form arrays that have meaning for a given aggregator.
+
+Specifying multiple expressions is equivalent, eg. `{$ a b}` is the same as `-e a -e b`
+
+
+### Drawing
+
+#### Colors
 
 Syntax: `{color "color" {string}}`
 
@@ -224,28 +255,13 @@ Note: If colors are disabled, no color will be shown.
 
 Colorizes the 2nd argument.
 
-### Bars
+#### Bars
 
 Syntax: `{bar {val} "maxVal" "length"}`
 
 Note: If unicode is disabled, will use pipe character
 
 Draws a "bar" with the length `(val / maxVal) * length`
-
-### Tab
-
-Syntax: `{tab a b c ...}`
-
-Concatenates the values of the arguments separated by a table character.
-
-### Arrays / Null Separator
-
-Syntax: `{$ a b c}`
-
-Concatenates a set of arguments with a null separator.  Commonly used
-to form arrays that have meaning for a given aggregator.
-
-Specifying multiple expressions is equivalent, eg. `{$ a b}` is the same as `-e a -e b`
 
 ### Paths
 
@@ -256,12 +272,6 @@ Selects the base, directory, or extension of a path.
  * `basename a/b/c` = c
  * `dirname  a/b/c` = a/b
  * `extname a/b/c.jpg` = .jpg 
-
-### CSV
-
-Syntax: `{csv a b c}`
-
-Generate a CSV row given a set of values
 
 ### Json
 
@@ -303,7 +313,7 @@ By default, all datetimes are processed as UTC, unless explicit in the datetime 
 
 If the format argument is ommitted or set to "auto", it will attempt to resolve the format of the time.
 
-If the format is unable to be resolved, it must be specific manually with a format below, or a custom format.
+If the format is unable to be resolved, it must be specified manually with a format below, or a custom format.
 
 If ommitted or "cache": The first seen date will determine the format for all dates going forward (faster)
 
