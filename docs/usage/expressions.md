@@ -88,7 +88,7 @@ Evaluates arguments in-order, chosing the first non-empty result.
 
 ### Bucket
 
-Syntax: `{bucket intVal bucketSize}`
+Syntax: `{bucket intVal "bucketSize"}`
 
 Given a value, create equal-sized buckets and place each value in those buckets
 

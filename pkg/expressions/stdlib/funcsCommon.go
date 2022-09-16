@@ -23,13 +23,14 @@ func kfBucket(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 2 {
 		return stageLiteral(ErrorArgCount)
 	}
+
+	bucketSize, err := strconv.Atoi(EvalStageOrDefault(args[1], ""))
+	if err != nil {
+		return stageLiteral(ErrorType)
+	}
+
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(args[0](context))
-		if err != nil {
-			return ErrorType
-		}
-
-		bucketSize, err := strconv.Atoi(args[1](context))
 		if err != nil {
 			return ErrorType
 		}

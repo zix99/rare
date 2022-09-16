@@ -260,7 +260,7 @@ func kfTimeAttr(args []KeyBuilderStage) KeyBuilderStage {
 
 	attrName, hasAttrName := EvalStaticStage(args[1])
 	if !hasAttrName {
-		return stageLiteral(ErrorType)
+		return stageLiteral(ErrorConst)
 	}
 	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 2, ""))
 	if !tzOk {
