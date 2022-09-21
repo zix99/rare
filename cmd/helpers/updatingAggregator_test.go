@@ -29,7 +29,7 @@ func (s *VirtualAggregator) ParseErrors() uint64 {
 
 func TestAggregationLoop(t *testing.T) {
 	// Build a real extractor
-	batcher := batchers.OpenReaderToChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1)
+	batcher := batchers.OpenReaderToChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1, 1)
 	ex, err := extractor.New(batcher.BatchChan(), &extractor.Config{
 		Regex:   `(\d+)`,
 		Extract: "val:{1}",

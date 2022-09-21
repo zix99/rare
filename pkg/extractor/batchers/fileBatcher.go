@@ -10,8 +10,8 @@ import (
 
 // openFilesToChan takes an iterated channel of filenames, options, and loads them all with
 //  a max concurrency.  Returns a channel that will populate with input batches
-func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize int) *Batcher {
-	out := newBatcher(128)
+func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize, batchBuffer int) *Batcher {
+	out := newBatcher(batchBuffer)
 	sema := make(chan struct{}, concurrency)
 
 	// Load as many files as the sema allows

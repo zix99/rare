@@ -8,8 +8,8 @@ import (
 
 // TailFilesToChan tails a set of files to an input batcher that can be consumed by extractor
 //  unlike a normal file batcher, this will attempt to tail all files at once
-func TailFilesToChan(filenames <-chan string, batchSize int, reopen, poll, tail bool) *Batcher {
-	out := newBatcher(128)
+func TailFilesToChan(filenames <-chan string, batchSize, batchBuffer int, reopen, poll, tail bool) *Batcher {
+	out := newBatcher(batchBuffer)
 
 	go func() {
 		var wg sync.WaitGroup

@@ -30,6 +30,7 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 		concurrentReaders = c.Int("readers")
 		gunzip            = c.Bool("gunzip")
 		batchSize         = c.Int("batch")
+		batchBuffer       = c.Int("batch-buffer")
 		recursive         = c.Bool("recursive")
 	)
 
@@ -55,14 +56,14 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 		if follow {
 			logger.Println("Cannot follow a stdin stream, not a file")
 		}
-		return batchers.OpenReaderToChan("<stdin>", os.Stdin, batchSize)
+		return batchers.OpenReaderToChan("<stdin>", os.Stdin, batchSize, batchBuffer)
 	} else if follow { // Read from source file
 		if gunzip {
 			logger.Println("Cannot combine -f and -z")
 		}
-		return batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, followReopen, followPoll, followTail)
+		return batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, batchBuffer, followReopen, followPoll, followTail)
 	} else { // Read (no-follow) source file(s)
-		return batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize)
+		return batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize, batchBuffer)
 	}
 }
 
@@ -99,6 +100,8 @@ func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, se
 }
 
 func getExtractorFlags() []cli.Flag {
+	workerCount := runtime.NumCPU()/2 + 1
+
 	return []cli.Flag{
 		&cli.BoolFlag{
 			Name:     "follow",
@@ -174,11 +177,17 @@ func getExtractorFlags() []cli.Flag {
 			Value:    1000,
 		},
 		&cli.IntFlag{
+			Name:     "batch-buffer",
+			Category: cliCategoryTweaking,
+			Usage:    "Specifies how many batches to read-ahead. Impacts memory usage, can improve performance",
+			Value:    workerCount * 2, // Keep 2 batches ready for each worker
+		},
+		&cli.IntFlag{
 			Name:     "workers",
 			Aliases:  []string{"w"},
 			Category: cliCategoryTweaking,
 			Usage:    "Set number of data processors",
-			Value:    runtime.NumCPU()/2 + 1,
+			Value:    workerCount,
 		},
 		&cli.IntFlag{
 			Name:     "readers",

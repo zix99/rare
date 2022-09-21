@@ -13,7 +13,7 @@ func TestOpenFilesToChan(t *testing.T) {
 	filenames <- "fileBatcher_test.go" // me!
 	close(filenames)
 
-	batches := OpenFilesToChan(filenames, false, 1, 1)
+	batches := OpenFilesToChan(filenames, false, 1, 1, 1)
 
 	total := 0
 	var lastStart uint64 = 0
