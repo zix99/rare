@@ -98,3 +98,7 @@ that the batch will be processed irregardless of its current size.
 You can tweak this value with `--batch`
 
 `rare <aggreagator> --batch=10 ...`
+
+In addition, you can tweak how many batches are buffered for the extractor with `--batch-buffer`.
+By default, it will buffer 2 batches for every worker. More buffers take more memory, and
+may slightly improve performance or handle intermittent IO better.

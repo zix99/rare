@@ -4,8 +4,8 @@ import (
 	"io"
 )
 
-func OpenReaderToChan(sourceName string, reader io.ReadCloser, batchSize int) *Batcher {
-	out := newBatcher(128)
+func OpenReaderToChan(sourceName string, reader io.ReadCloser, batchSize, batchBuffer int) *Batcher {
+	out := newBatcher(batchBuffer)
 
 	go func() {
 		defer reader.Close()

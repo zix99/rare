@@ -87,6 +87,8 @@ Available tags:
 
 * `experimental` Enable experimental features (eg. fuzzy search)
 * `pcre2` Enables PCRE 2 (v10) where able. Currently linux only
+* `rare_no_pprof` Disables profiling capabilities, which reduces binary size
+* `urfave_cli_no_docs` Disables man and markdown documentation generation, which reduces binary size
 
 **A Note on PCRE (Perl Compatible Regex Library)**
 
