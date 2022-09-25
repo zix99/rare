@@ -47,6 +47,8 @@ func heatmapFunction(c *cli.Context) error {
 		writer.WriteFooter(1, batcher.StatusString())
 	})
 
+	writer.Close()
+
 	return helpers.DetermineErrorState(batcher, ext, counter)
 }
 

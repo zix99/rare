@@ -163,6 +163,10 @@ func (s *Heatmap) WriteRow(idx int, row *aggregation.TableRow, cols []string) {
 	s.term.WriteForLine(2+idx, sb.String())
 }
 
+func (s *Heatmap) Close() {
+	s.term.Close()
+}
+
 func mini(i, j int) int {
 	if i < j {
 		return i
