@@ -16,6 +16,18 @@ export PS1="$ "
 export PATH="./:$PATH"
 ```
 
+### Main Image Script
+
+```bash
+head -n 1 access.log | rare filter --match '(\d{3}) (\d+)'
+
+rare histo -m '(\d{3}) (\d+)' -e '{1}' -x access.log
+
+rare bars --stacked -m '\[(.+?)\].*" (\d+)' -e '{buckettime {1} month}' -e '{2}' access.log
+
+rare heatmap -m '\[(.+?)\].*" (\d+)' -e "{timeattr {time {1}} yearweek}" -e "{timeformat {time {1}} hour}" access.log
+```
+
 ### Recording
 
 ```bash
