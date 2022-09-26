@@ -60,7 +60,7 @@ func analyzeFunction(c *cli.Context) error {
 
 	aggr := aggregation.NewNumericalAggregator(&config)
 	writer := multiterm.New()
-	defer multiterm.ResetCursor()
+	defer multiterm.ResetCursor() // TODO: Remove?
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)

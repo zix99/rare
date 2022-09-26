@@ -41,6 +41,7 @@ func (s *TermWriter) WriteForLine(line int, text string) {
 
 func (s *TermWriter) Close() {
 	s.goTo(s.maxLine)
+	fmt.Println() // Put cursor after last line
 	if s.cursorHidden {
 		showCursor()
 	}

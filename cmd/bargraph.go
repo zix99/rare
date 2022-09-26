@@ -3,7 +3,6 @@ package cmd
 import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
-	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli/v2"
@@ -20,8 +19,9 @@ func bargraphFunction(c *cli.Context) error {
 		sortName = c.String(helpers.DefaultSortFlag.Name)
 	)
 
+	vt := helpers.BuildVTermFromArguments(c)
 	counter := aggregation.NewSubKeyCounter()
-	writer := termrenderers.NewBarGraph(multiterm.New())
+	writer := termrenderers.NewBarGraph(vt)
 	writer.Stacked = stacked
 
 	batcher := helpers.BuildBatcherFromArguments(c)
@@ -63,6 +63,7 @@ func bargraphCommand() *cli.Command {
 				Usage:   "Display bargraph as stacked",
 			},
 			helpers.DefaultSortFlag,
+			helpers.SnapshotFlag,
 		},
 	})
 }
