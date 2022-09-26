@@ -16,7 +16,7 @@ func humanf(arg interface{}) string {
 	return color.Wrap(color.BrightWhite, humanize.Hf(arg))
 }
 
-func writeAggrOutput(writer *multiterm.TermWriter, aggr *aggregation.MatchNumerical, extra bool, quantiles []float64) int {
+func writeAggrOutput(writer multiterm.MultilineTerm, aggr *aggregation.MatchNumerical, extra bool, quantiles []float64) int {
 	writer.WriteForLinef(0, "Samples:  %v", color.Wrap(color.BrightWhite, humanize.Hi(aggr.Count())))
 	writer.WriteForLinef(1, "Mean:     %v", humanf(aggr.Mean()))
 	writer.WriteForLinef(2, "StdDev:   %v", humanf(aggr.StdDev()))
@@ -59,8 +59,7 @@ func analyzeFunction(c *cli.Context) error {
 	}
 
 	aggr := aggregation.NewNumericalAggregator(&config)
-	writer := multiterm.New()
-	defer multiterm.ResetCursor() // TODO: Remove?
+	writer := helpers.BuildVTermFromArguments(c)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
@@ -102,6 +101,7 @@ func analyzeCommand() *cli.Command {
 				Usage:   "Adds a quantile to the output set. Requires --extra",
 				Value:   cli.NewStringSlice("90", "99", "99.9"),
 			},
+			helpers.SnapshotFlag,
 		},
 	})
 }
