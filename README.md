@@ -26,7 +26,7 @@ See [rare.zdyn.net](https://rare.zdyn.net) or the [docs/ folder](docs/) for the 
  * Aggregating and realtime summary (Don't have to wait for all data to be scanned)
  * Multi-threaded reading, parsing, and aggregation (It's fast)
  * Color-coded outputs (optionally)
- * Pipe support (stdin for reading, stdout will disable color) eg. `tail -f | rare ...`
+ * Pipe support (stdin for reading, stdout will disable realtime) eg. `tail -f | rare ... > out`
 
 Take a look at [examples](docs/usage/examples.md) to see more of what *rare* does.
 
