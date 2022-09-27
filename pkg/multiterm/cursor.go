@@ -36,8 +36,3 @@ func showCursor() {
 func eraseRemainingLine() {
 	fmt.Print(escape("[0K"))
 }
-
-// TODO: REmove?
-func ResetCursor() {
-	showCursor()
-}
