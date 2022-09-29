@@ -1,6 +1,7 @@
 package multiterm
 
 import (
+	"fmt"
 	"io"
 )
 
@@ -31,6 +32,10 @@ func (s *VirtualTerm) WriteForLine(line int, text string) {
 	}
 
 	s.lines[line] = text
+}
+
+func (s *VirtualTerm) WriteForLinef(line int, format string, args ...interface{}) {
+	s.WriteForLine(line, fmt.Sprintf(format, args...))
 }
 
 // Close the virtual term. Doesn't ever really need to close, but useful in testing

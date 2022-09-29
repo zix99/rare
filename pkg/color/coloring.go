@@ -3,7 +3,7 @@ package color
 import (
 	"fmt"
 	"io"
-	"os"
+	"rare/pkg/multiterm/termstate"
 	"strings"
 	"unicode/utf8"
 )
@@ -56,10 +56,8 @@ var Enabled = true
 var GroupColors = [...]ColorCode{Red, Green, Yellow, Blue, Magenta, Cyan, BrightRed, BrightGreen, BrightYellow, BrightBlue, BrightMagenta, BrightCyan}
 
 func init() {
-	if fi, err := os.Stdout.Stat(); err == nil {
-		if (fi.Mode() & os.ModeCharDevice) == 0 {
-			Enabled = false
-		}
+	if termstate.IsPipedOutput() {
+		Enabled = false
 	}
 }
 

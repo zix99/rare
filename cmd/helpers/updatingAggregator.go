@@ -1,13 +1,11 @@
 package helpers
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"rare/pkg/aggregation"
 	"rare/pkg/extractor"
 	"rare/pkg/logger"
-	"rare/pkg/multiterm"
 	"sync"
 	"time"
 )
@@ -18,7 +16,6 @@ import (
 //   writeOutput - triggered after a delay, only if there's an update
 // The two functions are guaranteed to never happen at the same time
 func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggregator, writeOutput func()) {
-	defer multiterm.ResetCursor()
 	logger.DeferLogs()
 
 	// Updater sync variables
@@ -62,5 +59,4 @@ PROCESSING_LOOP:
 	outputDone <- true
 
 	writeOutput()
-	fmt.Println()
 }

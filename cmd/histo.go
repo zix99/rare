@@ -35,8 +35,9 @@ func histoFunction(c *cli.Context) error {
 		sortName = c.String(helpers.DefaultSortFlag.Name)
 	)
 
+	vt := helpers.BuildVTermFromArguments(c)
 	counter := aggregation.NewCounter()
-	writer := termrenderers.NewHistogram(multiterm.New(), topItems)
+	writer := termrenderers.NewHistogram(vt, topItems)
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
 
@@ -56,6 +57,8 @@ func histoFunction(c *cli.Context) error {
 		writer.WriteFooter(1, batcher.StatusString())
 	})
 
+	// Not deferred because of the `all` below to print out before it
+	// when in snapshot mode
 	writer.Close()
 
 	if all {
@@ -118,6 +121,7 @@ func histogramCommand() *cli.Command {
 				Value: 0,
 			},
 			helpers.DefaultSortFlagWithDefault("value"),
+			helpers.SnapshotFlag,
 		},
 	})
 }

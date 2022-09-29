@@ -32,7 +32,8 @@ func heatmapFunction(c *cli.Context) error {
 	rowSorter := helpers.BuildSorterOrFail(sortRows)
 	colSorter := helpers.BuildSorterOrFail(sortCols)
 
-	writer := termrenderers.NewHeatmap(multiterm.New(), numRows, numCols)
+	vt := helpers.BuildVTermFromArguments(c)
+	writer := termrenderers.NewHeatmap(vt, numRows, numCols)
 
 	writer.FixedMin = minFixed
 	writer.FixedMax = maxFixed
@@ -96,6 +97,7 @@ func heatmapCommand() *cli.Command {
 				Usage: helpers.DefaultSortFlag.Usage,
 				Value: helpers.DefaultSortFlag.Value,
 			},
+			helpers.SnapshotFlag,
 		},
 	})
 }
