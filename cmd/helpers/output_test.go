@@ -8,8 +8,8 @@ import (
 )
 
 func TestBuildVTerm(t *testing.T) {
-	assert.NotNil(t, BuildOutVTerm(false))
-	assert.NotNil(t, BuildOutVTerm(true))
+	assert.NotNil(t, BuildVTerm(false))
+	assert.NotNil(t, BuildVTerm(true))
 }
 
 func TestBuildVTermFromArgs(t *testing.T) {
