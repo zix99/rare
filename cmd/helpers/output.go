@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termstate"
 
 	"github.com/urfave/cli/v2"
 )
@@ -12,7 +13,7 @@ var SnapshotFlag = &cli.BoolFlag{
 }
 
 func BuildVTerm(forceSnapshot bool) multiterm.MultilineTerm {
-	if forceSnapshot || multiterm.IsPipedOutput() {
+	if forceSnapshot || termstate.IsPipedOutput() {
 		return multiterm.NewBufferedTerm()
 	}
 	return multiterm.New()
