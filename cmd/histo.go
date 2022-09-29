@@ -57,6 +57,8 @@ func histoFunction(c *cli.Context) error {
 		writer.WriteFooter(1, batcher.StatusString())
 	})
 
+	// Not deferred because of the `all` below to print out before it
+	// when in snapshot mode
 	writer.Close()
 
 	if all {
