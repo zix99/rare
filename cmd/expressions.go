@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"rare/pkg/color"
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/exprofiler"
 	"rare/pkg/expressions/stdlib"
@@ -42,27 +43,27 @@ func expressionFunction(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("Expression: %s\n", expString)
-	if len(data) > 0 {
-		result := compiled.BuildKey(&expCtx)
-		fmt.Printf("Result:     %s\n", result)
-	}
+	fmt.Printf("Expression: %s\n", color.Wrap(color.BrightWhite, expString))
+	result := compiled.BuildKey(&expCtx)
+	fmt.Printf("Result:     %s\n", color.Wrap(color.BrightYellow, result))
 
 	if stats {
 		stats := exprofiler.GetMetrics(compiled, &expCtx)
 
 		fmt.Println()
 		fmt.Println("Stats")
-		fmt.Printf("  Stages:        %d\n", compiled.StageCount())
-		fmt.Printf("  Match Lookups: %d\n", stats.MatchLookups)
-		fmt.Printf("  Key   Lookups: %d\n", stats.KeyLookups)
+		fmt.Printf("  Stages:        %s\n", color.Wrapi(color.BrightWhite, compiled.StageCount()))
+		fmt.Printf("  Match Lookups: %s\n", color.Wrapi(color.BrightWhite, stats.MatchLookups))
+		fmt.Printf("  Key   Lookups: %s\n", color.Wrapi(color.BrightWhite, stats.KeyLookups))
 	}
 
 	if benchmark {
 		fmt.Println()
 		duration, iterations := exprofiler.Benchmark(compiled, &expCtx)
 		perf := (duration / time.Duration(iterations)).String()
-		fmt.Printf("Benchmark: %s (%s iterations in %s)\n", perf, humanize.Hi(iterations), duration.String())
+		fmt.Printf("Benchmark: %s ", color.Wrap(color.BrightWhite, perf))
+		fmt.Print(color.Wrapf(color.BrightBlack, "(%s iterations in %s)", humanize.Hi(iterations), duration.String()))
+		fmt.Print("\n")
 	}
 
 	return nil
