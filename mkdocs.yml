@@ -36,5 +36,17 @@ markdown_extensions:
   - admonition
   - pymdownx.superfences
 
+extra:
+  social:
+    - icon: fontawesome/solid/blog
+      link: https://zdyn.net
+      name: Blog
+    - icon: fontawesome/brands/github
+      link: https://github.com/zix99/rare
+      name: Github
+    - icon: fontawesome/solid/mug-hot
+      link: https://www.buymeacoffee.com/cmlapointe
+      name: Buy Me A Coffee
+
 strict: true
 site_dir: dist/site
