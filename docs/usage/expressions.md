@@ -136,9 +136,9 @@ filter with `--ignore`
 
 ### Logic
 
-#### If
+#### If, Unless
 
-Syntax: `{if val ifTrue ifFalse}` or `{if val ifTrue}`
+Syntax: `{if val ifTrue ifFalse}`, `{if val ifTrue}`, `{unless val ifFalse}`
 
 If `val` is truthy, then return `ifTrue` else optionally return `ifFalse`
 
