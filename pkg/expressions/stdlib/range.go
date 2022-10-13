@@ -39,6 +39,10 @@ func kfArraySplit(args []KeyBuilderStage) KeyBuilderStage {
 	}
 
 	byVal := EvalStageIndexOrDefault(args, 1, " ")
+	if len(byVal) == 0 {
+		return stageLiteral(ErrorEmpty)
+	}
+
 	return func(context KeyBuilderContext) string {
 		return arrayOperator(
 			args[0](context),
@@ -131,10 +135,15 @@ func kfArraySlice(args []KeyBuilderStage) KeyBuilderStage {
 			Delim: ArraySeparatorString,
 		}
 
-		for i := 0; (sliceLen < 0 || i < sliceStart+sliceLen) && !splitter.Done(); i++ {
+		realStart := sliceStart
+		if realStart < 0 { // Negative start index starts from end
+			realStart += strings.Count(splitter.S, ArraySeparatorString) + 1
+		}
+
+		for i := 0; (sliceLen < 0 || i < realStart+sliceLen) && !splitter.Done(); i++ {
 			val := splitter.Next()
-			if i >= sliceStart {
-				if i > sliceStart {
+			if i >= realStart {
+				if i > realStart {
 					ret.WriteString(ArraySeparatorString)
 				}
 				ret.WriteString(val)
