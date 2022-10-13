@@ -31,6 +31,7 @@ The following are special Keys:
  * `{.}`    Returns all matched values with match names as JSON
  * `{#}`    Returns all matched numbered values as JSON
  * `{.#}`   Returned numbered and named matches as JSON
+ * `{$}`    All extracted matches in array form
 
 ### Testing
 
@@ -241,6 +242,67 @@ Concatenates a set of arguments with a null separator.  Commonly used
 to form arrays that have meaning for a given aggregator.
 
 Specifying multiple expressions is equivalent, eg. `{$ a b}` is the same as `-e a -e b`
+
+### Ranges (Arrays)
+
+Range functions provide the ability to work with arrays in expressions. You
+can create an array either manually with the `{$ ...}` helper (above) or
+by `{$split ...}` a string into an array.
+
+#### $split
+
+Syntax: `{$split <arr> ["delim"]}`
+
+Splits a string into an array with the separating `delim`.  If `delim` isn't
+specified, `" "` will be used.
+#### $join
+
+Syntax: `{$join <arr> ["delim"]}`
+
+Re-joins an array back into a string.  If `delim` is empty, it will be `" "`
+
+#### $map
+
+Syntax: `{$map <arr> <mapfunc>}`
+
+Evaluates `mapfunc` against each element in the array. In `mapfunc`, `{0}`
+is the current element.  The function must be surrounded by quotes.
+
+For example, given the array `[1,2,3]`, and the function
+`{$map {array} "{multi {0} 2}"}` will output [2,4,6].
+
+#### $reduce
+
+Syntax: `{$reduce <arr> <reducefunc>}`
+
+Evaluates `reducefunc` against each element and a memo. `{0}` is the memo, and
+`{1}` is the current value.
+
+For example, given the array `[1,2,3]`, and the function
+`{$reduce {array} "{sumi {0} {1}}"}`, it will return `6`.
+
+#### $filter
+
+Syntax: `{$filter <arr> <filterfunc>}`
+
+Evaluates `filterfunc` for each element.  If *truthy*, item will be in resulting
+array. If false, it will be omitted. `{0}` will be the value examined.
+
+For example, given the array `[1,abc,23,efg]`, and the function
+`{$filter {array} "{isnum {0}}"}` will return `[1,23]`.
+
+#### $slice
+
+Syntax: `{$slice <arr> "begin" ["length"]}`
+
+Gets a slice of an array. If `begin` is a negative number, will start from the end.
+
+Examples: (Array `[1,2,3,4]`)
+
+- `{$slice {array} 1}` - [2,3,4]
+- `{$slice {array} 1 1}` - [2]
+- `{$slice {array} -2}` - [3,4]
+- `{$slice {array} -2 1}` - [3]
 
 
 ### Drawing
