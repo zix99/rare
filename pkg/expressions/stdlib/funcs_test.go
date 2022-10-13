@@ -3,7 +3,6 @@ package stdlib
 import (
 	"fmt"
 	. "rare/pkg/expressions"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -32,18 +31,6 @@ func testExpression(t *testing.T, context KeyBuilderContext, expression string, 
 		ret := kb.BuildKey(context)
 		assert.Equal(t, expected, ret)
 	}
-}
-
-// make a delim-separated array
-func mockArray(args ...string) string {
-	var sb strings.Builder
-	for i := 0; i < len(args); i++ {
-		if i > 0 {
-			sb.WriteRune(ArraySeparator)
-		}
-		sb.WriteString(args[i])
-	}
-	return sb.String()
 }
 
 func TestCoalesce(t *testing.T) {

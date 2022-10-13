@@ -1,6 +1,9 @@
 package stdlib
 
-import "testing"
+import (
+	"rare/pkg/expressions"
+	"testing"
+)
 
 func TestArraySplit(t *testing.T) {
 	testExpression(
@@ -71,19 +74,19 @@ func TestArrayJoin(t *testing.T) {
 func TestArrayMap(t *testing.T) {
 	testExpression(
 		t,
-		mockContext(mockArray("joe", "is", "cool")),
+		mockContext(expressions.MakeArray("joe", "is", "cool")),
 		`{$join {$map {0} "{0}bob"} ", "}`,
 		"joebob, isbob, coolbob",
 	)
 	testExpression(
 		t,
-		mockContext(mockArray("5", "1", "3")),
+		mockContext(expressions.MakeArray("5", "1", "3")),
 		`{$join {$map {0} "{multi {0} 2}"} ", "}`,
 		"10, 2, 6",
 	)
 	testExpression(
 		t,
-		mockContext(mockArray("5", "1", "3")),
+		mockContext(expressions.MakeArray("5", "1", "3")),
 		`{$join {$map {0} "{multi {0} 2}" ""} ", "}`,
 		"<ARGN>",
 	)
@@ -146,25 +149,25 @@ func TestArraySlice(t *testing.T) {
 func TestArrayFilter(t *testing.T) {
 	testExpression(
 		t,
-		mockContext(mockArray("a", "123", "b", "455")),
+		mockContext(expressions.MakeArray("a", "123", "b", "455")),
 		`{$join {$filter {0} "{isnum {0}}"}}`,
 		"123 455",
 	)
 	testExpression(
 		t,
-		mockContext(mockArray("a", "123", "b", "455")),
+		mockContext(expressions.MakeArray("a", "123", "b", "455")),
 		`{$join {$filter {0} "1"}}`,
 		"a 123 b 455",
 	)
 	testExpression(
 		t,
-		mockContext(mockArray("a", "123", "b", "455")),
+		mockContext(expressions.MakeArray("a", "123", "b", "455")),
 		`{$join {$filter {0} ""}}`,
 		"",
 	)
 	testExpression(
 		t,
-		mockContext(mockArray("a", "123", "b", "455")),
+		mockContext(expressions.MakeArray("a", "123", "b", "455")),
 		`{$join {$filter {0}}}`,
 		"<ARGN>",
 	)
