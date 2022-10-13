@@ -6,21 +6,19 @@ import (
 	"strings"
 )
 
+// helper context to allow evaluating a sub-expression within a new context
 type subContext struct {
-	parent     KeyBuilderContext
-	val0, val1 string
+	parent KeyBuilderContext
+	vals   [2]string
 }
 
 var _ KeyBuilderContext = &subContext{}
 
 func (s *subContext) GetMatch(idx int) string {
-	if idx == 0 {
-		return s.val0
+	if idx < len(s.vals) {
+		return s.vals[idx]
 	}
-	if idx == 1 {
-		return s.val1
-	}
-	return s.parent.GetMatch(idx)
+	return ""
 }
 
 func (s *subContext) GetKey(k string) string {
@@ -28,13 +26,19 @@ func (s *subContext) GetKey(k string) string {
 }
 
 func (s *subContext) Eval(stage KeyBuilderStage, v0, v1 string) string {
-	s.val0, s.val1 = v0, v1
+	s.vals[0] = v0
+	s.vals[1] = v1
+
 	return stage(s)
 }
 
-// {split <string> "delim"}
+// {$split <string> "delim"}
 func kfArraySplit(args []KeyBuilderStage) KeyBuilderStage {
-	byVal := EvalStageOrDefault(args[1], " ")
+	if !isArgCountBetween(args, 1, 2) {
+		return stageLiteral(ErrorArgCount)
+	}
+
+	byVal := EvalStageIndexOrDefault(args, 1, " ")
 	return func(context KeyBuilderContext) string {
 		return arrayOperator(
 			args[0](context),
@@ -45,8 +49,12 @@ func kfArraySplit(args []KeyBuilderStage) KeyBuilderStage {
 	}
 }
 
-// {join <array> "by"}
+// {$join <array> "by"}
 func kfArrayJoin(args []KeyBuilderStage) KeyBuilderStage {
+	if !isArgCountBetween(args, 1, 2) {
+		return stageLiteral(ErrorArgCount)
+	}
+
 	delim := EvalStageIndexOrDefault(args, 1, " ")
 	return func(context KeyBuilderContext) string {
 		return arrayOperator(
@@ -58,8 +66,12 @@ func kfArrayJoin(args []KeyBuilderStage) KeyBuilderStage {
 	}
 }
 
-// {map <arr> <mapFunc>}
+// {$map <arr> <mapFunc>}
 func kfArrayMap(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 2 {
+		return stageLiteral(ErrorArgCount)
+	}
+
 	return func(context KeyBuilderContext) string {
 		mapperContext := subContext{
 			parent: context,
@@ -75,8 +87,12 @@ func kfArrayMap(args []KeyBuilderStage) KeyBuilderStage {
 	}
 }
 
-// {reduce <arr> <reducer>}
+// {$reduce <arr> <reducer>}
 func kfArrayReduce(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 2 {
+		return stageLiteral(ErrorArgCount)
+	}
+
 	return func(context KeyBuilderContext) string {
 		mapperContext := subContext{
 			parent: context,
@@ -87,18 +103,17 @@ func kfArrayReduce(args []KeyBuilderStage) KeyBuilderStage {
 			Delim: ArraySeparatorString,
 		}
 
-		mapperContext.val0 = splitter.Next()
+		memo := splitter.Next()
 		for !splitter.Done() {
-			mapperContext.val1 = splitter.Next()
-			mapperContext.val0 = args[1](&mapperContext)
+			memo = mapperContext.Eval(args[1], memo, splitter.Next())
 		}
-		return mapperContext.val0
+		return memo
 	}
 }
 
 // {slice <arr> start len}
 func kfArraySlice(args []KeyBuilderStage) KeyBuilderStage {
-	if len(args) < 2 {
+	if !isArgCountBetween(args, 2, 3) {
 		return stageLiteral(ErrorArgCount)
 	}
 
@@ -132,6 +147,10 @@ func kfArraySlice(args []KeyBuilderStage) KeyBuilderStage {
 
 // {filter <arr> <truthy-statement>}
 func kfArrayFilter(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 2 {
+		return stageLiteral(ErrorArgCount)
+	}
+
 	return func(context KeyBuilderContext) string {
 		var sb strings.Builder
 

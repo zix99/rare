@@ -2,7 +2,6 @@ package stdlib
 
 import (
 	"rare/pkg/expressions"
-	"strings"
 )
 
 // Checks if word starts with s
@@ -20,14 +19,7 @@ func isPartialString(s, word string) bool {
 	return true
 }
 
-// make a delim-separated array
-func makeArray(args ...string) string {
-	var sb strings.Builder
-	for i := 0; i < len(args); i++ {
-		if i > 0 {
-			sb.WriteRune(expressions.ArraySeparator)
-		}
-		sb.WriteString(args[i])
-	}
-	return sb.String()
+// Helper to check if number of arguments is between a min and max
+func isArgCountBetween(args []expressions.KeyBuilderStage, min, max int) bool {
+	return len(args) >= min && len(args) <= max
 }

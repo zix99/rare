@@ -5,7 +5,7 @@ import "testing"
 func TestArrayMap(t *testing.T) {
 	testExpression(
 		t,
-		mockContext(makeArray("joe", "is", "cool")),
+		mockContext(mockArray("joe", "is", "cool")),
 		`{$join {$map {0} "{0}bob"} ", "}`,
 		"joebob, isbob, coolbob",
 	)
@@ -32,7 +32,7 @@ func TestArraySlice(t *testing.T) {
 func TestArrayFilter(t *testing.T) {
 	testExpression(
 		t,
-		mockContext(makeArray("a", "123", "b", "455")),
+		mockContext(mockArray("a", "123", "b", "455")),
 		`{$join {$filter {0} "{isnum {0}}"}}`,
 		"123 455",
 	)
