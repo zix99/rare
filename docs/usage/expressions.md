@@ -247,7 +247,7 @@ Specifying multiple expressions is equivalent, eg. `{$ a b}` is the same as `-e 
 
 Range functions provide the ability to work with arrays in expressions. You
 can create an array either manually with the `{$ ...}` helper (above) or
-by `{$split ...}` a string into an array.
+by `{@split ...}` a string into an array.
 
 #### Array Definition
 
