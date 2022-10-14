@@ -172,14 +172,16 @@ func kfArrayFilter(args []KeyBuilderStage) KeyBuilderStage {
 			parent: context,
 		}
 
+		needSep := false
 		for !splitter.Done() {
 			item := splitter.Next()
 
 			if Truthy(sub.Eval(args[1], item, "")) {
-				if sb.Len() > 0 {
+				if needSep {
 					sb.WriteRune(ArraySeparator)
 				}
 				sb.WriteString(item)
+				needSep = true
 			}
 		}
 

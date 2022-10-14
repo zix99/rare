@@ -76,10 +76,10 @@ func (s *SliceSpaceExpressionContext) json(named, numbered bool) string {
 
 func (s *SliceSpaceExpressionContext) array() string {
 	var sb strings.Builder
-	for i := 2; i < len(s.indices)/2; i++ {
+	for i := 1; i < len(s.indices)/2; i++ {
 		val := s.GetMatch(i)
 
-		if i > 0 {
+		if i > 1 {
 			sb.WriteRune(expressions.ArraySeparator)
 		}
 		sb.WriteString(val)

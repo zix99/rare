@@ -165,6 +165,12 @@ func TestArrayFilter(t *testing.T) {
 		`{$join {$filter {0} ""}}`,
 		"",
 	)
+	testExpression( // filter with empty
+		t,
+		mockContext(expressions.MakeArray("", "123", "", "456")),
+		`{$join {$filter {0} "1"} ","}`,
+		",123,,456",
+	)
 	testExpression(
 		t,
 		mockContext(expressions.MakeArray("a", "123", "b", "455")),
