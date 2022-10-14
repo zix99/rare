@@ -26,7 +26,8 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"divf":  arithmaticHelperf(func(a, b float64) float64 { return a / b }),
 
 	// Comparisons
-	"if": KeyBuilderFunction(kfIf),
+	"if":     KeyBuilderFunction(kfIf),
+	"unless": KeyBuilderFunction(kfUnless),
 	"eq": stringComparator(func(a, b string) string {
 		if a == b {
 			return a
@@ -60,6 +61,16 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	// Separation (Join)
 	"tab": kfJoin('\t'),
 	"$":   kfJoin(ArraySeparator),
+
+	// Ranges
+	"@":       kfJoin(ArraySeparator),
+	"@map":    kfArrayMap,
+	"@split":  kfArraySplit,
+	"@select": kfArraySelect,
+	"@join":   kfArrayJoin,
+	"@reduce": kfArrayReduce,
+	"@filter": kfArrayFilter,
+	"@slice":  kfArraySlice,
 
 	// Pathing
 	"basename": kfPathBase,

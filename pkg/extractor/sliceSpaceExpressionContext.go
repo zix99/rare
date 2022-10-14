@@ -1,9 +1,11 @@
 package extractor
 
 import (
+	"rare/pkg/expressions"
 	"rare/pkg/expressions/stdlib"
 	"rare/pkg/minijson"
 	"strconv"
+	"strings"
 )
 
 type SliceSpaceExpressionContext struct {
@@ -39,6 +41,8 @@ func (s *SliceSpaceExpressionContext) GetKey(key string) string {
 		return s.json(false, true)
 	case ".#", "#.":
 		return s.json(true, true)
+	case "@":
+		return s.array()
 	}
 
 	if idx, ok := s.nameTable[key]; ok {
@@ -68,4 +72,17 @@ func (s *SliceSpaceExpressionContext) json(named, numbered bool) string {
 	jb.Close()
 
 	return jb.String()
+}
+
+func (s *SliceSpaceExpressionContext) array() string {
+	var sb strings.Builder
+	for i := 1; i < len(s.indices)/2; i++ {
+		val := s.GetMatch(i)
+
+		if i > 1 {
+			sb.WriteRune(expressions.ArraySeparator)
+		}
+		sb.WriteString(val)
+	}
+	return sb.String()
 }

@@ -8,6 +8,8 @@ import (
 	"rare/pkg/expressions/exprofiler"
 	"rare/pkg/expressions/stdlib"
 	"rare/pkg/humanize"
+	"rare/pkg/minijson"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,7 +21,7 @@ func expressionFunction(c *cli.Context) error {
 		expString  = c.Args().First()
 		noOptimize = c.Bool("no-optimize")
 		data       = c.StringSlice("data")
-		keys       = c.StringSlice("key")
+		keyPairs   = c.StringSlice("key")
 		benchmark  = c.Bool("benchmark")
 		stats      = c.Bool("stats")
 	)
@@ -36,13 +38,26 @@ func expressionFunction(c *cli.Context) error {
 	compiled, err := builder.Compile(expString)
 	expCtx := expressions.KeyBuilderContextArray{
 		Elements: data,
-		Keys:     parseKeyValuesIntoMap(keys...),
+		Keys:     parseKeyValuesIntoMap(keyPairs...),
 	}
 
 	if err != nil {
 		return err
 	}
 
+	// Emulate special keys
+	{
+		keys := parseKeyValuesIntoMap(keyPairs...)
+		expCtx.Keys["src"] = "<args>"
+		expCtx.Keys["line"] = "0"
+		expCtx.Keys["."] = buildSpecialKeyJson(nil, keys)
+		expCtx.Keys["#"] = buildSpecialKeyJson(data, nil)
+		expCtx.Keys[".#"] = buildSpecialKeyJson(data, keys)
+		expCtx.Keys["#."] = expCtx.Keys[".#"]
+		expCtx.Keys["@"] = expressions.MakeArray(data...)
+	}
+
+	// Output results
 	fmt.Printf("Expression: %s\n", color.Wrap(color.BrightWhite, expString))
 	result := compiled.BuildKey(&expCtx)
 	fmt.Printf("Result:     %s\n", color.Wrap(color.BrightYellow, result))
@@ -86,6 +101,19 @@ func parseKeyValue(s string) (string, string) {
 		return s, s
 	}
 	return s[:idx], s[idx+1:]
+}
+
+func buildSpecialKeyJson(matches []string, values map[string]string) string {
+	var json minijson.JsonObjectBuilder
+	json.Open()
+	for i, val := range matches {
+		json.WriteString(strconv.Itoa(i), val)
+	}
+	for k, v := range values {
+		json.WriteString(k, v)
+	}
+	json.Close()
+	return json.String()
 }
 
 func expressionCommand() *cli.Command {
