@@ -65,6 +65,12 @@ func TestStringKey(t *testing.T) {
 	assert.Equal(t, "testval  key", key)
 }
 
+func TestEmptyStatement(t *testing.T) {
+	kb, err := NewKeyBuilder().Compile("{} test")
+	assert.Nil(t, kb)
+	assert.Error(t, err)
+}
+
 func BenchmarkSimpleReplacement(b *testing.B) {
 	kb, _ := NewKeyBuilder().Compile("{0} is awesome")
 	for n := 0; n < b.N; n++ {
