@@ -41,7 +41,7 @@ func (s *SliceSpaceExpressionContext) GetKey(key string) string {
 		return s.json(false, true)
 	case ".#", "#.":
 		return s.json(true, true)
-	case "$":
+	case "*":
 		return s.array()
 	}
 

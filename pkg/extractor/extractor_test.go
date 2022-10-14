@@ -40,7 +40,7 @@ func TestSourceAndLine(t *testing.T) {
 	input := convertReaderToBatches("test", strings.NewReader(testData), 1)
 	ex, err := New(input, &Config{
 		Regex:   `(\d+)`,
-		Extract: "{src} {line} val:{1} {bad} {$}",
+		Extract: "{src} {line} val:{1} {bad} {@}",
 		Workers: 1,
 	})
 	assert.NoError(t, err)

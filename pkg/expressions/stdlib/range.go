@@ -32,7 +32,7 @@ func (s *subContext) Eval(stage KeyBuilderStage, v0, v1 string) string {
 	return stage(s)
 }
 
-// {$split <string> "delim"}
+// {@split <string> "delim"}
 func kfArraySplit(args []KeyBuilderStage) KeyBuilderStage {
 	if !isArgCountBetween(args, 1, 2) {
 		return stageLiteral(ErrorArgCount)
@@ -53,7 +53,7 @@ func kfArraySplit(args []KeyBuilderStage) KeyBuilderStage {
 	}
 }
 
-// {$join <array> "by"}
+// {@join <array> "by"}
 func kfArrayJoin(args []KeyBuilderStage) KeyBuilderStage {
 	if !isArgCountBetween(args, 1, 2) {
 		return stageLiteral(ErrorArgCount)
@@ -70,7 +70,7 @@ func kfArrayJoin(args []KeyBuilderStage) KeyBuilderStage {
 	}
 }
 
-// {$map <arr> <mapFunc>}
+// {@map <arr> <mapFunc>}
 func kfArrayMap(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 2 {
 		return stageLiteral(ErrorArgCount)
@@ -91,7 +91,7 @@ func kfArrayMap(args []KeyBuilderStage) KeyBuilderStage {
 	}
 }
 
-// {$reduce <arr> <reducer>}
+// {@reduce <arr> <reducer>}
 func kfArrayReduce(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 2 {
 		return stageLiteral(ErrorArgCount)
@@ -115,7 +115,7 @@ func kfArrayReduce(args []KeyBuilderStage) KeyBuilderStage {
 	}
 }
 
-// {slice <arr> start len}
+// {@slice <arr> start len}
 func kfArraySlice(args []KeyBuilderStage) KeyBuilderStage {
 	if !isArgCountBetween(args, 2, 3) {
 		return stageLiteral(ErrorArgCount)
@@ -154,7 +154,7 @@ func kfArraySlice(args []KeyBuilderStage) KeyBuilderStage {
 	}
 }
 
-// {filter <arr> <truthy-statement>}
+// {@filter <arr> <truthy-statement>}
 func kfArrayFilter(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 2 {
 		return stageLiteral(ErrorArgCount)

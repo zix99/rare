@@ -54,7 +54,7 @@ func expressionFunction(c *cli.Context) error {
 		expCtx.Keys["#"] = buildSpecialKeyJson(data, nil)
 		expCtx.Keys[".#"] = buildSpecialKeyJson(data, keys)
 		expCtx.Keys["#."] = expCtx.Keys[".#"]
-		expCtx.Keys["$"] = expressions.MakeArray(data...)
+		expCtx.Keys["@"] = expressions.MakeArray(data...)
 	}
 
 	// Output results

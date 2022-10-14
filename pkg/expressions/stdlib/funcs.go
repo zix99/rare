@@ -63,12 +63,13 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"$":   kfJoin(ArraySeparator),
 
 	// Ranges
-	"$map":    kfArrayMap,
-	"$split":  kfArraySplit,
-	"$join":   kfArrayJoin,
-	"$reduce": kfArrayReduce,
-	"$filter": kfArrayFilter,
-	"$slice":  kfArraySlice,
+	"@":       kfJoin(ArraySeparator),
+	"@map":    kfArrayMap,
+	"@split":  kfArraySplit,
+	"@join":   kfArrayJoin,
+	"@reduce": kfArrayReduce,
+	"@filter": kfArrayFilter,
+	"@slice":  kfArraySlice,
 
 	// Pathing
 	"basename": kfPathBase,
