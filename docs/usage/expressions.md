@@ -246,7 +246,7 @@ Specifying multiple expressions is equivalent, eg. `{$ a b}` is the same as `-e 
 ### Ranges (Arrays)
 
 Range functions provide the ability to work with arrays in expressions. You
-can create an array either manually with the `{$ ...}` helper (above) or
+can create an array either manually with the `{@ ...}` function or
 by `{@split ...}` a string into an array.
 
 #### Array Definition
@@ -261,6 +261,7 @@ Syntax: `{@split <arr> ["delim"]}`
 
 Splits a string into an array with the separating `delim`.  If `delim` isn't
 specified, `" "` will be used.
+
 #### @join
 
 Syntax: `{@join <arr> ["delim"]}`
