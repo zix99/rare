@@ -66,6 +66,7 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"@":       kfJoin(ArraySeparator),
 	"@map":    kfArrayMap,
 	"@split":  kfArraySplit,
+	"@select": kfArraySelect,
 	"@join":   kfArrayJoin,
 	"@reduce": kfArrayReduce,
 	"@filter": kfArrayFilter,

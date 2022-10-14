@@ -71,6 +71,14 @@ func TestArrayJoin(t *testing.T) {
 	)
 }
 
+func TestArraySelect(t *testing.T) {
+	testExpression(t, mockContext(expressions.MakeArray("aq", "bc", "c")), `{@select {0} 0}`, "aq")
+	testExpression(t, mockContext(expressions.MakeArray("aq", "bc", "c")), `{@select {0} 1}`, "bc")
+	testExpression(t, mockContext(expressions.MakeArray("aq", "bc", "c")), `{@select {0} 2}`, "c")
+	testExpression(t, mockContext(expressions.MakeArray("aq", "bc", "c")), `{@select {0} 3}`, "")
+	testExpression(t, mockContext(expressions.MakeArray("aq", "bc", "c")), `{@select {0} -1}`, "c")
+}
+
 func TestArrayMap(t *testing.T) {
 	testExpression(
 		t,

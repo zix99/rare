@@ -3,6 +3,7 @@ package stdlib
 import (
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 	"rare/pkg/stringSplitter"
+	"strconv"
 	"strings"
 )
 
@@ -67,6 +68,39 @@ func kfArrayJoin(args []KeyBuilderStage) KeyBuilderStage {
 			delim,
 			arrayOperatorNoopMapper,
 		)
+	}
+}
+
+// {@select <array> "index"}
+func kfArraySelect(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 2 {
+		return stageLiteral(ErrorArgCount)
+	}
+
+	index, err := strconv.Atoi(EvalStageOrDefault(args[1], ""))
+	if err != nil {
+		return stageLiteral(ErrorType)
+	}
+
+	return func(context KeyBuilderContext) string {
+		splitter := stringSplitter.Splitter{
+			S:     args[0](context),
+			Delim: ArraySeparatorString,
+		}
+
+		searchIndex := index
+		if searchIndex < 0 {
+			searchIndex += strings.Count(splitter.S, splitter.Delim) + 1
+		}
+
+		for i := 0; !splitter.Done(); i++ {
+			val := splitter.Next()
+			if i == searchIndex {
+				return val
+			}
+		}
+
+		return ""
 	}
 }
 

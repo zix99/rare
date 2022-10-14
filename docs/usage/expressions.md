@@ -297,6 +297,12 @@ array. If false, it will be omitted. `{0}` will be the value examined.
 For example, given the array `[1,abc,23,efg]`, and the function
 `{@filter {array} "{isnum {0}}"}` will return `[1,23]`.
 
+#### @select
+
+Syntax: `{@select <arr> "index"}`
+
+Selects a single item at an `index` out of `array`.
+
 #### @slice
 
 Syntax: `{@slice <arr> "begin" ["length"]}`

@@ -123,7 +123,7 @@ func selectField(s string, idx int) string {
 	quoted := false
 
 	for i, c := range s {
-		if (quoted && c == '"') || (!quoted && (c == ' ' || c == '\t' || c == '\n' || c == '\x00')) {
+		if (quoted && c == '"') || (!quoted && (c == ' ' || c == '\t' || c == '\n' || c == ArraySeparator)) {
 			if currIdx == idx {
 				return s[wordStart:i]
 			}
