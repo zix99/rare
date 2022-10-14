@@ -172,7 +172,7 @@ func kfHumanizeInt(args []KeyBuilderStage) KeyBuilderStage {
 		if err != nil {
 			return ErrorType
 		}
-		return humanize.Hi(val)
+		return humanize.Hi32(val)
 	})
 }
 

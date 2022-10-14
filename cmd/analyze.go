@@ -12,12 +12,12 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func humanf(arg interface{}) string {
+func humanf(arg float64) string {
 	return color.Wrap(color.BrightWhite, humanize.Hf(arg))
 }
 
 func writeAggrOutput(writer multiterm.MultilineTerm, aggr *aggregation.MatchNumerical, extra bool, quantiles []float64) int {
-	writer.WriteForLinef(0, "Samples:  %v", color.Wrap(color.BrightWhite, humanize.Hi(aggr.Count())))
+	writer.WriteForLinef(0, "Samples:  %v", color.Wrap(color.BrightWhite, humanize.Hui(aggr.Count())))
 	writer.WriteForLinef(1, "Mean:     %v", humanf(aggr.Mean()))
 	writer.WriteForLinef(2, "StdDev:   %v", humanf(aggr.StdDev()))
 	writer.WriteForLinef(3, "Min:      %v", humanf(aggr.Min()))

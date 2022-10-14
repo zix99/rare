@@ -77,7 +77,7 @@ func expressionFunction(c *cli.Context) error {
 		duration, iterations := exprofiler.Benchmark(compiled, &expCtx)
 		perf := (duration / time.Duration(iterations)).String()
 		fmt.Printf("Benchmark: %s ", color.Wrap(color.BrightWhite, perf))
-		fmt.Print(color.Wrapf(color.BrightBlack, "(%s iterations in %s)", humanize.Hi(iterations), duration.String()))
+		fmt.Print(color.Wrapf(color.BrightBlack, "(%s iterations in %s)", humanize.Hi32(iterations), duration.String()))
 		fmt.Print("\n")
 	}
 
