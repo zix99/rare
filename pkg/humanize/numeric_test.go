@@ -1,7 +1,6 @@
 package humanize
 
 import (
-	"fmt"
 	"strconv"
 	"testing"
 
@@ -53,11 +52,5 @@ func BenchmarkItoa(b *testing.B) {
 func BenchmarkFormatFloat(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		humanizeFloat(10000.0, 2)
-	}
-}
-
-func BenchmarkFloatSprintf(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		fmt.Sprintf("%02f", 10000.0)
 	}
 }
