@@ -1,6 +1,7 @@
 package humanize
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -21,6 +22,11 @@ func TestFormatInt(t *testing.T) {
 
 func TestFormatFloat(t *testing.T) {
 	assert.Equal(t, "1", humanizeFloat(1.0, 0))
+	assert.Equal(t, "12", humanizeFloat(12.0, 0))
+	assert.Equal(t, "123", humanizeFloat(123.0, 0))
+	assert.Equal(t, "1,234", humanizeFloat(1234.0, 0))
+	assert.Equal(t, "12,345.0", humanizeFloat(12345.0, 1))
+	assert.Equal(t, "112,345.0", humanizeFloat(112345.0, 1))
 	assert.Equal(t, "1", humanizeFloat(1.123, 0))
 	assert.Equal(t, "-1", humanizeFloat(-1.123, 0))
 	assert.Equal(t, "1,123,123", humanizeFloat(1123123.123, 0))
@@ -41,5 +47,17 @@ func BenchmarkFormatInt(b *testing.B) {
 func BenchmarkItoa(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		strconv.Itoa(10000)
+	}
+}
+
+func BenchmarkFormatFloat(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		humanizeFloat(10000.0, 2)
+	}
+}
+
+func BenchmarkFloatSprintf(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		fmt.Sprintf("%02f", 10000.0)
 	}
 }
