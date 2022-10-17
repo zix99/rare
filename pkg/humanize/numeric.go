@@ -10,7 +10,7 @@ import (
 Previously, rare used the `message` i18n go library to add commas to numbers, but
 as it turns out that was a bit overkill (Benchmarking shows easily 10x slower, and added 600 KB to the
 binary).  In an effort to pull out and streamline simpler parts of the overall process,
-the two belong functions are implementations of the simplistic english-only localization
+the two below functions are implementations of the simplistic english-only localization
 of numbers
 */
 
