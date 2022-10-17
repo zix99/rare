@@ -1,6 +1,7 @@
 package humanize
 
 import (
+	"math"
 	"strconv"
 	"testing"
 
@@ -8,7 +9,9 @@ import (
 )
 
 func TestFormatInt(t *testing.T) {
+	assert.Equal(t, "0", humanizeInt(0))
 	assert.Equal(t, "1", humanizeInt(1))
+	assert.Equal(t, "-1", humanizeInt(-1))
 	assert.Equal(t, "10", humanizeInt(10))
 	assert.Equal(t, "100", humanizeInt(100))
 	assert.Equal(t, "1,000", humanizeInt(1000))
@@ -20,6 +23,8 @@ func TestFormatInt(t *testing.T) {
 }
 
 func TestFormatFloat(t *testing.T) {
+	assert.Equal(t, "0", humanizeFloat(0.0, 0))
+	assert.Equal(t, "0.00", humanizeFloat(0.0, 2))
 	assert.Equal(t, "1", humanizeFloat(1.0, 0))
 	assert.Equal(t, "12", humanizeFloat(12.0, 0))
 	assert.Equal(t, "123", humanizeFloat(123.0, 0))
@@ -35,6 +40,11 @@ func TestFormatFloat(t *testing.T) {
 	assert.Equal(t, "-1,123,123.123456", humanizeFloat(-1123123.123456, 6))
 	assert.Equal(t, "-111,121,231,233,123.125000", humanizeFloat(-111121231233123.123456, 6))
 	assert.Equal(t, "111,121,231,233,123.125000", humanizeFloat(111121231233123.123456, 6))
+	assert.Equal(t, "28,446,744,073,709,551,616.0", humanizeFloat(28446744073709551615.0, 1))
+
+	assert.Equal(t, "NaN", humanizeFloat(math.NaN(), 2))
+	assert.Equal(t, "Inf", humanizeFloat(math.Inf(1), 2))
+	assert.Equal(t, "Inf", humanizeFloat(math.Inf(-1), 2))
 }
 
 func BenchmarkFormatInt(b *testing.B) {
@@ -49,8 +59,9 @@ func BenchmarkItoa(b *testing.B) {
 	}
 }
 
+// BenchmarkFormatFloat-4   	 2549425	       473.6 ns/op	      24 B/op	       1 allocs/op
 func BenchmarkFormatFloat(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		humanizeFloat(10000.0, 2)
+		humanizeFloat(10000.123123123123, 10)
 	}
 }

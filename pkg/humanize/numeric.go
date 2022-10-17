@@ -1,9 +1,18 @@
 package humanize
 
 import (
+	"bytes"
+	"math"
 	"strconv"
-	"strings"
 )
+
+/*
+Previously, rare used the `message` i18n go library to add commas to numbers, but
+as it turns out that was a bit overkill (Benchmarking shows easily 10x slower, and added 600 KB to the
+binary).  In an effort to pull out and streamline simpler parts of the overall process,
+the two belong functions are implementations of the simplistic english-only localization
+of numbers
+*/
 
 const (
 	baseSeparator    = ','
@@ -49,29 +58,52 @@ func humanizeInt[T IntType](v T) string {
 	return string(buf[idx+1:])
 }
 
+func isDigit(s byte) bool {
+	return s >= '0' && s <= '9'
+}
+
 func humanizeFloat(v float64, decimals int) string {
+	// Special cases
+	if math.IsNaN(v) {
+		return "NaN"
+	}
+	if math.IsInf(v, 0) {
+		return "Inf"
+	}
+
 	// Float to string is complicated, but can leverage FormatFload and insert commas
-	s := strconv.FormatFloat(v, 'f', decimals, 64)
+	var buf [64]byte // Operations on the stack
+	s := strconv.AppendFloat(buf[:0], v, 'f', decimals, 64)
 
 	if v > -1000.0 && v < 1000.0 {
 		// performance escape hatch when no commas
-		return s
+		return string(s)
 	}
 
-	dIdx := strings.IndexByte(s, '.')
-	if dIdx < 0 { // no decimal
-		dIdx = len(s)
-	}
 	negative := s[0] == '-'
+	if !isDigit(s[0]) { // assume it's a sign/prefix
+		s = s[1:]
+	}
 
-	ret := make([]byte, 0, len(s)*2)
+	decIdx := bytes.IndexByte(s, '.')
+	if decIdx < 0 { // no decimal
+		decIdx = len(s)
+	}
+
+	// Return stack buf
+	var retbuf [64]byte
+	ret := retbuf[:0]
+
+	if negative {
+		ret = append(ret, '-')
+	}
 
 	// write base
-	c3 := 3 - (dIdx % 3)
+	c3 := 3 - (decIdx % 3)
 
-	for i := 0; i < dIdx; i++ {
+	for i := 0; i < decIdx; i++ {
 		if c3 == 3 {
-			if (!negative && i > 0) || (negative && i > 1) {
+			if i > 0 {
 				ret = append(ret, baseSeparator)
 			}
 			c3 = 0
@@ -81,11 +113,9 @@ func humanizeFloat(v float64, decimals int) string {
 	}
 
 	// write decimal
-	if dIdx < len(s) {
+	if decIdx < len(s) {
 		ret = append(ret, decimalSeparator)
-		for i := dIdx + 1; i < dIdx+decimals+1 && i < len(s); i++ {
-			ret = append(ret, s[i])
-		}
+		ret = append(ret, s[decIdx+1:]...)
 	}
 
 	return string(ret)
