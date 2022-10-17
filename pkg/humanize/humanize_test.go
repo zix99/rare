@@ -6,22 +6,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestH(t *testing.T) {
-	assert.Equal(t, "Hello 1,000", H("Hello %d", 1000))
-}
-
 func TestHDisabled(t *testing.T) {
 	Enabled = false
-	assert.Equal(t, "Hello 1000", H("Hello %d", 1000))
 	assert.Equal(t, "1000", Hi(1000))
-	assert.Equal(t, "1000.000000", Hf(1000.0))
-	assert.Equal(t, "1000.000000", Hfd(1000.0, 5))
+	assert.Equal(t, "1000", Hui(1000))
+	assert.Equal(t, "1000", Hi32(1000))
+	assert.Equal(t, "1000.0000", Hf(1000.0))
+	assert.Equal(t, "1000.00000", Hfd(1000.0, 5))
 	assert.Equal(t, "12341234", ByteSize(12341234))
 	Enabled = true
 }
 
 func TestHi(t *testing.T) {
 	assert.Equal(t, "1,500", Hi(1500))
+}
+
+func TestHui(t *testing.T) {
+	assert.Equal(t, "1,500", Hui(1500))
+}
+
+func TestHi32(t *testing.T) {
+	assert.Equal(t, "1,500", Hi32(1500))
 }
 
 func TestHf(t *testing.T) {
