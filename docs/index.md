@@ -6,9 +6,10 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/zix99/rare/total)
 ![GitHub](https://img.shields.io/github/license/zix99/rare)
 
-A fast text scanner/regex extractor and realtime summarizer.
+A fast text scanner/regex extractor and realtime summarizer. Quickly search, analyze and reformat text files
+such as logs, csv, json, etc.
 
-Supports various CLI-based graphing and metric formats (filter (grep-like), histogram, table, bargraph, etc).
+Supports various CLI-based graphing and metric formats (filter (grep-like), histogram, table, bargraph, heatmap).
 
 `rare` is a play on "more" and "less", but can also stand for "realtime aggregated regular expressions".
 
