@@ -1,6 +1,6 @@
 # rare
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/zix99/rare/rare)](https://github.com/zix99/rare/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/zix99/rare/main.yml?branch=master)](https://github.com/zix99/rare/actions)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/zix99/rare)](https://github.com/zix99/rare/releases)
 [![codecov](https://codecov.io/gh/zix99/rare/branch/master/graph/badge.svg)](https://codecov.io/gh/zix99/rare)
 ![GitHub all releases](https://img.shields.io/github/downloads/zix99/rare/total)
