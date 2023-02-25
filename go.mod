@@ -10,7 +10,7 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.14.1
-	golang.org/x/sys v0.0.0-20211019181941-9d821ace8654
+	golang.org/x/sys v0.1.0
 	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	honnef.co/go/tools v0.3.2
