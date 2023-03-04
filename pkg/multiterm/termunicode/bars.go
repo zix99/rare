@@ -20,7 +20,8 @@ var barUnicode = [...]rune{
 	'\u2589',
 	'\u2588',
 }
-var barUnicodePartCount int64 = int64(len(barUnicode))
+
+const barUnicodePartCount int64 = int64(len(barUnicode))
 
 // BarWriteFull does not write partial bars to the end. Useful for stacking
 func BarWriteFull(w io.StringWriter, val, maxVal, maxLen int64) {

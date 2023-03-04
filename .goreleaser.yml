@@ -9,8 +9,11 @@ builds:
   env:
     - CGO_ENABLED=1
   flags:
-    - -tags=pcre2
     - -trimpath
+  tags:
+    - pcre2
+    - urfave_cli_no_docs
+    - rare_no_pprof
   ldflags:
     - -s -w
     - -X main.version={{.Version}}
@@ -22,6 +25,11 @@ builds:
 - id: rare
   env:
     - CGO_ENABLED=0
+  flags:
+    - -trimpath
+  tags:
+    - urfave_cli_no_docs
+    - rare_no_pprof
   ldflags:
     - -s -w
     - -X main.version={{.Version}}
@@ -45,6 +53,10 @@ archives:
   format_overrides:
     - goos: windows
       format: zip
+  files:
+    - LICENSE*
+    - README*
+    - rare.1.gz
 
 checksum:
   name_template: 'checksums.txt'

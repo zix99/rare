@@ -47,9 +47,9 @@ func TestUnterminatedReplacement(t *testing.T) {
 }
 
 func TestEscapedString(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{0} is \\{1\\} cool")
+	kb, _ := NewKeyBuilder().Compile("{0} is \\{1\\} cool\\n\\t\\a")
 	key := kb.BuildKey(&testContext)
-	assert.Equal(t, "ab is {1} cool", key)
+	assert.Equal(t, "ab is {1} cool\n\ta", key)
 	assert.Equal(t, 2, len(kb.stages))
 }
 
@@ -63,6 +63,12 @@ func TestStringKey(t *testing.T) {
 	kb, _ := NewKeyBuilder().Compile("{test} {some} key")
 	key := kb.BuildKey(&testContext)
 	assert.Equal(t, "testval  key", key)
+}
+
+func TestEmptyStatement(t *testing.T) {
+	kb, err := NewKeyBuilder().Compile("{} test")
+	assert.Nil(t, kb)
+	assert.Error(t, err)
 }
 
 func BenchmarkSimpleReplacement(b *testing.B) {
@@ -120,11 +126,24 @@ func TestManyStagesOptimize(t *testing.T) {
 	assert.Equal(t, "value: -1 8", kb.BuildKey(&KeyBuilderContextArray{}))
 }
 
+// BenchmarkSimpleFunc-4   	 9467798	       121.2 ns/op	       8 B/op	       1 allocs/op
 func BenchmarkSimpleFunc(b *testing.B) {
-	k := NewKeyBuilder()
+	k := NewKeyBuilderEx(false)
 	k.Funcs(simpleFuncs)
 	kb, _ := k.Compile("value: {addi {addi 1 2} 2}")
+	ctx := &KeyBuilderContextArray{}
 	for i := 0; i < b.N; i++ {
-		kb.BuildKey(&KeyBuilderContextArray{})
+		kb.BuildKey(ctx)
+	}
+}
+
+// BenchmarkOptimizedFunc-4   	206643440	         5.698 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkOptimizedFunc(b *testing.B) {
+	k := NewKeyBuilderEx(true)
+	k.Funcs(simpleFuncs)
+	kb, _ := k.Compile("value: {addi {addi 1 2} 2}")
+	ctx := &KeyBuilderContextArray{}
+	for i := 0; i < b.N; i++ {
+		kb.BuildKey(ctx)
 	}
 }

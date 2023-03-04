@@ -7,10 +7,9 @@ import (
 	"rare/pkg/color"
 	"rare/pkg/expressions"
 	"rare/pkg/humanize"
-	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func minColSlice(count int, cols []string) []string {
@@ -22,39 +21,74 @@ func minColSlice(count int, cols []string) []string {
 
 func tabulateFunction(c *cli.Context) error {
 	var (
-		delim      = c.String("delim")
-		numRows    = c.Int("num")
-		numCols    = c.Int("cols")
-		sortByKeys = c.Bool("sortkey")
+		delim     = c.String("delim")
+		numRows   = c.Int("num")
+		numCols   = c.Int("cols")
+		rowtotals = c.Bool("rowtotal") || c.Bool("x")
+		coltotals = c.Bool("coltotal") || c.Bool("x")
+		sortRows  = c.String("sort-rows")
+		sortCols  = c.String("sort-cols")
 	)
 
 	counter := aggregation.NewTable(delim)
-	writer := termrenderers.NewTable(multiterm.New(), numCols, numRows)
+	vt := helpers.BuildVTermFromArguments(c)
+	writer := termrenderers.NewTable(vt, numCols+2, numRows+2)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
+	rowSorter := helpers.BuildSorterOrFail(sortRows)
+	colSorter := helpers.BuildSorterOrFail(sortCols)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
-		cols := minColSlice(numCols, append([]string{""}, counter.OrderedColumns()...))
-		writer.WriteRow(0, cols...)
+		cols := counter.OrderedColumns(colSorter)
+		cols = minColSlice(numCols, cols) // Cap columns
 
-		var rows []*aggregation.TableRow
-		if sortByKeys {
-			rows = counter.OrderedRowsByName()
-		} else {
-			rows = counter.OrderedRows()
+		// Write header row
+		{
+			colNames := make([]string, len(cols)+2)
+			for i, name := range cols {
+				colNames[i+1] = color.Wrap(color.Underline+color.BrightBlue, name)
+			}
+			if rowtotals {
+				colNames[len(cols)+1] = color.Wrap(color.Underline+color.BrightBlack, "Total")
+			}
+			writer.WriteRow(0, colNames...)
 		}
+
+		// Write each row
+		rows := counter.OrderedRows(rowSorter)
+
 		line := 1
-		for i := 0; i < len(rows) && line < writer.MaxRows(); i++ {
+		for i := 0; i < len(rows) && i < numRows; i++ {
 			row := rows[i]
-			rowVals := make([]string, len(cols)+1)
-			rowVals[0] = row.Name()
-			for idx, colName := range cols[1:] {
-				rowVals[1+idx] = humanize.Hi(row.Value(colName))
+			rowVals := make([]string, len(cols)+2)
+			rowVals[0] = color.Wrap(color.Yellow, row.Name())
+			for idx, colName := range cols {
+				rowVals[idx+1] = humanize.Hi(row.Value(colName))
+			}
+			if rowtotals {
+				rowVals[len(rowVals)-1] = color.Wrap(color.BrightBlack, humanize.Hi(row.Sum()))
 			}
 			writer.WriteRow(line, rowVals...)
 			line++
 		}
+
+		// Write totals
+		if coltotals {
+			rowVals := make([]string, len(cols)+2)
+			rowVals[0] = color.Wrap(color.BrightBlack+color.Underline, "Total")
+			for idx, colName := range cols {
+				rowVals[idx+1] = color.Wrap(color.BrightBlack, humanize.Hi(counter.ColTotal(colName)))
+			}
+
+			if rowtotals { // super total
+				sum := counter.Sum()
+				rowVals[len(rowVals)-1] = color.Wrap(color.BrightWhite, humanize.Hi(sum))
+			}
+
+			writer.WriteRow(line, rowVals...)
+		}
+
 		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
 		writer.WriteFooter(1, batcher.StatusString())
@@ -67,34 +101,54 @@ func tabulateFunction(c *cli.Context) error {
 
 func tabulateCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
-		Name:      "tabulate",
-		Aliases:   []string{"table"},
-		ShortName: "t",
-		Usage:     "Create a 2D summarizing table of extracted data",
+		Name:    "tabulate",
+		Aliases: []string{"table", "t"},
+		Usage:   "Create a 2D summarizing table of extracted data",
 		Description: `Summarizes the extracted data as a 2D data table.
-		The key is provided in the expression, and should be separated by a tab \x00
-		character or via {$ a b} Where a is the column header, and b is the row`,
+		The expression key data format is {$ a b [c]}, where a is the column key,
+		b is the rowkey, and optionally c is the increment value (Default: 1)`,
 		Action: tabulateFunction,
 		Flags: []cli.Flag{
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name:  "delim",
 				Usage: "Character to tabulate on. Use {$} helper by default",
 				Value: expressions.ArraySeparatorString,
 			},
-			cli.IntFlag{
-				Name:  "num,n",
-				Usage: "Number of elements to display",
-				Value: 20,
+			&cli.IntFlag{
+				Name:    "num",
+				Aliases: []string{"rows", "n"},
+				Usage:   "Number of elements to display",
+				Value:   20,
 			},
-			cli.IntFlag{
+			&cli.IntFlag{
 				Name:  "cols",
 				Usage: "Number of columns to display",
 				Value: 10,
 			},
-			cli.BoolFlag{
-				Name:  "sortkey,sk",
-				Usage: "Sort rows by key name rather than by values",
+			&cli.BoolFlag{
+				Name:  "rowtotal",
+				Usage: "Show row totals",
 			},
+			&cli.BoolFlag{
+				Name:  "coltotal",
+				Usage: "Show column totals",
+			},
+			&cli.BoolFlag{
+				Name:    "extra",
+				Aliases: []string{"x"},
+				Usage:   "Display row and column totals",
+			},
+			&cli.StringFlag{
+				Name:  "sort-rows",
+				Usage: helpers.DefaultSortFlag.Usage,
+				Value: "value",
+			},
+			&cli.StringFlag{
+				Name:  "sort-cols",
+				Usage: helpers.DefaultSortFlag.Usage,
+				Value: "value",
+			},
+			helpers.SnapshotFlag,
 		},
 	})
 }

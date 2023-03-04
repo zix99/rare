@@ -6,41 +6,64 @@ import (
 )
 
 type VirtualTerm struct {
-	lines   map[int]string
-	maxLine int
+	lines  []string
+	closed bool
 }
 
 var _ MultilineTerm = &VirtualTerm{}
 
 func NewVirtualTerm() *VirtualTerm {
+	return NewVirtualTermEx(0, 10)
+}
+
+func NewVirtualTermEx(size, cap int) *VirtualTerm {
 	return &VirtualTerm{
-		lines:   make(map[int]string),
-		maxLine: 0,
+		lines: make([]string, size, cap),
 	}
 }
 
 func (s *VirtualTerm) WriteForLine(line int, text string) {
-	s.lines[line] = text
-	if line > s.maxLine {
-		s.maxLine = line
+	if s.closed {
+		panic("virtualterm closed")
 	}
+
+	for line >= len(s.lines) {
+		s.lines = append(s.lines, "")
+	}
+
+	s.lines[line] = text
 }
 
-func (s *VirtualTerm) Close() {}
+func (s *VirtualTerm) WriteForLinef(line int, format string, args ...interface{}) {
+	s.WriteForLine(line, fmt.Sprintf(format, args...))
+}
+
+// Close the virtual term. Doesn't ever really need to close, but useful in testing
+func (s *VirtualTerm) Close() {
+	s.closed = true
+}
+
+// IsClosed checks if Close() was called
+func (s *VirtualTerm) IsClosed() bool {
+	return s.closed
+}
 
 func (s *VirtualTerm) Get(line int) string {
+	if line >= len(s.lines) || line < 0 {
+		return ""
+	}
 	return s.lines[line]
 }
 
 func (s *VirtualTerm) LineCount() int {
-	return s.maxLine + 1
+	return len(s.lines)
 }
 
+// WriteToOutput writes to a terminal, preventing any potential wrapping
 func (s *VirtualTerm) WriteToOutput(out io.Writer) {
-	for i := 0; i <= s.maxLine; i++ {
-		if l, ok := s.lines[i]; ok {
-			WriteLineNoWrap(out, l)
-		}
-		fmt.Print("\n")
+	newLineBytes := []byte{'\n'}
+	for _, line := range s.lines {
+		WriteLineNoWrap(out, line)
+		out.Write(newLineBytes)
 	}
 }

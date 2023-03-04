@@ -3,11 +3,13 @@ package color
 import (
 	"fmt"
 	"io"
-	"os"
+	"rare/pkg/multiterm/termstate"
 	"strings"
+	"unicode/utf8"
 )
 
 const (
+	escapeRune     = '\x1b'
 	escapeCode     = "\x1b"
 	foregroundCode = "[3"
 )
@@ -37,16 +39,25 @@ const (
 	Underline = escapeCode + "[4m"
 )
 
+var colorMap = map[string]ColorCode{
+	"black":   Black,
+	"red":     Red,
+	"green":   Green,
+	"yellow":  Yellow,
+	"blue":    Blue,
+	"magenta": Magenta,
+	"cyan":    Cyan,
+	"white":   White,
+}
+
 // Enabled controls whether or not coloring is applied
 var Enabled = true
 
 var GroupColors = [...]ColorCode{Red, Green, Yellow, Blue, Magenta, Cyan, BrightRed, BrightGreen, BrightYellow, BrightBlue, BrightMagenta, BrightCyan}
 
 func init() {
-	if fi, err := os.Stdout.Stat(); err == nil {
-		if (fi.Mode() & os.ModeCharDevice) == 0 {
-			Enabled = false
-		}
+	if termstate.IsPipedOutput() {
+		Enabled = false
 	}
 }
 
@@ -118,4 +129,60 @@ func WrapIndices(s string, groups []int) string {
 	}
 
 	return sb.String()
+}
+
+func LookupColorByName(s string) (ColorCode, bool) {
+	if c, ok := colorMap[strings.ToLower(s)]; ok {
+		return c, true
+	}
+	return BrightRed, false
+}
+
+// UnderlineSingleRune is a special-use-case colorer for headers with a single character called out
+func HighlightSingleRune(word string, runeIndex int, base, highlight ColorCode) string {
+	if !Enabled {
+		return word
+	}
+
+	if runeIndex >= 0 && runeIndex < len(word) {
+		var sb strings.Builder
+		sb.Grow(len(word) * 2)
+
+		sb.WriteString(string(base))
+		idx := 0
+		for _, r := range word {
+			if idx == runeIndex {
+				sb.WriteString(string(highlight))
+				sb.WriteRune(r)
+				sb.WriteString(string(Reset + base))
+			} else {
+				sb.WriteRune(r)
+			}
+			idx++
+		}
+		sb.WriteString(string(Reset))
+
+		return sb.String()
+	}
+
+	return Wrap(base, word)
+}
+
+// StrLen ignoring any color codes. If color disabled, returns len(s)
+func StrLen(s string) (ret int) {
+	if !Enabled {
+		return utf8.RuneCountInString(s)
+	}
+
+	inCode := false
+	for _, r := range s {
+		if r == escapeRune {
+			inCode = true
+		} else if inCode && r == 'm' {
+			inCode = false
+		} else if !inCode {
+			ret++
+		}
+	}
+	return
 }

@@ -1,16 +1,18 @@
 package cmd
 
-import "github.com/urfave/cli"
+import "github.com/urfave/cli/v2"
 
-var commands []cli.Command = []cli.Command{
-	*filterCommand(),
-	*histogramCommand(),
-	*bargraphCommand(),
-	*analyzeCommand(),
-	*tabulateCommand(),
-	*docsCommand(),
+var commands []*cli.Command = []*cli.Command{
+	filterCommand(),
+	histogramCommand(),
+	heatmapCommand(),
+	bargraphCommand(),
+	analyzeCommand(),
+	tabulateCommand(),
+	docsCommand(),
+	expressionCommand(),
 }
 
-func GetSupportedCommands() []cli.Command {
+func GetSupportedCommands() []*cli.Command {
 	return commands
 }

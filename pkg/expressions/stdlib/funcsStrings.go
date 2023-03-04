@@ -12,7 +12,7 @@ import (
 // {prefix string prefix}
 func kfPrefix(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 2 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val := args[0](context)
@@ -28,7 +28,7 @@ func kfPrefix(args []KeyBuilderStage) KeyBuilderStage {
 // {suffix string suffix}
 func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 2 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val := args[0](context)
@@ -39,6 +39,24 @@ func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
 		}
 		return ""
 	})
+}
+
+func kfUpper(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 1 {
+		return stageLiteral(ErrorArgCount)
+	}
+	return func(context KeyBuilderContext) string {
+		return strings.ToUpper(args[0](context))
+	}
+}
+
+func kfLower(args []KeyBuilderStage) KeyBuilderStage {
+	if len(args) != 1 {
+		return stageLiteral(ErrorArgCount)
+	}
+	return func(context KeyBuilderContext) string {
+		return strings.ToLower(args[0](context))
+	}
 }
 
 // {substr {0} }
@@ -57,7 +75,7 @@ func kfSubstr(args []KeyBuilderStage) KeyBuilderStage {
 		left, err1 := strconv.Atoi(args[1](context))
 		length, err2 := strconv.Atoi(args[2](context))
 		if err1 != nil || err2 != nil {
-			return ErrorParsing
+			return ErrorType
 		}
 
 		if length < 0 {
@@ -91,22 +109,47 @@ func kfSelect(args []KeyBuilderStage) KeyBuilderStage {
 		s := args[0](context)
 		idx, err := strconv.Atoi(args[1](context))
 		if err != nil {
-			return ErrorParsing
+			return ErrorType
 		}
 
-		fields := strings.Fields(s)
-		if idx >= 0 && idx < len(fields) {
-			return fields[idx]
-		}
-		return ""
+		return selectField(s, idx)
 	})
+}
+
+func selectField(s string, idx int) string {
+	currIdx := 0
+	wordStart := 0
+	inDelim := false
+	quoted := false
+
+	for i, c := range s {
+		if (quoted && c == '"') || (!quoted && (c == ' ' || c == '\t' || c == '\n' || c == ArraySeparator)) {
+			if currIdx == idx {
+				return s[wordStart:i]
+			}
+			inDelim = true
+			quoted = false
+		} else if c == '"' {
+			quoted = !quoted
+		} else if inDelim {
+			wordStart = i
+			currIdx++
+			inDelim = false
+		}
+	}
+
+	if currIdx == idx {
+		return s[wordStart:]
+	}
+
+	return ""
 }
 
 // {format str args...}
 // just like fmt.Sprintf
 func kfFormat(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		format := args[0](context)
@@ -122,20 +165,20 @@ func kfFormat(args []KeyBuilderStage) KeyBuilderStage {
 
 func kfHumanizeInt(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(args[0](context))
 		if err != nil {
 			return ErrorType
 		}
-		return humanize.Hi(val)
+		return humanize.Hi32(val)
 	})
 }
 
 func kfHumanizeFloat(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) != 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.ParseFloat(args[0](context), 64)
@@ -146,29 +189,26 @@ func kfHumanizeFloat(args []KeyBuilderStage) KeyBuilderStage {
 	})
 }
 
-var byteSizes = [...]string{"B", "KB", "MB", "GB", "TB", "PB"}
-
 func kfBytesize(args []KeyBuilderStage) KeyBuilderStage {
 	if len(args) < 1 {
-		return stageError(ErrorArgCount)
+		return stageLiteral(ErrorArgCount)
 	}
+
+	precision, err := strconv.Atoi(EvalStageIndexOrDefault(args, 1, "0"))
+	if err != nil {
+		return stageLiteral(ErrorType)
+	}
+
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		val, err := strconv.Atoi(args[0](context))
+		val, err := strconv.ParseUint(args[0](context), 10, 64)
 		if err != nil {
 			return ErrorType
 		}
-
-		labelIdx := 0
-		for val >= 1024 && labelIdx < len(byteSizes)-1 {
-			val = val / 1024
-			labelIdx++
-		}
-
-		return strconv.Itoa(val) + " " + byteSizes[labelIdx]
+		return humanize.AlwaysByteSize(val, precision)
 	})
 }
 
-func kfSeparate(delim rune) KeyBuilderFunction {
+func kfJoin(delim rune) KeyBuilderFunction {
 	return func(args []KeyBuilderStage) KeyBuilderStage {
 		if len(args) == 0 {
 			return stageLiteral("")

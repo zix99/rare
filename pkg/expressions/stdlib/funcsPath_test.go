@@ -1,13 +1,16 @@
 package stdlib
 
-import "testing"
+import (
+	"path/filepath"
+	"testing"
+)
 
 func TestBaseName(t *testing.T) {
 	testExpression(t, mockContext("ab/c/d"), "{basename {0}} {basename a b}", "d <ARGN>")
 }
 
 func TestDirName(t *testing.T) {
-	testExpression(t, mockContext("ab/c/d"), "{dirname {0}}", "ab/c")
+	testExpression(t, mockContext("ab/c/d"), "{dirname {0}}", filepath.Join("ab", "c"))
 }
 
 func TestExtName(t *testing.T) {

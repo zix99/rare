@@ -59,7 +59,7 @@ func TestBucket(t *testing.T) {
 		mockContext("1000", "1200", "1234"),
 		"{bucket {0} 1000} {bucket {1} 1000} {bucket {2} 1000} {bucket {2} 100}",
 		"1000 1000 1000 1200")
-	testExpression(t, mockContext(), "{bucket abc 100} {bucket 1}", "<BUCKET-ERROR> <ARGN>")
+	testExpression(t, mockContext(), "{bucket abc 100} {bucket 1}", "<BAD-TYPE> <ARGN>")
 }
 
 func TestExpBucket(t *testing.T) {
@@ -74,9 +74,8 @@ func TestClamp(t *testing.T) {
 }
 
 func TestByteSize(t *testing.T) {
-	kb, _ := NewStdKeyBuilder().Compile("{bytesize {2}}")
-	key := kb.BuildKey(&testFuncContext)
-	assert.Equal(t, "976 KB", key)
+	testExpression(t, &testFuncContext, "{bytesize {2}}", "977 KB")
+	testExpression(t, &testFuncContext, "{bytesize {2} 2}", "976.56 KB")
 }
 
 func TestIfStatement(t *testing.T) {
@@ -84,6 +83,10 @@ func TestIfStatement(t *testing.T) {
 		`{if {0} {1} efg} {if {0} abc} {if {not {0}} a b} {if "" a} {if "" a b}`,
 		"q abc b  b")
 	testExpression(t, mockContext("abc efg"), `{if {eq {0} "abc efg"} beq}`, "beq")
+}
+
+func TestUnlessStatement(t *testing.T) {
+	testExpression(t, mockContext("abc"), `{unless {1} {0}} {unless abc efg} {unless "" bob} {unless joe}`, "abc  bob <ARGN>")
 }
 
 func TestComparisonEquality(t *testing.T) {
@@ -127,18 +130,6 @@ func TestArray(t *testing.T) {
 func TestHumanize(t *testing.T) {
 	testExpression(t, mockContext(), "{hi 12345} {hf 12345.123512} {hi abc} {hf abc}",
 		"12,345 12,345.1235 <BAD-TYPE> <BAD-TYPE>")
-}
-
-func TestJson(t *testing.T) {
-	testExpression(t, mockContext(`{"abc":123}`), `{json {0} abc}`, "123")
-}
-
-func TestJsonSingleArg(t *testing.T) {
-	testExpression(t, mockContext(`{"abc":456}`), `{json abc}`, "456")
-}
-
-func TestJsonManyArgs(t *testing.T) {
-	testExpression(t, mockContext(`{"abc":456}`), `{json {0} abc woops}`, "<ARGN>")
 }
 
 func TestFormat(t *testing.T) {

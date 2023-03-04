@@ -58,3 +58,15 @@ func TestDeepQuoting(t *testing.T) {
 	tokens2 := splitTokenizedArguments(`eq {0} "abc def"`)
 	assert.Equal(t, []string{"eq", "{0}", "abc def"}, tokens2)
 }
+
+func TestEscapeAtEnd(t *testing.T) {
+	tokens := splitTokenizedArguments(`test a\`)
+	assert.Equal(t, []string{"test", "a"}, tokens)
+}
+
+// BenchmarkArgSplitter-4   	 1119465	      1081 ns/op	     136 B/op	       6 allocs/op
+func BenchmarkArgSplitter(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		splitTokenizedArguments(`eq {0} "abc def"`)
+	}
+}

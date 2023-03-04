@@ -1,10 +1,11 @@
 package stdlib
 
 const (
-	ErrorBucket     = "<BUCKET-ERROR>" // Unable to bucket from given value (wrong type)
-	ErrorBucketSize = "<BUCKET-SIZE>"  // Unable to get the size of the bucket (wrong type)
-	ErrorType       = "<BAD-TYPE>"     // Error parsing the principle value of the input because of unexpected type
-	ErrorParsing    = "<PARSE-ERROR>"  // Error parsing the principle value of the input
-	ErrorArgCount   = "<ARGN>"         // Function to not support a variation with the given argument count
-	ErrorArgName    = "<NAME>"         // A variable accessed by a given name does not exist
+	ErrorType     = "<BAD-TYPE>"    // Error parsing the principle value of the input because of unexpected type
+	ErrorParsing  = "<PARSE-ERROR>" // Error parsing the principle value of the input (non-numeric)
+	ErrorArgCount = "<ARGN>"        // Function to not support a variation with the given argument count
+	ErrorConst    = "<CONST>"       // Expected constant value
+	ErrorEnum     = "<ENUM>"        // A given value is not contained within a set
+	ErrorArgName  = "<NAME>"        // A variable accessed by a given name does not exist
+	ErrorEmpty    = "<EMPTY>"       // A value was expected, but was empty
 )

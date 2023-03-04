@@ -1,6 +1,8 @@
 package stdlib
 
-import . "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+import (
+	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+)
 
 var StandardFunctions = map[string]KeyBuilderFunction{
 	"coalesce":  KeyBuilderFunction(kfCoalesce),
@@ -24,7 +26,8 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"divf":  arithmaticHelperf(func(a, b float64) float64 { return a / b }),
 
 	// Comparisons
-	"if": KeyBuilderFunction(kfIf),
+	"if":     KeyBuilderFunction(kfIf),
+	"unless": KeyBuilderFunction(kfUnless),
 	"eq": stringComparator(func(a, b string) string {
 		if a == b {
 			return a
@@ -52,10 +55,22 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"format": KeyBuilderFunction(kfFormat),
 	"substr": KeyBuilderFunction(kfSubstr),
 	"select": KeyBuilderFunction(kfSelect),
+	"upper":  KeyBuilderFunction(kfUpper),
+	"lower":  KeyBuilderFunction(kfLower),
 
-	// Separation
-	"tab": kfSeparate('\t'),
-	"$":   kfSeparate(ArraySeparator),
+	// Separation (Join)
+	"tab": kfJoin('\t'),
+	"$":   kfJoin(ArraySeparator),
+
+	// Ranges
+	"@":       kfJoin(ArraySeparator),
+	"@map":    kfArrayMap,
+	"@split":  kfArraySplit,
+	"@select": kfArraySelect,
+	"@join":   kfArrayJoin,
+	"@reduce": kfArrayReduce,
+	"@filter": kfArrayFilter,
+	"@slice":  kfArraySlice,
 
 	// Pathing
 	"basename": kfPathBase,
@@ -67,14 +82,21 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"hf": KeyBuilderFunction(kfHumanizeFloat),
 
 	// Json
-	"json": KeyBuilderFunction(kfJson),
+	"json": KeyBuilderFunction(kfJsonQuery),
 
 	// CSV
 	"csv": KeyBuilderFunction(kfCsv),
 
 	// Time
-	"time":       KeyBuilderFunction(kfTimeParse),
-	"timeformat": KeyBuilderFunction(kfTimeFormat),
-	"buckettime": KeyBuilderFunction(kfBucketTime),
-	"duration":   KeyBuilderFunction(kfDuration),
+	"time":           KeyBuilderFunction(kfTimeParse),
+	"timeformat":     KeyBuilderFunction(kfTimeFormat),
+	"timeattr":       KeyBuilderFunction(kfTimeAttr),
+	"buckettime":     KeyBuilderFunction(kfBucketTime),
+	"duration":       KeyBuilderFunction(kfDuration),
+	"durationformat": KeyBuilderFunction(kfDurationFormat),
+
+	// Color and drawing
+	"color":  KeyBuilderFunction(kfColor),
+	"repeat": KeyBuilderFunction(kfRepeat),
+	"bar":    KeyBuilderFunction(kfBar),
 }

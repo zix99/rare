@@ -13,10 +13,14 @@ import (
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termunicode"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-func cliMain(args ...string) error {
+type appModifier func(app *cli.App)
+
+var appModifiers []appModifier
+
+func buildApp() *cli.App {
 	app := cli.NewApp()
 
 	app.Usage = "A fast regex parser, extractor and realtime aggregator"
@@ -24,9 +28,9 @@ func cliMain(args ...string) error {
 	app.Version = fmt.Sprintf("%s, %s; regex: %s", version, buildSha, fastregex.Version)
 
 	app.Description = `Aggregate and display information parsed from text files using
-	regex and a simple handlebars-like expression syntax.
+	regex and a simple handlebars-like expressions.
 
-	Run "rare docs overview" for more information
+	Run "rare docs overview" or go to https://rare.zdyn.net for more information
 	
 	https://github.com/zix99/rare`
 
@@ -36,31 +40,31 @@ func cliMain(args ...string) error {
 	under certain conditions`
 
 	app.UseShortOptionHandling = true
+	app.Suggest = true
 
 	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:  "nocolor,nc",
-			Usage: "Disables color output",
+		&cli.BoolFlag{
+			Name:    "nocolor",
+			Aliases: []string{"nc"},
+			Usage:   "Disables color output",
 		},
-		cli.BoolFlag{
-			Name:  "noformat,nf",
-			Usage: "Disable number formatting",
+		&cli.BoolFlag{
+			Name:    "noformat",
+			Aliases: []string{"nf"},
+			Usage:   "Disable number formatting",
 		},
-		cli.BoolFlag{
-			Name:  "nounicode,nu",
-			Usage: "Disable usage of unicode characters",
+		&cli.BoolFlag{
+			Name:    "nounicode",
+			Aliases: []string{"nu"},
+			Usage:   "Disable usage of unicode characters",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "color",
 			Usage: "Force-enable color output",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "notrim",
 			Usage: "By default, rare will trim output text for in-place updates. Setting this flag will disable that",
-		},
-		cli.StringFlag{
-			Name:  "profile",
-			Usage: "Write application profiling information as part of execution. Specify base-name",
 		},
 	}
 
@@ -78,31 +82,10 @@ func cliMain(args ...string) error {
 		if err != nil {
 			return err
 		}
-		return cli.NewExitError("", helpers.ExitCodeInvalidUsage)
+		return cli.Exit("", helpers.ExitCodeInvalidUsage)
 	}
 
 	app.Commands = cmd.GetSupportedCommands()
-	app.Commands = append(app.Commands, cli.Command{
-		Name:   "_gendoc",
-		Hidden: true,
-		Usage:  "Generates documentation",
-		Action: func(c *cli.Context) error {
-			var text string
-			if c.Bool("man") {
-				text, _ = c.App.ToMan()
-			} else {
-				text, _ = c.App.ToMarkdown()
-			}
-			fmt.Print(text)
-			return nil
-		},
-		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "man",
-				Usage: "manpage syntax",
-			},
-		},
-	})
 
 	app.Before = cli.BeforeFunc(func(c *cli.Context) error {
 		if c.Bool("nocolor") {
@@ -119,20 +102,6 @@ func cliMain(args ...string) error {
 		if c.Bool("nounicode") {
 			termunicode.UnicodeEnabled = false
 		}
-
-		// Profiling
-		if c.IsSet("profile") {
-			basename := c.String("profile")
-			startProfiler(basename)
-		}
-
-		return nil
-	})
-
-	app.After = cli.AfterFunc(func(c *cli.Context) error {
-		if c.IsSet("profile") {
-			stopProfile()
-		}
 		return nil
 	})
 
@@ -142,7 +111,16 @@ func cliMain(args ...string) error {
 		// This also allows for better unit testing...
 	}
 
-	return app.Run(args)
+	// Apply any plugin/modifiers
+	for _, modifier := range appModifiers {
+		modifier(app)
+	}
+
+	return app
+}
+
+func cliMain(args ...string) error {
+	return buildApp().Run(args)
 }
 
 func main() {

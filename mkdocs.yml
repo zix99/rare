@@ -1,0 +1,52 @@
+site_name: rare
+site_url: https://rare.zdyn.net/
+repo_url: https://github.com/zix99/rare
+
+site_description: Realtime regex-extraction and aggregation into common formats such as histograms, bar graphs, numerical summaries, tables, and more!
+site_author: Christopher LaPointe
+copyright: '2019 Christopher LaPointe'
+
+nav:
+  - Home: index.md
+  - Usage:
+    - Overview: usage/overview.md
+    - Input: usage/input.md
+    - Extractor: usage/extractor.md
+    - Expressions: usage/expressions.md
+    - Aggregators: usage/aggregators.md
+    - Examples: usage/examples.md
+    - Advanced:
+      - JSON: usage/json.md
+      - Regular Expressions: usage/regexp.md
+    - CLI Docs: cli-help.md
+  - Benchmarks: benchmarks.md
+  - Contributing: contributing.md
+  - License: license.md
+
+theme:
+  name: material
+  features:
+    - navigation.expand
+  custom_dir: docs/overrides
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      baselevel: 1
+  - admonition
+  - pymdownx.superfences
+
+extra:
+  social:
+    - icon: fontawesome/solid/blog
+      link: https://zdyn.net
+      name: Blog
+    - icon: fontawesome/brands/github
+      link: https://github.com/zix99/rare
+      name: Github
+    - icon: fontawesome/solid/mug-hot
+      link: https://www.buymeacoffee.com/cmlapointe
+      name: Buy Me A Coffee
+
+strict: true
+site_dir: dist/site

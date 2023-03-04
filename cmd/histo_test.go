@@ -15,8 +15,8 @@ func TestHistogram(t *testing.T) {
 }
 
 func TestHistogramRender(t *testing.T) {
-	out, eout, err := testCommandCapture(histogramCommand(), `-m "(\d+)" -e "{bucket {1} 10}" testdata/log.txt`)
+	out, eout, err := testCommandCapture(histogramCommand(), `--snapshot -m "(\d+)" -e "{bucket {1} 10}" testdata/log.txt`)
 	assert.NoError(t, err)
-	assert.Contains(t, out, "Matched: 3 / 6 (Groups: 2)")
+	assert.Equal(t, out, "0                   2         \n20                  1         \n\n\n\nMatched: 3 / 6 (Groups: 2)\n96 B (0 B/s) \n")
 	assert.Equal(t, "", eout)
 }

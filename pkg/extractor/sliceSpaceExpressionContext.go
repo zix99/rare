@@ -1,8 +1,11 @@
 package extractor
 
 import (
+	"rare/pkg/expressions"
 	"rare/pkg/expressions/stdlib"
+	"rare/pkg/minijson"
 	"strconv"
+	"strings"
 )
 
 type SliceSpaceExpressionContext struct {
@@ -32,6 +35,14 @@ func (s *SliceSpaceExpressionContext) GetKey(key string) string {
 		return s.source
 	case "line":
 		return strconv.FormatUint(s.lineNum, 10)
+	case ".":
+		return s.json(true, false)
+	case "#":
+		return s.json(false, true)
+	case ".#", "#.":
+		return s.json(true, true)
+	case "@":
+		return s.array()
 	}
 
 	if idx, ok := s.nameTable[key]; ok {
@@ -39,4 +50,39 @@ func (s *SliceSpaceExpressionContext) GetKey(key string) string {
 	}
 
 	return stdlib.ErrorArgName
+}
+
+func (s *SliceSpaceExpressionContext) json(named, numbered bool) string {
+	var jb minijson.JsonObjectBuilder
+	jb.OpenEx(len(s.nameTable) * 50)
+
+	if named {
+		for name, idx := range s.nameTable {
+			jb.WriteInferred(name, s.GetMatch(idx))
+		}
+	}
+	if numbered {
+		for i := 0; i < len(s.indices)/2; i++ {
+			if val := s.GetMatch(i); val != "" {
+				jb.WriteInferred(strconv.Itoa(i), val)
+			}
+		}
+	}
+
+	jb.Close()
+
+	return jb.String()
+}
+
+func (s *SliceSpaceExpressionContext) array() string {
+	var sb strings.Builder
+	for i := 1; i < len(s.indices)/2; i++ {
+		val := s.GetMatch(i)
+
+		if i > 1 {
+			sb.WriteRune(expressions.ArraySeparator)
+		}
+		sb.WriteString(val)
+	}
+	return sb.String()
 }

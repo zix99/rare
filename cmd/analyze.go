@@ -9,15 +9,15 @@ import (
 	"rare/pkg/multiterm"
 	"strconv"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-func humanf(arg interface{}) string {
+func humanf(arg float64) string {
 	return color.Wrap(color.BrightWhite, humanize.Hf(arg))
 }
 
-func writeAggrOutput(writer *multiterm.TermWriter, aggr *aggregation.MatchNumerical, extra bool, quantiles []float64) int {
-	writer.WriteForLinef(0, "Samples:  %v", color.Wrap(color.BrightWhite, humanize.Hi(aggr.Count())))
+func writeAggrOutput(writer multiterm.MultilineTerm, aggr *aggregation.MatchNumerical, extra bool, quantiles []float64) int {
+	writer.WriteForLinef(0, "Samples:  %v", color.Wrap(color.BrightWhite, humanize.Hui(aggr.Count())))
 	writer.WriteForLinef(1, "Mean:     %v", humanf(aggr.Mean()))
 	writer.WriteForLinef(2, "StdDev:   %v", humanf(aggr.StdDev()))
 	writer.WriteForLinef(3, "Min:      %v", humanf(aggr.Min()))
@@ -59,8 +59,7 @@ func analyzeFunction(c *cli.Context) error {
 	}
 
 	aggr := aggregation.NewNumericalAggregator(&config)
-	writer := multiterm.New()
-	defer multiterm.ResetCursor()
+	writer := helpers.BuildVTermFromArguments(c)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
@@ -78,27 +77,31 @@ func analyzeFunction(c *cli.Context) error {
 
 func analyzeCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
-		Name:      "analyze",
-		ShortName: "a",
-		Usage:     "Numerical analysis on a set of filtered data",
+		Name:    "analyze",
+		Aliases: []string{"a"},
+		Usage:   "Numerical analysis on a set of filtered data",
 		Description: `Treat every extracted expression as a numerical input, and run analysis
 		on that input.  Will extract mean, median, mode, min, max.  If specifying --extra
 		will also extract std deviation, and quantiles`,
 		Action: analyzeFunction,
 		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "extra,x",
-				Usage: "Displays extra analysis on the data (Requires more memory and cpu)",
+			&cli.BoolFlag{
+				Name:    "extra",
+				Aliases: []string{"x"},
+				Usage:   "Displays extra analysis on the data (Requires more memory and cpu)",
 			},
-			cli.BoolFlag{
-				Name:  "reverse,r",
-				Usage: "Reverses the numerical series when ordered-analysis takes place (eg Quantile)",
+			&cli.BoolFlag{
+				Name:    "reverse",
+				Aliases: []string{"r"},
+				Usage:   "Reverses the numerical series when ordered-analysis takes place (eg Quantile)",
 			},
-			cli.StringSliceFlag{
-				Name:  "quantile,q",
-				Usage: "Adds a quantile to the output set. Requires --extra",
-				Value: &cli.StringSlice{"90", "99", "99.9"},
+			&cli.StringSliceFlag{
+				Name:    "quantile",
+				Aliases: []string{"q"},
+				Usage:   "Adds a quantile to the output set. Requires --extra",
+				Value:   cli.NewStringSlice("90", "99", "99.9"),
 			},
+			helpers.SnapshotFlag,
 		},
 	})
 }

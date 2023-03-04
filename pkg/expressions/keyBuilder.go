@@ -52,7 +52,7 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 
 		if r == '\\' { // Escape
 			i++
-			sb.WriteRune(runes[i])
+			sb.WriteRune(unescape(runes[i]))
 		} else if r == '{' {
 			if inStatement == 0 { // starting a new token
 				if sb.Len() > 0 {
@@ -67,7 +67,9 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 			inStatement--
 			if inStatement == 0 {
 				args := splitTokenizedArguments(sb.String())
-				if len(args) == 1 { // Simple variable keyword like "{1}"
+				if len(args) == 0 {
+					return nil, errors.New("empty statement in expression")
+				} else if len(args) == 1 { // Simple variable keyword like "{1}"
 					kb.stages = append(kb.stages, stageSimpleVariable(args[0]))
 				} else { // Complex function like "{add 1 2}"
 					f := s.functions[args[0]]
@@ -170,4 +172,16 @@ func (s *CompiledKeyBuilder) joinStages() KeyBuilderStage {
 		}
 		return sb.String()
 	})
+}
+
+func unescape(r rune) rune {
+	switch r {
+	case 'n':
+		return '\n'
+	case 'r':
+		return '\r'
+	case 't':
+		return '\t'
+	}
+	return r
 }

@@ -2,23 +2,27 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"rare/cmd/helpers"
 	"rare/pkg/color"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func filterFunction(c *cli.Context) error {
 	var (
 		writeLines      = c.Bool("line")
 		customExtractor = c.IsSet("extract")
+		numLineLimit    = uint64(c.Int64("num"))
+		readLines       = uint64(0)
 	)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	extractor := helpers.BuildExtractorFromArgumentsEx(c, batcher, "\t")
 
 	readChan := extractor.ReadChan()
+OUTER_LOOP:
 	for {
 		matchBatch, more := <-readChan
 		if !more {
@@ -39,9 +43,20 @@ func filterFunction(c *cli.Context) error {
 			} else {
 				fmt.Println(match.Extracted)
 			}
+
+			readLines++
+			if numLineLimit > 0 && readLines >= numLineLimit {
+				break OUTER_LOOP
+			}
 		}
 	}
-	helpers.WriteExtractorSummary(extractor)
+
+	if numLineLimit > 0 {
+		helpers.FWriteMatchSummary(os.Stderr, readLines, numLineLimit)
+		os.Stderr.WriteString("\n")
+	} else {
+		helpers.WriteExtractorSummary(extractor)
+	}
 
 	return helpers.DetermineErrorState(batcher, extractor, nil)
 }
@@ -51,15 +66,20 @@ func filterCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
 		Name:  "filter",
 		Usage: "Filter incoming results with search criteria, and output raw matches",
-		Description: `Filters incoming results by a regex, and output the match or an extracted expression.
-		Unable to output contextual information due to the application's parallelism.  Use grep if you
-		need that`,
-		ShortName: "f",
-		Action:    filterFunction,
+		Description: `Filters incoming results by a regex, and output the match of a single line
+		or an extracted expression.`,
+		Aliases: []string{"f"},
+		Action:  filterFunction,
 		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "line,l",
-				Usage: "Output source file and line number",
+			&cli.BoolFlag{
+				Name:    "line",
+				Aliases: []string{"l"},
+				Usage:   "Output source file and line number",
+			},
+			&cli.Int64Flag{
+				Name:    "num",
+				Aliases: []string{"n"},
+				Usage:   "Print the first NUM of lines seen (Not necessarily in-order)",
 			},
 		},
 	})

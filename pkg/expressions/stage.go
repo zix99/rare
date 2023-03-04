@@ -3,6 +3,7 @@ package expressions
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -39,4 +40,16 @@ func stageError(msg string) KeyBuilderStage {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		return errMessage
 	})
+}
+
+// make a delim-separated array
+func MakeArray(args ...string) string {
+	var sb strings.Builder
+	for i := 0; i < len(args); i++ {
+		if i > 0 {
+			sb.WriteRune(ArraySeparator)
+		}
+		sb.WriteString(args[i])
+	}
+	return sb.String()
 }

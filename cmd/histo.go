@@ -5,20 +5,16 @@ import (
 	"os"
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
+	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.MatchCounter, count int, reverse bool, sortByKey bool, atLeast int64) {
-	var items []aggregation.MatchPair
-	if sortByKey {
-		items = counter.ItemsSortedByKey(count, reverse)
-	} else {
-		items = counter.ItemsSorted(count, reverse)
-	}
+func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.MatchCounter, count int, sorter sorting.NameValueSorter, atLeast int64) {
+	items := counter.ItemsSortedBy(count, sorter)
 	line := 0
 	writer.UpdateSamples(counter.Count())
 	for _, match := range items {
@@ -32,21 +28,22 @@ func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.Ma
 
 func histoFunction(c *cli.Context) error {
 	var (
-		topItems    = c.Int("n")
-		reverseSort = c.Bool("reverse")
-		sortByKey   = c.Bool("sk")
-		atLeast     = c.Int64("atleast")
-		extra       = c.Bool("extra")
-		all         = c.Bool("all")
+		topItems = c.Int("n")
+		atLeast  = c.Int64("atleast")
+		extra    = c.Bool("extra")
+		all      = c.Bool("all")
+		sortName = c.String(helpers.DefaultSortFlag.Name)
 	)
 
+	vt := helpers.BuildVTermFromArguments(c)
 	counter := aggregation.NewCounter()
-	writer := termrenderers.NewHistogram(multiterm.New(), topItems)
+	writer := termrenderers.NewHistogram(vt, topItems)
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
+	sorter := helpers.BuildSorterOrFail(sortName)
 
 	progressString := func() string {
 		return helpers.FWriteExtractorSummary(ext,
@@ -55,18 +52,20 @@ func histoFunction(c *cli.Context) error {
 	}
 
 	helpers.RunAggregationLoop(ext, counter, func() {
-		writeHistoOutput(writer, counter, topItems, reverseSort, sortByKey, atLeast)
+		writeHistoOutput(writer, counter, topItems, sorter, atLeast)
 		writer.WriteFooter(0, progressString())
 		writer.WriteFooter(1, batcher.StatusString())
 	})
 
+	// Not deferred because of the `all` below to print out before it
+	// when in snapshot mode
 	writer.Close()
 
 	if all {
 		fmt.Println("Full Table:")
 		vterm := multiterm.NewVirtualTerm()
 		vWriter := termrenderers.NewHistogram(vterm, counter.GroupCount())
-		writeHistoOutput(vWriter, counter, counter.GroupCount(), reverseSort, sortByKey, atLeast)
+		writeHistoOutput(vWriter, counter, counter.GroupCount(), sorter, atLeast)
 
 		vterm.WriteToOutput(os.Stdout)
 		fmt.Println(progressString())
@@ -85,47 +84,44 @@ func histogramCommand() *cli.Command {
 		as a key and counted.
 		If an extraction expression is provided with -e, that will be used
 		as the key instead
-		If multiple values are provided via the array syntax {$}, then the
-		2nd value will be used as the count incrementor`,
+		If multiple values are provided via the array syntax {$} or multiple expressions,
+		then the 2nd value will be used as the count incrementor`,
 		Action:    histoFunction,
-		Aliases:   []string{"histo"},
-		ShortName: "h",
+		Aliases:   []string{"histo", "h"},
 		ArgsUsage: helpers.DefaultArgumentDescriptor,
 		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "all,a",
-				Usage: "After summarization is complete, print all histogram buckets",
+			&cli.BoolFlag{
+				Name:    "all",
+				Aliases: []string{"a"},
+				Usage:   "After summarization is complete, print all histogram buckets",
 			},
-			cli.BoolFlag{
-				Name:  "bars,b",
-				Usage: "Display bars as part of histogram",
+			&cli.BoolFlag{
+				Name:    "bars",
+				Aliases: []string{"b"},
+				Usage:   "Display bars as part of histogram",
 			},
-			cli.BoolFlag{
+			&cli.BoolFlag{
 				Name:  "percentage",
 				Usage: "Display percentage of total next to the value",
 			},
-			cli.BoolFlag{
-				Name:  "extra,x",
-				Usage: "Alias for -b --percentage",
+			&cli.BoolFlag{
+				Name:    "extra",
+				Aliases: []string{"x"},
+				Usage:   "Alias for -b --percentage",
 			},
-			cli.IntFlag{
-				Name:  "num,n",
-				Usage: "Number of elements to display",
-				Value: 5,
+			&cli.IntFlag{
+				Name:    "num",
+				Aliases: []string{"n"},
+				Usage:   "Number of elements to display",
+				Value:   5,
 			},
-			cli.Int64Flag{
+			&cli.Int64Flag{
 				Name:  "atleast",
 				Usage: "Only show results if there are at least this many samples",
 				Value: 0,
 			},
-			cli.BoolFlag{
-				Name:  "reverse",
-				Usage: "Reverses the display sort-order",
-			},
-			cli.BoolFlag{
-				Name:  "sortkey,sk",
-				Usage: "Sort by key, rather than value",
-			},
+			helpers.DefaultSortFlagWithDefault("value"),
+			helpers.SnapshotFlag,
 		},
 	})
 }

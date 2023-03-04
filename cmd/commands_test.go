@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func TestCommandGetter(t *testing.T) {
@@ -29,8 +29,8 @@ func testCommand(command *cli.Command, cmd string) error {
 	app := cli.NewApp()
 
 	command.Name = "_testcommand"
-	app.Commands = []cli.Command{
-		*command,
+	app.Commands = []*cli.Command{
+		command,
 	}
 	app.ExitErrHandler = func(context *cli.Context, err error) {
 		// disabled

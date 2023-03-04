@@ -4,19 +4,14 @@ import (
 	"compress/gzip"
 	"io"
 	"os"
-	"rare/pkg/extractor"
 	"rare/pkg/logger"
-	"rare/pkg/readahead"
 	"sync"
 )
 
-// ReadAheadBufferSize is the default size of the read-ahead buffer
-const ReadAheadBufferSize = 128 * 1024
-
 // openFilesToChan takes an iterated channel of filenames, options, and loads them all with
 //  a max concurrency.  Returns a channel that will populate with input batches
-func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize int) *Batcher {
-	out := newBatcher(128)
+func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize, batchBuffer int) *Batcher {
+	out := newBatcher(batchBuffer)
 	sema := make(chan struct{}, concurrency)
 
 	// Load as many files as the sema allows
@@ -38,7 +33,6 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 					wg.Done()
 					out.stopFileReading(goFilename)
 				}()
-				out.startFileReading(goFilename)
 
 				var file io.ReadCloser
 				file, err := openFileToReader(goFilename, gunzip)
@@ -49,12 +43,8 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 				}
 				defer file.Close()
 
-				ra := readahead.New(file, ReadAheadBufferSize)
-				ra.OnError = func(e error) {
-					out.incErrors()
-					logger.Printf("Error reading %s: %v", goFilename, e)
-				}
-				extractor.SyncReadAheadToBatchChannel(goFilename, ra, batchSize, out.c)
+				out.startFileReading(goFilename)
+				out.syncReaderToBatcher(goFilename, file, batchSize)
 			}(filename)
 		}
 
@@ -66,16 +56,17 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 }
 
 func openFileToReader(filename string, gunzip bool) (io.ReadCloser, error) {
-	var file io.ReadCloser
-	file, err := os.Open(filename)
+	baseFile, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
+	var file io.ReadCloser = baseFile
 
 	if gunzip {
 		zfile, err := gzip.NewReader(file)
 		if err != nil {
 			logger.Printf("Gunzip error for file %s: %v; Reading as plain file", filename, err)
+			baseFile.Seek(0, io.SeekStart) // Rewind, since it probably took a few bytes to figure out this wasn't a gzip file
 		} else {
 			file = zfile
 		}

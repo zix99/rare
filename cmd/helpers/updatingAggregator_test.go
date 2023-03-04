@@ -3,6 +3,7 @@ package helpers
 import (
 	"io/ioutil"
 	"rare/pkg/extractor"
+	"rare/pkg/extractor/batchers"
 	"strings"
 	"testing"
 
@@ -28,8 +29,8 @@ func (s *VirtualAggregator) ParseErrors() uint64 {
 
 func TestAggregationLoop(t *testing.T) {
 	// Build a real extractor
-	input := extractor.ConvertReaderToStringChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1)
-	ex, err := extractor.New(input, &extractor.Config{
+	batcher := batchers.OpenReaderToChan("test", ioutil.NopCloser(strings.NewReader(testData)), 1, 1)
+	ex, err := extractor.New(batcher.BatchChan(), &extractor.Config{
 		Regex:   `(\d+)`,
 		Extract: "val:{1}",
 		Workers: 1,

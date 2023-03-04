@@ -2,9 +2,7 @@ package multiterm
 
 import (
 	"io"
-	"os"
-
-	"golang.org/x/term"
+	"rare/pkg/multiterm/termstate"
 )
 
 var AutoTrim = true
@@ -13,22 +11,8 @@ const defaultRows, defaultCols = 24, 80
 
 var computedRows, computedCols = 0, 0
 
-func getTermRowsCols() (rows, cols int, ok bool) {
-	fd := int(os.Stdout.Fd())
-	if !term.IsTerminal(fd) {
-		return 0, 0, false
-	}
-
-	cols, rows, err := term.GetSize(fd)
-	if err != nil {
-		return 0, 0, false
-	}
-
-	return rows, cols, true
-}
-
 func init() {
-	if rows, cols, ok := getTermRowsCols(); ok {
+	if rows, cols, ok := termstate.GetTermRowsCols(); ok {
 		computedRows, computedCols = rows, cols
 	} else {
 		AutoTrim = false

@@ -4,5 +4,7 @@ import (
 	"embed"
 )
 
-//go:embed *.md
+const BasePath = "usage"
+
+//go:embed usage/*.md
 var DocFS embed.FS

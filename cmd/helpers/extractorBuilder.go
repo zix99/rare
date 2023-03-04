@@ -11,19 +11,27 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
+const (
+	cliCategoryRead     = "Input"
+	cliCategoryMatching = "Matching"
+	cliCategoryTweaking = "Tweaking"
+)
+
 func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 	var (
 		follow            = c.Bool("follow") || c.Bool("reopen")
+		followTail        = c.Bool("tail")
 		followReopen      = c.Bool("reopen")
 		followPoll        = c.Bool("poll")
 		concurrentReaders = c.Int("readers")
 		gunzip            = c.Bool("gunzip")
 		batchSize         = c.Int("batch")
+		batchBuffer       = c.Int("batch-buffer")
 		recursive         = c.Bool("recursive")
 	)
 
@@ -31,20 +39,32 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 		logger.Fatalf("Batch size must be >= 1, is %d", batchSize)
 	}
 	if concurrentReaders < 1 {
-		logger.Fatalf("Must have at least 1 readers")
+		logger.Fatalf("Must have at least 1 reader")
+	}
+	if followPoll && !follow {
+		logger.Fatalf("Follow (-f) must be enabled for --poll")
+	}
+	if followTail && !follow {
+		logger.Fatalf("Follow (-f) must be enabled for --tail")
 	}
 
-	fileglobs := c.Args()
+	fileglobs := c.Args().Slice()
 
 	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
-		return batchers.OpenReaderToChan("<stdin>", os.Stdin, batchSize)
+		if gunzip {
+			logger.Fatalln("Cannot decompress (-z) with stdin")
+		}
+		if follow {
+			logger.Println("Cannot follow a stdin stream, not a file")
+		}
+		return batchers.OpenReaderToChan("<stdin>", os.Stdin, batchSize, batchBuffer)
 	} else if follow { // Read from source file
 		if gunzip {
 			logger.Println("Cannot combine -f and -z")
 		}
-		return batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, followReopen, followPoll)
+		return batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, batchBuffer, followReopen, followPoll, followTail)
 	} else { // Read (no-follow) source file(s)
-		return batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize)
+		return batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize, batchBuffer)
 	}
 }
 
@@ -58,6 +78,10 @@ func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, se
 		Regex:   extractRegex(c),
 		Extract: strings.Join(c.StringSlice("extract"), sep),
 		Workers: c.Int("workers"),
+	}
+
+	if c.Bool("ignore-case") {
+		config.Regex = "(?i)" + config.Regex
 	}
 
 	ignoreSlice := c.StringSlice("ignore")
@@ -77,63 +101,105 @@ func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, se
 }
 
 func getExtractorFlags() []cli.Flag {
+	workerCount := runtime.NumCPU()/2 + 1
+
 	return []cli.Flag{
-		cli.BoolFlag{
-			Name:  "follow,f",
-			Usage: "Read appended data as file grows",
+		&cli.BoolFlag{
+			Name:     "follow",
+			Aliases:  []string{"f"},
+			Category: cliCategoryRead,
+			Usage:    "Read appended data as file grows",
 		},
-		cli.BoolFlag{
-			Name:  "reopen,F",
-			Usage: "Same as -f, but will reopen recreated files",
+		&cli.BoolFlag{
+			Name:     "reopen",
+			Aliases:  []string{"F"},
+			Category: cliCategoryRead,
+			Usage:    "Same as -f, but will reopen recreated files",
 		},
-		cli.BoolFlag{
-			Name:  "poll",
-			Usage: "When following a file, poll for changes rather than using inotify",
+		&cli.BoolFlag{
+			Name:     "poll",
+			Category: cliCategoryRead,
+			Usage:    "When following a file, poll for changes rather than using inotify",
 		},
-		cli.BoolFlag{
-			Name:  "posix,p",
-			Usage: "Compile regex as against posix standard",
+		&cli.BoolFlag{
+			Name:     "tail",
+			Aliases:  []string{"t"},
+			Category: cliCategoryRead,
+			Usage:    "When following a file, navigate to the end of the file to skip existing content",
 		},
-		cli.StringFlag{
-			Name:  "match,m",
-			Usage: "Regex to create match groups to summarize on",
-			Value: ".*",
+		&cli.BoolFlag{
+			Name:     "gunzip",
+			Aliases:  []string{"z"},
+			Category: cliCategoryRead,
+			Usage:    "Attempt to decompress file when reading",
 		},
-		cli.StringFlag{
+		&cli.BoolFlag{
+			Name:     "recursive",
+			Aliases:  []string{"R"},
+			Category: cliCategoryRead,
+			Usage:    "Recursively walk a non-globbing path and search for plain-files",
+		},
+		&cli.BoolFlag{
+			Name:     "posix",
+			Aliases:  []string{"p"},
+			Category: cliCategoryMatching,
+			Usage:    "Compile regex as against posix standard",
+		},
+		&cli.StringFlag{
+			Name:     "match,m",
+			Aliases:  []string{"m"},
+			Category: cliCategoryMatching,
+			Usage:    "Regex to create match groups to summarize on",
+			Value:    ".*",
+		},
+		&cli.StringSliceFlag{
+			Name:     "extract",
+			Aliases:  []string{"e"},
+			Category: cliCategoryMatching,
+			Usage:    "Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper",
+			Value:    cli.NewStringSlice("{0}"),
+		},
+		&cli.StringFlag{
 			Name:  "grok,g",
 			Usage: "Overrides -m with a grok expression",
 		},
-		cli.StringSliceFlag{
-			Name:  "extract,e",
-			Usage: "Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper",
-			Value: &cli.StringSlice{"{0}"},
+		&cli.StringSliceFlag{
+			Name:     "ignore",
+			Aliases:  []string{"i"},
+			Category: cliCategoryMatching,
+			Usage:    "Ignore a match given a truthy expression (Can have multiple)",
 		},
-		cli.BoolFlag{
-			Name:  "gunzip,z",
-			Usage: "Attempt to decompress file when reading",
+		&cli.BoolFlag{
+			Name:     "ignore-case",
+			Aliases:  []string{"I"},
+			Category: cliCategoryMatching,
+			Usage:    "Augment regex to be case insensitive",
 		},
-		cli.IntFlag{
-			Name:  "batch",
-			Usage: "Specifies io batching size. Set to 1 for immediate input",
-			Value: 1000,
+		&cli.IntFlag{
+			Name:     "batch",
+			Category: cliCategoryTweaking,
+			Usage:    "Specifies io batching size. Set to 1 for immediate input",
+			Value:    1000,
 		},
-		cli.IntFlag{
-			Name:  "workers,w",
-			Usage: "Set number of data processors",
-			Value: runtime.NumCPU()/2 + 1,
+		&cli.IntFlag{
+			Name:     "batch-buffer",
+			Category: cliCategoryTweaking,
+			Usage:    "Specifies how many batches to read-ahead. Impacts memory usage, can improve performance",
+			Value:    workerCount * 2, // Keep 2 batches ready for each worker
 		},
-		cli.IntFlag{
-			Name:  "readers,wr",
-			Usage: "Sets the number of concurrent readers (Infinite when -f)",
-			Value: 3,
+		&cli.IntFlag{
+			Name:     "workers",
+			Aliases:  []string{"w"},
+			Category: cliCategoryTweaking,
+			Usage:    "Set number of data processors",
+			Value:    workerCount,
 		},
-		cli.StringSliceFlag{
-			Name:  "ignore,i",
-			Usage: "Ignore a match given a truthy expression (Can have multiple)",
-		},
-		cli.BoolFlag{
-			Name:  "recursive,R",
-			Usage: "Recursively walk a non-globbing path and search for plain-files",
+		&cli.IntFlag{
+			Name:     "readers",
+			Aliases:  []string{"wr"},
+			Category: cliCategoryTweaking,
+			Usage:    "Sets the number of concurrent readers (Infinite when -f)",
+			Value:    3,
 		},
 	}
 }

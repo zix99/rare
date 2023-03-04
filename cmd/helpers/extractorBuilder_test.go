@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func TestAdaptingCommandForExtractor(t *testing.T) {
@@ -44,8 +44,8 @@ func TestBuildingExtractorFromContext(t *testing.T) {
 	})
 
 	app := cli.NewApp()
-	app.Commands = []cli.Command{
-		*cmd,
+	app.Commands = []*cli.Command{
+		cmd,
 	}
 
 	app.Run([]string{"app", "test"})

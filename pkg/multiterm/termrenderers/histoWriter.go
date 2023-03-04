@@ -49,8 +49,8 @@ func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 	}
 	needsFullRefresh := false
 
-	if len(key) > s.textSpacing {
-		s.textSpacing = len(key)
+	if klen := color.StrLen(key); klen > s.textSpacing {
+		s.textSpacing = klen
 		needsFullRefresh = true
 	}
 	if val > s.maxVal {
