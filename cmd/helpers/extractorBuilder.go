@@ -160,8 +160,10 @@ func getExtractorFlags() []cli.Flag {
 			Value:    cli.NewStringSlice("{0}"),
 		},
 		&cli.StringFlag{
-			Name:  "grok,g",
-			Usage: "Overrides -m with a grok expression",
+			Name:     "grok",
+			Aliases:  []string{"g"},
+			Category: cliCategoryMatching,
+			Usage:    "Overrides --match with a grok expression",
 		},
 		&cli.StringSliceFlag{
 			Name:     "ignore",
