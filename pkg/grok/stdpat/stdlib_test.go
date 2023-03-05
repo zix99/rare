@@ -1,4 +1,4 @@
-package patterns
+package stdpat
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 
 func TestStandardLibLoading(t *testing.T) {
 	lib := Stdlib()
-	assert.Greater(t, len(lib.patterns), 10)
+	assert.Greater(t, lib.Count(), 10)
 }
 
 func TestLookupCommonExpression(t *testing.T) {

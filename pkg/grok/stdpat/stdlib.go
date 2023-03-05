@@ -1,26 +1,23 @@
-package patterns
+package stdpat
 
 import (
 	"embed"
-	"path/filepath"
+	"rare/pkg/grok/patterns"
 	"rare/pkg/logger"
 )
 
-//go:embed data/*
+//go:embed *.grok
 var patternFiles embed.FS
 
-const patternPath = "data"
+var stdLib *patterns.PatternSet
 
-var stdLib *PatternSet
-
-func Stdlib() *PatternSet {
+func Stdlib() *patterns.PatternSet {
 	if stdLib == nil {
-		stdLib = NewPatternSet()
-		entries, _ := patternFiles.ReadDir(patternPath)
+		stdLib = patterns.NewPatternSet()
+		entries, _ := patternFiles.ReadDir(".")
 		logger.Print(entries)
 		for _, entry := range entries {
-			fullPath := filepath.Join(patternPath, entry.Name())
-			f, _ := patternFiles.Open(fullPath)
+			f, _ := patternFiles.Open(entry.Name())
 			defer f.Close()
 
 			stdLib.LoadPatternFile(f)

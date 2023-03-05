@@ -1,7 +1,7 @@
 package patterns
 
 import (
-	"bufio"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,13 +13,14 @@ func TestPatternSet(t *testing.T) {
 	p.AddPattern("a", "bb")
 	assert.Len(t, p.patterns, 1)
 	assert.Len(t, p.Patterns(), 1)
+	assert.Equal(t, p.Count(), 1)
 }
 
 func TestLoadPatternFile(t *testing.T) {
 	p := NewPatternSet()
 
-	f, _ := patternFiles.Open("data/common")
-	p.LoadPatternFile(bufio.NewReader(f))
+	r := strings.NewReader("anything .*\n# comment\nanother [1-9]*")
+	p.LoadPatternFile(r)
 
-	assert.Greater(t, len(p.patterns), 10)
+	assert.Equal(t, len(p.patterns), 2)
 }

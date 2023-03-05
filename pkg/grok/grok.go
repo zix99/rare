@@ -3,7 +3,7 @@ package grok
 import (
 	"errors"
 	"fmt"
-	"rare/pkg/grok/patterns"
+	"rare/pkg/grok/stdpat"
 	"strings"
 )
 
@@ -16,7 +16,7 @@ type Grok struct {
 }
 
 func New() *Grok {
-	return NewEx(patterns.Stdlib())
+	return NewEx(stdpat.Stdlib())
 }
 
 func NewEx(patterns PatternLookup) *Grok {

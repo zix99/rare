@@ -55,3 +55,7 @@ func (s *PatternSet) Patterns() []string {
 	}
 	return ret
 }
+
+func (s *PatternSet) Count() int {
+	return len(s.patterns)
+}

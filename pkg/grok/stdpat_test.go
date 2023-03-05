@@ -2,7 +2,7 @@ package grok
 
 import (
 	"rare/pkg/fastregex"
-	"rare/pkg/grok/patterns"
+	"rare/pkg/grok/stdpat"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,7 +10,7 @@ import (
 
 func TestAllStdlibPatternsCompile(t *testing.T) {
 	grok := New()
-	for _, k := range patterns.Stdlib().Patterns() {
+	for _, k := range stdpat.Stdlib().Patterns() {
 		pattern, err := grok.RewriteGrokPattern("%{" + k + "}")
 		assert.NoError(t, err, k)
 		_, err = fastregex.Compile(pattern)
