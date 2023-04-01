@@ -30,15 +30,15 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"unless": KeyBuilderFunction(kfUnless),
 	"eq": stringComparator(func(a, b string) string {
 		if a == b {
-			return a
+			return TruthyVal
 		}
-		return ""
+		return FalsyVal
 	}),
 	"neq": stringComparator(func(a, b string) string {
 		if a != b {
-			return a
+			return TruthyVal
 		}
-		return ""
+		return FalsyVal
 	}),
 	"not": KeyBuilderFunction(kfNot),
 	"lt":  arithmaticEqualityHelper(func(a, b float64) bool { return a < b }),

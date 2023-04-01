@@ -83,6 +83,10 @@ func TestIfStatement(t *testing.T) {
 		`{if {0} {1} efg} {if {0} abc} {if {not {0}} a b} {if "" a} {if "" a b}`,
 		"q abc b  b")
 	testExpression(t, mockContext("abc efg"), `{if {eq {0} "abc efg"} beq}`, "beq")
+	testExpression(t, mockContext(), `{if {eq "" ""} true false}`, "true")
+	testExpression(t, mockContext(), `{if {eq "" "abc"} true false}`, "false")
+	testExpression(t, mockContext(), `{if {neq "" "abc"} true false}`, "true")
+	testExpression(t, mockContext(), `{if {neq "" ""} true false}`, "false")
 }
 
 func TestUnlessStatement(t *testing.T) {
