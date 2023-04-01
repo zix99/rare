@@ -20,6 +20,18 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"subi":  arithmaticHelperi(func(a, b int) int { return a - b }),
 	"multi": arithmaticHelperi(func(a, b int) int { return a * b }),
 	"divi":  arithmaticHelperi(func(a, b int) int { return a / b }),
+	"maxi": arithmaticHelperi(func(a, b int) int {
+		if a > b {
+			return a
+		}
+		return b
+	}),
+	"mini": arithmaticHelperi(func(a, b int) int {
+		if a < b {
+			return a
+		}
+		return b
+	}),
 	"sumf":  arithmaticHelperf(func(a, b float64) float64 { return a + b }),
 	"subf":  arithmaticHelperf(func(a, b float64) float64 { return a - b }),
 	"multf": arithmaticHelperf(func(a, b float64) float64 { return a * b }),
