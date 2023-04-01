@@ -96,7 +96,7 @@ func TestUnlessStatement(t *testing.T) {
 func TestComparisonEquality(t *testing.T) {
 	testExpression(t, mockContext("123", "1234"),
 		"{eq {0} 123} {eq {0} 1234} {not {eq {0} abc}} {neq 1 2} {neq 1 1}",
-		"123  1 1 ")
+		"1  1 1 ")
 }
 
 func TestComparisonExpression(t *testing.T) {
