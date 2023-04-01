@@ -12,7 +12,7 @@ import (
 func reduceFunction(c *cli.Context) error {
 	var (
 		accumExprs = c.StringSlice("accumulator")
-		initial    = "0" // TODO
+		initial    = c.String("initial")
 		extra      = c.Bool("extra")
 	)
 
@@ -68,6 +68,11 @@ func reduceCommand() *cli.Command {
 				Name:    "extra",
 				Aliases: []string{"x"},
 				Usage:   "Write out the result keys as well as their values",
+			},
+			&cli.StringFlag{
+				Name:  "initial",
+				Usage: "Specify the initial value for any accumulators",
+				Value: "0",
 			},
 			helpers.SnapshotFlag,
 		},
