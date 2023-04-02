@@ -18,6 +18,8 @@ func reduceFunction(c *cli.Context) error {
 		groupExpr      = c.StringSlice("group")
 		defaultInitial = c.String("initial")
 		table          = c.Bool("table")
+		sort           = c.String("sort")
+		sortReverse    = c.Bool("sort-reverse")
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
@@ -26,18 +28,20 @@ func reduceFunction(c *cli.Context) error {
 
 	aggr := aggregation.NewAccumulatingGroup(stdlib.NewStdKeyBuilder())
 
+	// Set up groups
 	for _, group := range groupExpr {
 		name, val := parseKeyValue(group)
 		if err := aggr.AddGroupExpr(name, val); err != nil {
-			logger.Printf("Error compiling group expression %s: %s", group, err)
+			logger.Fatalf("Error compiling group expression %s: %s", group, err)
 		}
 	}
 
+	// Set up expressions
 	maxKeylen := 0
 	for _, expr := range accumExprs {
 		name, initial, val := parseKeyValInitial(expr, defaultInitial)
 		if err := aggr.AddDataExpr(name, val, initial); err != nil {
-			logger.Printf("Error compiling expression %s: %s", expr, err)
+			logger.Fatalf("Error compiling expression %s: %s", expr, err)
 		} else {
 			if len(name) > maxKeylen {
 				maxKeylen = len(name)
@@ -45,13 +49,25 @@ func reduceFunction(c *cli.Context) error {
 		}
 	}
 
+	// Set up sorting
+	var sorter = sorting.ByContextual()
+	if sortReverse {
+		sorter = sorting.Reverse(sorter)
+	}
+	if sort != "" {
+		if err := aggr.SetSort(sort); err != nil {
+			logger.Fatalf("Error setting sort: %s", err)
+		}
+	}
+
+	// run the aggregation
 	if aggr.GroupColCount() > 0 || table {
 		table := termrenderers.NewTable(vt, 10, 10) // TODO: Undo hardcode
 
 		helpers.RunAggregationLoop(extractor, aggr, func() {
 			cols := append(aggr.GroupCols(), aggr.DataCols()...)
 			table.WriteRow(0, cols...)
-			for i, group := range aggr.Groups(sorting.ByName) {
+			for i, group := range aggr.Groups(sorter) {
 				data := aggr.Data(group)
 				table.WriteRow(i+1, append(group.Parts(), data...)...)
 			}
@@ -113,6 +129,15 @@ func reduceCommand() *cli.Command {
 				Name:  "initial",
 				Usage: "Specify the default initial value for any accumulators that don't specify",
 				Value: "0",
+			},
+			&cli.StringFlag{
+				Name:        "sort",
+				Usage:       "Specify an expression to sort groups by. Will sort result in alphanumeric order",
+				DefaultText: "group key",
+			},
+			&cli.BoolFlag{
+				Name:  "sort-reverse",
+				Usage: "Reverses sort order",
 			},
 			helpers.SnapshotFlag,
 		},

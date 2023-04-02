@@ -37,7 +37,25 @@ func TestAccumGroups(t *testing.T) {
 	accum.Sample(expressions.MakeArray("200", "3"))
 	accum.Sample(expressions.MakeArray("400", "2"))
 
+	assert.Len(t, accum.GroupCols(), 1)
 	assert.Equal(t, 1, accum.GroupColCount())
+	assert.Equal(t, 2, len(accum.data))
+}
+
+func TestMultiGroupCols(t *testing.T) {
+	accum := NewAccumulatingGroup(stdlib.NewStdKeyBuilder())
+
+	accum.AddGroupExpr("test", "{1}")
+	accum.AddGroupExpr("test2", "{bucket {2} 10}")
+	accum.AddDataExpr("sum", "{sumi {.} {2}}", "0")
+	accum.AddDataExpr("mul", "{multi {.} {2}}", "1")
+
+	accum.Sample(expressions.MakeArray("200", "2"))
+	accum.Sample(expressions.MakeArray("200", "3"))
+	accum.Sample(expressions.MakeArray("400", "2"))
+
+	assert.Len(t, accum.GroupCols(), 2)
+	assert.Equal(t, 2, accum.GroupColCount())
 	assert.Equal(t, 2, len(accum.data))
 }
 
@@ -74,4 +92,36 @@ func TestAccumErrorCases(t *testing.T) {
 	accum.AddDataExpr("test", "{sumi {.} {bla}}", "0")
 	accum.Sample("123")
 	assert.Equal(t, accum.Data("")[0], "<BAD-TYPE>")
+}
+
+func TestAccumSort(t *testing.T) {
+	accum := NewAccumulatingGroup(stdlib.NewStdKeyBuilder())
+
+	accum.AddGroupExpr("test", "{1}")
+	accum.AddDataExpr("sum", "{sumi {.} {2}}", "0")
+	accum.AddDataExpr("mul", "{multi {.} {2}}", "1")
+
+	accum.Sample(expressions.MakeArray("200", "2"))
+	accum.Sample(expressions.MakeArray("200", "3"))
+	accum.Sample(expressions.MakeArray("400", "2"))
+	accum.Sample(expressions.MakeArray("800", "1"))
+
+	accum.SetSort("{sum}")
+	assert.Equal(t, []GroupKey{"800", "400", "200"}, accum.Groups(sorting.ByNameSmart))
+
+	accum.SetSort("{.}")
+	assert.Equal(t, []GroupKey{"200", "400", "800"}, accum.Groups(sorting.ByNameSmart))
+
+	accum.SetSort("-{0}")
+	assert.Equal(t, []GroupKey{"800", "400", "200"}, accum.Groups(sorting.ByNameSmart))
+}
+
+func BenchmarkAccumulatorContext(b *testing.B) {
+	ctx := exprAccumulatorContext{
+		current: "123",
+		match:   "1\x002\x003",
+	}
+	for i := 0; i < b.N; i++ {
+		ctx.GetMatch(3)
+	}
 }
