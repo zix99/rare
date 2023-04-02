@@ -3,7 +3,10 @@ package cmd
 import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
+	"rare/pkg/aggregation/sorting"
+	"rare/pkg/expressions/stdlib"
 	"rare/pkg/logger"
+	"rare/pkg/multiterm/termrenderers"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -12,19 +15,28 @@ import (
 func reduceFunction(c *cli.Context) error {
 	var (
 		accumExprs = c.StringSlice("accumulator")
+		groupExpr  = c.StringSlice("group")
 		initial    = c.String("initial")
-		extra      = c.Bool("extra")
+		table      = c.Bool("table")
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
 	batcher := helpers.BuildBatcherFromArguments(c)
 	extractor := helpers.BuildExtractorFromArguments(c, batcher)
 
-	aggr := aggregation.NewExprAccumulatorSet()
+	aggr := aggregation.NewAccumulatingGroup(stdlib.NewStdKeyBuilder())
+
+	for _, group := range groupExpr {
+		name, val := parseKeyValue(group)
+		if err := aggr.AddGroupExpr(name, val); err != nil {
+			logger.Printf("Error compiling group expression %s: %s", group, err)
+		}
+	}
+
 	maxKeylen := 0
 	for _, expr := range accumExprs {
 		name, val := parseKeyValue(expr)
-		if err := aggr.Add(name, val, initial); err != nil {
+		if err := aggr.AddDataExpr(name, val, initial); err != nil {
 			logger.Printf("Error compiling expression %s: %s", expr, err)
 		} else {
 			if len(name) > maxKeylen {
@@ -33,18 +45,31 @@ func reduceFunction(c *cli.Context) error {
 		}
 	}
 
-	helpers.RunAggregationLoop(extractor, aggr, func() {
-		items := aggr.Items()
-		for idx, expr := range items {
-			if extra {
-				vt.WriteForLine(idx, expr.Name+strings.Repeat(" ", maxKeylen-len(expr.Name))+": "+expr.Accum.Value())
-			} else {
-				vt.WriteForLine(idx, expr.Accum.Value())
+	if aggr.GroupColCount() > 0 || table {
+		table := termrenderers.NewTable(vt, 10, 10) // TODO: Undo hardcode
+
+		helpers.RunAggregationLoop(extractor, aggr, func() {
+			cols := append(aggr.GroupCols(), aggr.DataCols()...)
+			table.WriteRow(0, cols...)
+			for i, group := range aggr.Groups(sorting.ByName) {
+				data := aggr.Data(group)
+				table.WriteRow(i+1, append(group.Parts(), data...)...)
 			}
-		}
-		vt.WriteForLine(len(items), helpers.FWriteExtractorSummary(extractor, aggr.ParseErrors()))
-		vt.WriteForLine(len(items)+1, batcher.StatusString())
-	})
+
+			table.WriteFooter(0, helpers.FWriteExtractorSummary(extractor, aggr.ParseErrors()))
+			table.WriteFooter(1, batcher.StatusString())
+		})
+	} else {
+		helpers.RunAggregationLoop(extractor, aggr, func() {
+			items := aggr.Data("")
+			colNames := aggr.DataCols()
+			for idx, expr := range items {
+				vt.WriteForLine(idx, colNames[idx]+strings.Repeat(" ", maxKeylen-len(colNames[idx]))+": "+expr)
+			}
+			vt.WriteForLine(len(items), helpers.FWriteExtractorSummary(extractor, aggr.ParseErrors()))
+			vt.WriteForLine(len(items)+1, batcher.StatusString())
+		})
+	}
 
 	vt.Close()
 
@@ -64,10 +89,8 @@ func reduceCommand() *cli.Command {
 				Aliases: []string{"a"},
 				Usage:   "Specify one or more expressions to execute for each match. `{.}` is the accumulator",
 			},
-			&cli.BoolFlag{
-				Name:    "extra",
-				Aliases: []string{"x"},
-				Usage:   "Write out the result keys as well as their values",
+			&cli.StringSliceFlag{
+				Name: "group",
 			},
 			&cli.StringFlag{
 				Name:  "initial",

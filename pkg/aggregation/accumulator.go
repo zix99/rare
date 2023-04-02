@@ -1,16 +1,30 @@
 package aggregation
 
 import (
+	"errors"
+	"rare/pkg/aggregation/sorting"
 	"rare/pkg/expressions"
-	"rare/pkg/expressions/stdlib"
 	"rare/pkg/stringSplitter"
+	"strings"
 )
 
-// Context to build run expressions that use current value
+type GroupKey string
+
+type accumulatorDataDefn struct {
+	name    string
+	expr    *expressions.CompiledKeyBuilder
+	initial string
+}
+
+type accumulatorGroupDefn struct {
+	name string
+	expr *expressions.CompiledKeyBuilder
+}
+
 type exprAccumulatorContext struct {
-	current string
-	match   string
-	sub     expressions.KeyBuilderContext
+	current   string
+	match     string
+	keyLookup func(string) string
 }
 
 func (s *exprAccumulatorContext) GetMatch(idx int) (ret string) {
@@ -18,7 +32,7 @@ func (s *exprAccumulatorContext) GetMatch(idx int) (ret string) {
 		return s.match
 	}
 
-	// Index 1+, parse the string as if it's a range
+	// Index 1+, parse the string as if it's a range (Without heap alloc)
 	splitter := stringSplitter.Splitter{S: s.match, Delim: expressions.ArraySeparatorString}
 	for i := 0; i < idx; i++ {
 		ret = splitter.Next()
@@ -30,111 +44,162 @@ func (s *exprAccumulatorContext) GetKey(key string) string {
 	if key == "." {
 		return s.current
 	}
-	if s.sub != nil {
-		return s.sub.GetKey(key)
+	if s.keyLookup != nil {
+		return s.keyLookup(key)
 	}
 	return ""
 }
 
-// Basic accumulator that will sample a new value and accumulate it to a current `value`
-type ExprAccumulator struct {
-	expr  *expressions.CompiledKeyBuilder
-	value string
+type AccumulatingGroup struct {
+	data map[GroupKey][]string // group -> columns
+
+	compiler     *expressions.KeyBuilder
+	groupDef     []*accumulatorGroupDefn
+	colDef       []*accumulatorDataDefn // colname -> expr
+	colIdxLookup map[string]int         // name to col-index
 }
 
-var _ Aggregator = &ExprAccumulator{}
+func NewAccumulatingGroup(compiler *expressions.KeyBuilder) *AccumulatingGroup {
+	return &AccumulatingGroup{
+		data:         make(map[GroupKey][]string),
+		colIdxLookup: make(map[string]int),
+		compiler:     compiler,
+	}
+}
 
-func NewExprAccumulator(expr, initial string) (*ExprAccumulator, error) {
-	compiler := stdlib.NewStdKeyBuilder()
-	cExpr, err := compiler.Compile(expr)
+func (s *AccumulatingGroup) AddGroupExpr(name, expr string) error {
+	if len(s.data) > 0 {
+		return errors.New("unable to add new group to existing data")
+	}
+
+	kb, err := s.compiler.Compile(expr)
 	if err != nil {
-		return nil, err
+		return err
+	}
+	s.groupDef = append(s.groupDef, &accumulatorGroupDefn{
+		expr: kb,
+		name: name,
+	})
+	return nil
+}
+
+func (s *AccumulatingGroup) AddDataExpr(name, expr, initial string) error {
+	if len(s.data) > 0 {
+		return errors.New("unable to add new expression to existing data")
 	}
 
-	return &ExprAccumulator{
-		expr:  cExpr,
-		value: initial,
-	}, nil
-}
-
-func (s *ExprAccumulator) SampleEx(element string, subcontext expressions.KeyBuilderContext) {
-	context := exprAccumulatorContext{
-		current: s.value,
-		match:   element,
-		sub:     subcontext,
-	}
-	ret := s.expr.BuildKey(&context)
-	if expressions.Truthy(ret) {
-		s.value = ret
-	}
-}
-
-func (s *ExprAccumulator) Sample(element string) {
-	s.SampleEx(element, nil)
-}
-
-func (s *ExprAccumulator) ParseErrors() uint64 {
-	return 0
-}
-
-func (s *ExprAccumulator) Value() string {
-	return s.value
-}
-
-// Set of accumulators that will accumulate more than just a single value, and allow reference to each other
-
-type ExprAccumulatorPair struct {
-	Name  string
-	Accum *ExprAccumulator
-}
-
-type ExprAccumulatorSet struct {
-	accums []ExprAccumulatorPair
-}
-
-var _ Aggregator = &ExprAccumulatorSet{}
-
-func NewExprAccumulatorSet() *ExprAccumulatorSet {
-	return &ExprAccumulatorSet{}
-}
-
-func (s *ExprAccumulatorSet) Add(name, expr, initial string) error {
-	accum, err := NewExprAccumulator(expr, initial)
+	kb, err := s.compiler.Compile(expr)
 	if err != nil {
 		return err
 	}
 
-	s.accums = append(s.accums, ExprAccumulatorPair{
-		name,
-		accum,
+	s.colDef = append(s.colDef, &accumulatorDataDefn{
+		name:    name,
+		expr:    kb,
+		initial: initial,
 	})
+	s.colIdxLookup[name] = len(s.colDef) - 1
 
 	return nil
 }
 
-func (s *ExprAccumulatorSet) Sample(element string) {
-	for _, accum := range s.accums {
-		accum.Accum.SampleEx(element, s)
+func (s *AccumulatingGroup) Sample(element string) {
+	// Get which group this will belong to
+	groupKey := s.buildGroupKey(element)
+
+	groupData, hasGroup := s.data[groupKey]
+	if !hasGroup {
+		// Create new group & initialize
+		groupData = make([]string, len(s.colDef))
+		for i, colDef := range s.colDef {
+			groupData[i] = colDef.initial
+		}
+		s.data[groupKey] = groupData
+	}
+
+	// Context for expression building
+	ctx := exprAccumulatorContext{
+		match: element,
+		keyLookup: func(key string) string {
+			if idx, ok := s.colIdxLookup[key]; ok {
+				return groupData[idx]
+			}
+			return ""
+		},
+	}
+
+	// Sample each data point in group
+	for idx, dataExpr := range s.colDef {
+		ctx.current = groupData[idx]
+		groupData[idx] = dataExpr.expr.BuildKey(&ctx)
 	}
 }
 
-func (s *ExprAccumulatorSet) ParseErrors() uint64 {
+func (s *AccumulatingGroup) ParseErrors() uint64 {
 	return 0
 }
 
-func (s *ExprAccumulatorSet) Items() []ExprAccumulatorPair {
-	return s.accums
-}
-
-func (s *ExprAccumulatorSet) GetKey(key string) string {
-	for _, ele := range s.accums {
-		if ele.Name == key {
-			return ele.Accum.value
-		}
+func (s *AccumulatingGroup) buildGroupKey(element string) GroupKey {
+	if len(s.groupDef) == 0 {
+		return ""
 	}
-	return ""
+
+	ctx := exprAccumulatorContext{
+		match: element,
+	}
+
+	var sb strings.Builder
+	for i, gexpr := range s.groupDef {
+		if i > 0 {
+			sb.WriteRune(expressions.ArraySeparator)
+		}
+		sb.WriteString(gexpr.expr.BuildKey(&ctx))
+	}
+	return GroupKey(sb.String())
 }
 
-func (s *ExprAccumulatorSet) GetMatch(idx int) string {
-	return ""
+func (s GroupKey) Parts() []string {
+	if s == "" {
+		return make([]string, 0)
+	}
+	return strings.Split(string(s), expressions.ArraySeparatorString)
+}
+
+func (s *AccumulatingGroup) GroupCols() []string {
+	ret := make([]string, len(s.groupDef))
+	for i, gdef := range s.groupDef {
+		ret[i] = gdef.name
+	}
+	return ret
+}
+
+func (s *AccumulatingGroup) DataCols() []string {
+	ret := make([]string, len(s.colDef))
+	for id, def := range s.colDef {
+		ret[id] = def.name
+	}
+	return ret
+}
+
+// All possible values that were found for groups (as GroupKey)
+func (s *AccumulatingGroup) Groups(sort sorting.NameSorter) []GroupKey {
+	ret := make([]GroupKey, 0, len(s.data))
+	for g := range s.data {
+		ret = append(ret, g)
+	}
+	sorting.SortBy(ret, sort, func(x GroupKey) string {
+		return string(x)
+	})
+	return ret
+}
+
+// Number of defined group columns
+func (s *AccumulatingGroup) GroupColCount() int {
+	return len(s.groupDef)
+}
+
+func (s *AccumulatingGroup) Data(groupKey GroupKey) []string {
+	ret := make([]string, len(s.colDef))
+	copy(ret, s.data[groupKey])
+	return ret
 }
