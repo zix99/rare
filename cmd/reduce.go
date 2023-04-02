@@ -4,6 +4,7 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/aggregation/sorting"
+	"rare/pkg/color"
 	"rare/pkg/expressions/stdlib"
 	"rare/pkg/logger"
 	"rare/pkg/multiterm/termrenderers"
@@ -20,6 +21,8 @@ func reduceFunction(c *cli.Context) error {
 		table          = c.Bool("table")
 		sort           = c.String("sort")
 		sortReverse    = c.Bool("sort-reverse")
+		rowCount       = c.Int("rows")
+		colCount       = c.Int("cols")
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
@@ -62,20 +65,39 @@ func reduceFunction(c *cli.Context) error {
 
 	// run the aggregation
 	if aggr.GroupColCount() > 0 || table {
-		table := termrenderers.NewTable(vt, 10, 10) // TODO: Undo hardcode
+		// Table output
+		table := termrenderers.NewTable(vt, colCount, rowCount)
+
+		// write header (will never shift)
+		{
+			rowBuf := make([]string, aggr.ColCount())
+			for i, groupCol := range aggr.GroupCols() {
+				rowBuf[i] = color.Wrap(color.Underline+color.BrightYellow, groupCol)
+			}
+			for i, dataCol := range aggr.DataCols() {
+				rowBuf[aggr.GroupColCount()+i] = color.Wrap(color.Underline+color.BrightBlue, dataCol)
+			}
+			table.WriteRow(0, rowBuf...)
+		}
 
 		helpers.RunAggregationLoop(extractor, aggr, func() {
-			cols := append(aggr.GroupCols(), aggr.DataCols()...)
-			table.WriteRow(0, cols...)
+			// write data
 			for i, group := range aggr.Groups(sorter) {
+				rowBuf := make([]string, aggr.ColCount())
 				data := aggr.Data(group)
-				table.WriteRow(i+1, append(group.Parts(), data...)...)
+				for idx, item := range group.Parts() {
+					rowBuf[idx] = color.Wrap(color.BrightWhite, item)
+				}
+				copy(rowBuf[aggr.GroupColCount():], data)
+				table.WriteRow(i+1, rowBuf...)
 			}
 
+			// write footer
 			table.WriteFooter(0, helpers.FWriteExtractorSummary(extractor, aggr.ParseErrors()))
 			table.WriteFooter(1, batcher.StatusString())
 		})
 	} else {
+		// Simple output
 		helpers.RunAggregationLoop(extractor, aggr, func() {
 			items := aggr.Data("")
 			colNames := aggr.DataCols()
@@ -129,6 +151,21 @@ func reduceCommand() *cli.Command {
 				Name:  "initial",
 				Usage: "Specify the default initial value for any accumulators that don't specify",
 				Value: "0",
+			},
+			&cli.BoolFlag{
+				Name:  "table",
+				Usage: "Force output to be a table, even when there are no groups",
+			},
+			&cli.IntFlag{
+				Name:    "num",
+				Aliases: []string{"rows", "n"},
+				Usage:   "Number of elements to display",
+				Value:   20,
+			},
+			&cli.IntFlag{
+				Name:  "cols",
+				Usage: "Number of columns to display",
+				Value: 10,
 			},
 			&cli.StringFlag{
 				Name:        "sort",

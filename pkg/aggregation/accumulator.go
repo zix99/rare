@@ -250,6 +250,10 @@ func (s *AccumulatingGroup) GroupColCount() int {
 	return len(s.groupDef)
 }
 
+func (s *AccumulatingGroup) ColCount() int {
+	return len(s.groupDef) + len(s.colDef)
+}
+
 func (s *AccumulatingGroup) Data(groupKey GroupKey) []string {
 	ret := make([]string, len(s.colDef))
 	copy(ret, s.data[groupKey])
