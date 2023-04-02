@@ -10,12 +10,12 @@ var (
 
 var commands []*cli.Command = []*cli.Command{
 	filterCommand(),
-	reduceCommand(),
 	histogramCommand(),
 	heatmapCommand(),
 	bargraphCommand(),
 	analyzeCommand(),
 	tabulateCommand(),
+	reduceCommand(),
 	docsCommand(),
 	expressionCommand(),
 }

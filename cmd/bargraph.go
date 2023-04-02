@@ -55,7 +55,8 @@ func bargraphCommand() *cli.Command {
 		the bargraph can collapse and stack data in different formats.  The key data format
 		is {$ a b [c]}, where a is the base-key, b is the optional sub-key, and c is the increment
 		(defaults to 1)`,
-		Action: bargraphFunction,
+		Action:   bargraphFunction,
+		Category: cmdCatVisualize,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:    "stacked",

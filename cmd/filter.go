@@ -68,8 +68,9 @@ func filterCommand() *cli.Command {
 		Usage: "Filter incoming results with search criteria, and output raw matches",
 		Description: `Filters incoming results by a regex, and output the match of a single line
 		or an extracted expression.`,
-		Aliases: []string{"f"},
-		Action:  filterFunction,
+		Aliases:  []string{"f"},
+		Action:   filterFunction,
+		Category: cmdCatAnalyze,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:    "line",

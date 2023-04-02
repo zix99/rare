@@ -124,6 +124,7 @@ func expressionCommand() *cli.Command {
 		ArgsUsage:   "<expression>",
 		Aliases:     []string{"exp"},
 		Action:      expressionFunction,
+		Category:    cmdCatHelp,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:    "benchmark",

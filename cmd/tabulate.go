@@ -107,7 +107,8 @@ func tabulateCommand() *cli.Command {
 		Description: `Summarizes the extracted data as a 2D data table.
 		The expression key data format is {$ a b [c]}, where a is the column key,
 		b is the rowkey, and optionally c is the increment value (Default: 1)`,
-		Action: tabulateFunction,
+		Action:   tabulateFunction,
+		Category: cmdCatVisualize,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "delim",

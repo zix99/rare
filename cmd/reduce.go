@@ -135,7 +135,7 @@ func reduceCommand() *cli.Command {
 		Action:   reduceFunction,
 		Usage:    "Aggregate the results of a query based on an expression, pulling customized summary from the extracted data",
 		Aliases:  []string{"r"},
-		Category: cmdCatAnalyze,
+		Category: cmdCatVisualize,
 		Flags: []cli.Flag{
 			&cli.StringSliceFlag{
 				Name:    "accumulator",
