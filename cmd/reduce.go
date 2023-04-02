@@ -14,10 +14,10 @@ import (
 
 func reduceFunction(c *cli.Context) error {
 	var (
-		accumExprs = c.StringSlice("accumulator")
-		groupExpr  = c.StringSlice("group")
-		initial    = c.String("initial")
-		table      = c.Bool("table")
+		accumExprs     = c.StringSlice("accumulator")
+		groupExpr      = c.StringSlice("group")
+		defaultInitial = c.String("initial")
+		table          = c.Bool("table")
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
@@ -35,7 +35,7 @@ func reduceFunction(c *cli.Context) error {
 
 	maxKeylen := 0
 	for _, expr := range accumExprs {
-		name, val := parseKeyValue(expr)
+		name, initial, val := parseKeyValInitial(expr, defaultInitial)
 		if err := aggr.AddDataExpr(name, val, initial); err != nil {
 			logger.Printf("Error compiling expression %s: %s", expr, err)
 		} else {
@@ -76,6 +76,21 @@ func reduceFunction(c *cli.Context) error {
 	return helpers.DetermineErrorState(batcher, extractor, aggr)
 }
 
+func parseKeyValInitial(s, defaultInitial string) (key, initial, val string) {
+	eqSep := strings.IndexByte(s, '=')
+	if eqSep < 0 {
+		return s, defaultInitial, s
+	}
+	k := s[:eqSep]
+	v := s[eqSep+1:]
+
+	initialSep := strings.IndexByte(k, ':')
+	if initialSep >= 0 {
+		return k[:initialSep], k[initialSep+1:], v
+	}
+	return k, defaultInitial, v
+}
+
 func reduceCommand() *cli.Command {
 	cmd := helpers.AdaptCommandForExtractor(cli.Command{
 		Name:     "reduce",
@@ -87,14 +102,16 @@ func reduceCommand() *cli.Command {
 			&cli.StringSliceFlag{
 				Name:    "accumulator",
 				Aliases: []string{"a"},
-				Usage:   "Specify one or more expressions to execute for each match. `{.}` is the accumulator",
+				Usage:   "Specify one or more expressions to execute for each match. `{.}` is the accumulator. `[name[:initial]=]expr`",
 			},
 			&cli.StringSliceFlag{
-				Name: "group",
+				Name:    "group",
+				Aliases: []string{"g"},
+				Usage:   "Specifies one or more expressions to group on",
 			},
 			&cli.StringFlag{
 				Name:  "initial",
-				Usage: "Specify the initial value for any accumulators",
+				Usage: "Specify the default initial value for any accumulators that don't specify",
 				Value: "0",
 			},
 			helpers.SnapshotFlag,
