@@ -14,6 +14,12 @@ func TestReduce(t *testing.T) {
 	assert.Equal(t, "test: 32\nMatched: 3 / 6\n96 B (0 B/s) \n", out)
 }
 
+func TestReduceBasics(t *testing.T) {
+	testCommandSet(t, reduceCommand(),
+		`-m (\d+) -g {0} -a {0} testdata/log.txt`,
+		`-m (\d+) -g {0} -a a={0} --sort {a} --sort-reverse testdata/log.txt`)
+}
+
 func TestParseKIV(t *testing.T) {
 	k, i, v := parseKeyValInitial("abc", "init")
 	assert.Equal(t, "abc", k)
