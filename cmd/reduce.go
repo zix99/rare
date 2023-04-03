@@ -145,7 +145,7 @@ func reduceCommand() *cli.Command {
 			&cli.StringSliceFlag{
 				Name:    "group",
 				Aliases: []string{"g"},
-				Usage:   "Specifies one or more expressions to group on",
+				Usage:   "Specifies one or more expressions to group on. `[name=]expr",
 			},
 			&cli.StringFlag{
 				Name:  "initial",
