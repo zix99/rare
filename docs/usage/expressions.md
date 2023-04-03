@@ -119,6 +119,14 @@ Evaluates integers using operator from left to right. Requires at least 2 argume
 
 Eg: `{sumi 1 2 3}` will result in `6`
 
+#### Maxi, Mini
+
+Syntax: `{maxi ...}`, `{mini ...}`
+
+Picks the larger or smallest integer, respectively
+
+Eg: `{mini 3 4 1}` will result in `1`
+
 #### Sumf, Subf, Multf, Divf
 
 Syntax: `{sumf ...}`, `{subf ...}`, `{multf ...}`, `{divf ...}`

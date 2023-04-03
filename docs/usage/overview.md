@@ -64,6 +64,7 @@ Aggregator types:
 * `heatmap` will generate a 2D visualization using colored blocks to denote value
 * `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
 * `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
+* `reduce` allows evaluating data using expressions, and grouping/sorting the output
 
 For more details, see [aggregators](aggregators.md), run `rare --help` for usage,
 or look at some [examples](examples.md)

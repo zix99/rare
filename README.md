@@ -9,7 +9,7 @@
 A fast text scanner/regex extractor and realtime summarizer. Quickly search, reformat and visualize text files
 such as logs, csv, json, etc.
 
-Supports various CLI-based graphing and metric formats (filter (grep-like), histogram, table, bargraph, heatmap).
+Supports various CLI-based graphing and metric formats (filter (grep-like), histogram, table, bargraph, heatmap, reduce).
 
 `rare` is a play on "more" and "less", but can also stand for "realtime aggregated regular expressions".
 
@@ -19,7 +19,7 @@ See [rare.zdyn.net](https://rare.zdyn.net) or the [docs/ folder](docs/) for the 
 
 ## Features
 
- * Multiple summary formats including: filter (like grep), histogram, bar graphs, tables, heatmaps, and numerical analysis
+ * Multiple summary formats including: filter (like grep), histogram, bar graphs, tables, heatmaps, reduce, and numerical analysis
  * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
  * Optional gzip decompression (with `-z`)
  * Following `-f` or re-open following `-F` (use `--poll` to poll, and `--tail` to tail)
@@ -41,6 +41,7 @@ Output formats include:
 * `heatmap` will display a color-coded version of the strength of a cell in a dense format
 * `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
 * `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
+* `reduce` allows evaluating data using expressions, and grouping/sorting the output
 
 More details on various output formats and aggregators (including examples) can be found in [aggregators](docs/usage/aggregators.md)
 
