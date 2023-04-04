@@ -176,6 +176,7 @@ func (s *AccumulatingGroup) buildGroupKey(element string) GroupKey {
 	return GroupKey(sb.String())
 }
 
+// Split a group key into its individual parts
 func (s GroupKey) Parts() []string {
 	if s == "" {
 		return make([]string, 0)
@@ -199,6 +200,7 @@ func (s *AccumulatingGroup) DataCols() []string {
 	return ret
 }
 
+// context used to evaluate a row's sort-order
 type accumulatorGroupSortContext struct {
 	groupKey  string
 	rowLookup func(string) string
