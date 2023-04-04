@@ -24,6 +24,7 @@ func TestBasicAccum(t *testing.T) {
 	assert.Len(t, accum.Groups(sorting.ByName), 1)
 	assert.Len(t, accum.DataCols(), 1)
 	assert.Equal(t, "4", accum.Data("")[0])
+	assert.Zero(t, accum.ParseErrors())
 }
 
 func TestAccumGroups(t *testing.T) {
@@ -56,7 +57,17 @@ func TestMultiGroupCols(t *testing.T) {
 
 	assert.Len(t, accum.GroupCols(), 2)
 	assert.Equal(t, 2, accum.GroupColCount())
+	assert.Equal(t, 4, accum.ColCount())
 	assert.Equal(t, 2, len(accum.data))
+	assert.Equal(t, []GroupKey{"200\x000", "400\x000"}, accum.Groups(sorting.ByName))
+}
+
+func TestFaltiGroupMatch(t *testing.T) {
+	accum := NewAccumulatingGroup(stdlib.NewStdKeyBuilder())
+	assert.NoError(t, accum.AddGroupExpr("test", "{badkey}"))
+	accum.Sample("100")
+	assert.Equal(t, 1, accum.GroupColCount())
+	assert.Equal(t, []GroupKey{""}, accum.Groups(sorting.ByName))
 }
 
 func TestAccumSelfReference(t *testing.T) {
@@ -89,9 +100,19 @@ func TestAccumErrorCases(t *testing.T) {
 	assert.Error(t, accum.AddDataExpr("", "{badexpr", ""))
 	assert.Error(t, accum.AddGroupExpr("", "{badexpr"))
 
-	accum.AddDataExpr("test", "{sumi {.} {bla}}", "0")
+	assert.NoError(t, accum.AddDataExpr("test", "{sumi {.} {bla}}", "0"))
+	assert.Error(t, accum.AddDataExpr("test", "{0}", "0")) // Dupe key error
+
+	assert.NoError(t, accum.AddGroupExpr("dupe", "{0}"))
+	assert.Error(t, accum.AddGroupExpr("dupe", "{0}")) // Dupe group
+
+	// Sample
 	accum.Sample("123")
-	assert.Equal(t, accum.Data("")[0], "<BAD-TYPE>")
+	assert.Equal(t, accum.Data("123")[0], "<BAD-TYPE>")
+
+	assert.Error(t, accum.AddDataExpr("real", "{0}", "0"))
+	assert.Error(t, accum.AddGroupExpr("real", "{0}"))
+
 }
 
 func TestAccumSort(t *testing.T) {
@@ -106,14 +127,16 @@ func TestAccumSort(t *testing.T) {
 	accum.Sample(expressions.MakeArray("400", "2"))
 	accum.Sample(expressions.MakeArray("800", "1"))
 
-	accum.SetSort("{sum}")
+	assert.NoError(t, accum.SetSort("{sum}"))
 	assert.Equal(t, []GroupKey{"800", "400", "200"}, accum.Groups(sorting.ByNameSmart))
 
-	accum.SetSort("{.}")
+	assert.NoError(t, accum.SetSort("{.}"))
 	assert.Equal(t, []GroupKey{"200", "400", "800"}, accum.Groups(sorting.ByNameSmart))
 
-	accum.SetSort("-{0}")
+	assert.NoError(t, accum.SetSort("-{0}"))
 	assert.Equal(t, []GroupKey{"800", "400", "200"}, accum.Groups(sorting.ByNameSmart))
+
+	assert.Error(t, accum.SetSort("{0"))
 }
 
 func BenchmarkAccumulatorContext(b *testing.B) {

@@ -113,6 +113,12 @@ func TestArrayReduce(t *testing.T) {
 		`{@reduce {@split {0} " "} "{sumi {0} {1}}" bla}`,
 		"<ARGN>",
 	)
+	testExpression(
+		t,
+		mockContext(expressions.MakeArray("1", "1", "3", "5")),
+		`{@reduce {0} "{sumi {0} {1}}"}`,
+		"10",
+	)
 }
 
 func TestArraySlice(t *testing.T) {
@@ -185,4 +191,16 @@ func TestArrayFilter(t *testing.T) {
 		`{@join {@filter {0}}}`,
 		"<ARGN>",
 	)
+}
+
+// BenchmarkRangeSum-4   	 3456345	       339.7 ns/op	      48 B/op	       1 allocs/op
+func BenchmarkRangeSum(b *testing.B) {
+	exp := NewStdKeyBuilder()
+	ctx := mockContext(expressions.MakeArray("1", "1", "3", "5"))
+
+	c, _ := exp.Compile("{@reduce {0} {sumi {0} {1}}}")
+
+	for i := 0; i < b.N; i++ {
+		c.BuildKey(ctx)
+	}
 }

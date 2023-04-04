@@ -227,10 +227,10 @@ can group and sort results.
 
 1. Extract data from a regex using `--match` (`-m`)
 1. Optionally group the data into buckets using `--group` (`-g`). Can use `key=value` format to give column a name
-1. Specify one or more "accumulators", which are expressions. `{.}` represents the current value, so for example, `{sumi {.} {1}}` as the match `{1}` to the current value.
+1. Specify one or more "accumulators", which are expressions. `{.}` represents the current value, so for example, `{sumi {.} {1}}` adds the match `{1}` to the current value.
     1. Can specify only expression, `key=expression` format or `key:initial=expression`.
-    1. Can reference past expressions by key, eg `{divi {key1} {key2}}`
-1. Optionally `--sort` the data based on an expression (or reference an accumulator). eg. `--sort {key1}`. Can add `--sort-reverse`
+    1. Can reference past accumulators by key, eg `{divi {key1} {key2}}`
+1. Optionally `--sort` the data based on an expression or reference to an accumulator. eg. `--sort {key1}`. Can reverse with `--sort-reverse` flag
 
 ### Example
 
