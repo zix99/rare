@@ -148,3 +148,28 @@ func BenchmarkAccumulatorContext(b *testing.B) {
 		ctx.GetMatch(3)
 	}
 }
+
+// BenchmarkGroupKey-4   	33043279	        32.26 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkGroupKey(b *testing.B) {
+	accum := NewAccumulatingGroup(stdlib.NewStdKeyBuilder())
+	accum.AddGroupExpr("key", "{1}")
+
+	ctx := exprAccumulatorContext{
+		match: "123",
+	}
+
+	for i := 0; i < b.N; i++ {
+		accum.buildGroupKey("hello\x00thar", &ctx)
+	}
+}
+
+// BenchmarkSample-4   	 4278193	       278.8 ns/op	      51 B/op	       2 allocs/op
+func BenchmarkSample(b *testing.B) {
+	accum := NewAccumulatingGroup(stdlib.NewStdKeyBuilder())
+	accum.AddGroupExpr("key", "{0}")
+	accum.AddDataExpr("max", "{maxi {.} {0}}", "0")
+
+	for i := 0; i < b.N; i++ {
+		accum.Sample("123")
+	}
+}

@@ -58,6 +58,8 @@ type AccumulatingGroup struct {
 	colDef       []*accumulatorDataDefn // colname -> expr
 	colIdxLookup map[string]int         // name to col-index
 	sortExpr     *expressions.CompiledKeyBuilder
+
+	context *exprAccumulatorContext
 }
 
 func NewAccumulatingGroup(compiler *expressions.KeyBuilder) *AccumulatingGroup {
@@ -65,6 +67,7 @@ func NewAccumulatingGroup(compiler *expressions.KeyBuilder) *AccumulatingGroup {
 		data:         make(map[GroupKey][]string),
 		colIdxLookup: make(map[string]int),
 		compiler:     compiler,
+		context:      &exprAccumulatorContext{},
 	}
 }
 
@@ -122,34 +125,38 @@ func (s *AccumulatingGroup) SetSort(expr string) error {
 }
 
 func (s *AccumulatingGroup) Sample(element string) {
+	// init shared context
+	// this is not multithreaded code! So this saves an alloc
+	ctx := s.context
+	ctx.match = element
+	ctx.current = ""
+	ctx.keyLookup = nil
+
 	// Get which group this will belong to
-	groupKey := s.buildGroupKey(element)
+	groupKey := s.buildGroupKey(element, ctx)
 
-	groupData, hasGroup := s.data[groupKey]
-	if !hasGroup {
-		// Create new group & initialize
-		groupData = make([]string, len(s.colDef))
+	rowData, hasRow := s.data[groupKey]
+	if !hasRow {
+		// Create new row & initialize
+		rowData = make([]string, len(s.colDef))
 		for i, colDef := range s.colDef {
-			groupData[i] = colDef.initial
+			rowData[i] = colDef.initial
 		}
-		s.data[groupKey] = groupData
+		s.data[groupKey] = rowData
 	}
 
-	// Context for expression building
-	ctx := exprAccumulatorContext{
-		match: element,
-		keyLookup: func(key string) string {
-			if idx, ok := s.colIdxLookup[key]; ok {
-				return groupData[idx]
-			}
-			return ""
-		},
+	// Now that row are defined, allow retrieving them
+	ctx.keyLookup = func(key string) string {
+		if idx, ok := s.colIdxLookup[key]; ok {
+			return rowData[idx]
+		}
+		return ""
 	}
 
-	// Sample each data point in group
+	// Sample each data point in row group
 	for idx, dataExpr := range s.colDef {
-		ctx.current = groupData[idx]
-		groupData[idx] = dataExpr.expr.BuildKey(&ctx)
+		ctx.current = rowData[idx]
+		rowData[idx] = dataExpr.expr.BuildKey(ctx)
 	}
 }
 
@@ -157,13 +164,13 @@ func (s *AccumulatingGroup) ParseErrors() uint64 {
 	return 0
 }
 
-func (s *AccumulatingGroup) buildGroupKey(element string) GroupKey {
+func (s *AccumulatingGroup) buildGroupKey(element string, ctx expressions.KeyBuilderContext) GroupKey {
 	if len(s.groupDef) == 0 {
 		return ""
 	}
 
-	ctx := exprAccumulatorContext{
-		match: element,
+	if len(s.groupDef) == 1 {
+		return GroupKey(s.groupDef[0].expr.BuildKey(ctx))
 	}
 
 	var sb strings.Builder
@@ -171,7 +178,7 @@ func (s *AccumulatingGroup) buildGroupKey(element string) GroupKey {
 		if i > 0 {
 			sb.WriteRune(expressions.ArraySeparator)
 		}
-		sb.WriteString(gexpr.expr.BuildKey(&ctx))
+		sb.WriteString(gexpr.expr.BuildKey(ctx))
 	}
 	return GroupKey(sb.String())
 }
