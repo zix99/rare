@@ -23,6 +23,7 @@ func TestBasicAccum(t *testing.T) {
 	assert.Len(t, accum.GroupCols(), 0)
 	assert.Len(t, accum.Groups(sorting.ByName), 1)
 	assert.Len(t, accum.DataCols(), 1)
+	assert.Equal(t, accum.DataCount(), 1)
 	assert.Equal(t, "4", accum.Data("")[0])
 	assert.Zero(t, accum.ParseErrors())
 }
@@ -41,6 +42,7 @@ func TestAccumGroups(t *testing.T) {
 	assert.Len(t, accum.GroupCols(), 1)
 	assert.Equal(t, 1, accum.GroupColCount())
 	assert.Equal(t, 2, len(accum.data))
+	assert.Equal(t, 2, accum.DataCount())
 }
 
 func TestMultiGroupCols(t *testing.T) {

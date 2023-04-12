@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/aggregation/sorting"
@@ -93,7 +94,8 @@ func reduceFunction(c *cli.Context) error {
 			}
 
 			// write footer
-			table.WriteFooter(0, helpers.FWriteExtractorSummary(extractor, aggr.ParseErrors()))
+			table.WriteFooter(0, helpers.FWriteExtractorSummary(extractor, aggr.ParseErrors(),
+				fmt.Sprintf("(R: %d; C: %d)", aggr.DataCount(), aggr.ColCount())))
 			table.WriteFooter(1, batcher.StatusString())
 		})
 	} else {
@@ -140,12 +142,12 @@ func reduceCommand() *cli.Command {
 			&cli.StringSliceFlag{
 				Name:    "accumulator",
 				Aliases: []string{"a"},
-				Usage:   "Specify one or more expressions to execute for each match. `{.}` is the accumulator. `[name[:initial]=]expr`",
+				Usage:   "Specify one or more expressions to execute for each match. `{.}` is the accumulator. Syntax: `[name[:initial]=]expr`",
 			},
 			&cli.StringSliceFlag{
 				Name:    "group",
 				Aliases: []string{"g"},
-				Usage:   "Specifies one or more expressions to group on. `[name=]expr",
+				Usage:   "Specifies one or more expressions to group on. Syntax: `[name=]expr`",
 			},
 			&cli.StringFlag{
 				Name:  "initial",
@@ -181,10 +183,18 @@ func reduceCommand() *cli.Command {
 	})
 
 	// Rewrite the default extraction to output array rather than {0} match
-	for _, flag := range cmd.Flags {
-		if slice, ok := flag.(*cli.StringSliceFlag); ok && slice.Name == "extract" {
-			slice.Value = cli.NewStringSlice("{@}")
-			break
+	{
+		didInject := false
+		for _, flag := range cmd.Flags {
+			if slice, ok := flag.(*cli.StringSliceFlag); ok && slice.Name == "extract" {
+				slice.Value = cli.NewStringSlice("{@}")
+				didInject = true
+				break
+			}
+		}
+
+		if !didInject { // To catch issues in tests
+			panic("Unable to inject extract change")
 		}
 	}
 
