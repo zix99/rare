@@ -158,6 +158,10 @@ func TestArithmaticError(t *testing.T) {
 	assert.Equal(t, "<ARGN> <BAD-TYPE> <BAD-TYPE> <BAD-TYPE>", key)
 }
 
+func TestMaxMin(t *testing.T) {
+	testExpression(t, mockContext(), `{maxi 1 1} {maxi 1 2} {maxi 5 1} {mini 1 1} {mini 1 2} {mini 5 1}`, "1 2 5 1 1 1")
+}
+
 func TestArithmaticf(t *testing.T) {
 	kb, _ := NewStdKeyBuilder().Compile("{sumf {1} {4}} {multf {1} 2} {divf {1} 2} {subf {1} 10}")
 	key := kb.BuildKey(&testFuncContext)

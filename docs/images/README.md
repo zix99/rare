@@ -3,7 +3,7 @@
 ## Commands
 
 ```bash
-nvm use ---lts
+nvm use --lts
 npm install -g terminalizer
 terminalizer record -k output.yml
 terminalizer render -o temp.gif output.yml
@@ -65,5 +65,8 @@ rare heatmap -m '\[(.+?)\].*" (\d+)' -e "{timeattr {time {1}} yearweek}" -e "{2}
 ### Analyze bytes sent, only looking at 200's
 
 rare analyze -m '(\d{3}) (\d+)' -e '{2}' -i '{neq {1} 200}' access.log
+
+### Reduce http data
+rare reduce -m "(\d{3}) (\d+)" -g "http={1}" -a "total={sumi {.} {2}}" -a "count={sumi {.} 1}" -a "avg={divi {total} {count}}" --sort="-{avg}" access.log
 
 ```

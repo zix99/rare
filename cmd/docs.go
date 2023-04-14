@@ -70,6 +70,7 @@ func docsCommand() *cli.Command {
 		Usage:     "Access detailed documentation",
 		ArgsUsage: "[doc]",
 		Action:    docsFunction,
+		Category:  cmdCatHelp,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:    "no-pager",

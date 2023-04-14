@@ -83,7 +83,8 @@ func analyzeCommand() *cli.Command {
 		Description: `Treat every extracted expression as a numerical input, and run analysis
 		on that input.  Will extract mean, median, mode, min, max.  If specifying --extra
 		will also extract std deviation, and quantiles`,
-		Action: analyzeFunction,
+		Action:   analyzeFunction,
+		Category: cmdCatAnalyze,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:    "extra",

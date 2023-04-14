@@ -89,6 +89,7 @@ func histogramCommand() *cli.Command {
 		Action:    histoFunction,
 		Aliases:   []string{"histo", "h"},
 		ArgsUsage: helpers.DefaultArgumentDescriptor,
+		Category:  cmdCatVisualize,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:    "all",

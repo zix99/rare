@@ -211,6 +211,49 @@ Matched: 1,035,666 / 1,035,666 (R: 8; C: 61)
 
 ![Gif of heatmap](../images/heatmap.gif)
 
+## Reduce
+
+```
+rare help reduce
+```
+
+### Summary
+
+Create a set of values or table based on an expression that accumulates results.  More powerful
+than table or histogram because it can interpret data in multiple ways in a single output.  Also
+can group and sort results.
+
+**Usage:**
+
+1. Extract data from a regex using `--match` (`-m`)
+1. Optionally group the data into buckets using `--group` (`-g`). Can use `key=value` format to give column a name
+1. Specify one or more "accumulators", which are expressions. `{.}` represents the current value, so for example, `{sumi {.} {1}}` adds the match `{1}` to the current value.
+    1. Can specify only expression, `key=expression` format or `key:initial=expression`.
+    1. Can reference past accumulators by key, eg `{divi {key1} {key2}}`
+1. Optionally `--sort` the data based on an expression or reference to an accumulator. eg. `--sort {key1}`. Can reverse with `--sort-reverse` flag
+
+### Example
+
+```bash
+$ rare reduce -m "(\d{3}) (\d+)" -g "http={1}" -a "total={sumi {.} {2}}" \
+    -a "count={sumi {.} 1}" -a "avg={divi {total} {count}}" \
+    --sort="-{avg}" access.log 
+http total      count  avg
+206  260976     6      43496
+200  1481979390 318003 4660
+404  275969007  686541 401
+405  279264     708    394
+301  3885       21     185
+400  5027469    30165  166
+304  0          48     0
+408  0          174    0
+Matched: 1,035,666 / 1,035,666
+```
+
+![Gif of reduce](../images/rare-reduce.gif)
+
+---
+
 ## Sorting
 
 Many of the aggregators support changing the order in which the data is displayed in. You

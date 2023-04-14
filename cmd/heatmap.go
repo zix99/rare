@@ -61,7 +61,8 @@ func heatmapCommand() *cli.Command {
 		Description: `Creates a dense 2D visual of extracted data.  Each character
 		represents a single data-point, and can create an alternative visualization to
 		a table.  Unicode and color support required for effective display`,
-		Action: heatmapFunction,
+		Action:   heatmapFunction,
+		Category: cmdCatVisualize,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "delim",
