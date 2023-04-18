@@ -47,7 +47,7 @@ func (s *BarGraph) SetKeys(keyItems ...string) {
 		sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
 		for idx, item := range keyItems {
 			sb.WriteString("  ")
-			sb.WriteString(color.Wrap(color.GroupColors[idx%len(color.GroupColors)], termunicode.BarString(1, 1, 1)))
+			sb.WriteString(termunicode.BarKey(idx))
 			sb.WriteString(" ")
 			sb.WriteString(item)
 		}
@@ -172,11 +172,8 @@ func (s *BarGraph) writeBarStacked(idx int, key string, vals ...int64) {
 		s.maxRows = maxRow
 	}
 
-	for i := 0; i < len(vals); i++ {
-		color.Write(&sb, color.GroupColors[i%len(color.GroupColors)], func(w io.StringWriter) {
-			termunicode.BarWriteFull(w, vals[i], s.maxLineVal, int64(s.BarSize))
-		})
-	}
+	termunicode.BarWriteStacked(&sb, s.maxLineVal, int64(s.BarSize), vals...)
+
 	sb.WriteString("  ")
 	sb.WriteString(humanize.Hi(total))
 	s.writer.WriteForLine(line, sb.String())
