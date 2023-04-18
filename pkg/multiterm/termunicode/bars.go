@@ -10,6 +10,8 @@ const nonUnicodeBlock rune = '|'
 
 const fullBlock rune = '\u2588'
 
+var barColors = color.GroupColors
+
 var barUnicode = [...]rune{
 	'\u0000',
 	'\u258f',
@@ -64,7 +66,7 @@ func BarKeyChar(stacked bool, idx int) string {
 		if UnicodeEnabled {
 			blockChar = fullBlock
 		}
-		return color.Wrap(color.GroupColors[idx%len(color.GroupColors)], string(blockChar))
+		return color.Wrap(barColors[idx%len(barColors)], string(blockChar))
 	} else {
 		if stacked {
 			return string(barAscii[idx%len(barAscii)])
@@ -116,7 +118,7 @@ func BarWriteStacked(w io.StringWriter, maxVal, maxLen int64, vals ...int64) {
 		}
 
 		for i := 0; i < len(vals); i++ {
-			color.Write(w, color.GroupColors[i%len(color.GroupColors)], func(w io.StringWriter) {
+			color.Write(w, barColors[i%len(barColors)], func(w io.StringWriter) {
 				barWriteRunes(w, blockChar, vals[i], maxVal, maxLen)
 			})
 		}

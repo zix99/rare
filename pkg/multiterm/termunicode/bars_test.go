@@ -34,7 +34,7 @@ func TestWriteBarFallbacks(t *testing.T) {
 }
 
 func TestWriteBarStacked(t *testing.T) {
-	defer testutil.RevertGlobals()
+	defer testutil.RestoreGlobals()
 	testutil.SwitchGlobal(&UnicodeEnabled, false)
 	testutil.SwitchGlobal(&color.Enabled, false)
 
@@ -58,6 +58,6 @@ func TestWriteBarStacked(t *testing.T) {
 }
 
 func TestBarKeyChar(t *testing.T) {
-	defer testutil.RevertGlobals()
+	defer testutil.RestoreGlobals()
 	testutil.SwitchGlobal(&color.Enabled, true)
 }

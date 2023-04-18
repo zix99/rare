@@ -13,7 +13,7 @@ func TestGlobalStore(t *testing.T) {
 	assert.Equal(t, 1, glob)
 	SwitchGlobal(&glob, 2)
 	assert.Equal(t, 2, glob)
-	RevertGlobals()
+	RestoreGlobals()
 
 	assert.Equal(t, 3, glob)
 }

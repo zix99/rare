@@ -35,7 +35,7 @@ func TestBargraphStackedRendering(t *testing.T) {
 	bg.WriteBar(1, "tes2", 1, 2)
 	bg.WriteFooter(0, "abc")
 
-	assert.Equal(t, "        █ a  █ b", v.Get(0))
+	assert.Equal(t, "        0 a  1 b", v.Get(0))
 	assert.Equal(t, "test  0000000000000000111111111111111111111111111111111  3", v.Get(1))
 	assert.Equal(t, "tes2  0000000000000000111111111111111111111111111111111  3", v.Get(2))
 	assert.Equal(t, "abc", v.Get(3))
@@ -71,7 +71,7 @@ func TestBargraphUnicode(t *testing.T) {
 	bg.WriteBar(2, "✤✥✦a", 1, 2)
 	bg.WriteFooter(0, "abc")
 
-	assert.Equal(t, "    █ ✤  █ b", v.Get(0))
+	assert.Equal(t, "    0 ✤  1 b", v.Get(0))
 	assert.Equal(t, "test  0000000000000000111111111111111111111111111111111  3", v.Get(1))
 	assert.Equal(t, "tes2  0000000000000000111111111111111111111111111111111  3", v.Get(2))
 	assert.Equal(t, "✤✥✦a  0000000000000000111111111111111111111111111111111  3", v.Get(3))
