@@ -10,8 +10,6 @@ const nonUnicodeBlock rune = '|'
 
 const fullBlock rune = '\u2588'
 
-var barColors = color.GroupColors
-
 var barUnicode = [...]rune{
 	'\u0000',
 	'\u258f',
@@ -58,23 +56,6 @@ func barWriteRunes(w io.StringWriter, blockChar rune, val, maxVal, maxLen int64)
 	}
 }
 
-// Return the character to be used for a bargraph given the global context, and bar context
-// useful for writing a key
-func BarKeyChar(stacked bool, idx int) string {
-	if color.Enabled {
-		var blockChar rune = nonUnicodeBlock
-		if UnicodeEnabled {
-			blockChar = fullBlock
-		}
-		return color.Wrap(barColors[idx%len(barColors)], string(blockChar))
-	} else {
-		if stacked {
-			return string(barAscii[idx%len(barAscii)])
-		}
-		return string(fullBlock)
-	}
-}
-
 // BarWriteFull does not write partial bars to the end. Useful for stacking
 func BarWriteFull(w io.StringWriter, val, maxVal, maxLen int64) {
 	var blockChar rune = nonUnicodeBlock
@@ -109,29 +90,55 @@ func BarWrite(w io.StringWriter, val, maxVal, maxLen int64) {
 	}
 }
 
+// BarWrite, but to a string
+func BarString(val, maxVal, maxLen int64) string {
+	var sb strings.Builder
+	BarWrite(&sb, val, maxVal, maxLen)
+	return sb.String()
+}
+
+/*
+Draws various bars. Because of various outputs, there are different styles:
+- Color, Unicode: Uses full/partial unicode blocks, with coloring to stack or
+- NoCol, Unicode: Uses blocks if not stacked, otherwise ascii digits if stacked
+- NoCol, NoUncid: Uses block-sub if not stacked, otherwise ascii digits
+- Color, NoUnicd: Uses blocks with sub-char in all cases
+*/
+
+// Return the character+color to be used for a bargraph given the global context, and bar context
+// useful for writing a key
+func BarKey(idx int) string {
+	var blockChar rune = nonUnicodeBlock
+	if UnicodeEnabled {
+		blockChar = fullBlock
+	}
+
+	if color.Enabled {
+		return color.Wrap(color.GroupColors[idx%len(color.GroupColors)], string(blockChar))
+	} else {
+		return string(barAscii[idx%len(barAscii)])
+	}
+}
+
 // Write a bar with a series of values, stacked with runes based on the global context
 func BarWriteStacked(w io.StringWriter, maxVal, maxLen int64, vals ...int64) {
 	if color.Enabled {
+		// Have color, so use it as the 'key'
+
 		var blockChar rune = nonUnicodeBlock
 		if UnicodeEnabled {
 			blockChar = fullBlock
 		}
 
 		for i := 0; i < len(vals); i++ {
-			color.Write(w, barColors[i%len(barColors)], func(w io.StringWriter) {
+			color.Write(w, color.GroupColors[i%len(color.GroupColors)], func(w io.StringWriter) {
 				barWriteRunes(w, blockChar, vals[i], maxVal, maxLen)
 			})
 		}
 	} else {
+		// No color, so must use ascii char
 		for i := 0; i < len(vals); i++ {
 			barWriteRunes(w, barAscii[i%len(barAscii)], vals[i], maxVal, maxLen)
 		}
 	}
-}
-
-// BarWrite, but to a string
-func BarString(val, maxVal, maxLen int64) string {
-	var sb strings.Builder
-	BarWrite(&sb, val, maxVal, maxLen)
-	return sb.String()
 }

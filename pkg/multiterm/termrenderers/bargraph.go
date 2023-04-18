@@ -47,7 +47,7 @@ func (s *BarGraph) SetKeys(keyItems ...string) {
 		sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
 		for idx, item := range keyItems {
 			sb.WriteString("  ")
-			sb.WriteString(termunicode.BarKeyChar(s.Stacked, idx))
+			sb.WriteString(termunicode.BarKey(idx))
 			sb.WriteString(" ")
 			sb.WriteString(item)
 		}

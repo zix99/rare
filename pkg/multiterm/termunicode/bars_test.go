@@ -59,5 +59,20 @@ func TestWriteBarStacked(t *testing.T) {
 
 func TestBarKeyChar(t *testing.T) {
 	defer testutil.RestoreGlobals()
+
+	testutil.SwitchGlobal(&color.Enabled, false)
+	testutil.SwitchGlobal(&UnicodeEnabled, false)
+	assert.Equal(t, "0", BarKey(0))
+
 	testutil.SwitchGlobal(&color.Enabled, true)
+	testutil.SwitchGlobal(&UnicodeEnabled, false)
+	assert.Equal(t, "\x1b[31m|\x1b[0m", BarKey(0))
+
+	testutil.SwitchGlobal(&color.Enabled, false)
+	testutil.SwitchGlobal(&UnicodeEnabled, true)
+	assert.Equal(t, "0", BarKey(0))
+
+	testutil.SwitchGlobal(&color.Enabled, true)
+	testutil.SwitchGlobal(&UnicodeEnabled, true)
+	assert.Equal(t, "\x1b[31m█\x1b[0m", BarKey(0))
 }

@@ -17,7 +17,7 @@ func TestBargraphRendering(t *testing.T) {
 	bg.WriteBar(1, "tes2", 1, 3)
 	bg.WriteFooter(0, "abc")
 
-	assert.Equal(t, "        █ a  █ b", v.Get(0))
+	assert.Equal(t, "        0 a  1 b", v.Get(0))
 	assert.Equal(t, "test  ████████████████▊ 1", v.Get(1))
 	assert.Equal(t, "      █████████████████████████████████▍ 2", v.Get(2))
 	assert.Equal(t, "tes2  ████████████████▊ 1", v.Get(3))
@@ -52,7 +52,7 @@ func TestBargraphBadSubkeys(t *testing.T) {
 	bg.WriteBar(2, "tes2")
 	bg.WriteFooter(0, "abc")
 
-	assert.Equal(t, "        █ a", v.Get(0))
+	assert.Equal(t, "        0 a", v.Get(0))
 	assert.Equal(t, "test  ████████████████▊ 1", v.Get(1))
 	assert.Equal(t, "tes2  ████████████████▊ 1", v.Get(2))
 	assert.Equal(t, "      ██████████████████████████████████████████████████ 3", v.Get(3))
