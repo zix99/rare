@@ -26,13 +26,13 @@ func kfBucket(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 	bucketSize, err := strconv.Atoi(EvalStageOrDefault(args[1], ""))
 	if err != nil {
-		return stageError(ErrTypeInt)
+		return stageError(ErrNum)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(args[0](context))
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 
 		return strconv.Itoa((val / bucketSize) * bucketSize)
@@ -48,14 +48,14 @@ func kfClamp(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	max, maxErr := strconv.Atoi(EvalStageOrDefault(args[2], ""))
 
 	if minErr != nil || maxErr != nil {
-		return stageError(ErrTypeInt)
+		return stageError(ErrNum)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		arg0 := args[0](context)
 		val, err := strconv.Atoi(arg0)
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 
 		if val < min {
@@ -75,7 +75,7 @@ func kfExpBucket(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(args[0](context))
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 		logVal := int(math.Log10(float64(val)))
 

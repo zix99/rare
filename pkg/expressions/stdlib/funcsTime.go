@@ -153,7 +153,7 @@ func kfTimeFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		strUnixTime := args[0](context)
 		unixTime, err := strconv.ParseInt(strUnixTime, 10, 64)
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 
 		t := time.Unix(unixTime, 0).In(tz)
@@ -173,7 +173,7 @@ func kfDuration(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 		duration, err := time.ParseDuration(strDuration)
 		if err != nil {
-			return ErrorType
+			return ErrorParsing
 		}
 
 		return strconv.FormatInt(int64(duration.Seconds()), 10)
@@ -189,7 +189,7 @@ func kfDurationFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		secs, err := strconv.ParseInt(args[0](context), 10, 64)
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 
 		return (time.Duration(secs) * time.Second).String()
@@ -279,7 +279,7 @@ func kfTimeAttr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		unixTime, err := strconv.ParseInt(args[0](context), 10, 64)
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 
 		t := time.Unix(unixTime, 0).In(tz)

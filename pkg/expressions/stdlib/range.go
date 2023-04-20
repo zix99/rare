@@ -79,7 +79,7 @@ func kfArraySelect(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 	index, err := strconv.Atoi(EvalStageOrDefault(args[1], ""))
 	if err != nil {
-		return stageError(ErrTypeInt)
+		return stageError(ErrNum)
 	}
 
 	return func(context KeyBuilderContext) string {

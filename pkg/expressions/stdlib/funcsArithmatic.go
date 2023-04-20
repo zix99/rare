@@ -14,13 +14,13 @@ func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			final, err := strconv.Atoi(args[0](context))
 			if err != nil {
-				return ErrorType
+				return ErrorNum
 			}
 
 			for i := 1; i < len(args); i++ {
 				val, err := strconv.Atoi(args[i](context))
 				if err != nil {
-					return ErrorType
+					return ErrorNum
 				}
 				final = equation(final, val)
 			}
@@ -39,13 +39,13 @@ func arithmaticHelperf(equation func(float64, float64) float64) KeyBuilderFuncti
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			final, err := strconv.ParseFloat(args[0](context), 64)
 			if err != nil {
-				return ErrorType
+				return ErrorNum
 			}
 
 			for i := 1; i < len(args); i++ {
 				val, err := strconv.ParseFloat(args[i](context), 64)
 				if err != nil {
-					return ErrorType
+					return ErrorNum
 				}
 				final = equation(final, val)
 			}

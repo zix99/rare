@@ -17,7 +17,7 @@ func csvItemEncode(s string) string {
 
 func kfCsv(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) == 0 {
-		return stageLiteral(""), nil
+		return stageLiteral("")
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		var sb strings.Builder

@@ -30,7 +30,7 @@ func kfRepeat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		count, err := strconv.Atoi(args[1](context))
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 		return strings.Repeat(char, count)
 	}), nil
@@ -44,17 +44,17 @@ func kfBar(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 	maxVal, err := strconv.ParseInt(EvalStageOrDefault(args[1], ""), 10, 64)
 	if err != nil {
-		return stageError(ErrTypeInt)
+		return stageError(ErrNum)
 	}
 	maxLen, err := strconv.ParseInt(EvalStageOrDefault(args[2], ""), 10, 64)
 	if err != nil {
-		return stageError(ErrTypeInt)
+		return stageError(ErrNum)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.ParseInt(args[0](context), 10, 64)
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 		return termunicode.BarString(val, maxVal, maxLen)
 	}), nil

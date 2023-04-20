@@ -32,11 +32,11 @@ func arithmaticEqualityHelper(test func(float64, float64) bool) KeyBuilderFuncti
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			left, err := strconv.ParseFloat(args[0](context), 64)
 			if err != nil {
-				return ErrorType
+				return ErrorNum
 			}
 			right, err := strconv.ParseFloat(args[1](context), 64)
 			if err != nil {
-				return ErrorType
+				return ErrorNum
 			}
 
 			if test(left, right) {

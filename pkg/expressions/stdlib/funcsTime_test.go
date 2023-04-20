@@ -195,7 +195,7 @@ func BenchmarkTimeParseExpression(b *testing.B) {
 		func(kbc expressions.KeyBuilderContext) string {
 			return kbc.GetMatch(0)
 		},
-		stageLiteral("auto"),
+		literal("auto"),
 	})
 	for i := 0; i < b.N; i++ {
 		stage(&expressions.KeyBuilderContextArray{
