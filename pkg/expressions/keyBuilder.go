@@ -18,6 +18,28 @@ type CompiledKeyBuilder struct {
 	stages []KeyBuilderStage
 }
 
+type CompileErrors struct {
+	errs []error
+}
+
+func (s *CompileErrors) Error() string {
+	if len(s.errs) == 1 {
+		return s.errs[0].Error()
+	}
+	var sb strings.Builder
+	sb.WriteString("Compile Errors:\n")
+	for _, e := range s.errs {
+		sb.WriteString("  ")
+		sb.WriteString(e.Error())
+		sb.WriteString("\n")
+	}
+	return sb.String()
+}
+
+func (s *CompileErrors) Unwrap() error {
+	return s.errs[0]
+}
+
 // NewKeyBuilder creates a new KeyBuilder
 func NewKeyBuilderEx(optimize bool) *KeyBuilder {
 	kb := &KeyBuilder{
@@ -38,11 +60,14 @@ func (s *KeyBuilder) Funcs(funcs map[string]KeyBuilderFunction) {
 	}
 }
 
-// Compile builds a new key-builder
+// Compile builds a new key-builder, returning error(s) on build issues
+// if the CompiledKeyBuilder is not nil, then something is still useable (albeit may have problems)
 func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 	kb := &CompiledKeyBuilder{
 		stages: make([]KeyBuilderStage, 0),
 	}
+
+	var errs []error
 
 	inStatement := 0
 	var sb strings.Builder
@@ -78,13 +103,20 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 						for _, arg := range args[1:] {
 							compiled, err := s.Compile(arg)
 							if err != nil {
-								return nil, err
+								errs = append(errs, err)
 							}
-							compiledArgs = append(compiledArgs, compiled.joinStages())
+							if compiled != nil {
+								compiledArgs = append(compiledArgs, compiled.joinStages())
+							}
 						}
-						kb.stages = append(kb.stages, f(compiledArgs))
+						stage, err := f(compiledArgs)
+						if err != nil {
+							errs = append(errs, err)
+						}
+						kb.stages = append(kb.stages, stage)
 					} else {
-						kb.stages = append(kb.stages, stageError(fmt.Sprintf("Err:%s", args[0])))
+						kb.stages = append(kb.stages, stageLiteral(fmt.Sprintf("<Err:%s>", args[0])))
+						errs = append(errs, fmt.Errorf("missing func: %s", args[0]))
 					}
 				}
 
@@ -109,6 +141,9 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 		kb = kb.optimize()
 	}
 
+	if len(errs) > 0 {
+		return kb, &CompileErrors{errs}
+	}
 	return kb, nil
 }
 

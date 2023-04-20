@@ -8,9 +8,9 @@ import (
 )
 
 func stringComparator(equation func(string, string) string) KeyBuilderFunction {
-	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderFunction(func(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		if len(args) < 2 {
-			return stageLiteral(ErrorArgCount)
+			return stageError(ErrArgCount)
 		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			val := args[0](context)
@@ -19,15 +19,15 @@ func stringComparator(equation func(string, string) string) KeyBuilderFunction {
 			}
 
 			return val
-		})
+		}), nil
 	})
 }
 
 // Checks equality, and returns truthy if equals, and empty if not
 func arithmaticEqualityHelper(test func(float64, float64) bool) KeyBuilderFunction {
-	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderFunction(func(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		if len(args) != 2 {
-			return stageLiteral(ErrorArgCount)
+			return stageError(ErrArgCount)
 		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			left, err := strconv.ParseFloat(args[0](context), 64)
@@ -43,24 +43,24 @@ func arithmaticEqualityHelper(test func(float64, float64) bool) KeyBuilderFuncti
 				return TruthyVal
 			}
 			return FalsyVal
-		})
+		}), nil
 	})
 }
 
-func kfNot(args []KeyBuilderStage) KeyBuilderStage {
+func kfNot(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		if Truthy(args[0](context)) {
 			return FalsyVal
 		}
 		return TruthyVal
-	})
+	}), nil
 }
 
 // {and a b c ...}
-func kfAnd(args []KeyBuilderStage) KeyBuilderStage {
+func kfAnd(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		for _, arg := range args {
 			if arg(context) == FalsyVal {
@@ -68,11 +68,11 @@ func kfAnd(args []KeyBuilderStage) KeyBuilderStage {
 			}
 		}
 		return TruthyVal
-	})
+	}), nil
 }
 
 // {or a b c ...}
-func kfOr(args []KeyBuilderStage) KeyBuilderStage {
+func kfOr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		for _, arg := range args {
 			if arg(context) != FalsyVal {
@@ -80,13 +80,13 @@ func kfOr(args []KeyBuilderStage) KeyBuilderStage {
 			}
 		}
 		return FalsyVal
-	})
+	}), nil
 }
 
 // {like string contains}
-func kfLike(args []KeyBuilderStage) KeyBuilderStage {
+func kfLike(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val := args[0](context)
@@ -96,13 +96,13 @@ func kfLike(args []KeyBuilderStage) KeyBuilderStage {
 			return val
 		}
 		return FalsyVal
-	})
+	}), nil
 }
 
 // {if truthy val elseVal}
-func kfIf(args []KeyBuilderStage) KeyBuilderStage {
+func kfIf(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 2 || len(args) > 3 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		ifVal := args[0](context)
@@ -112,12 +112,12 @@ func kfIf(args []KeyBuilderStage) KeyBuilderStage {
 			return args[2](context)
 		}
 		return FalsyVal
-	})
+	}), nil
 }
 
-func kfUnless(args []KeyBuilderStage) KeyBuilderStage {
+func kfUnless(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 	return func(context KeyBuilderContext) string {
 		ifVal := args[0](context)
@@ -125,5 +125,5 @@ func kfUnless(args []KeyBuilderStage) KeyBuilderStage {
 			return args[1](context)
 		}
 		return ""
-	}
+	}, nil
 }

@@ -52,7 +52,7 @@ func namedTimeFormatToFormat(f string) string {
 }
 
 // smartDateParseWrapper wraps different types of date parsing and manipulation into a stage
-func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilderStage, f func(time time.Time) string) KeyBuilderStage {
+func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilderStage, f func(time time.Time) string) (KeyBuilderStage, error) {
 	switch strings.ToLower(format) {
 	case "auto": // Auto will attempt to parse every time
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -62,7 +62,7 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 				return ErrorParsing
 			}
 			return f(val)
-		})
+		}), nil
 
 	case "", "cache": // Empty format will auto-detect on first successful entry
 		var atomicFormat atomic.Value
@@ -91,7 +91,7 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 				return ErrorParsing
 			}
 			return f(val)
-		})
+		}), nil
 
 	default: // non-empty; Set format will resolve to a go date
 		parseFormat := namedTimeFormatToFormat(format)
@@ -102,16 +102,16 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 				return ErrorParsing
 			}
 			return f(val)
-		})
+		}), nil
 	}
 }
 
 // Parse time into standard unix epoch time (easier to use)
 // By default, will attempt to auto-detect and cache format
 // {func <time> [format:cache] [tz:utc]}
-func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
+func kfTimeParse(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	// Special key-words for time (eg "now")
@@ -121,7 +121,7 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 			now := strconv.FormatInt(time.Now().Unix(), 10)
 			return func(context KeyBuilderContext) string {
 				return now
-			}
+			}, nil
 		}
 	}
 
@@ -129,7 +129,7 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 	format := EvalStageIndexOrDefault(args, 1, "")
 	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 2, ""))
 	if !tzOk {
-		return stageLiteral(ErrorParsing)
+		return stageError(ErrParsing)
 	}
 
 	return smartDateParseWrapper(format, tz, args[0], func(t time.Time) string {
@@ -138,15 +138,15 @@ func kfTimeParse(args []KeyBuilderStage) KeyBuilderStage {
 }
 
 // {func <unixtime> [format:RFC3339] [tz:utc]}
-func kfTimeFormat(args []KeyBuilderStage) KeyBuilderStage {
+func kfTimeFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 	format := namedTimeFormatToFormat(EvalStageIndexOrDefault(args, 1, defaultTimeFormat))
 
 	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 2, ""))
 	if !tzOk {
-		return stageLiteral(ErrorParsing)
+		return stageError(ErrParsing)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -159,13 +159,13 @@ func kfTimeFormat(args []KeyBuilderStage) KeyBuilderStage {
 		t := time.Unix(unixTime, 0).In(tz)
 
 		return t.Format(format)
-	})
+	}), nil
 }
 
 // {func <duration_string>}
-func kfDuration(args []KeyBuilderStage) KeyBuilderStage {
+func kfDuration(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -177,13 +177,13 @@ func kfDuration(args []KeyBuilderStage) KeyBuilderStage {
 		}
 
 		return strconv.FormatInt(int64(duration.Seconds()), 10)
-	})
+	}), nil
 }
 
 // {func <secs>} format seconds to duration
-func kfDurationFormat(args []KeyBuilderStage) KeyBuilderStage {
+func kfDurationFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -193,7 +193,7 @@ func kfDurationFormat(args []KeyBuilderStage) KeyBuilderStage {
 		}
 
 		return (time.Duration(secs) * time.Second).String()
-	})
+	}), nil
 }
 
 func timeBucketToFormat(name string) string {
@@ -214,20 +214,24 @@ func timeBucketToFormat(name string) string {
 	} else if isPartialString(name, "years") {
 		return "2006"
 	}
-	return ErrorEnum
+	return ""
 }
 
 // {func <time> <bucket> [format:auto] [tz:utc]}
-func kfBucketTime(args []KeyBuilderStage) KeyBuilderStage {
+func kfBucketTime(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 2 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	bucketFormat := timeBucketToFormat(EvalStageOrDefault(args[1], "day"))
+	if bucketFormat == "" {
+		return stageError(ErrEnum)
+	}
+
 	parseFormat := EvalStageIndexOrDefault(args, 2, "")
 	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 3, ""))
 	if !tzOk {
-		return stageLiteral(ErrorParsing)
+		return stageError(ErrParsing)
 	}
 
 	return smartDateParseWrapper(parseFormat, tz, args[0], func(t time.Time) string {
@@ -253,23 +257,23 @@ var attrType = map[string](func(t time.Time) string){
 }
 
 // {func <time> <attr> [tz:utc]}
-func kfTimeAttr(args []KeyBuilderStage) KeyBuilderStage {
+func kfTimeAttr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 2 || len(args) > 3 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	attrName, hasAttrName := EvalStaticStage(args[1])
 	if !hasAttrName {
-		return stageLiteral(ErrorConst)
+		return stageError(ErrConst)
 	}
 	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 2, ""))
 	if !tzOk {
-		return stageLiteral(ErrorParsing)
+		return stageError(ErrParsing)
 	}
 
 	attrFunc, hasAttrFunc := attrType[strings.ToUpper(attrName)]
 	if !hasAttrFunc {
-		return stageLiteral(ErrorEnum)
+		return stageError(ErrEnum)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -281,7 +285,7 @@ func kfTimeAttr(args []KeyBuilderStage) KeyBuilderStage {
 		t := time.Unix(unixTime, 0).In(tz)
 
 		return attrFunc(t)
-	})
+	}), nil
 }
 
 // Pass in "", "local", "utc" or a valid unix timezone

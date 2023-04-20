@@ -34,14 +34,14 @@ func (s *subContext) Eval(stage KeyBuilderStage, v0, v1 string) string {
 }
 
 // {@split <string> "delim"}
-func kfArraySplit(args []KeyBuilderStage) KeyBuilderStage {
+func kfArraySplit(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if !isArgCountBetween(args, 1, 2) {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	byVal := EvalStageIndexOrDefault(args, 1, " ")
 	if len(byVal) == 0 {
-		return stageLiteral(ErrorEmpty)
+		return stageError(ErrEmpty)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -51,13 +51,13 @@ func kfArraySplit(args []KeyBuilderStage) KeyBuilderStage {
 			ArraySeparatorString,
 			arrayOperatorNoopMapper,
 		)
-	}
+	}, nil
 }
 
 // {@join <array> "by"}
-func kfArrayJoin(args []KeyBuilderStage) KeyBuilderStage {
+func kfArrayJoin(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if !isArgCountBetween(args, 1, 2) {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	delim := EvalStageIndexOrDefault(args, 1, " ")
@@ -68,18 +68,18 @@ func kfArrayJoin(args []KeyBuilderStage) KeyBuilderStage {
 			delim,
 			arrayOperatorNoopMapper,
 		)
-	}
+	}, nil
 }
 
 // {@select <array> "index"}
-func kfArraySelect(args []KeyBuilderStage) KeyBuilderStage {
+func kfArraySelect(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	index, err := strconv.Atoi(EvalStageOrDefault(args[1], ""))
 	if err != nil {
-		return stageLiteral(ErrorType)
+		return stageError(ErrTypeInt)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -101,13 +101,13 @@ func kfArraySelect(args []KeyBuilderStage) KeyBuilderStage {
 		}
 
 		return ""
-	}
+	}, nil
 }
 
 // {@map <arr> <mapFunc>}
-func kfArrayMap(args []KeyBuilderStage) KeyBuilderStage {
+func kfArrayMap(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -122,13 +122,13 @@ func kfArrayMap(args []KeyBuilderStage) KeyBuilderStage {
 				return mapperContext.Eval(args[1], s, "")
 			},
 		)
-	}
+	}, nil
 }
 
 // {@reduce <arr> <reducer>}
-func kfArrayReduce(args []KeyBuilderStage) KeyBuilderStage {
+func kfArrayReduce(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -146,13 +146,13 @@ func kfArrayReduce(args []KeyBuilderStage) KeyBuilderStage {
 			memo = mapperContext.Eval(args[1], memo, splitter.Next())
 		}
 		return memo
-	}
+	}, nil
 }
 
 // {@slice <arr> start len}
-func kfArraySlice(args []KeyBuilderStage) KeyBuilderStage {
+func kfArraySlice(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if !isArgCountBetween(args, 2, 3) {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	sliceStart := EvalStageInt(args[1], 0)
@@ -185,13 +185,13 @@ func kfArraySlice(args []KeyBuilderStage) KeyBuilderStage {
 		}
 
 		return ret.String()
-	}
+	}, nil
 }
 
 // {@filter <arr> <truthy-statement>}
-func kfArrayFilter(args []KeyBuilderStage) KeyBuilderStage {
+func kfArrayFilter(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageLiteral(ErrorArgCount)
+		return stageError(ErrArgCount)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -220,7 +220,7 @@ func kfArrayFilter(args []KeyBuilderStage) KeyBuilderStage {
 		}
 
 		return sb.String()
-	}
+	}, nil
 }
 
 var arrayOperatorNoopMapper = func(s string) string { return s }

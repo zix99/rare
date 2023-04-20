@@ -9,3 +9,12 @@ func stageLiteral(s string) KeyBuilderStage {
 		return s
 	})
 }
+
+// todo: funcLiteral
+
+// TODO: funcError
+func stageError(err funcError) (KeyBuilderStage, error) {
+	return func(ctx KeyBuilderContext) string {
+		return err.expr
+	}, err.err
+}

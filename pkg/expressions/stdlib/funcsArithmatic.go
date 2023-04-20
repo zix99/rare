@@ -7,9 +7,9 @@ import (
 
 // Simple helper that will take 2 or more integers, and apply an operation
 func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
-	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderFunction(func(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		if len(args) < 2 {
-			return stageLiteral(ErrorArgCount)
+			return stageError(ErrArgCount)
 		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			final, err := strconv.Atoi(args[0](context))
@@ -26,15 +26,15 @@ func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
 			}
 
 			return strconv.Itoa(final)
-		})
+		}), nil
 	})
 }
 
 // Simple helper that will take 2 or more integers, and apply an operation
 func arithmaticHelperf(equation func(float64, float64) float64) KeyBuilderFunction {
-	return KeyBuilderFunction(func(args []KeyBuilderStage) KeyBuilderStage {
+	return KeyBuilderFunction(func(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		if len(args) < 2 {
-			return stageLiteral(ErrorArgCount)
+			return stageError(ErrArgCount)
 		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			final, err := strconv.ParseFloat(args[0](context), 64)
@@ -51,6 +51,6 @@ func arithmaticHelperf(equation func(float64, float64) float64) KeyBuilderFuncti
 			}
 
 			return strconv.FormatFloat(final, 'f', -1, 64)
-		})
+		}), nil
 	})
 }

@@ -191,7 +191,7 @@ func TestLoadingTimezone(t *testing.T) {
 
 // BenchmarkTimeParseExpression-4   	  537970	      2133 ns/op	     536 B/op	       9 allocs/op
 func BenchmarkTimeParseExpression(b *testing.B) {
-	stage := kfTimeParse([]expressions.KeyBuilderStage{
+	stage, _ := kfTimeParse([]expressions.KeyBuilderStage{
 		func(kbc expressions.KeyBuilderContext) string {
 			return kbc.GetMatch(0)
 		},

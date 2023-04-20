@@ -1,7 +1,6 @@
 package stdlib
 
 import (
-	"fmt"
 	. "rare/pkg/expressions"
 	"testing"
 
@@ -11,26 +10,6 @@ import (
 var testFuncData = []string{"ab", "100", "1000000", "5000000.123456", "22"}
 var testFuncContext = KeyBuilderContextArray{
 	Elements: testFuncData,
-}
-
-func mockContext(args ...interface{}) KeyBuilderContext {
-	s := make([]string, len(args))
-	for idx, arg := range args {
-		s[idx] = fmt.Sprintf("%v", arg)
-	}
-	return &KeyBuilderContextArray{
-		Elements: s,
-	}
-}
-
-func testExpression(t *testing.T, context KeyBuilderContext, expression string, expected string) {
-	kb, err := NewStdKeyBuilder().Compile(expression)
-	assert.NoError(t, err)
-	assert.NotNil(t, kb)
-	if kb != nil {
-		ret := kb.BuildKey(context)
-		assert.Equal(t, expected, ret)
-	}
 }
 
 func TestCoalesce(t *testing.T) {

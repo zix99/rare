@@ -9,22 +9,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var testData = []string{"ab", "cd", "123"}
-var testKeyData = map[string]string{
-	"test": "testval",
+var testContext = KeyBuilderContextArray{
+	Elements: []string{"ab", "cd", "123"},
+	Keys: map[string]string{
+		"test": "testval",
+	},
 }
-
-type TestContext struct{}
-
-func (s *TestContext) GetMatch(idx int) string {
-	return testData[idx]
-}
-
-func (s *TestContext) GetKey(key string) string {
-	return testKeyData[key]
-}
-
-var testContext = TestContext{}
 
 func TestSimpleKey(t *testing.T) {
 	kb, _ := NewKeyBuilder().Compile("test 123")
@@ -89,7 +79,7 @@ func BenchmarkGoTextTemplate(b *testing.B) {
 // func tests
 
 var simpleFuncs = map[string]KeyBuilderFunction{
-	"addi": func(args []KeyBuilderStage) KeyBuilderStage {
+	"addi": func(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return func(ctx KeyBuilderContext) string {
 			val, _ := strconv.Atoi(args[0](ctx))
 			for i := 1; i < len(args); i++ {
@@ -97,7 +87,7 @@ var simpleFuncs = map[string]KeyBuilderFunction{
 				val += aVal
 			}
 			return strconv.Itoa(val)
-		}
+		}, nil
 	},
 }
 
