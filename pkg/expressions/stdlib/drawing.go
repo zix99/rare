@@ -10,7 +10,7 @@ import (
 
 func kfColor(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 2)
 	}
 	colorCode, _ := color.LookupColorByName(EvalStageOrDefault(args[0], ""))
 
@@ -22,7 +22,7 @@ func kfColor(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {repeat c {count}}
 func kfRepeat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 2)
 	}
 
 	char := EvalStageOrDefault(args[0], "|")
@@ -39,7 +39,7 @@ func kfRepeat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {bar {val} "maxVal" "len"}
 func kfBar(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 3 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 3)
 	}
 
 	maxVal, err := strconv.ParseInt(EvalStageOrDefault(args[1], ""), 10, 64)

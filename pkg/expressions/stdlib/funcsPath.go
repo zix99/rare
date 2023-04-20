@@ -8,7 +8,7 @@ import (
 func kfPathManip(manipulator func(string) string) KeyBuilderFunction {
 	return func(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		if len(args) != 1 {
-			return stageError(ErrArgCount)
+			return stageErrArgCount(args, 1)
 		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			return manipulator(args[0](context))

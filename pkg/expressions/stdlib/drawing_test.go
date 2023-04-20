@@ -13,7 +13,7 @@ func TestRepeatCharacter(t *testing.T) {
 		mockContext("4"),
 		"{repeat a} {repeat a a}",
 		"<ARGN> <BAD-TYPE>",
-		ErrArgCount.err)
+		ErrArgCount)
 }
 
 func TestAddingColor(t *testing.T) {
@@ -23,7 +23,7 @@ func TestAddingColor(t *testing.T) {
 		"what what")
 	testExpressionErr(t,
 		mockContext("what waht"),
-		"{color a}", "<ARGN>", ErrArgCount.err)
+		"{color a}", "<ARGN>", ErrArgCount)
 }
 
 func TestBarGraph(t *testing.T) {

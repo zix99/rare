@@ -2,6 +2,8 @@ package stdlib
 
 import (
 	"errors"
+	"fmt"
+	. "rare/pkg/expressions"
 )
 
 type funcError struct {
@@ -26,10 +28,33 @@ const (
 
 // Compilation errors
 var (
-	ErrNum      = newFuncErr(ErrorNum, "invalid arg type, expected int") // always numeric?
-	ErrParsing  = newFuncErr(ErrorParsing, "unable to parse")            // always non-numeric?
-	ErrArgCount = newFuncErr(ErrorArgCount, "invalid number of arguments")
-	ErrConst    = newFuncErr(ErrorConst, "expected const")
-	ErrEnum     = newFuncErr(ErrorEnum, "unable to find value in set")
-	ErrEmpty    = newFuncErr(ErrorEmpty, "invalid empty value")
+	ErrNum     = newFuncErr(ErrorNum, "invalid arg type, expected int") // always numeric?
+	ErrParsing = newFuncErr(ErrorParsing, "unable to parse")            // always non-numeric?
+	ErrConst   = newFuncErr(ErrorConst, "expected const")
+	ErrEnum    = newFuncErr(ErrorEnum, "unable to find value in set")
+	ErrEmpty   = newFuncErr(ErrorEmpty, "invalid empty value")
 )
+
+var (
+	ErrArgCount = errors.New("invalid number of arguments")
+)
+
+func stageError(err funcError) (KeyBuilderStage, error) {
+	return func(ctx KeyBuilderContext) string {
+		return err.expr
+	}, err.err
+}
+
+func stageErrArgCount(got []KeyBuilderStage, expected int) (KeyBuilderStage, error) {
+	return stageError(funcError{
+		ErrorArgCount,
+		fmt.Errorf("%w: got %d, expected %d", ErrArgCount, len(got), expected),
+	})
+}
+
+func stageErrArgRange(got []KeyBuilderStage, text string) (KeyBuilderStage, error) {
+	return stageError(funcError{
+		ErrorArgCount,
+		fmt.Errorf("%w: got %d, expected %s", ErrArgCount, len(got), text),
+	})
+}

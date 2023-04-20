@@ -22,6 +22,6 @@ func kfJsonQuery(args []KeyBuilderStage) (KeyBuilderStage, error) {
 			return gjson.Get(json, expression).String()
 		}), nil
 	} else {
-		return stageError(ErrArgCount)
+		return stageErrArgRange(args, "1-2")
 	}
 }

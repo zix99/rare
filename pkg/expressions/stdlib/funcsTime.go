@@ -111,7 +111,7 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 // {func <time> [format:cache] [tz:utc]}
 func kfTimeParse(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 1 {
-		return stageError(ErrArgCount)
+		return stageErrArgRange(args, "1+")
 	}
 
 	// Special key-words for time (eg "now")
@@ -140,7 +140,7 @@ func kfTimeParse(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {func <unixtime> [format:RFC3339] [tz:utc]}
 func kfTimeFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 1 {
-		return stageError(ErrArgCount)
+		return stageErrArgRange(args, "1+")
 	}
 	format := namedTimeFormatToFormat(EvalStageIndexOrDefault(args, 1, defaultTimeFormat))
 
@@ -165,7 +165,7 @@ func kfTimeFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {func <duration_string>}
 func kfDuration(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 1)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -183,7 +183,7 @@ func kfDuration(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {func <secs>} format seconds to duration
 func kfDurationFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 1)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -220,7 +220,7 @@ func timeBucketToFormat(name string) string {
 // {func <time> <bucket> [format:auto] [tz:utc]}
 func kfBucketTime(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 2 {
-		return stageError(ErrArgCount)
+		return stageErrArgRange(args, "2+")
 	}
 
 	bucketFormat := timeBucketToFormat(EvalStageOrDefault(args[1], "day"))
@@ -259,7 +259,7 @@ var attrType = map[string](func(t time.Time) string){
 // {func <time> <attr> [tz:utc]}
 func kfTimeAttr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 2 || len(args) > 3 {
-		return stageError(ErrArgCount)
+		return stageErrArgRange(args, "2-3")
 	}
 
 	attrName, hasAttrName := EvalStaticStage(args[1])

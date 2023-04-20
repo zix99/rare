@@ -36,7 +36,7 @@ func (s *subContext) Eval(stage KeyBuilderStage, v0, v1 string) string {
 // {@split <string> "delim"}
 func kfArraySplit(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if !isArgCountBetween(args, 1, 2) {
-		return stageError(ErrArgCount)
+		return stageErrArgRange(args, "1-2")
 	}
 
 	byVal := EvalStageIndexOrDefault(args, 1, " ")
@@ -57,7 +57,7 @@ func kfArraySplit(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {@join <array> "by"}
 func kfArrayJoin(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if !isArgCountBetween(args, 1, 2) {
-		return stageError(ErrArgCount)
+		return stageErrArgRange(args, "1-2")
 	}
 
 	delim := EvalStageIndexOrDefault(args, 1, " ")
@@ -74,7 +74,7 @@ func kfArrayJoin(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {@select <array> "index"}
 func kfArraySelect(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 2)
 	}
 
 	index, err := strconv.Atoi(EvalStageOrDefault(args[1], ""))
@@ -107,7 +107,7 @@ func kfArraySelect(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {@map <arr> <mapFunc>}
 func kfArrayMap(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 2)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -128,7 +128,7 @@ func kfArrayMap(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {@reduce <arr> <reducer>}
 func kfArrayReduce(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 2)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -152,7 +152,7 @@ func kfArrayReduce(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {@slice <arr> start len}
 func kfArraySlice(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if !isArgCountBetween(args, 2, 3) {
-		return stageError(ErrArgCount)
+		return stageErrArgRange(args, "2-3")
 	}
 
 	sliceStart := EvalStageInt(args[1], 0)
@@ -191,7 +191,7 @@ func kfArraySlice(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {@filter <arr> <truthy-statement>}
 func kfArrayFilter(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 2)
 	}
 
 	return func(context KeyBuilderContext) string {

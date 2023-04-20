@@ -7,7 +7,7 @@ import (
 
 func kfIsInt(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 1)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -21,7 +21,7 @@ func kfIsInt(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 func kfIsNum(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 1)
 	}
 
 	return func(context KeyBuilderContext) string {

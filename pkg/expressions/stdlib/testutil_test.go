@@ -20,7 +20,7 @@ func mockContext(args ...interface{}) KeyBuilderContext {
 
 func testExpression(t *testing.T, context KeyBuilderContext, expression string, expected string) {
 	kb, _ := NewStdKeyBuilder().Compile(expression)
-	//assert.NoError(t, err)
+	//assert.NoError(t, err) // TODO: This is a soft-failure
 	assert.NotNil(t, kb)
 	if kb != nil {
 		ret := kb.BuildKey(context)

@@ -15,9 +15,3 @@ func stageLiteral(s string) (KeyBuilderStage, error) {
 		return s
 	}, nil
 }
-
-func stageError(err funcError) (KeyBuilderStage, error) {
-	return func(ctx KeyBuilderContext) string {
-		return err.expr
-	}, err.err
-}

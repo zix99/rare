@@ -21,7 +21,7 @@ func kfCoalesce(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 func kfBucket(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 2)
 	}
 
 	bucketSize, err := strconv.Atoi(EvalStageOrDefault(args[1], ""))
@@ -41,7 +41,7 @@ func kfBucket(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 func kfClamp(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 3 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 3)
 	}
 
 	min, minErr := strconv.Atoi(EvalStageOrDefault(args[1], ""))
@@ -70,7 +70,7 @@ func kfClamp(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 func kfExpBucket(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 1)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(args[0](context))

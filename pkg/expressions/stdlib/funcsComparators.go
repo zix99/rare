@@ -10,7 +10,7 @@ import (
 func stringComparator(equation func(string, string) string) KeyBuilderFunction {
 	return KeyBuilderFunction(func(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		if len(args) < 2 {
-			return stageError(ErrArgCount)
+			return stageErrArgRange(args, "2+")
 		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			val := args[0](context)
@@ -27,7 +27,7 @@ func stringComparator(equation func(string, string) string) KeyBuilderFunction {
 func arithmaticEqualityHelper(test func(float64, float64) bool) KeyBuilderFunction {
 	return KeyBuilderFunction(func(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		if len(args) != 2 {
-			return stageError(ErrArgCount)
+			return stageErrArgCount(args, 2)
 		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			left, err := strconv.ParseFloat(args[0](context), 64)
@@ -49,7 +49,7 @@ func arithmaticEqualityHelper(test func(float64, float64) bool) KeyBuilderFuncti
 
 func kfNot(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 1)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		if Truthy(args[0](context)) {
@@ -86,7 +86,7 @@ func kfOr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {like string contains}
 func kfLike(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 2)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val := args[0](context)
@@ -102,7 +102,7 @@ func kfLike(args []KeyBuilderStage) (KeyBuilderStage, error) {
 // {if truthy val elseVal}
 func kfIf(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 2 || len(args) > 3 {
-		return stageError(ErrArgCount)
+		return stageErrArgRange(args, "2-3")
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		ifVal := args[0](context)
@@ -117,7 +117,7 @@ func kfIf(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 func kfUnless(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageError(ErrArgCount)
+		return stageErrArgCount(args, 2)
 	}
 	return func(context KeyBuilderContext) string {
 		ifVal := args[0](context)
