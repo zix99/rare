@@ -46,13 +46,13 @@ func TestTimeExpressionDetection(t *testing.T) {
 
 func TestTimeNow(t *testing.T) {
 	kb, err := NewStdKeyBuilder().Compile("{time now}")
-	assert.NoError(t, err)
+	assert.Nil(t, err)
 
 	val := kb.BuildKey(mockContext())
 	assert.NotEmpty(t, val)
 
-	ival, err := strconv.ParseInt(val, 10, 64)
-	assert.NoError(t, err)
+	ival, perr := strconv.ParseInt(val, 10, 64)
+	assert.NoError(t, perr)
 	assert.NotZero(t, ival)
 
 }
@@ -144,7 +144,7 @@ func TestTimeAttr(t *testing.T) {
 
 func TestTimeAttrToLocal(t *testing.T) {
 	kb, err := NewStdKeyBuilder().Compile("{timeattr {time {0}} weekday local}")
-	assert.NoError(t, err)
+	assert.Nil(t, err)
 	ret := kb.BuildKey(mockContext("14/Apr/2016 01:00:00"))
 	assert.NotEmpty(t, ret)
 }

@@ -33,7 +33,7 @@ func TestSimpleReplacement(t *testing.T) {
 func TestUnterminatedReplacement(t *testing.T) {
 	kb, err := NewKeyBuilder().Compile("{0} is {123")
 	assert.Error(t, err)
-	assert.Nil(t, kb)
+	assert.NotNil(t, kb) // Still returns workable expression, but with errors
 }
 
 func TestEscapedString(t *testing.T) {
@@ -57,7 +57,7 @@ func TestStringKey(t *testing.T) {
 
 func TestEmptyStatement(t *testing.T) {
 	kb, err := NewKeyBuilder().Compile("{} test")
-	assert.Nil(t, kb)
+	assert.NotNil(t, kb)
 	assert.Error(t, err)
 }
 

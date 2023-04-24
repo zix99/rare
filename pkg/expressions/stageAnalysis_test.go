@@ -39,3 +39,9 @@ func TestEvaluateStageIndex(t *testing.T) {
 	assert.Equal(t, "test2", EvalStageIndexOrDefault(stages, 1, "nope"))
 	assert.Equal(t, "nope", EvalStageIndexOrDefault(stages, 2, "nope"))
 }
+
+func TestEvaluationStageInt(t *testing.T) {
+	assert.Equal(t, 5, EvalStageInt(testStageNoContext("5"), 1))
+	assert.Equal(t, 1, EvalStageInt(testStageNoContext("5b"), 1))
+	assert.Equal(t, 1, EvalStageInt(testStageUseContext("5"), 1))
+}

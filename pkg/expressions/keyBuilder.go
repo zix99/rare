@@ -1,7 +1,6 @@
 package expressions
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -16,28 +15,6 @@ type KeyBuilder struct {
 // can be considered thread-safe
 type CompiledKeyBuilder struct {
 	stages []KeyBuilderStage
-}
-
-type CompileErrors struct {
-	errs []error
-}
-
-func (s *CompileErrors) Error() string {
-	if len(s.errs) == 1 {
-		return s.errs[0].Error()
-	}
-	var sb strings.Builder
-	sb.WriteString("Compile Errors:\n")
-	for _, e := range s.errs {
-		sb.WriteString("  ")
-		sb.WriteString(e.Error())
-		sb.WriteString("\n")
-	}
-	return sb.String()
-}
-
-func (s *CompileErrors) Unwrap() error {
-	return s.errs[0]
 }
 
 // NewKeyBuilder creates a new KeyBuilder
@@ -62,13 +39,14 @@ func (s *KeyBuilder) Funcs(funcs map[string]KeyBuilderFunction) {
 
 // Compile builds a new key-builder, returning error(s) on build issues
 // if the CompiledKeyBuilder is not nil, then something is still useable (albeit may have problems)
-func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
+func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, *CompilerErrors) {
 	kb := &CompiledKeyBuilder{
 		stages: make([]KeyBuilderStage, 0),
 	}
 
-	var errs []error
+	var errs CompilerErrors
 
+	startStatement := 0
 	inStatement := 0
 	var sb strings.Builder
 	runes := []rune(template)
@@ -84,6 +62,7 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 					kb.stages = append(kb.stages, stageLiteral(sb.String()))
 					sb.Reset()
 				}
+				startStatement = i
 			} else {
 				sb.WriteRune(r)
 			}
@@ -93,7 +72,7 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 			if inStatement == 0 {
 				args := splitTokenizedArguments(sb.String())
 				if len(args) == 0 {
-					return nil, errors.New("empty statement in expression")
+					errs.add(ErrorEmptyStatement, string(runes[startStatement:i+1]), startStatement)
 				} else if len(args) == 1 { // Simple variable keyword like "{1}"
 					kb.stages = append(kb.stages, stageSimpleVariable(args[0]))
 				} else { // Complex function like "{add 1 2}"
@@ -103,7 +82,7 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 						for _, arg := range args[1:] {
 							compiled, err := s.Compile(arg)
 							if err != nil {
-								errs = append(errs, err)
+								errs.inherit(err, startStatement)
 							}
 							if compiled != nil {
 								compiledArgs = append(compiledArgs, compiled.joinStages())
@@ -111,12 +90,12 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 						}
 						stage, err := f(compiledArgs)
 						if err != nil {
-							errs = append(errs, err)
+							errs.add(err, sb.String(), startStatement)
 						}
 						kb.stages = append(kb.stages, stage)
 					} else {
 						kb.stages = append(kb.stages, stageLiteral(fmt.Sprintf("<Err:%s>", args[0])))
-						errs = append(errs, fmt.Errorf("missing func: %s", args[0]))
+						errs.add(ErrorMissingFunction, sb.String(), startStatement)
 					}
 				}
 
@@ -130,7 +109,7 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 	}
 
 	if inStatement != 0 {
-		return nil, errors.New("non-terminated statement in expression")
+		errs.add(ErrorUnterminated, string(runes[startStatement:]), startStatement)
 	}
 
 	if sb.Len() > 0 {
@@ -141,8 +120,8 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, error) {
 		kb = kb.optimize()
 	}
 
-	if len(errs) > 0 {
-		return kb, &CompileErrors{errs}
+	if !errs.empty() {
+		return kb, &errs
 	}
 	return kb, nil
 }
