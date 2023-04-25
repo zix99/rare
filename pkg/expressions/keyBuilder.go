@@ -44,7 +44,9 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, *CompilerErr
 		stages: make([]KeyBuilderStage, 0),
 	}
 
-	var errs CompilerErrors
+	errs := CompilerErrors{
+		Expression: template,
+	}
 
 	startStatement := 0
 	inStatement := 0
@@ -78,21 +80,21 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, *CompilerErr
 				} else { // Complex function like "{add 1 2}"
 					f := s.functions[args[0]]
 					if f != nil {
-						compiledArgs := make([]KeyBuilderStage, 0)
+						compiledArgs := make([]KeyBuilderStage, 0, len(args)-1)
 						for _, arg := range args[1:] {
 							compiled, err := s.Compile(arg)
 							if err != nil {
 								errs.inherit(err, startStatement)
 							}
-							if compiled != nil {
-								compiledArgs = append(compiledArgs, compiled.joinStages())
-							}
+							compiledArgs = append(compiledArgs, compiled.joinStages())
 						}
 						stage, err := f(compiledArgs)
 						if err != nil {
 							errs.add(err, sb.String(), startStatement)
 						}
-						kb.stages = append(kb.stages, stage)
+						if stage != nil {
+							kb.stages = append(kb.stages, stage)
+						}
 					} else {
 						kb.stages = append(kb.stages, stageLiteral(fmt.Sprintf("<Err:%s>", args[0])))
 						errs.add(ErrorMissingFunction, sb.String(), startStatement)

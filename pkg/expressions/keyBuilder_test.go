@@ -2,6 +2,7 @@ package expressions
 
 import (
 	"bytes"
+	"errors"
 	"strconv"
 	"testing"
 	"text/template"
@@ -17,8 +18,9 @@ var testContext = KeyBuilderContextArray{
 }
 
 func TestSimpleKey(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("test 123")
+	kb, err := NewKeyBuilder().Compile("test 123")
 	key := kb.BuildKey(&testContext)
+	assert.Nil(t, err)
 	assert.Equal(t, "test 123", key)
 	assert.Equal(t, 1, len(kb.stages))
 }
@@ -37,9 +39,9 @@ func TestUnterminatedReplacement(t *testing.T) {
 }
 
 func TestEscapedString(t *testing.T) {
-	kb, _ := NewKeyBuilder().Compile("{0} is \\{1\\} cool\\n\\t\\a")
+	kb, _ := NewKeyBuilder().Compile("{0} is \\{1\\} cool\\n\\t\\a\\r")
 	key := kb.BuildKey(&testContext)
-	assert.Equal(t, "ab is {1} cool\n\ta", key)
+	assert.Equal(t, "ab is {1} cool\n\ta\r", key)
 	assert.Equal(t, 2, len(kb.stages))
 }
 
@@ -61,6 +63,7 @@ func TestEmptyStatement(t *testing.T) {
 	assert.Error(t, err)
 }
 
+// BenchmarkSimpleReplacement-4   	 7515498	       141.4 ns/op	      24 B/op	       2 allocs/op
 func BenchmarkSimpleReplacement(b *testing.B) {
 	kb, _ := NewKeyBuilder().Compile("{0} is awesome")
 	for n := 0; n < b.N; n++ {
@@ -68,6 +71,7 @@ func BenchmarkSimpleReplacement(b *testing.B) {
 	}
 }
 
+// BenchmarkGoTextTemplate-4   	 3139363	       406.3 ns/op	     160 B/op	       3 allocs/op
 func BenchmarkGoTextTemplate(b *testing.B) {
 	kb, _ := template.New("test").Parse("{a} is awesome")
 	for n := 0; n < b.N; n++ {
@@ -80,6 +84,9 @@ func BenchmarkGoTextTemplate(b *testing.B) {
 
 var simpleFuncs = map[string]KeyBuilderFunction{
 	"addi": func(args []KeyBuilderStage) (KeyBuilderStage, error) {
+		if len(args) < 2 {
+			return nil, errors.New("expected at least 2 args")
+		}
 		return func(ctx KeyBuilderContext) string {
 			val, _ := strconv.Atoi(args[0](ctx))
 			for i := 1; i < len(args); i++ {
@@ -99,6 +106,24 @@ func TestSimpleFuncs(t *testing.T) {
 	assert.Equal(t, "value: 5", kb.BuildKey(&KeyBuilderContextArray{}))
 }
 
+func TestSimpleFuncErrors(t *testing.T) {
+	k := NewKeyBuilder()
+	k.Funcs(simpleFuncs)
+	kb, err := k.Compile("value: {addi 1} {addi 1 2}")
+	assert.Error(t, err)
+	assert.NotNil(t, kb)
+	assert.Equal(t, "value:  3", kb.BuildKey(&KeyBuilderContextArray{}))
+}
+
+func TestDeepFuncError(t *testing.T) {
+	k := NewKeyBuilder()
+	k.Funcs(simpleFuncs)
+	kb, err := k.Compile("value: {addi 1 {addi 1}} {addi 1 2}")
+	assert.Error(t, err)
+	assert.NotNil(t, kb)
+	assert.Equal(t, "value: 1 3", kb.BuildKey(&KeyBuilderContextArray{}))
+}
+
 func TestManyStages(t *testing.T) {
 	k := NewKeyBuilderEx(false)
 	k.Funcs(simpleFuncs)
@@ -106,6 +131,8 @@ func TestManyStages(t *testing.T) {
 	assert.Equal(t, 4, kb.StageCount())
 	assert.Equal(t, "value: -1 8", kb.BuildKey(&KeyBuilderContextArray{}))
 }
+
+// Optimization
 
 func TestManyStagesOptimize(t *testing.T) {
 	k := NewKeyBuilderEx(true)

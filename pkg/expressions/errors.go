@@ -27,7 +27,8 @@ func (s *DetailedError) Unwrap() error {
 }
 
 type CompilerErrors struct {
-	Errors []*DetailedError
+	Errors     []*DetailedError
+	Expression string
 }
 
 func (s *CompilerErrors) Error() string {
@@ -35,7 +36,9 @@ func (s *CompilerErrors) Error() string {
 		return s.Errors[0].Error()
 	}
 	var sb strings.Builder
-	sb.WriteString("Compiler Errors:\n")
+	sb.WriteString("Compiler Errors in: `")
+	sb.WriteString(s.Expression)
+	sb.WriteString("`\n")
 	for _, e := range s.Errors {
 		sb.WriteString("  ")
 		sb.WriteString(e.Error())
