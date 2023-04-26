@@ -86,7 +86,9 @@ func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, *CompilerErr
 							if err != nil {
 								errs.inherit(err, startStatement)
 							}
-							compiledArgs = append(compiledArgs, compiled.joinStages())
+							if compiled != nil {
+								compiledArgs = append(compiledArgs, compiled.joinStages())
+							}
 						}
 						stage, err := f(compiledArgs)
 						if err != nil {
