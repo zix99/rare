@@ -7,15 +7,23 @@ import (
 func TestRepeatCharacter(t *testing.T) {
 	testExpression(t,
 		mockContext("4"),
-		"{repeat a 2} {repeat b {0}} {repeat a} {repeat a a}",
-		"aa bbbb <ARGN> <BAD-TYPE>")
+		"{repeat a 2} {repeat b {0}}",
+		"aa bbbb")
+	testExpressionErr(t,
+		mockContext("4"),
+		"{repeat a} {repeat a a}",
+		"<ARGN> <BAD-TYPE>",
+		ErrArgCount)
 }
 
 func TestAddingColor(t *testing.T) {
 	testExpression(t,
 		mockContext("what what"),
-		"{color red {0}} {color a}",
-		"what what <ARGN>")
+		"{color red {0}}",
+		"what what")
+	testExpressionErr(t,
+		mockContext("what waht"),
+		"{color a}", "<ARGN>", ErrArgCount)
 }
 
 func TestBarGraph(t *testing.T) {

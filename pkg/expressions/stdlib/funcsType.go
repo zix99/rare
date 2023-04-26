@@ -5,9 +5,9 @@ import (
 	"strconv"
 )
 
-func kfIsInt(args []KeyBuilderStage) KeyBuilderStage {
+func kfIsInt(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgCount(args, 1)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -16,12 +16,12 @@ func kfIsInt(args []KeyBuilderStage) KeyBuilderStage {
 			return FalsyVal
 		}
 		return TruthyVal
-	}
+	}, nil
 }
 
-func kfIsNum(args []KeyBuilderStage) KeyBuilderStage {
+func kfIsNum(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgCount(args, 1)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -30,5 +30,5 @@ func kfIsNum(args []KeyBuilderStage) KeyBuilderStage {
 			return FalsyVal
 		}
 		return TruthyVal
-	}
+	}, nil
 }

@@ -17,6 +17,8 @@ func TestTimeExpression(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{time {0} NGINX}",
 		"1460653945")
+	testExpressionErr(t, mockContext(""), "{time a}", "<PARSE-ERROR>")
+	testExpressionErr(t, mockContext(""), "{time a b c d e}", "<ARGN>")
 }
 
 func TestFormatExpression(t *testing.T) {
@@ -35,6 +37,8 @@ func TestFormatExpression(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		`{timeformat {time {0}} "" utc}`,
 		"2016-04-14T17:12:25Z")
+	// Errors
+	testExpressionErr(t, mockContext(), "{timeformat a b c d}", "<ARGN>")
 }
 
 func TestTimeExpressionDetection(t *testing.T) {
@@ -46,13 +50,13 @@ func TestTimeExpressionDetection(t *testing.T) {
 
 func TestTimeNow(t *testing.T) {
 	kb, err := NewStdKeyBuilder().Compile("{time now}")
-	assert.NoError(t, err)
+	assert.Nil(t, err)
 
 	val := kb.BuildKey(mockContext())
 	assert.NotEmpty(t, val)
 
-	ival, err := strconv.ParseInt(val, 10, 64)
-	assert.NoError(t, err)
+	ival, perr := strconv.ParseInt(val, 10, 64)
+	assert.NoError(t, perr)
 	assert.NotZero(t, ival)
 
 }
@@ -85,6 +89,7 @@ func TestDuration(t *testing.T) {
 		mockContext(),
 		"{duration 24h}",
 		strconv.Itoa(60*60*24))
+	testExpressionErr(t, mockContext(), "{duration 24h stuff}", "<ARGN>")
 }
 
 func TestDurationFormat(t *testing.T) {
@@ -101,10 +106,14 @@ func TestDurationFormat(t *testing.T) {
 // Bucketing
 
 func TestTimeBucketFormat(t *testing.T) {
-	testExpression(t,
-		mockContext("14/Apr/2016:19:12:25 +0200"),
-		"{buckettime {0} d nginx}",
-		"2016-04-14")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25.123 +0200"), "{buckettime {0} nanos nginx}", "2016-04-14 19:12:25.123")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25.123 +0200"), "{buckettime {0} sec nginx}", "2016-04-14 19:12:25")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25 +0200"), "{buckettime {0} min nginx}", "2016-04-14 19:12")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25 +0200"), "{buckettime {0} hour nginx}", "2016-04-14 19")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25 +0200"), "{buckettime {0} d nginx}", "2016-04-14")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25 +0200"), "{buckettime {0} mon nginx}", "2016-04")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25 +0200"), "{buckettime {0} year nginx}", "2016")
+	testExpressionErr(t, mockContext(), "{buckettime a} {buckettime a b c d e} {buckettime 0 bla}", "<ARGN> <ARGN> <ENUM>")
 }
 
 func TestTimeBucketFormatDetection(t *testing.T) {
@@ -140,11 +149,14 @@ func TestTimeAttr(t *testing.T) {
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} quarter}",
 		"2")
+
+	testExpressionErr(t, mockContext("a"), "{timeattr {time now} {0}}", "<CONST>")
+	testExpressionErr(t, mockContext("a"), "{timeattr {time now} bad-value}", "<ENUM>")
 }
 
 func TestTimeAttrToLocal(t *testing.T) {
 	kb, err := NewStdKeyBuilder().Compile("{timeattr {time {0}} weekday local}")
-	assert.NoError(t, err)
+	assert.Nil(t, err)
 	ret := kb.BuildKey(mockContext("14/Apr/2016 01:00:00"))
 	assert.NotEmpty(t, ret)
 }
@@ -191,11 +203,11 @@ func TestLoadingTimezone(t *testing.T) {
 
 // BenchmarkTimeParseExpression-4   	  537970	      2133 ns/op	     536 B/op	       9 allocs/op
 func BenchmarkTimeParseExpression(b *testing.B) {
-	stage := kfTimeParse([]expressions.KeyBuilderStage{
+	stage, _ := kfTimeParse([]expressions.KeyBuilderStage{
 		func(kbc expressions.KeyBuilderContext) string {
 			return kbc.GetMatch(0)
 		},
-		stageLiteral("auto"),
+		literal("auto"),
 	})
 	for i := 0; i < b.N; i++ {
 		stage(&expressions.KeyBuilderContextArray{

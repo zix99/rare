@@ -4,8 +4,12 @@ import (
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
-func stageLiteral(s string) KeyBuilderStage {
-	return KeyBuilderStage(func(context KeyBuilderContext) string {
+func literal(s string) KeyBuilderStage {
+	return func(context KeyBuilderContext) string {
 		return s
-	})
+	}
+}
+
+func stageLiteral(s string) (KeyBuilderStage, error) {
+	return literal(s), nil
 }

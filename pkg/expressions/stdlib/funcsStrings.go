@@ -10,9 +10,9 @@ import (
 )
 
 // {prefix string prefix}
-func kfPrefix(args []KeyBuilderStage) KeyBuilderStage {
+func kfPrefix(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgCount(args, 2)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val := args[0](context)
@@ -22,13 +22,13 @@ func kfPrefix(args []KeyBuilderStage) KeyBuilderStage {
 			return val
 		}
 		return ""
-	})
+	}), nil
 }
 
 // {suffix string suffix}
-func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
+func kfSuffix(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgCount(args, 2)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val := args[0](context)
@@ -38,31 +38,31 @@ func kfSuffix(args []KeyBuilderStage) KeyBuilderStage {
 			return val
 		}
 		return ""
-	})
+	}), nil
 }
 
-func kfUpper(args []KeyBuilderStage) KeyBuilderStage {
+func kfUpper(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgCount(args, 1)
 	}
 	return func(context KeyBuilderContext) string {
 		return strings.ToUpper(args[0](context))
-	}
+	}, nil
 }
 
-func kfLower(args []KeyBuilderStage) KeyBuilderStage {
+func kfLower(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgCount(args, 1)
 	}
 	return func(context KeyBuilderContext) string {
 		return strings.ToLower(args[0](context))
-	}
+	}, nil
 }
 
 // {substr {0} }
-func kfSubstr(args []KeyBuilderStage) KeyBuilderStage {
+func kfSubstr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 3 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgCount(args, 3)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -75,7 +75,7 @@ func kfSubstr(args []KeyBuilderStage) KeyBuilderStage {
 		left, err1 := strconv.Atoi(args[1](context))
 		length, err2 := strconv.Atoi(args[2](context))
 		if err1 != nil || err2 != nil {
-			return ErrorType
+			return ErrorNum
 		}
 
 		if length < 0 {
@@ -96,24 +96,24 @@ func kfSubstr(args []KeyBuilderStage) KeyBuilderStage {
 			right = lenS
 		}
 		return s[left:right]
-	})
+	}), nil
 }
 
 // {select {0} 1}
-func kfSelect(args []KeyBuilderStage) KeyBuilderStage {
+func kfSelect(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgCount(args, 2)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		s := args[0](context)
 		idx, err := strconv.Atoi(args[1](context))
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 
 		return selectField(s, idx)
-	})
+	}), nil
 }
 
 func selectField(s string, idx int) string {
@@ -147,9 +147,9 @@ func selectField(s string, idx int) string {
 
 // {format str args...}
 // just like fmt.Sprintf
-func kfFormat(args []KeyBuilderStage) KeyBuilderStage {
+func kfFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgRange(args, "1+")
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		format := args[0](context)
@@ -160,61 +160,61 @@ func kfFormat(args []KeyBuilderStage) KeyBuilderStage {
 		}
 
 		return fmt.Sprintf(format, printArgs...)
-	})
+	}), nil
 }
 
-func kfHumanizeInt(args []KeyBuilderStage) KeyBuilderStage {
+func kfHumanizeInt(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgCount(args, 1)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.Atoi(args[0](context))
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 		return humanize.Hi32(val)
-	})
+	}), nil
 }
 
-func kfHumanizeFloat(args []KeyBuilderStage) KeyBuilderStage {
+func kfHumanizeFloat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgCount(args, 1)
 	}
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.ParseFloat(args[0](context), 64)
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 		return humanize.Hf(val)
-	})
+	}), nil
 }
 
-func kfBytesize(args []KeyBuilderStage) KeyBuilderStage {
+func kfBytesize(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) < 1 {
-		return stageLiteral(ErrorArgCount)
+		return stageErrArgRange(args, "1+")
 	}
 
 	precision, err := strconv.Atoi(EvalStageIndexOrDefault(args, 1, "0"))
 	if err != nil {
-		return stageLiteral(ErrorType)
+		return stageError(ErrNum)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		val, err := strconv.ParseUint(args[0](context), 10, 64)
 		if err != nil {
-			return ErrorType
+			return ErrorNum
 		}
 		return humanize.AlwaysByteSize(val, precision)
-	})
+	}), nil
 }
 
 func kfJoin(delim rune) KeyBuilderFunction {
-	return func(args []KeyBuilderStage) KeyBuilderStage {
+	return func(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		if len(args) == 0 {
 			return stageLiteral("")
 		}
 		if len(args) == 1 {
-			return args[0]
+			return args[0], nil
 		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			var sb strings.Builder
@@ -224,6 +224,6 @@ func kfJoin(delim rune) KeyBuilderFunction {
 				sb.WriteString(arg(context))
 			}
 			return sb.String()
-		})
+		}), nil
 	}
 }

@@ -5,14 +5,14 @@ import (
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
-func kfPathManip(manipulator func(string) string) func([]KeyBuilderStage) KeyBuilderStage {
-	return func(args []KeyBuilderStage) KeyBuilderStage {
+func kfPathManip(manipulator func(string) string) KeyBuilderFunction {
+	return func(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		if len(args) != 1 {
-			return stageLiteral(ErrorArgCount)
+			return stageErrArgCount(args, 1)
 		}
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			return manipulator(args[0](context))
-		})
+		}), nil
 	}
 }
 
