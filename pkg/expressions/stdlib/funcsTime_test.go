@@ -106,10 +106,13 @@ func TestDurationFormat(t *testing.T) {
 // Bucketing
 
 func TestTimeBucketFormat(t *testing.T) {
-	testExpression(t,
-		mockContext("14/Apr/2016:19:12:25 +0200"),
-		"{buckettime {0} d nginx}",
-		"2016-04-14")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25.123 +0200"), "{buckettime {0} nanos nginx}", "2016-04-14 19:12:25.123")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25.123 +0200"), "{buckettime {0} sec nginx}", "2016-04-14 19:12:25")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25 +0200"), "{buckettime {0} min nginx}", "2016-04-14 19:12")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25 +0200"), "{buckettime {0} hour nginx}", "2016-04-14 19")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25 +0200"), "{buckettime {0} d nginx}", "2016-04-14")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25 +0200"), "{buckettime {0} mon nginx}", "2016-04")
+	testExpression(t, mockContext("14/Apr/2016:19:12:25 +0200"), "{buckettime {0} year nginx}", "2016")
 	testExpressionErr(t, mockContext(), "{buckettime a} {buckettime a b c d e} {buckettime 0 bla}", "<ARGN> <ARGN> <ENUM>")
 }
 
