@@ -41,7 +41,7 @@ func kfArraySplit(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 	byVal := EvalStageIndexOrDefault(args, 1, " ")
 	if len(byVal) == 0 {
-		return stageError(ErrEmpty)
+		return stageArgError(ErrEmpty, 1)
 	}
 
 	return func(context KeyBuilderContext) string {
@@ -79,7 +79,7 @@ func kfArraySelect(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 	index, err := strconv.Atoi(EvalStageOrDefault(args[1], ""))
 	if err != nil {
-		return stageError(ErrNum)
+		return stageArgError(ErrNum, 1)
 	}
 
 	return func(context KeyBuilderContext) string {

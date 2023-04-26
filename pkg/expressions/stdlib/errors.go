@@ -45,6 +45,12 @@ func stageError(err funcError) (KeyBuilderStage, error) {
 	}, err.err
 }
 
+func stageArgError(err funcError, argIndex int) (KeyBuilderStage, error) {
+	return func(ctx KeyBuilderContext) string {
+		return err.expr
+	}, fmt.Errorf("argument %d, %w", argIndex+1, err.err)
+}
+
 func stageErrArgCount(got []KeyBuilderStage, expected int) (KeyBuilderStage, error) {
 	return stageError(funcError{
 		ErrorArgCount,
