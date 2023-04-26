@@ -110,8 +110,8 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 // By default, will attempt to auto-detect and cache format
 // {func <time> [format:cache] [tz:utc]}
 func kfTimeParse(args []KeyBuilderStage) (KeyBuilderStage, error) {
-	if len(args) < 1 {
-		return stageErrArgRange(args, "1+")
+	if !isArgCountBetween(args, 1, 3) {
+		return stageErrArgRange(args, "1-3")
 	}
 
 	// Special key-words for time (eg "now")
@@ -139,8 +139,8 @@ func kfTimeParse(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 // {func <unixtime> [format:RFC3339] [tz:utc]}
 func kfTimeFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
-	if len(args) < 1 {
-		return stageErrArgRange(args, "1+")
+	if !isArgCountBetween(args, 1, 3) {
+		return stageErrArgRange(args, "1-3")
 	}
 	format := namedTimeFormatToFormat(EvalStageIndexOrDefault(args, 1, defaultTimeFormat))
 
@@ -219,8 +219,8 @@ func timeBucketToFormat(name string) string {
 
 // {func <time> <bucket> [format:auto] [tz:utc]}
 func kfBucketTime(args []KeyBuilderStage) (KeyBuilderStage, error) {
-	if len(args) < 2 {
-		return stageErrArgRange(args, "2+")
+	if !isArgCountBetween(args, 2, 4) {
+		return stageErrArgRange(args, "2-4")
 	}
 
 	bucketFormat := timeBucketToFormat(EvalStageOrDefault(args[1], "day"))

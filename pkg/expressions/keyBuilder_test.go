@@ -35,7 +35,20 @@ func TestSimpleReplacement(t *testing.T) {
 func TestUnterminatedReplacement(t *testing.T) {
 	kb, err := NewKeyBuilder().Compile("{0} is {123")
 	assert.Error(t, err)
+	assert.Len(t, err.Errors, 1)
+	assert.NotEmpty(t, err.Error())
 	assert.NotNil(t, kb) // Still returns workable expression, but with errors
+}
+
+func TestManyErrors(t *testing.T) {
+	kb, err := NewKeyBuilder().Compile("{0} is {abc 1} and {unclosed")
+	assert.NotNil(t, kb)
+	assert.Error(t, err)
+	assert.Len(t, err.Errors, 2)
+	assert.ErrorIs(t, err.Errors[0], ErrorMissingFunction)
+	assert.ErrorIs(t, err.Errors[1], ErrorUnterminated)
+	assert.ErrorIs(t, err, ErrorMissingFunction)
+	assert.NotEmpty(t, err.Error())
 }
 
 func TestEscapedString(t *testing.T) {

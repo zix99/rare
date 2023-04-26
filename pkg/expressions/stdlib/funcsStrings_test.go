@@ -1,6 +1,7 @@
 package stdlib
 
 import (
+	"rare/pkg/expressions"
 	"strings"
 	"testing"
 
@@ -32,6 +33,12 @@ func TestSelect(t *testing.T) {
 		"{select {0} 0} {select {0} 1} {select {0} 2} {select {0} 3} {select 0} {select {1} 1}",
 		"ab c d  <ARGN> q")
 	testExpression(t, mockContext(), `{select "ab cd ef" 1}`, "cd")
+}
+
+func TestJoinEmpty(t *testing.T) {
+	stage, err := kfJoin('-')([]expressions.KeyBuilderStage{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", stage(mockContext()))
 }
 
 func TestSelectField(t *testing.T) {

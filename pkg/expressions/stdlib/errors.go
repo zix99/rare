@@ -28,8 +28,8 @@ const (
 
 // Compilation errors
 var (
-	ErrNum     = newFuncErr(ErrorNum, "invalid arg type, expected int") // always numeric?
-	ErrParsing = newFuncErr(ErrorParsing, "unable to parse")            // always non-numeric?
+	ErrNum     = newFuncErr(ErrorNum, "invalid arg type, expected int") // always numeric
+	ErrParsing = newFuncErr(ErrorParsing, "unable to parse")            // always non-numeric
 	ErrConst   = newFuncErr(ErrorConst, "expected const")
 	ErrEnum    = newFuncErr(ErrorEnum, "unable to find value in set")
 	ErrEmpty   = newFuncErr(ErrorEmpty, "invalid empty value")

@@ -11,7 +11,5 @@ func literal(s string) KeyBuilderStage {
 }
 
 func stageLiteral(s string) (KeyBuilderStage, error) {
-	return func(ctx KeyBuilderContext) string {
-		return s
-	}, nil
+	return literal(s), nil
 }

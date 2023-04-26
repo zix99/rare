@@ -59,6 +59,7 @@ func (s *CompilerErrors) empty() bool {
 	return len(s.Errors) == 0
 }
 
+// Inherit all errors from another compiler error set, and offset the index eg. if nested compile
 func (s *CompilerErrors) inherit(other *CompilerErrors, offset int) {
 	for _, oe := range other.Errors {
 		s.add(oe.Err, oe.Context, oe.Index+offset)
