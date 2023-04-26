@@ -59,6 +59,35 @@ func TestSelectFieldQuoted(t *testing.T) {
 	assert.Equal(t, "  a test ", selectField(`this is "  a test `, 2))
 }
 
+func TestSimpleFunction(t *testing.T) {
+	kb, _ := NewStdKeyBuilder().Compile("{hi {2}} {hf {3}}")
+	key := kb.BuildKey(mockContext("ab", "100", "1000000", "5000000.123456", "22"))
+	assert.Equal(t, "1,000,000 5,000,000.1235", key)
+}
+
+func TestByteSize(t *testing.T) {
+	testExpression(t, mockContext("1000000"), "{bytesize {0}}", "977 KB")
+	testExpression(t, mockContext("1000000"), "{bytesize {0} 2}", "976.56 KB")
+}
+
+func TestFormat(t *testing.T) {
+	testExpression(t, mockContext(), `{format "%10s" abc}`, "       abc")
+}
+
+func TestStringPrefixSufix(t *testing.T) {
+	testExpression(t, mockContext(), "{prefix abc a} {suffix abc c} {prefix abc b} {suffix abc b}",
+		"abc abc  ")
+}
+
+func TestTabulator(t *testing.T) {
+	testExpression(t, mockContext(), "{tab a b} {tab a b c}", "a\tb a\tb\tc")
+}
+
+func TestHumanize(t *testing.T) {
+	testExpression(t, mockContext(), "{hi 12345} {hf 12345.123512} {hi abc} {hf abc}",
+		"12,345 12,345.1235 <BAD-TYPE> <BAD-TYPE>")
+}
+
 func BenchmarkSplitFields(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		strings.Fields("this  is\ta\ntest\x00really")
