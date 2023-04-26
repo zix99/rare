@@ -17,6 +17,8 @@ func TestTimeExpression(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{time {0} NGINX}",
 		"1460653945")
+	testExpressionErr(t, mockContext(""), "{time a}", "<PARSE-ERROR>")
+	testExpressionErr(t, mockContext(""), "{time a b c d e}", "<ARGN>")
 }
 
 func TestFormatExpression(t *testing.T) {
@@ -35,6 +37,8 @@ func TestFormatExpression(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		`{timeformat {time {0}} "" utc}`,
 		"2016-04-14T17:12:25Z")
+	// Errors
+	testExpressionErr(t, mockContext(), "{timeformat a b c d}", "<ARGN>")
 }
 
 func TestTimeExpressionDetection(t *testing.T) {
@@ -85,6 +89,7 @@ func TestDuration(t *testing.T) {
 		mockContext(),
 		"{duration 24h}",
 		strconv.Itoa(60*60*24))
+	testExpressionErr(t, mockContext(), "{duration 24h stuff}", "<ARGN>")
 }
 
 func TestDurationFormat(t *testing.T) {
@@ -105,6 +110,7 @@ func TestTimeBucketFormat(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{buckettime {0} d nginx}",
 		"2016-04-14")
+	testExpressionErr(t, mockContext(), "{buckettime a} {buckettime a b c d e} {buckettime 0 bla}", "<ARGN> <ARGN> <ENUM>")
 }
 
 func TestTimeBucketFormatDetection(t *testing.T) {
@@ -140,6 +146,9 @@ func TestTimeAttr(t *testing.T) {
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} quarter}",
 		"2")
+
+	testExpressionErr(t, mockContext("a"), "{timeattr {time now} {0}}", "<CONST>")
+	testExpressionErr(t, mockContext("a"), "{timeattr {time now} bad-value}", "<ENUM>")
 }
 
 func TestTimeAttrToLocal(t *testing.T) {
