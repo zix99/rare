@@ -14,6 +14,13 @@ func TestExpressionCmd(t *testing.T) {
 	)
 }
 
+func TestExpressionOnlyOutput(t *testing.T) {
+	o, e, err := testCommandCapture(expressionCommand(), `-d bob "hello {0}"`)
+	assert.NoError(t, err)
+	assert.Equal(t, e, "")
+	assert.Equal(t, o, "hello bob\n")
+}
+
 func TestExpressionResults(t *testing.T) {
 	o, e, err := testCommandCapture(expressionCommand(), `-s -d bob "abc {0}"`)
 	assert.NoError(t, err)
