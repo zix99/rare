@@ -196,7 +196,7 @@ func kfBytesize(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 	precision, err := strconv.Atoi(EvalStageIndexOrDefault(args, 1, "0"))
 	if err != nil {
-		return stageError(ErrNum)
+		return stageArgError(ErrNum, 1)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {

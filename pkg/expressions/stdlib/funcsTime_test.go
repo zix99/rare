@@ -12,13 +12,13 @@ import (
 
 // Basic / Time parsing
 
-func TestTimeExpression(t *testing.T) {
+func TestTimeExpressionErr(t *testing.T) {
 	testExpression(t,
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{time {0} NGINX}",
 		"1460653945")
-	testExpressionErr(t, mockContext(""), "{time a}", "<PARSE-ERROR>")
-	testExpressionErr(t, mockContext(""), "{time a b c d e}", "<ARGN>")
+	testExpression(t, mockContext(""), "{time a}", "<PARSE-ERROR>")
+	testExpressionErr(t, mockContext(""), "{time a b c d e}", "<ARGN>", ErrArgCount)
 }
 
 func TestFormatExpression(t *testing.T) {
@@ -97,10 +97,10 @@ func TestDurationFormat(t *testing.T) {
 		mockContext("14400"),
 		"{durationformat {0}}",
 		"4h0m0s")
-	testExpression(t,
+	testExpressionErr(t,
 		mockContext("14400"),
 		"{durationformat {0} b}",
-		"<ARGN>")
+		"<ARGN>", ErrArgCount)
 }
 
 // Bucketing
@@ -162,24 +162,24 @@ func TestTimeAttrToLocal(t *testing.T) {
 }
 
 func TestTimeAttrToBadTZ(t *testing.T) {
-	testExpression(t,
+	testExpressionErr(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} weekday asdf}",
-		"<PARSE-ERROR>")
+		"<PARSE-ERROR>", ErrParsing)
 }
 
 func TestTimeAttrArgError(t *testing.T) {
-	testExpression(t,
+	testExpressionErr(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}}}",
-		"<ARGN>")
+		"<ARGN>", ErrArgCount)
 }
 
 func TestTimeAttrArgErrorExtra(t *testing.T) {
-	testExpression(t,
+	testExpressionErr(t,
 		mockContext("14/Apr/2016 01:00:00"),
 		"{timeattr {time {0}} a b c}",
-		"<ARGN>")
+		"<ARGN>", ErrArgCount)
 }
 
 // Utilities

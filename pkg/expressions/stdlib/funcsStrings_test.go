@@ -9,15 +9,18 @@ import (
 )
 
 func TestUpperLower(t *testing.T) {
-	testExpression(t, mockContext("aBc"), "{upper {0}} {upper a b}", "ABC <ARGN>")
-	testExpression(t, mockContext("aBc"), "{lower {0}} {lower a b}", "abc <ARGN>")
+	testExpressionErr(t, mockContext("aBc"), "{upper {0}} {upper a b}", "ABC <ARGN>", ErrArgCount)
+	testExpressionErr(t, mockContext("aBc"), "{lower {0}} {lower a b}", "abc <ARGN>", ErrArgCount)
 }
 
 func TestSubstring(t *testing.T) {
 	testExpression(t,
 		mockContext("abcd"),
-		"{substr {0} 0 2} {substr {0} 0 10} {substr {0} 3 2} {substr {0} 3 1} {substr 0}",
-		"ab abcd d d <ARGN>")
+		"{substr {0} 0 2} {substr {0} 0 10} {substr {0} 3 2} {substr {0} 3 1}",
+		"ab abcd d d")
+	testExpressionErr(t,
+		mockContext("abcd"),
+		"{substr 0}", "<ARGN>", ErrArgCount)
 }
 
 func TestSubstringOutOfBounds(t *testing.T) {
@@ -30,9 +33,10 @@ func TestSubstringOutOfBounds(t *testing.T) {
 func TestSelect(t *testing.T) {
 	testExpression(t,
 		mockContext("ab c d", "ab\tq"),
-		"{select {0} 0} {select {0} 1} {select {0} 2} {select {0} 3} {select 0} {select {1} 1}",
-		"ab c d  <ARGN> q")
+		"{select {0} 0} {select {0} 1} {select {0} 2} {select {0} 3} {select {1} 1}",
+		"ab c d  q")
 	testExpression(t, mockContext(), `{select "ab cd ef" 1}`, "cd")
+	testExpressionErr(t, mockContext(), `{select 0}`, "<ARGN>", ErrArgCount)
 }
 
 func TestJoinEmpty(t *testing.T) {

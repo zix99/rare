@@ -26,7 +26,7 @@ func TestBucket(t *testing.T) {
 		mockContext("1000", "1200", "1234"),
 		"{bucket {0} 1000} {bucket {1} 1000} {bucket {2} 1000} {bucket {2} 100}",
 		"1000 1000 1000 1200")
-	testExpression(t, mockContext(), "{bucket abc 100} {bucket 1}", "<BAD-TYPE> <ARGN>")
+	testExpressionErr(t, mockContext(), "{bucket abc 100} {bucket 1}", "<BAD-TYPE> <ARGN>", ErrArgCount)
 }
 
 func TestExpBucket(t *testing.T) {

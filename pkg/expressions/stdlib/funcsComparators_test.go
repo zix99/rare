@@ -18,7 +18,8 @@ func TestIfStatement(t *testing.T) {
 }
 
 func TestUnlessStatement(t *testing.T) {
-	testExpression(t, mockContext("abc"), `{unless {1} {0}} {unless abc efg} {unless "" bob} {unless joe}`, "abc  bob <ARGN>")
+	testExpression(t, mockContext("abc"), `{unless {1} {0}} {unless abc efg} {unless "" bob}`, "abc  bob")
+	testExpressionErr(t, mockContext("abc"), `{unless joe}`, "<ARGN>", ErrArgCount)
 }
 
 func TestComparisonEquality(t *testing.T) {

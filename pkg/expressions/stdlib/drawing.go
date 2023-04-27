@@ -44,11 +44,11 @@ func kfBar(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 	maxVal, err := strconv.ParseInt(EvalStageOrDefault(args[1], ""), 10, 64)
 	if err != nil {
-		return stageError(ErrNum)
+		return stageArgError(ErrNum, 1)
 	}
 	maxLen, err := strconv.ParseInt(EvalStageOrDefault(args[2], ""), 10, 64)
 	if err != nil {
-		return stageError(ErrNum)
+		return stageArgError(ErrNum, 2)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {

@@ -34,8 +34,8 @@ func TestBarGraph(t *testing.T) {
 }
 
 func TestBarGraphErrorCases(t *testing.T) {
-	testExpression(t, mockContext(), "{bar 1}", "<ARGN>")
+	testExpressionErr(t, mockContext(), "{bar 1}", "<ARGN>", ErrArgCount)
 	testExpression(t, mockContext(), "{bar a 2 3}", "<BAD-TYPE>")
-	testExpression(t, mockContext(), "{bar 3 {1} {2}}", "<BAD-TYPE>")
+	testExpressionErr(t, mockContext(), "{bar 3 {1} {2}}", "<BAD-TYPE>", ErrNum)
 	testExpression(t, mockContext("a"), "{bar {0} 5 5}", "<BAD-TYPE>")
 }
