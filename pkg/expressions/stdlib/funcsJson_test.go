@@ -13,7 +13,7 @@ func TestJsonSingleArg(t *testing.T) {
 }
 
 func TestJsonManyArgs(t *testing.T) {
-	testExpression(t, mockContext(`{"abc":456}`), `{json {0} abc woops}`, "<ARGN>")
+	testExpressionErr(t, mockContext(`{"abc":456}`), `{json {0} abc woops}`, "<ARGN>", ErrArgCount)
 }
 
 func TestJsonComplexObject(t *testing.T) {

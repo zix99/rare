@@ -6,7 +6,8 @@ import (
 )
 
 func TestBaseName(t *testing.T) {
-	testExpression(t, mockContext("ab/c/d"), "{basename {0}} {basename a b}", "d <ARGN>")
+	testExpression(t, mockContext("ab/c/d"), "{basename {0}}", "d")
+	testExpressionErr(t, mockContext("ab/c/d"), "{basename a b}", "<ARGN>", ErrArgCount)
 }
 
 func TestDirName(t *testing.T) {

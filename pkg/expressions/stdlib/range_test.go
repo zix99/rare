@@ -30,17 +30,19 @@ func TestArraySplit(t *testing.T) {
 		`{@split {0}}`,
 		"a\x00b\tc",
 	)
-	testExpression(
+	testExpressionErr(
 		t,
 		mockContext("a b\tc"),
 		`{@split {0} ""}`,
 		"<EMPTY>",
+		ErrEmpty,
 	)
-	testExpression(
+	testExpressionErr(
 		t,
 		mockContext("a b\tc"),
 		`{@split {0} "" "c"}`,
 		"<ARGN>",
+		ErrArgCount,
 	)
 }
 
@@ -69,11 +71,12 @@ func TestArrayJoin(t *testing.T) {
 		`{@join {0}}`,
 		"a b c",
 	)
-	testExpression(
+	testExpressionErr(
 		t,
 		mockContext("a\x00b\x00c"),
 		`{@join {0} ", " "c"}`,
 		"<ARGN>",
+		ErrArgCount,
 	)
 }
 
@@ -98,11 +101,12 @@ func TestArrayMap(t *testing.T) {
 		`{@join {@map {0} "{multi {0} 2}"} ", "}`,
 		"10, 2, 6",
 	)
-	testExpression(
+	testExpressionErr(
 		t,
 		mockContext(expressions.MakeArray("5", "1", "3")),
 		`{@join {@map {0} "{multi {0} 2}" ""} ", "}`,
 		"<ARGN>",
+		ErrArgCount,
 	)
 }
 
@@ -113,11 +117,12 @@ func TestArrayReduce(t *testing.T) {
 		`{@reduce {@split {0} " "} "{sumi {0} {1}}"}`,
 		"8",
 	)
-	testExpression(
+	testExpressionErr(
 		t,
 		mockContext("0 1 2 5"),
 		`{@reduce {@split {0} " "} "{sumi {0} {1}}" bla}`,
 		"<ARGN>",
+		ErrArgCount,
 	)
 	testExpression(
 		t,
@@ -158,11 +163,12 @@ func TestArraySlice(t *testing.T) {
 		`{@join {@slice {@split {0} " "} -3 2}}`,
 		"1 2",
 	)
-	testExpression(
+	testExpressionErr(
 		t,
 		mockContext("0 1 2 5"),
 		`{@join {@slice {@split {0} " "} 1 2 bla}}`,
 		"<ARGN>",
+		ErrArgCount,
 	)
 }
 
@@ -191,11 +197,12 @@ func TestArrayFilter(t *testing.T) {
 		`{@join {@filter {0} "1"} ","}`,
 		",123,,456",
 	)
-	testExpression(
+	testExpressionErr(
 		t,
 		mockContext(expressions.MakeArray("a", "123", "b", "455")),
 		`{@join {@filter {0}}}`,
 		"<ARGN>",
+		ErrArgCount,
 	)
 }
 

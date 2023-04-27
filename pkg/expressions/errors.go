@@ -48,7 +48,10 @@ func (s *CompilerErrors) Error() string {
 }
 
 func (s *CompilerErrors) Unwrap() error {
-	return s.Errors[0]
+	if len(s.Errors) > 0 {
+		return s.Errors[0]
+	}
+	return nil
 }
 
 func (s *CompilerErrors) add(underlying error, context string, offset int) {

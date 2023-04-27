@@ -19,8 +19,8 @@ func mockContext(args ...interface{}) KeyBuilderContext {
 }
 
 func testExpression(t *testing.T, context KeyBuilderContext, expression string, expected string) {
-	kb, _ := NewStdKeyBuilder().Compile(expression)
-	//assert.NoError(t, err) // TODO: This is a soft-failure
+	kb, err := NewStdKeyBuilder().Compile(expression)
+	assert.Nil(t, err)
 	assert.NotNil(t, kb)
 	if kb != nil {
 		ret := kb.BuildKey(context)
@@ -29,7 +29,7 @@ func testExpression(t *testing.T, context KeyBuilderContext, expression string, 
 }
 
 // if expected is nil, any error is acceptable
-func testExpressionErr(t *testing.T, context KeyBuilderContext, expression string, evalsTo string, expected ...error) {
+func testExpressionErr(t *testing.T, context KeyBuilderContext, expression string, evalsTo string, expected ...interface{}) {
 	kb, err := NewStdKeyBuilder().Compile(expression)
 	if evalsTo == "" {
 		assert.Nil(t, kb, "Expected not compiled with error")
@@ -39,9 +39,16 @@ func testExpressionErr(t *testing.T, context KeyBuilderContext, expression strin
 			assert.Equal(t, evalsTo, kb.BuildKey(context))
 		}
 	}
-	if len(expected) == 0 {
-		assert.Error(t, err)
-	} else {
-		assert.ErrorIs(t, err, expected[0])
+
+	assert.NotNil(t, err, "Expected error")
+	if len(expected) > 0 && err != nil {
+		switch e := expected[0].(type) {
+		case funcError:
+			assert.ErrorIs(t, err, e.err)
+		case error:
+			assert.ErrorIs(t, err, e)
+		default:
+			t.Error("Invalid type assertion, expected error or funcError")
+		}
 	}
 }
