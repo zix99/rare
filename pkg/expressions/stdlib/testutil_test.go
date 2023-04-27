@@ -51,4 +51,7 @@ func testExpressionErr(t *testing.T, context KeyBuilderContext, expression strin
 			t.Error("Invalid type assertion, expected error or funcError")
 		}
 	}
+	if len(expected) > 1 {
+		t.Error("Only supports one error assertion")
+	}
 }
