@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"os"
+	"rare/pkg/testutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,6 +21,19 @@ func TestExpressionOnlyOutput(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, e, "")
 	assert.Equal(t, o, "hello bob\n")
+}
+
+func TestExpressionReadStdin(t *testing.T) {
+	o, e, err := testutil.Capture(func(w *os.File) error {
+		go func() {
+			w.WriteString("hello {0}")
+			w.Close()
+		}()
+		return testCommand(expressionCommand(), `-n -d bob -`)
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, e, "")
+	assert.Equal(t, o, "hello bob")
 }
 
 func TestExpressionResults(t *testing.T) {

@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"rare/pkg/color"
 	"rare/pkg/expressions"
@@ -30,11 +31,18 @@ func expressionFunction(c *cli.Context) error {
 	)
 
 	if c.NArg() != 1 {
-		return errors.New("expected exactly 1 expression argument")
+		return errors.New("expected exactly 1 expression argument. Use - for stdin")
 	}
 
 	if expString == "" {
 		return errors.New("empty expression")
+	}
+	if expString == "-" {
+		b, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return errors.New("error reading input")
+		}
+		expString = string(b)
 	}
 
 	builder := stdlib.NewStdKeyBuilderEx(!noOptimize)
@@ -131,9 +139,9 @@ func buildSpecialKeyJson(matches []string, values map[string]string) string {
 func expressionCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "expression",
-		Usage:       "Test and benchmark expressions",
+		Usage:       "Evaluate and benchmark expressions",
 		Description: "Given an expression, and optionally some data, test the output and performance of an expression",
-		ArgsUsage:   "<expression>",
+		ArgsUsage:   "<expression|->",
 		Aliases:     []string{"exp"},
 		Action:      expressionFunction,
 		Category:    cmdCatHelp,
@@ -141,7 +149,7 @@ func expressionCommand() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "skip-newline",
 				Aliases: []string{"n"},
-				Usage:   "When printing out only the result, don't add a newline character",
+				Usage:   "Don't add a newline character when printing plain result",
 			},
 			&cli.BoolFlag{
 				Name:    "benchmark",
