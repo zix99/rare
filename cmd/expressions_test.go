@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"os"
+	"rare/pkg/testutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,6 +14,26 @@ func TestExpressionCmd(t *testing.T) {
 		`"a b c"`,
 		`-b -s -d test --key a=b "abc {0} {a}"`,
 	)
+}
+
+func TestExpressionOnlyOutput(t *testing.T) {
+	o, e, err := testCommandCapture(expressionCommand(), `-d bob "hello {0}"`)
+	assert.NoError(t, err)
+	assert.Equal(t, e, "")
+	assert.Equal(t, o, "hello bob\n")
+}
+
+func TestExpressionReadStdin(t *testing.T) {
+	o, e, err := testutil.Capture(func(w *os.File) error {
+		go func() {
+			w.WriteString("hello {0}")
+			w.Close()
+		}()
+		return testCommand(expressionCommand(), `-n -d bob -`)
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, e, "")
+	assert.Equal(t, o, "hello bob")
 }
 
 func TestExpressionResults(t *testing.T) {
@@ -28,6 +50,23 @@ Stats
   Match Lookups: 1
   Key   Lookups: 0
 `, o)
+}
+
+func TestExpressionErrors(t *testing.T) {
+	o, e, err := testCommandCapture(expressionCommand(), "")
+	assert.Error(t, err)
+	assert.Empty(t, o)
+	assert.NotEmpty(t, e)
+
+	o, e, err = testCommandCapture(expressionCommand(), `-s ""`)
+	assert.Error(t, err)
+	assert.Empty(t, o)
+	assert.NotEmpty(t, e)
+
+	o, e, err = testCommandCapture(expressionCommand(), `-s "unterm {"`)
+	assert.Error(t, err)
+	assert.Empty(t, o)
+	assert.NotEmpty(t, e)
 }
 
 func TestKeyParser(t *testing.T) {

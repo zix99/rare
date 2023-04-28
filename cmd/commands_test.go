@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"rare/pkg/testutil"
 	"testing"
@@ -33,7 +34,8 @@ func testCommand(command *cli.Command, cmd string) error {
 		command,
 	}
 	app.ExitErrHandler = func(context *cli.Context, err error) {
-		// disabled
+		// disabled failure
+		fmt.Fprint(os.Stderr, err.Error())
 	}
 
 	commandArgs := append([]string{"app", "_testcommand"}, testutil.SplitQuotedString(cmd)...)

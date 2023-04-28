@@ -3,6 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io"
+	"os"
 	"rare/pkg/color"
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/exprofiler"
@@ -18,31 +20,42 @@ import (
 
 func expressionFunction(c *cli.Context) error {
 	var (
-		expString  = c.Args().First()
-		noOptimize = c.Bool("no-optimize")
-		data       = c.StringSlice("data")
-		keyPairs   = c.StringSlice("key")
-		benchmark  = c.Bool("benchmark")
-		stats      = c.Bool("stats")
+		expString   = c.Args().First()
+		noOptimize  = c.Bool("no-optimize")
+		data        = c.StringSlice("data")
+		keyPairs    = c.StringSlice("key")
+		benchmark   = c.Bool("benchmark")
+		stats       = c.Bool("stats")
+		skipNewline = c.Bool("skip-newline")
+		detailed    = stats || benchmark
 	)
 
 	if c.NArg() != 1 {
-		return errors.New("expected exactly 1 expression argument")
+		return errors.New("expected exactly 1 expression argument. Use - for stdin")
 	}
 
 	if expString == "" {
 		return errors.New("empty expression")
 	}
+	if expString == "-" {
+		b, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return errors.New("error reading input")
+		}
+		expString = string(b)
+	}
 
 	builder := stdlib.NewStdKeyBuilderEx(!noOptimize)
 	compiled, err := builder.Compile(expString)
+
+	if err != nil {
+		fmt.Fprint(os.Stderr, err.Error())
+		return errors.New("compile error")
+	}
+
 	expCtx := expressions.KeyBuilderContextArray{
 		Elements: data,
 		Keys:     parseKeyValuesIntoMap(keyPairs...),
-	}
-
-	if err != nil {
-		return err
 	}
 
 	// Emulate special keys
@@ -58,9 +71,16 @@ func expressionFunction(c *cli.Context) error {
 	}
 
 	// Output results
-	fmt.Printf("Expression: %s\n", color.Wrap(color.BrightWhite, expString))
 	result := compiled.BuildKey(&expCtx)
-	fmt.Printf("Result:     %s\n", color.Wrap(color.BrightYellow, result))
+	if detailed {
+		fmt.Printf("Expression: %s\n", color.Wrap(color.BrightWhite, expString))
+		fmt.Printf("Result:     %s\n", color.Wrap(color.BrightYellow, result))
+	} else {
+		fmt.Print(result)
+		if !skipNewline {
+			fmt.Println()
+		}
+	}
 
 	if stats {
 		stats := exprofiler.GetMetrics(compiled, &expCtx)
@@ -119,13 +139,18 @@ func buildSpecialKeyJson(matches []string, values map[string]string) string {
 func expressionCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "expression",
-		Usage:       "Test and benchmark expressions",
+		Usage:       "Evaluate and benchmark expressions",
 		Description: "Given an expression, and optionally some data, test the output and performance of an expression",
-		ArgsUsage:   "<expression>",
+		ArgsUsage:   "<expression|->",
 		Aliases:     []string{"exp"},
 		Action:      expressionFunction,
 		Category:    cmdCatHelp,
 		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "skip-newline",
+				Aliases: []string{"n"},
+				Usage:   "Don't add a newline character when printing plain result",
+			},
 			&cli.BoolFlag{
 				Name:    "benchmark",
 				Aliases: []string{"b"},
