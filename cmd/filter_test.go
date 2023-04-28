@@ -58,7 +58,7 @@ func TestFilterFileNotExist(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, 2, err.(cli.ExitCoder).ExitCode())
 	assert.Equal(t, "", out)
-	assert.Equal(t, "Matched: 0 / 0\n", eout)
+	assert.Equal(t, "Matched: 0 / 0\nRead errors", eout)
 }
 
 func TestFilterNoMatches(t *testing.T) {

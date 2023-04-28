@@ -52,6 +52,23 @@ Stats
 `, o)
 }
 
+func TestExpressionErrors(t *testing.T) {
+	o, e, err := testCommandCapture(expressionCommand(), "")
+	assert.Error(t, err)
+	assert.Empty(t, o)
+	assert.NotEmpty(t, e)
+
+	o, e, err = testCommandCapture(expressionCommand(), `-s ""`)
+	assert.Error(t, err)
+	assert.Empty(t, o)
+	assert.NotEmpty(t, e)
+
+	o, e, err = testCommandCapture(expressionCommand(), `-s "unterm {"`)
+	assert.Error(t, err)
+	assert.Empty(t, o)
+	assert.NotEmpty(t, e)
+}
+
 func TestKeyParser(t *testing.T) {
 	k, v := parseKeyValue("")
 	assert.Empty(t, k)
