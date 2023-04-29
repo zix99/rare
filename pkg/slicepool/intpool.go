@@ -5,6 +5,9 @@ type IntPool struct {
 	pool []int
 }
 
+// Create an slice of integers, and release chunks at a team for read-write.
+// If run out of pool space, will create a new pool of `size`
+// Use when need lots of small int slices, as will limit total allocs
 func NewIntPool(size int) *IntPool {
 	return &IntPool{
 		size: size,
