@@ -90,8 +90,9 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"extname":  kfPathExt,
 
 	// Formatting
-	"hi": KeyBuilderFunction(kfHumanizeInt),
-	"hf": KeyBuilderFunction(kfHumanizeFloat),
+	"hi":      KeyBuilderFunction(kfHumanizeInt),
+	"hf":      KeyBuilderFunction(kfHumanizeFloat),
+	"percent": kfPercent,
 
 	// Json
 	"json": KeyBuilderFunction(kfJsonQuery),

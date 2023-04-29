@@ -215,10 +215,11 @@ Repeats the "string" the specified number of times
 
 #### Humanize Number (Add Commas)
 
-Syntax: `{hf val}`, `{hi val}`
+Syntax: `{hf val}`, `{hi val}`, `{percent number [precision=1]}`
 
  * hf: Float
  * hi: Int
+ * percent: format as a percentage
 
 Formats a number based with appropriate placement of commas and decimals
 

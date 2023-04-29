@@ -155,10 +155,16 @@ func kfArraySlice(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgRange(args, "2-3")
 	}
 
-	sliceStart := EvalStageInt(args[1], 0)
+	sliceStart, ok := EvalStageInt(args[1], 0)
+	if !ok {
+		return stageArgError(ErrConst, 1)
+	}
 	var sliceLen int = -1
 	if len(args) >= 3 {
-		sliceLen = EvalStageInt(args[2], -1)
+		sliceLen, ok = EvalStageInt(args[2], -1)
+		if !ok {
+			return stageArgError(ErrConst, 2)
+		}
 	}
 
 	return func(context KeyBuilderContext) string {

@@ -69,6 +69,12 @@ func TestSimpleFunction(t *testing.T) {
 	assert.Equal(t, "1,000,000 5,000,000.1235", key)
 }
 
+func TestPercentFunction(t *testing.T) {
+	testExpression(t, mockContext("0.12345"), "{percent {0}}", "12.3%")
+	testExpression(t, mockContext("0.12345"), "{percent {0} 2}", "12.35%")
+	testExpressionErr(t, mockContext("0.12345"), "{percent {0} {0}}", "<CONST>", ErrConst)
+}
+
 func TestByteSize(t *testing.T) {
 	testExpression(t, mockContext("1000000"), "{bytesize {0}}", "977 KB")
 	testExpression(t, mockContext("1000000"), "{bytesize {0} 2}", "976.56 KB")

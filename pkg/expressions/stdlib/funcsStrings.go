@@ -163,6 +163,29 @@ func kfFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}), nil
 }
 
+func kfPercent(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if !isArgCountBetween(args, 1, 2) {
+		return stageErrArgRange(args, "1-2")
+	}
+
+	decimals := 1
+	if len(args) >= 2 {
+		var ok bool
+		decimals, ok = EvalStageInt(args[1], decimals)
+		if !ok {
+			return stageArgError(ErrConst, 1)
+		}
+	}
+
+	return func(context KeyBuilderContext) string {
+		val, err := strconv.ParseFloat(args[0](context), 64)
+		if err != nil {
+			return "Err%"
+		}
+		return strconv.FormatFloat(val*100.0, 'f', decimals, 64) + "%"
+	}, nil
+}
+
 func kfHumanizeInt(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 1 {
 		return stageErrArgCount(args, 1)

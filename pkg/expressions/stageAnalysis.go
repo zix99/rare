@@ -1,6 +1,8 @@
 package expressions
 
-import "strconv"
+import (
+	"strconv"
+)
 
 // monitorContext allows monitoring of context use
 //   largely for static analysis of an expression
@@ -38,11 +40,11 @@ func EvalStageIndexOrDefault(stages []KeyBuilderStage, idx int, dflt string) str
 	return dflt
 }
 
-func EvalStageInt(stage KeyBuilderStage, dflt int) int {
+func EvalStageInt(stage KeyBuilderStage, dflt int) (int, bool) {
 	if s, ok := EvalStaticStage(stage); ok {
 		if v, err := strconv.Atoi(s); err == nil {
-			return v
+			return v, true
 		}
 	}
-	return dflt
+	return dflt, false
 }
