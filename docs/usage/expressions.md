@@ -289,13 +289,15 @@ For example, given the array `[1,2,3]`, and the function
 
 #### @reduce
 
-Syntax: `{@reduce <arr> <reducefunc>}`
+Syntax: `{@reduce <arr> <reducefunc> [initial=""]}`
 
 Evaluates `reducefunc` against each element and a memo. `{0}` is the memo, and
 `{1}` is the current value.
 
 For example, given the array `[1,2,3]`, and the function
 `{@reduce {array} "{sumi {0} {1}}"}`, it will return `6`.
+
+If `initial` is unset, it will use `arr[0]` as the initial value.
 
 #### @filter
 

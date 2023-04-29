@@ -2,6 +2,7 @@ package stdlib
 
 import (
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	"rare/pkg/slicepool"
 	"rare/pkg/stringSplitter"
 	"strconv"
 	"strings"
@@ -14,6 +15,7 @@ type subContext struct {
 }
 
 var _ KeyBuilderContext = &subContext{}
+var subContextPool = slicepool.NewObjectPool[subContext](5)
 
 func (s *subContext) GetMatch(idx int) string {
 	if idx < len(s.vals) {
@@ -111,9 +113,13 @@ func kfArrayMap(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}
 
 	return func(context KeyBuilderContext) string {
-		mapperContext := subContext{
+		mapperContext := subContextPool.Get()
+		defer subContextPool.Return(mapperContext)
+
+		*mapperContext = subContext{
 			parent: context,
 		}
+
 		return arrayOperator(
 			args[0](context),
 			ArraySeparatorString,
@@ -125,14 +131,18 @@ func kfArrayMap(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}, nil
 }
 
-// {@reduce <arr> <reducer>}
+// {@reduce <arr> <reducer> [initial=""]}
 func kfArrayReduce(args []KeyBuilderStage) (KeyBuilderStage, error) {
-	if len(args) != 2 {
-		return stageErrArgCount(args, 2)
+	if !isArgCountBetween(args, 2, 3) {
+		return stageErrArgRange(args, "2-3")
 	}
 
+	initial := EvalStageIndexOrDefault(args, 2, "")
+
 	return func(context KeyBuilderContext) string {
-		mapperContext := subContext{
+		mapperContext := subContextPool.Get()
+		defer subContextPool.Return(mapperContext)
+		*mapperContext = subContext{
 			parent: context,
 		}
 
@@ -141,10 +151,17 @@ func kfArrayReduce(args []KeyBuilderStage) (KeyBuilderStage, error) {
 			Delim: ArraySeparatorString,
 		}
 
-		memo := splitter.Next()
+		var memo string
+		if initial == "" {
+			memo = splitter.Next()
+		} else {
+			memo = initial
+		}
+
 		for !splitter.Done() {
 			memo = mapperContext.Eval(args[1], memo, splitter.Next())
 		}
+
 		return memo
 	}, nil
 }
@@ -208,7 +225,9 @@ func kfArrayFilter(args []KeyBuilderStage) (KeyBuilderStage, error) {
 			Delim: ArraySeparatorString,
 		}
 
-		sub := subContext{
+		sub := subContextPool.Get()
+		defer subContextPool.Return(sub)
+		*sub = subContext{
 			parent: context,
 		}
 
