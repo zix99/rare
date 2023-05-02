@@ -26,6 +26,7 @@ func EvalStaticStage(stage KeyBuilderStage) (ret string, ok bool) {
 	ok = (monitor.keyLookups == 0)
 	return
 }
+
 func EvalStageOrDefault(stage KeyBuilderStage, dflt string) string {
 	if val, ok := EvalStaticStage(stage); ok {
 		return val

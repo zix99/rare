@@ -32,3 +32,13 @@ func TestArithmaticfError(t *testing.T) {
 	key := kb.BuildKey(mockContext())
 	assert.Equal(t, "<ARGN> <BAD-TYPE> <BAD-TYPE> <BAD-TYPE>", key)
 }
+
+func TestFloorCeilRound(t *testing.T) {
+	testExpression(t, mockContext("123.123"), "{floor {0}}", "123")
+	testExpression(t, mockContext("123.123"), "{ceil {0}}", "124")
+	testExpression(t, mockContext("123.123"), "{round {0}}", "123")
+	testExpression(t, mockContext("123.123"), "{round {0} 1}", "123.1")
+	testExpression(t, mockContext("123.126"), "{round {0} 2}", "123.13")
+
+	testExpressionErr(t, mockContext("123.123"), "{floor {0} b}", "<ARGN>", ErrArgCount)
+}

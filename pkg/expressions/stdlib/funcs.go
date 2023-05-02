@@ -1,6 +1,7 @@
 package stdlib
 
 import (
+	"math"
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
@@ -36,6 +37,9 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"subf":  arithmaticHelperf(func(a, b float64) float64 { return a - b }),
 	"multf": arithmaticHelperf(func(a, b float64) float64 { return a * b }),
 	"divf":  arithmaticHelperf(func(a, b float64) float64 { return a / b }),
+	"ceil":  unaryArithmaticHelperfi(func(f float64) int64 { return int64(math.Ceil(f)) }),
+	"floor": unaryArithmaticHelperfi(func(f float64) int64 { return int64(math.Floor(f)) }),
+	"round": kfRound,
 
 	// Comparisons
 	"if":     KeyBuilderFunction(kfIf),

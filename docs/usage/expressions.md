@@ -135,6 +135,14 @@ Evaluates floating points using operator from left to right. Requires at least 2
 
 Eg: `{sumf 1 2 3}` will result in `6`
 
+#### Floor, Ceil, Round
+
+Syntax: `{floor val}`, `{ceil val}`, `{round val [precision=0]}`
+
+Returns the floor, ceil, or rounded format of a floating-point number.
+
+Eg: `{floor 123.765}` will result in `123`
+
 #### Clamp
 
 Syntax: `{clamp intVal "min" "max"}`

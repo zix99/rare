@@ -54,3 +54,41 @@ func arithmaticHelperf(equation func(float64, float64) float64) KeyBuilderFuncti
 		}), nil
 	})
 }
+
+// Helper that takes in a float, operates on it, and spits out an int
+func unaryArithmaticHelperfi(op func(float64) int64) KeyBuilderFunction {
+	return func(args []KeyBuilderStage) (KeyBuilderStage, error) {
+		if len(args) != 1 {
+			return stageErrArgCount(args, 1)
+		}
+
+		return func(context KeyBuilderContext) string {
+			val, err := strconv.ParseFloat(args[0](context), 64)
+			if err != nil {
+				return ErrorNum
+			}
+
+			return strconv.FormatInt(op(val), 10)
+		}, nil
+	}
+}
+
+// {round <val> [precision=0]}
+func kfRound(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if !isArgCountBetween(args, 1, 2) {
+		return stageErrArgRange(args, "1-2")
+	}
+
+	precision := 0
+	if len(args) >= 2 {
+		precision, _ = EvalStageInt(args[1], 0)
+	}
+
+	return func(context KeyBuilderContext) string {
+		val, err := strconv.ParseFloat(args[0](context), 64)
+		if err != nil {
+			return ErrorNum
+		}
+		return strconv.FormatFloat(val, 'f', precision, 64)
+	}, nil
+}
