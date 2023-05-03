@@ -57,3 +57,22 @@ func TestEvaluationStageInt64(t *testing.T) {
 	assert.Equal(t, int64(0), val)
 	assert.False(t, ok)
 }
+
+func TestEvaluateArgInt(t *testing.T) {
+	stages := []KeyBuilderStage{
+		testStageUseContext("5"),
+		testStageNoContext("6"),
+	}
+
+	val, ok := EvalArgInt(stages, 0, 1)
+	assert.False(t, ok)
+	assert.Equal(t, val, 0)
+
+	val, ok = EvalArgInt(stages, 5, 1)
+	assert.True(t, ok)
+	assert.Equal(t, val, 1)
+
+	val, ok = EvalArgInt(stages, 1, 1)
+	assert.True(t, ok)
+	assert.Equal(t, val, 6)
+}

@@ -175,6 +175,13 @@ func TestArraySlice(t *testing.T) {
 		"<ARGN>",
 		ErrArgCount,
 	)
+	testExpressionErr(
+		t,
+		mockContext("0 1 2 5"),
+		`{@join {@slice {@split {0} " "} 1 bla}}`,
+		"<CONST>",
+		ErrConst,
+	)
 }
 
 func TestArrayFilter(t *testing.T) {

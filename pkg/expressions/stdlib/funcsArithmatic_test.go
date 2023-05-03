@@ -41,4 +41,7 @@ func TestFloorCeilRound(t *testing.T) {
 	testExpression(t, mockContext("123.126"), "{round {0} 2}", "123.13")
 
 	testExpressionErr(t, mockContext("123.123"), "{floor {0} b}", "<ARGN>", ErrArgCount)
+	testExpressionErr(t, mockContext("123.123"), "{round {0} 1 2}", "<ARGN>", ErrArgCount)
+	testExpressionErr(t, mockContext("123.123"), "{round {0} {0}}", "<CONST>", ErrConst)
+	testExpressionErr(t, mockContext("123.123"), "{round {0} b}", "<CONST>", ErrConst)
 }

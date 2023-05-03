@@ -49,7 +49,7 @@ func expressionFunction(c *cli.Context) error {
 	compiled, err := builder.Compile(expString)
 
 	if err != nil {
-		fmt.Fprint(os.Stderr, err.Error())
+		fmt.Fprintln(os.Stderr, err.Error())
 		return errors.New("compile error")
 	}
 
