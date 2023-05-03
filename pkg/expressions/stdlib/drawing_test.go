@@ -21,6 +21,8 @@ func TestAddingColor(t *testing.T) {
 		mockContext("what what"),
 		"{color red {0}}",
 		"what what")
+	testExpressionErr(t, mockContext("what what"), "{color bla {0}}", "<ENUM>", ErrEnum)
+	testExpressionErr(t, mockContext("what what"), "{color {0} {0}}", "<CONST>", ErrConst)
 	testExpressionErr(t,
 		mockContext("what waht"),
 		"{color a}", "<ARGN>", ErrArgCount)

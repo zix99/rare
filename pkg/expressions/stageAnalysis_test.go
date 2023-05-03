@@ -19,16 +19,6 @@ func testStageNoContext(ret string) KeyBuilderStage {
 	}
 }
 
-func TestEvaluateStageStatic(t *testing.T) {
-	stage := testStageNoContext("test")
-	assert.Equal(t, "test", EvalStageOrDefault(stage, "nope"))
-}
-
-func TestEvaluateStageDynamic(t *testing.T) {
-	stage := testStageUseContext("test")
-	assert.Equal(t, "nope", EvalStageOrDefault(stage, "nope"))
-}
-
 func TestEvaluateStageIndex(t *testing.T) {
 	stages := []KeyBuilderStage{
 		testStageUseContext("test1"),
@@ -41,15 +31,29 @@ func TestEvaluateStageIndex(t *testing.T) {
 }
 
 func TestEvaluationStageInt(t *testing.T) {
-	val, ok := EvalStageInt(testStageNoContext("5"), 1)
+	val, ok := EvalStageInt(testStageNoContext("5"))
 	assert.Equal(t, 5, val)
 	assert.True(t, ok)
 
-	val, ok = EvalStageInt(testStageNoContext("5b"), 1)
-	assert.Equal(t, 1, val)
+	val, ok = EvalStageInt(testStageNoContext("5b"))
+	assert.Equal(t, 0, val)
 	assert.False(t, ok)
 
-	val, ok = EvalStageInt(testStageUseContext("5"), 1)
-	assert.Equal(t, 1, val)
+	val, ok = EvalStageInt(testStageUseContext("5"))
+	assert.Equal(t, 0, val)
+	assert.False(t, ok)
+}
+
+func TestEvaluationStageInt64(t *testing.T) {
+	val, ok := EvalStageInt64(testStageNoContext("5"))
+	assert.Equal(t, int64(5), val)
+	assert.True(t, ok)
+
+	val, ok = EvalStageInt64(testStageNoContext("5b"))
+	assert.Equal(t, int64(0), val)
+	assert.False(t, ok)
+
+	val, ok = EvalStageInt64(testStageUseContext("5"))
+	assert.Equal(t, int64(0), val)
 	assert.False(t, ok)
 }

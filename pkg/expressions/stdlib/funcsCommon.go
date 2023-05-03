@@ -24,8 +24,8 @@ func kfBucket(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgCount(args, 2)
 	}
 
-	bucketSize, err := strconv.Atoi(EvalStageOrDefault(args[1], ""))
-	if err != nil {
+	bucketSize, bucketSizeOk := EvalStageInt(args[1])
+	if !bucketSizeOk {
 		return stageArgError(ErrNum, 1)
 	}
 
@@ -44,13 +44,13 @@ func kfClamp(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgCount(args, 3)
 	}
 
-	min, minErr := strconv.Atoi(EvalStageOrDefault(args[1], ""))
-	max, maxErr := strconv.Atoi(EvalStageOrDefault(args[2], ""))
+	min, minOk := EvalStageInt(args[1])
+	max, maxOk := EvalStageInt(args[2])
 
-	if minErr != nil {
+	if !minOk {
 		return stageArgError(ErrNum, 1)
 	}
-	if maxErr != nil {
+	if !maxOk {
 		return stageArgError(ErrNum, 2)
 	}
 

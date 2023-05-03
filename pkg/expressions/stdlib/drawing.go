@@ -8,11 +8,20 @@ import (
 	"strings"
 )
 
+// {color "color" content}
 func kfColor(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
 		return stageErrArgCount(args, 2)
 	}
-	colorCode, _ := color.LookupColorByName(EvalStageOrDefault(args[0], ""))
+	colorName, colorNameOk := EvalStaticStage(args[0])
+	if !colorNameOk {
+		return stageArgError(ErrConst, 0)
+	}
+
+	colorCode, hasColor := color.LookupColorByName(colorName)
+	if !hasColor {
+		return stageArgError(ErrEnum, 0)
+	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		return color.Wrap(colorCode, args[1](context))
@@ -25,7 +34,10 @@ func kfRepeat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgCount(args, 2)
 	}
 
-	char := EvalStageOrDefault(args[0], "|")
+	char, charOk := EvalStaticStage(args[0])
+	if !charOk {
+		return stageArgError(ErrConst, 0)
+	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
 		count, err := strconv.Atoi(args[1](context))
@@ -42,12 +54,12 @@ func kfBar(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgCount(args, 3)
 	}
 
-	maxVal, err := strconv.ParseInt(EvalStageOrDefault(args[1], ""), 10, 64)
-	if err != nil {
+	maxVal, maxValOk := EvalStageInt64(args[1])
+	if !maxValOk {
 		return stageArgError(ErrNum, 1)
 	}
-	maxLen, err := strconv.ParseInt(EvalStageOrDefault(args[2], ""), 10, 64)
-	if err != nil {
+	maxLen, maxLenOk := EvalStageInt64(args[2])
+	if !maxLenOk {
 		return stageArgError(ErrNum, 2)
 	}
 

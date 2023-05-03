@@ -4,7 +4,6 @@ import (
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 	"rare/pkg/slicepool"
 	"rare/pkg/stringSplitter"
-	"strconv"
 	"strings"
 )
 
@@ -79,8 +78,8 @@ func kfArraySelect(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgCount(args, 2)
 	}
 
-	index, err := strconv.Atoi(EvalStageOrDefault(args[1], ""))
-	if err != nil {
+	index, indexOk := EvalStageInt(args[1])
+	if !indexOk {
 		return stageArgError(ErrNum, 1)
 	}
 
@@ -172,16 +171,14 @@ func kfArraySlice(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgRange(args, "2-3")
 	}
 
-	sliceStart, ok := EvalStageInt(args[1], 0)
+	sliceStart, ok := EvalStageInt(args[1])
 	if !ok {
 		return stageArgError(ErrConst, 1)
 	}
-	var sliceLen int = -1
-	if len(args) >= 3 {
-		sliceLen, ok = EvalStageInt(args[2], -1)
-		if !ok {
-			return stageArgError(ErrConst, 2)
-		}
+
+	sliceLen, sliceLenOk := EvalArgInt(args, 2, -1)
+	if !sliceLenOk {
+		return stageArgError(ErrConst, 2)
 	}
 
 	return func(context KeyBuilderContext) string {

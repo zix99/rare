@@ -223,7 +223,12 @@ func kfBucketTime(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgRange(args, "2-4")
 	}
 
-	bucketFormat := timeBucketToFormat(EvalStageOrDefault(args[1], "day"))
+	bucketName, bucketNameOk := EvalStaticStage(args[1])
+	if !bucketNameOk {
+		return stageArgError(ErrConst, 1)
+	}
+
+	bucketFormat := timeBucketToFormat(bucketName)
 	if bucketFormat == "" {
 		return stageArgError(ErrEnum, 1)
 	}
