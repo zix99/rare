@@ -45,9 +45,16 @@ func TestManyErrors(t *testing.T) {
 	assert.NotNil(t, kb)
 	assert.Error(t, err)
 	assert.Len(t, err.Errors, 2)
+
+	// Test individually
 	assert.ErrorIs(t, err.Errors[0], ErrorMissingFunction)
 	assert.ErrorIs(t, err.Errors[1], ErrorUnterminated)
+
+	// Test unwrap/is
 	assert.ErrorIs(t, err, ErrorMissingFunction)
+	assert.ErrorIs(t, err, ErrorUnterminated)
+	assert.NotErrorIs(t, err, ErrorEmptyStatement)
+	assert.ErrorIs(t, errors.Unwrap(err), ErrorMissingFunction)
 	assert.NotEmpty(t, err.Error())
 }
 

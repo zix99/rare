@@ -38,4 +38,7 @@ func TestClamp(t *testing.T) {
 	testExpression(t, mockContext("100", "200", "1000", "-10"),
 		"{clamp {0} 50 200}-{clamp {1} 50 200}-{clamp {2} 50 200}-{clamp {3} 50 200}",
 		"100-200-max-min")
+	testExpressionErr(t, mockContext("0"), "{clamp {0} {0} 1}", "<BAD-TYPE>", ErrNum)
+	testExpressionErr(t, mockContext("0"), "{clamp {0} 1 {0}}", "<BAD-TYPE>", ErrNum)
+	testExpressionErr(t, mockContext("0"), "{clamp {0} 1 2 3}", "<ARGN>", ErrArgCount)
 }

@@ -79,9 +79,9 @@ func kfRound(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgRange(args, "1-2")
 	}
 
-	precision := 0
-	if len(args) >= 2 {
-		precision, _ = EvalStageInt(args[1], 0)
+	precision, precisionOk := EvalArgInt(args, 1, 0)
+	if !precisionOk {
+		return stageArgError(ErrConst, 1)
 	}
 
 	return func(context KeyBuilderContext) string {

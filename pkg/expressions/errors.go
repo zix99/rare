@@ -54,6 +54,15 @@ func (s *CompilerErrors) Unwrap() error {
 	return nil
 }
 
+func (s *CompilerErrors) Is(target error) bool {
+	for _, err := range s.Errors {
+		if errors.Is(err, target) {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *CompilerErrors) add(underlying error, context string, offset int) {
 	s.Errors = append(s.Errors, &DetailedError{underlying, context, offset})
 }

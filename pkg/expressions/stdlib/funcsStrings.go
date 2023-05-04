@@ -168,13 +168,9 @@ func kfPercent(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgRange(args, "1-2")
 	}
 
-	decimals := 1
-	if len(args) >= 2 {
-		var ok bool
-		decimals, ok = EvalStageInt(args[1], decimals)
-		if !ok {
-			return stageArgError(ErrConst, 1)
-		}
+	decimals, hasDecimals := EvalArgInt(args, 1, 1)
+	if !hasDecimals {
+		return stageArgError(ErrConst, 1)
 	}
 
 	return func(context KeyBuilderContext) string {

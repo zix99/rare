@@ -42,16 +42,15 @@ func testExpressionErr(t *testing.T, context KeyBuilderContext, expression strin
 
 	assert.NotNil(t, err, "Expected error")
 	if len(expected) > 0 && err != nil {
-		switch e := expected[0].(type) {
-		case funcError:
-			assert.ErrorIs(t, err, e.err)
-		case error:
-			assert.ErrorIs(t, err, e)
-		default:
-			t.Error("Invalid type assertion, expected error or funcError")
+		for _, ex := range expected {
+			switch e := ex.(type) {
+			case funcError:
+				assert.ErrorIs(t, err, e.err)
+			case error:
+				assert.ErrorIs(t, err, e)
+			default:
+				t.Error("Invalid type assertion, expected error or funcError")
+			}
 		}
-	}
-	if len(expected) > 1 {
-		t.Error("Only supports one error assertion")
 	}
 }
