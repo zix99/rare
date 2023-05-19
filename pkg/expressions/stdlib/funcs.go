@@ -87,6 +87,7 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"@reduce": kfArrayReduce,
 	"@filter": kfArrayFilter,
 	"@slice":  kfArraySlice,
+	"@in":     kfArrayIn,
 
 	// Pathing
 	"basename": kfPathBase,

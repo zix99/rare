@@ -272,6 +272,12 @@ Syntax: `{@ ele0 ele1 ele2}` (`{$ ele0 ele1 ele2}` is equivalent)
 
 Creates an array with the provided elements. Use `{@}` for an array of all matches.
 
+#### @in
+
+Syntax: `{@in <val> array}` or `{@in <val> {@ val0 val1 val2 ...}}`
+
+Returns truthy if a given `val` is contained within the array.
+
 #### @split
 
 Syntax: `{@split <arr> ["delim"]}`

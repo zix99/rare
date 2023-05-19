@@ -218,6 +218,15 @@ func TestArrayFilter(t *testing.T) {
 	)
 }
 
+func TestArrayIn(t *testing.T) {
+	testExpression(t, mockContext("ab"), "{@in {0} {$ cd ab qef}}", "1")
+	testExpression(t, mockContext("a"), "{@in {0} {$ cd ab qef}}", "")
+	testExpression(t, mockContext("a"), `{@in {0} ""}`, "")
+
+	testExpressionErr(t, mockContext("ab"), "{@in {0} {$ cd ab qef {1}}}", "<CONST>", ErrConst)
+	testExpressionErr(t, mockContext("ab"), "{@in {0}}", "<ARGN>", ErrArgCount)
+}
+
 // BenchmarkRangeSum-4   	 4414395	       271.9 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkRangeSum(b *testing.B) {
 	exp := NewStdKeyBuilder()

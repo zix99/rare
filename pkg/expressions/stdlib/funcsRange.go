@@ -245,6 +245,30 @@ func kfArrayFilter(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}, nil
 }
 
+func kfArrayIn(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 2 {
+		return stageErrArgCount(args, 2)
+	}
+
+	matchString, hasMatchString := EvalStaticStage(args[1])
+	if !hasMatchString {
+		return stageArgError(ErrConst, 1)
+	}
+
+	matchSet := make(map[string]struct{})
+	for _, val := range strings.Split(matchString, ArraySeparatorString) {
+		matchSet[val] = struct{}{}
+	}
+
+	return func(context KeyBuilderContext) string {
+		val := args[0](context)
+		if _, ok := matchSet[val]; ok {
+			return TruthyVal
+		}
+		return FalsyVal
+	}, nil
+}
+
 var arrayOperatorNoopMapper = func(s string) string { return s }
 
 func arrayOperator(arr string, delim, joiner string, mapper func(o string) string) string {
