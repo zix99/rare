@@ -14,8 +14,8 @@ The basic syntax structure is as follows:
 
  * Anything not surrounded by `{}` is a literal
  * Characters can be escaped with `\`, including `\{` or `\n`
- * Expressions are surrounded by `{}`. The entire match will always be `{0}`
- * An integer in an expression denotes a matched value from the regex (or other input) eg. `{2}`
+ * Expressions are surrounded by `{}`.
+ * An integer in an expression denotes a matched value from the regex (or other input) eg. `{2}`. The entire match will always be `{0}`
  * A string in an expression is a special key or a named regex group eg. `{src}` or `{group1}`
  * When an expression has space(s), the first literal will be the name of a helper function.
    From there, the logic is nested. eg `{coalesce {4} {3} notfound}`
@@ -39,8 +39,7 @@ You can test and benchmark expressions with the `rare expression` command. For e
 
 ```sh
 $ rare expression -d 15 -d 20 -k key=30 "The sum is {sumi {0} {1} {key}}"
-Expression: The sum is {sumi {0} {1} {key}}
-Result:     The sum is 65
+The sum is 65
 ```
 
 ## Examples
