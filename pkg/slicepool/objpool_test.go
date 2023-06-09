@@ -21,3 +21,21 @@ func TestSimpleObjPool(t *testing.T) {
 	op.Return(v2)
 	assert.Len(t, op.pool, 2)
 }
+
+func TestZeroAllocs(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
+	res := testing.Benchmark(BenchmarkObjPool)
+	assert.Zero(t, res.AllocsPerOp())
+}
+
+func BenchmarkObjPool(b *testing.B) {
+	type testObj struct{}
+
+	op := NewObjectPool[testObj](5)
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		op.Return(op.Get())
+	}
+}

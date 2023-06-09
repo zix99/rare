@@ -7,6 +7,7 @@ import (
 	"rare/pkg/aggregation"
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
+	"rare/pkg/csv"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
 
@@ -71,6 +72,10 @@ func histoFunction(c *cli.Context) error {
 		fmt.Println(progressString())
 	}
 
+	if err := helpers.TryWriteCSV(c, counter, csv.WriteCounter); err != nil {
+		return err
+	}
+
 	return helpers.DetermineErrorState(batcher, ext, counter)
 }
 
@@ -123,6 +128,8 @@ func histogramCommand() *cli.Command {
 			},
 			helpers.DefaultSortFlagWithDefault("value"),
 			helpers.SnapshotFlag,
+			helpers.NoOutFlag,
+			helpers.CSVFlag,
 		},
 	})
 }

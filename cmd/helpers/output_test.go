@@ -1,6 +1,8 @@
 package helpers
 
 import (
+	"rare/pkg/aggregation"
+	"rare/pkg/csv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,5 +25,21 @@ func TestBuildVTermFromArgs(t *testing.T) {
 		BuildVTermFromArguments(ctx)
 		return nil
 	}
-	app.Run([]string{"", "--snapshot"})
+	assert.NoError(t, app.Run([]string{"", "--snapshot"}))
+}
+
+func TestTryWriteCSV(t *testing.T) {
+	app := cli.NewApp()
+	app.Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name: "csv",
+		},
+	}
+	app.Action = func(ctx *cli.Context) error {
+		agg := aggregation.NewCounter()
+		TryWriteCSV(ctx, agg, csv.WriteCounter)
+		return nil
+	}
+	assert.NoError(t, app.Run([]string{""}))
+	assert.NoError(t, app.Run([]string{"", "--csv", "-"}))
 }

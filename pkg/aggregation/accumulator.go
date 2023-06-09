@@ -231,7 +231,7 @@ func (s *accumulatorGroupSortContext) GetKey(key string) string {
 	return s.rowLookup(key)
 }
 
-// All possible values that were found for groups (as GroupKey)
+// All possible values that were found for groups (as GroupKey) as a new slice
 func (s *AccumulatingGroup) Groups(sort sorting.NameSorter) []GroupKey {
 	ret := make([]GroupKey, 0, len(s.data))
 	for g := range s.data {
@@ -263,6 +263,7 @@ func (s *AccumulatingGroup) ColCount() int {
 	return len(s.groupDef) + len(s.colDef)
 }
 
+// Returns a new slice of data-groups for key
 func (s *AccumulatingGroup) Data(groupKey GroupKey) []string {
 	ret := make([]string, len(s.colDef))
 	copy(ret, s.data[groupKey])

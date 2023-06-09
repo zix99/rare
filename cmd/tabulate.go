@@ -5,6 +5,7 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
+	"rare/pkg/csv"
 	"rare/pkg/expressions"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm/termrenderers"
@@ -96,6 +97,10 @@ func tabulateFunction(c *cli.Context) error {
 
 	writer.Close()
 
+	if err := helpers.TryWriteCSV(c, counter, csv.WriteTable); err != nil {
+		return err
+	}
+
 	return helpers.DetermineErrorState(batcher, ext, counter)
 }
 
@@ -150,6 +155,8 @@ func tabulateCommand() *cli.Command {
 				Value: "value",
 			},
 			helpers.SnapshotFlag,
+			helpers.NoOutFlag,
+			helpers.CSVFlag,
 		},
 	})
 }

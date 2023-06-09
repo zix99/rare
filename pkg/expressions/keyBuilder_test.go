@@ -184,3 +184,11 @@ func BenchmarkOptimizedFunc(b *testing.B) {
 		kb.BuildKey(ctx)
 	}
 }
+
+func TestOptimizedZeroAllocs(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
+	results := testing.Benchmark(BenchmarkOptimizedFunc)
+	assert.Zero(t, results.AllocsPerOp())
+}
