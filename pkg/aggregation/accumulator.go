@@ -270,6 +270,10 @@ func (s *AccumulatingGroup) Data(groupKey GroupKey) []string {
 	return ret
 }
 
+func (s *AccumulatingGroup) DataNoCopy(groupKey GroupKey) []string {
+	return s.data[groupKey]
+}
+
 func (s *AccumulatingGroup) DataCount() int {
 	return len(s.data)
 }
