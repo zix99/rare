@@ -45,6 +45,10 @@ func TestTailFileAppendingExisting(t *testing.T) {
 }
 
 func TestTailFileRecreatedReopen(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
+
 	af := CreateAppendingTempFile()
 
 	tail, err := NewPolling(af.Name(), true)
@@ -67,6 +71,10 @@ func TestTailFileRecreatedReopen(t *testing.T) {
 }
 
 func TestTailFileDeletedCloses(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
+
 	af := CreateAppendingTempFile()
 
 	tail, err := NewPolling(af.Name(), false)

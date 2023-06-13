@@ -3,6 +3,7 @@ package cmd
 import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
+	"rare/pkg/csv"
 	"rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli/v2"
@@ -43,6 +44,10 @@ func bargraphFunction(c *cli.Context) error {
 
 	writer.Close()
 
+	if err := helpers.TryWriteCSV(c, counter, csv.WriteSubCounter); err != nil {
+		return err
+	}
+
 	return helpers.DetermineErrorState(batcher, ext, counter)
 }
 
@@ -65,6 +70,8 @@ func bargraphCommand() *cli.Command {
 			},
 			helpers.DefaultSortFlag,
 			helpers.SnapshotFlag,
+			helpers.NoOutFlag,
+			helpers.CSVFlag,
 		},
 	})
 }

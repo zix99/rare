@@ -25,6 +25,7 @@ func TestBasicAccum(t *testing.T) {
 	assert.Len(t, accum.DataCols(), 1)
 	assert.Equal(t, accum.DataCount(), 1)
 	assert.Equal(t, "4", accum.Data("")[0])
+	assert.Equal(t, "4", accum.DataNoCopy("")[0])
 	assert.Zero(t, accum.ParseErrors())
 }
 

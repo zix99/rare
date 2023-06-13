@@ -38,6 +38,7 @@ func TestSplitterNextOk(t *testing.T) {
 	assert.False(t, ok2)
 }
 
+// BenchmarkStringSplit-4   	 4282983	       281.6 ns/op	      64 B/op	       1 allocs/op
 func BenchmarkStringSplit(b *testing.B) {
 	total := 0
 	for n := 0; n < b.N; n++ {
@@ -46,6 +47,7 @@ func BenchmarkStringSplit(b *testing.B) {
 	}
 }
 
+// BenchmarkSplitter-4   	15479449	        81.83 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkSplitter(b *testing.B) {
 	total := 0
 	for n := 0; n < b.N; n++ {
@@ -55,6 +57,14 @@ func BenchmarkSplitter(b *testing.B) {
 			total++
 		}
 	}
+}
+
+func TestZeroAllocs(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
+	results := testing.Benchmark(BenchmarkSplitter)
+	assert.Zero(t, results.AllocsPerOp())
 }
 
 func BenchmarkSplitterNextOk(b *testing.B) {

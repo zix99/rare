@@ -5,6 +5,7 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
+	"rare/pkg/csv"
 	"rare/pkg/expressions"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
@@ -49,6 +50,10 @@ func heatmapFunction(c *cli.Context) error {
 	})
 
 	writer.Close()
+
+	if err := helpers.TryWriteCSV(c, counter, csv.WriteTable); err != nil {
+		return err
+	}
 
 	return helpers.DetermineErrorState(batcher, ext, counter)
 }
@@ -99,6 +104,8 @@ func heatmapCommand() *cli.Command {
 				Value: helpers.DefaultSortFlag.Value,
 			},
 			helpers.SnapshotFlag,
+			helpers.NoOutFlag,
+			helpers.CSVFlag,
 		},
 	})
 }

@@ -6,6 +6,7 @@ import (
 	"rare/pkg/aggregation"
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
+	"rare/pkg/csv"
 	"rare/pkg/expressions/stdlib"
 	"rare/pkg/logger"
 	"rare/pkg/multiterm/termrenderers"
@@ -113,6 +114,10 @@ func reduceFunction(c *cli.Context) error {
 
 	vt.Close()
 
+	if err := helpers.TryWriteCSV(c, aggr, csv.WriteAccumulator); err != nil {
+		return err
+	}
+
 	return helpers.DetermineErrorState(batcher, extractor, aggr)
 }
 
@@ -179,6 +184,8 @@ func reduceCommand() *cli.Command {
 				Usage: "Reverses sort order",
 			},
 			helpers.SnapshotFlag,
+			helpers.NoOutFlag,
+			helpers.CSVFlag,
 		},
 	})
 
