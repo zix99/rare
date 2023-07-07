@@ -20,7 +20,7 @@ func TestSimpleHeatmap(t *testing.T) {
 	hm.WriteTable(agg, sorting.NVNameSorter, sorting.NVNameSorter)
 
 	assert.Equal(t, 3, vt.LineCount())
-	assert.Equal(t, "     - 1    - 1    - 1", vt.Get(0))
+	assert.Equal(t, "     - 1    9 2", vt.Get(0))
 	assert.Equal(t, "     test", vt.Get(1))
 	assert.Equal(t, "abc  -", vt.Get(2))
 	assert.Equal(t, "", vt.Get(3))
@@ -39,7 +39,7 @@ func TestUnicodeHeatmap(t *testing.T) {
 	hm.WriteTable(agg, sorting.NVNameSorter, sorting.NVNameSorter)
 
 	assert.Equal(t, 4, vt.LineCount())
-	assert.Equal(t, "     - 0    - 0    9 1", vt.Get(0))
+	assert.Equal(t, "     - 0    9 1", vt.Get(0))
 	assert.Equal(t, "     a✤c", vt.Get(1))
 	assert.Equal(t, "test 99", vt.Get(2))
 	assert.Equal(t, "✤✥✦  9-", vt.Get(3))
@@ -64,7 +64,7 @@ func TestCompressedHeatmap(t *testing.T) {
 	hm.WriteFooter(0, "footer")
 
 	assert.Equal(t, 6, vt.LineCount())
-	assert.Equal(t, "     - 0    - 0    9 1", vt.Get(0))
+	assert.Equal(t, "     - 0    9 1", vt.Get(0))
 	assert.Equal(t, "     test (2 more)", vt.Get(1))
 	assert.Equal(t, "abc  99", vt.Get(2))
 	assert.Equal(t, "abc1 9-", vt.Get(3))

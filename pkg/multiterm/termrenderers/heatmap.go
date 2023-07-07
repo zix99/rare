@@ -6,6 +6,7 @@ import (
 	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termscaler"
 	"rare/pkg/multiterm/termunicode"
 	"strings"
 )
@@ -17,6 +18,7 @@ type Heatmap struct {
 	FixedMin, FixedMax bool
 	maxRowKeyWidth     int // Max row width
 	currentRows        int // Currently used row count for non-footer
+	Scaler             termscaler.Scaler
 }
 
 func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
@@ -26,6 +28,7 @@ func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
 		term:           term,
 		maxRowKeyWidth: 0,
 		maxVal:         1,
+		Scaler:         termscaler.ScalerLinear,
 	}
 }
 
@@ -78,23 +81,14 @@ func (s *Heatmap) UpdateMinMax(min, max int64) {
 		sb.WriteRune(' ')
 	}
 
-	// Min
-	termunicode.HeatWriteLinear(&sb, s.minVal, s.minVal, s.maxVal)
-	sb.WriteString(" ")
-	sb.WriteString(humanize.Hi(s.minVal))
-
-	// mid-val
-	sb.WriteString("    ")
-	mid := s.minVal + (s.maxVal-s.minVal)/2
-	termunicode.HeatWriteLinear(&sb, mid, s.minVal, s.maxVal)
-	sb.WriteString(" ")
-	sb.WriteString(humanize.Hi(mid))
-
-	// Max
-	sb.WriteString("    ")
-	termunicode.HeatWriteLinear(&sb, s.maxVal, s.minVal, s.maxVal)
-	sb.WriteString(" ")
-	sb.WriteString(humanize.Hi(s.maxVal))
+	for idx, item := range s.Scaler.ScaleKeys(6, s.minVal, s.maxVal) {
+		if idx > 0 {
+			sb.WriteString("    ")
+		}
+		termunicode.HeatWrite(&sb, s.Scaler.Scale(item, s.minVal, s.maxVal))
+		sb.WriteString(" ")
+		sb.WriteString(humanize.Hi(item))
+	}
 
 	s.term.WriteForLine(0, sb.String())
 }
@@ -157,7 +151,7 @@ func (s *Heatmap) WriteRow(idx int, row *aggregation.TableRow, cols []string) {
 
 	for i := 0; i < len(cols); i++ {
 		val := row.Value(cols[i])
-		termunicode.HeatWriteLinear(&sb, val, s.minVal, s.maxVal)
+		termunicode.HeatWrite(&sb, s.Scaler.Scale(val, s.minVal, s.maxVal))
 	}
 
 	s.term.WriteForLine(2+idx, sb.String())
