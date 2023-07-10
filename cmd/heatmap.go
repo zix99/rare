@@ -9,7 +9,6 @@ import (
 	"rare/pkg/expressions"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termrenderers"
-	"rare/pkg/multiterm/termscaler"
 
 	"github.com/urfave/cli/v2"
 )
@@ -25,7 +24,7 @@ func heatmapFunction(c *cli.Context) error {
 		maxVal     = c.Int64("max")
 		sortRows   = c.String("sort-rows")
 		sortCols   = c.String("sort-cols")
-		scalerName = c.String("scale")
+		scalerName = c.String(helpers.ScaleFlag.Name)
 	)
 
 	counter := aggregation.NewTable(delim)
@@ -43,10 +42,7 @@ func heatmapFunction(c *cli.Context) error {
 	if minFixed || maxFixed {
 		writer.UpdateMinMax(minVal, maxVal)
 	}
-
-	if scaler, ok := termscaler.ScalerByName(scalerName); ok {
-		writer.Scaler = scaler
-	}
+	writer.Scaler = helpers.BuildScalerOrFail(scalerName)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		writer.WriteTable(counter, rowSorter, colSorter)
@@ -80,11 +76,6 @@ func heatmapCommand() *cli.Command {
 				Usage: "Character to tabulate on. Use {$} helper by default",
 				Value: expressions.ArraySeparatorString,
 			},
-			&cli.StringFlag{
-				Name:  "scale",
-				Usage: "Defines data-scaling (linear, log10, log2)",
-				Value: "linear",
-			},
 			&cli.IntFlag{
 				Name:    "num",
 				Aliases: []string{"rows", "n"},
@@ -117,6 +108,7 @@ func heatmapCommand() *cli.Command {
 			helpers.SnapshotFlag,
 			helpers.NoOutFlag,
 			helpers.CSVFlag,
+			helpers.ScaleFlag,
 		},
 	})
 }

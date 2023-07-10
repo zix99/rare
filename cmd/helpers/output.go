@@ -9,19 +9,22 @@ import (
 )
 
 var SnapshotFlag = &cli.BoolFlag{
-	Name:  "snapshot",
-	Usage: "In aggregators that support it, only output final results, and not progressive updates. Will enable automatically when piping output",
+	Name:     "snapshot",
+	Usage:    "In aggregators that support it, only output final results, and not progressive updates. Will enable automatically when piping output",
+	Category: cliCategoryOutput,
 }
 
 var CSVFlag = &cli.StringFlag{
-	Name:    "csv",
-	Aliases: []string{"o"},
-	Usage:   "Write final results to csv. Use - to output to stdout",
+	Name:     "csv",
+	Aliases:  []string{"o"},
+	Usage:    "Write final results to csv. Use - to output to stdout",
+	Category: cliCategoryOutput,
 }
 
 var NoOutFlag = &cli.BoolFlag{
-	Name:  "noout",
-	Usage: "Don't output any aggregation to stdout",
+	Name:     "noout",
+	Usage:    "Don't output any aggregation to stdout",
+	Category: cliCategoryOutput,
 }
 
 func BuildVTerm(forceSnapshot bool) multiterm.MultilineTerm {
