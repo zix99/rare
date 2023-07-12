@@ -13,6 +13,8 @@ func TestLinearScale(t *testing.T) {
 	assert.Equal(t, 2, s.Bucket(5, 5, 0, 10))
 	assert.Equal(t, 4, s.Bucket(5, 10, 0, 10))
 	assert.Equal(t, 4, s.Bucket(5, 20, 0, 10))
+	assert.Equal(t, 0, s.Bucket(5, 120, 100, 200))
+	assert.Equal(t, 3, s.Bucket(5, 175, 100, 200))
 
 	// Edge cases
 	assert.Equal(t, 0, s.Bucket(5, 20, 20, 10))
@@ -37,6 +39,12 @@ func TestLogScale(t *testing.T) {
 	assert.Equal(t, 3, s.Bucket(5, 7000, 0, 10000))
 	assert.Equal(t, 4, s.Bucket(5, 10000, 0, 10000))
 	assert.Equal(t, 4, s.Bucket(5, 20000, 0, 10000))
+
+	assert.Equal(t, 0, s.Bucket(5, 10, 100, 10000))
+	assert.Equal(t, 0, s.Bucket(5, 100, 100, 10000))
+	assert.Equal(t, 2, s.Bucket(5, 1000, 100, 10000))
+	assert.Equal(t, 3, s.Bucket(5, 5000, 100, 10000))
+	assert.Equal(t, 4, s.Bucket(5, 10000, 100, 10000))
 
 	// Edge cases
 	assert.Equal(t, 4, s.Bucket(5, 20000, 100, 100))
