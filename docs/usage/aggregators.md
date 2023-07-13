@@ -190,6 +190,8 @@ Create a dense, color-coded, version of table-data by using cells to display
 the strength of a value. Can either use `\x00` or the `{$ a b}` helper.  First
 element is the column name, followed by the row name.
 
+Supports [alternative scales](#alternative-scales)
+
 ### Example
 
 ```bash
@@ -254,7 +256,9 @@ Matched: 1,035,666 / 1,035,666
 
 ---
 
-## Sorting
+## Common Arguments
+
+### Sorting
 
 Many of the aggregators support changing the order in which the data is displayed in. You
 can change this from default either by setting the `--sort` flag or `--sort-rows` and `--sort-cols`
@@ -268,7 +272,7 @@ These are the supported sorters:
 * `date` -- Parses the value as if it were a date. Falls back to contextual
 * `value` -- Orders the results based on their aggregated *value*. eg. would put the most frequent item at the top. Defaults to descending order
 
-### Modifiers
+#### Modifiers
 
 In addition to the sorting method, you can also modify the sort by adding a colon and the modifier, eg: `numeric:desc`
 
@@ -277,3 +281,9 @@ These are the supported modifiers:
 * `:reverse` -- Reverse of the "default"
 * `:asc` -- Ascending order
 * `:desc` -- Descending order
+
+### Alternative Scales
+
+Some of the aggregators support alternative display scaling: `linear` (default), `log10`, and `log2`.
+
+In aggregators that support it, you can specify with `--scale log10`
