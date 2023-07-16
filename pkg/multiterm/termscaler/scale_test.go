@@ -87,6 +87,7 @@ func TestLog10KeySet(t *testing.T) {
 func TestLog2KeySet(t *testing.T) {
 	s, _ := ScalerByName("log2")
 	assert.Equal(t, []int64{1, 11, 128, 1448, 16384}, s.ScaleKeys(5, 0, 10000))
+	assert.Equal(t, []int64{1, 4, 16, 64, 256, 1024, 4096, 16384}, s.ScaleKeys(8, 0, 10000))
 	assert.Equal(t, []int64{64, 1024, 16384}, s.ScaleKeys(3, 100, 10000))
 	assert.Equal(t, []int64{1, 3, 11, 38, 128}, s.ScaleKeys(5, 0, 100))
 	assert.Equal(t, []int64{32, 45, 64, 90, 128}, s.ScaleKeys(5, 50, 100))
