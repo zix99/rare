@@ -3,6 +3,7 @@ package termunicode
 import (
 	"io"
 	"rare/pkg/color"
+	"rare/pkg/multiterm/termscaler"
 )
 
 const heatmapEscape = "\x1b[38;5;"
@@ -45,35 +46,20 @@ const heatmapAsciiLen int64 = int64(len(heatmapAscii))
 
 const heatmapNonUnicode rune = '#'
 
-func HeatWriteLinear(w io.StringWriter, val, min, max int64) {
-	if val > max {
-		val = max
-	}
-	if val < min {
-		val = min
-	}
-
+func HeatWrite(w io.StringWriter, scaled float64) {
 	if !color.Enabled {
 		// Fallback to numeric single-digit display when no colors are available
-		if max <= min {
-			w.WriteString(heatmapAscii[0])
-		} else {
-			idx := ((val - min) * (heatmapAsciiLen - 1)) / (max - min)
-			w.WriteString(heatmapAscii[idx])
-		}
+		idx := termscaler.Bucket(int(heatmapAsciiLen), scaled)
+		w.WriteString(heatmapAscii[idx])
 	} else {
 		var blockChar = heatmapNonUnicode
 		if UnicodeEnabled {
 			blockChar = fullBlock
 		}
 
-		if max <= min {
-			w.WriteString(color.Wrap(heatmapColors[0], string(blockChar)))
-		} else {
-			blockIdx := ((val - min) * (heatmapColorsLen - 1)) / (max - min)
-			hc := heatmapColors[blockIdx]
+		blockIdx := termscaler.Bucket(int(heatmapColorsLen), scaled)
+		hc := heatmapColors[blockIdx]
 
-			w.WriteString(color.Wrap(hc, string(blockChar)))
-		}
+		w.WriteString(color.Wrap(hc, string(blockChar)))
 	}
 }

@@ -17,6 +17,7 @@ const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
 const (
 	cliCategoryRead     = "Input"
+	cliCategoryOutput   = "Output"
 	cliCategoryMatching = "Matching"
 	cliCategoryTweaking = "Tweaking"
 )

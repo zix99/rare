@@ -15,15 +15,16 @@ import (
 
 func heatmapFunction(c *cli.Context) error {
 	var (
-		delim    = c.String("delim")
-		numRows  = c.Int("num")
-		numCols  = c.Int("cols")
-		minFixed = c.IsSet("min")
-		minVal   = c.Int64("min")
-		maxFixed = c.IsSet("max")
-		maxVal   = c.Int64("max")
-		sortRows = c.String("sort-rows")
-		sortCols = c.String("sort-cols")
+		delim      = c.String("delim")
+		numRows    = c.Int("num")
+		numCols    = c.Int("cols")
+		minFixed   = c.IsSet("min")
+		minVal     = c.Int64("min")
+		maxFixed   = c.IsSet("max")
+		maxVal     = c.Int64("max")
+		sortRows   = c.String("sort-rows")
+		sortCols   = c.String("sort-cols")
+		scalerName = c.String(helpers.ScaleFlag.Name)
 	)
 
 	counter := aggregation.NewTable(delim)
@@ -41,6 +42,7 @@ func heatmapFunction(c *cli.Context) error {
 	if minFixed || maxFixed {
 		writer.UpdateMinMax(minVal, maxVal)
 	}
+	writer.Scaler = helpers.BuildScalerOrFail(scalerName)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		writer.WriteTable(counter, rowSorter, colSorter)
@@ -106,6 +108,7 @@ func heatmapCommand() *cli.Command {
 			helpers.SnapshotFlag,
 			helpers.NoOutFlag,
 			helpers.CSVFlag,
+			helpers.ScaleFlag,
 		},
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"rare/pkg/aggregation"
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termscaler"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,7 +21,7 @@ func TestSimpleHeatmap(t *testing.T) {
 	hm.WriteTable(agg, sorting.NVNameSorter, sorting.NVNameSorter)
 
 	assert.Equal(t, 3, vt.LineCount())
-	assert.Equal(t, "     - 1    - 1    - 1", vt.Get(0))
+	assert.Equal(t, "     - 1    9 2", vt.Get(0))
 	assert.Equal(t, "     test", vt.Get(1))
 	assert.Equal(t, "abc  -", vt.Get(2))
 	assert.Equal(t, "", vt.Get(3))
@@ -39,10 +40,44 @@ func TestUnicodeHeatmap(t *testing.T) {
 	hm.WriteTable(agg, sorting.NVNameSorter, sorting.NVNameSorter)
 
 	assert.Equal(t, 4, vt.LineCount())
-	assert.Equal(t, "     - 0    - 0    9 1", vt.Get(0))
+	assert.Equal(t, "     - 0    9 1", vt.Get(0))
 	assert.Equal(t, "     a✤c", vt.Get(1))
 	assert.Equal(t, "test 99", vt.Get(2))
 	assert.Equal(t, "✤✥✦  9-", vt.Get(3))
+}
+
+func TestLogHeatmap(t *testing.T) {
+	vt := multiterm.NewVirtualTerm()
+	hm := NewHeatmap(vt, 4, 4)
+	hm.Scaler = termscaler.ScalerLog2
+
+	agg := aggregation.NewTable(" ")
+	agg.Sample("test abc")
+	agg.Sample("test1 abc")
+	agg.Sample("test1 abc")
+	agg.Sample("test1 abc")
+	agg.Sample("test1 abc")
+	agg.Sample("test2 abc")
+	agg.Sample("test32323 abc")
+	agg.Sample("test abc1")
+	agg.Sample("test abc1")
+	agg.Sample("test abc2")
+	agg.Sample("test abc3")
+	agg.Sample("test abc4")
+
+	hm.maxRowKeyWidth = 4
+	hm.WriteTable(agg, sorting.NVNameSorter, sorting.NVNameSorter)
+	hm.WriteFooter(0, "footer")
+
+	assert.Equal(t, 8, vt.LineCount())
+	assert.Equal(t, "     - 1    4 2    7 3    9 4", vt.Get(0))
+	assert.Equal(t, "     test", vt.Get(1))
+	assert.Equal(t, "abc  -9--", vt.Get(2))
+	assert.Equal(t, "abc1 4---", vt.Get(3))
+	assert.Equal(t, "abc2 ----", vt.Get(4))
+	assert.Equal(t, "abc3 ----", vt.Get(5))
+	assert.Equal(t, "(1 more)", vt.Get(6))
+	assert.Equal(t, "footer", vt.Get(7))
 }
 
 func TestCompressedHeatmap(t *testing.T) {
@@ -64,7 +99,7 @@ func TestCompressedHeatmap(t *testing.T) {
 	hm.WriteFooter(0, "footer")
 
 	assert.Equal(t, 6, vt.LineCount())
-	assert.Equal(t, "     - 0    - 0    9 1", vt.Get(0))
+	assert.Equal(t, "     - 0    9 1", vt.Get(0))
 	assert.Equal(t, "     test (2 more)", vt.Get(1))
 	assert.Equal(t, "abc  99", vt.Get(2))
 	assert.Equal(t, "abc1 9-", vt.Get(3))
