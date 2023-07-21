@@ -12,15 +12,15 @@ import (
 
 func TestWriteBar(t *testing.T) {
 	var sb strings.Builder
-	BarWriteScaled(&sb, termscaler.ScalerLinear.Scale(1, 0, 8), 1)
+	BarWrite(&sb, termscaler.ScalerLinear.Scale(1, 0, 8), 1)
 	assert.Equal(t, string(barUnicode[1]), sb.String())
 
 	sb.Reset()
-	BarWriteScaled(&sb, termscaler.ScalerLinear.Scale(10, 0, 8), 1)
+	BarWrite(&sb, termscaler.ScalerLinear.Scale(10, 0, 8), 1)
 	assert.Equal(t, string(fullBlock), sb.String())
 
 	sb.Reset()
-	BarWriteScaled(&sb, termscaler.ScalerLinear.Scale(5, 0, 8), 1)
+	BarWrite(&sb, termscaler.ScalerLinear.Scale(5, 0, 8), 1)
 	assert.Equal(t, string(barUnicode[5]), sb.String())
 }
 
@@ -29,7 +29,7 @@ func TestWriteBarFallbacks(t *testing.T) {
 	defer testutil.RestoreGlobals()
 
 	var sb strings.Builder
-	BarWriteScaled(&sb, termscaler.ScalerLinear.Scale(5, 0, 10), 10)
+	BarWrite(&sb, termscaler.ScalerLinear.Scale(5, 0, 10), 10)
 	assert.Equal(t, "|||||", sb.String())
 }
 
@@ -62,24 +62,24 @@ func TestBarWriteScaled(t *testing.T) {
 	testutil.SwitchGlobal(&UnicodeEnabled, false)
 	var sb strings.Builder
 
-	BarWriteScaled(&sb, 0.0, 6)
+	BarWrite(&sb, 0.0, 6)
 	assert.Equal(t, "", sb.String())
 	sb.Reset()
 
-	BarWriteScaled(&sb, 0.5, 6)
+	BarWrite(&sb, 0.5, 6)
 	assert.Equal(t, "|||", sb.String())
 	sb.Reset()
 
-	BarWriteScaled(&sb, 1.0, 6)
+	BarWrite(&sb, 1.0, 6)
 	assert.Equal(t, "||||||", sb.String())
 	sb.Reset()
 
 	testutil.SwitchGlobal(&UnicodeEnabled, true)
-	BarWriteScaled(&sb, 0.45, 16)
+	BarWrite(&sb, 0.45, 16)
 	assert.Equal(t, "███████▏", sb.String())
 	sb.Reset()
 
-	BarWriteScaled(&sb, 1.0, 16)
+	BarWrite(&sb, 1.0, 16)
 	assert.Equal(t, "████████████████", sb.String())
 	sb.Reset()
 }

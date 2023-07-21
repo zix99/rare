@@ -83,7 +83,7 @@ func kfBar(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		}
 
 		var sb strings.Builder
-		termunicode.BarWriteScaled(&sb, scaler.Scale(val, 0, maxVal), maxLen)
+		termunicode.BarWrite(&sb, scaler.Scale(val, 0, maxVal), maxLen)
 		return sb.String()
 	}), nil
 }

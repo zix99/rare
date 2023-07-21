@@ -146,7 +146,7 @@ func (s *BarGraph) writeBarGrouped(idx int, key string, vals ...int64) {
 			sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
 		}
 		color.Write(&sb, color.GroupColors[i%len(color.GroupColors)], func(w io.StringWriter) {
-			termunicode.BarWriteScaled(w, s.Scaler.Scale(vals[i], 0, s.maxLineVal), s.BarSize)
+			termunicode.BarWrite(w, s.Scaler.Scale(vals[i], 0, s.maxLineVal), s.BarSize)
 		})
 		sb.WriteString(" ")
 		sb.WriteString(humanize.Hi(vals[i]))

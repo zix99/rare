@@ -103,7 +103,7 @@ func (s *HistoWriter) writeLine(line int, key string, val int64) {
 	if s.ShowBar && s.maxVal > 0 {
 		sb.WriteString(" ")
 		color.Write(&sb, color.Blue, func(w io.StringWriter) {
-			termunicode.BarWriteScaled(w, s.Scaler.Scale(val, 0, s.maxVal), 50)
+			termunicode.BarWrite(w, s.Scaler.Scale(val, 0, s.maxVal), 50)
 		})
 	}
 

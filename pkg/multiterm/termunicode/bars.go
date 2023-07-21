@@ -59,7 +59,7 @@ func barWriteRunes(w io.StringWriter, blockChar rune, val, maxVal, maxLen int64)
 }
 
 // Write a bar, possibly with partial runes. Not to be used with stacking
-func BarWriteScaled(w io.StringWriter, val float64, maxLen int) {
+func BarWrite(w io.StringWriter, val float64, maxLen int) {
 	if UnicodeEnabled {
 		remainingBlocks := termscaler.LengthVal(maxLen*barUnicodePartCount, val)
 		for remainingBlocks >= barUnicodePartCount {
