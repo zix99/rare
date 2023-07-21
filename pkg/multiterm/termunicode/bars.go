@@ -43,7 +43,6 @@ var barAscii = [...]rune{
 }
 
 const barUnicodePartCount = len(barUnicode)
-const barUnicodePartCount64 int64 = int64(len(barUnicode))
 
 // write a length of runes for a given bar parameters
 func barWriteRunes(w io.StringWriter, blockChar rune, val, maxVal, maxLen int64) {
