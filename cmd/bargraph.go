@@ -4,6 +4,7 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/csv"
+	"rare/pkg/logger"
 	"rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli/v2"
@@ -16,14 +17,21 @@ go run . bars -sz -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} year nginx} {2
 
 func bargraphFunction(c *cli.Context) error {
 	var (
-		stacked  = c.Bool("stacked")
-		sortName = c.String(helpers.DefaultSortFlag.Name)
+		stacked   = c.Bool("stacked")
+		sortName  = c.String(helpers.DefaultSortFlag.Name)
+		scaleName = c.String(helpers.ScaleFlag.Name)
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
 	counter := aggregation.NewSubKeyCounter()
 	writer := termrenderers.NewBarGraph(vt)
 	writer.Stacked = stacked
+	if c.IsSet(helpers.ScaleFlag.Name) {
+		if stacked {
+			logger.Fatal("Unable to set graph scale on stacked graphs")
+		}
+		writer.Scaler = helpers.BuildScalerOrFail(scaleName)
+	}
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
@@ -72,6 +80,7 @@ func bargraphCommand() *cli.Command {
 			helpers.SnapshotFlag,
 			helpers.NoOutFlag,
 			helpers.CSVFlag,
+			helpers.ScaleFlag,
 		},
 	})
 }

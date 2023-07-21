@@ -2,6 +2,7 @@ package termrenderers
 
 import (
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termscaler"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -22,6 +23,25 @@ func TestBargraphRendering(t *testing.T) {
 	assert.Equal(t, "      █████████████████████████████████▍ 2", v.Get(2))
 	assert.Equal(t, "tes2  ████████████████▊ 1", v.Get(3))
 	assert.Equal(t, "      ██████████████████████████████████████████████████ 3", v.Get(4))
+	assert.Equal(t, "abc", v.Get(5))
+}
+
+func TestBargraphRenderingLog10(t *testing.T) {
+	v := multiterm.NewVirtualTerm()
+	bg := NewBarGraph(v)
+	bg.Stacked = false
+	bg.Scaler = termscaler.ScalerLog10
+
+	bg.SetKeys("a", "b")
+	bg.WriteBar(0, "test", 10, 100)
+	bg.WriteBar(1, "tes2", 50, 500)
+	bg.WriteFooter(0, "abc")
+
+	assert.Equal(t, "        0 a  1 b", v.Get(0))
+	assert.Equal(t, "test  ████████████████▊ 10", v.Get(1))
+	assert.Equal(t, "      █████████████████████████████████▍ 100", v.Get(2))
+	assert.Equal(t, "tes2  ████████████████████████████▎ 50", v.Get(3))
+	assert.Equal(t, "      █████████████████████████████████████████████ 500", v.Get(4))
 	assert.Equal(t, "abc", v.Get(5))
 }
 
@@ -59,7 +79,7 @@ func TestBargraphBadSubkeys(t *testing.T) {
 	assert.Equal(t, "abc", v.Get(4))
 }
 
-func TestBargraphUnicode(t *testing.T) {
+func TestBargraphUnicodeStacked(t *testing.T) {
 	v := multiterm.NewVirtualTerm()
 	bg := NewBarGraph(v)
 	bg.Stacked = true

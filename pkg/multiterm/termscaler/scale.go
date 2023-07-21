@@ -72,9 +72,19 @@ func Bucket(buckets int, unitVal float64) int {
 	return int(unitVal * float64(buckets-1))
 }
 
+// Return [0, maxLen]
+func LengthVal(maxLen int, unitVal float64) int {
+	return int(unitVal * float64(maxLen))
+}
+
 // Return [0, bucket-1]
 func (s Scaler) Bucket(buckets int, val, min, max int64) int {
 	return Bucket(buckets, s.Scale(val, min, max))
+}
+
+// Return [0, maxLen]
+func (s Scaler) LengthVal(maxLen int, val, min, max int64) int {
+	return LengthVal(maxLen, s.Scale(val, min, max))
 }
 
 // Returns scaled bucket values. May return less buckets than requested for small or high-curve ranges (won't return dupes)

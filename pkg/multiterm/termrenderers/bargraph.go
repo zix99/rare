@@ -5,6 +5,7 @@ import (
 	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termscaler"
 	"rare/pkg/multiterm/termunicode"
 	"strings"
 )
@@ -26,6 +27,7 @@ type BarGraph struct {
 
 	BarSize int
 	Stacked bool
+	Scaler  termscaler.Scaler
 }
 
 func NewBarGraph(term multiterm.MultilineTerm) *BarGraph {
@@ -34,6 +36,7 @@ func NewBarGraph(term multiterm.MultilineTerm) *BarGraph {
 		maxKeyLength: 4,
 		Stacked:      false,
 		BarSize:      50,
+		Scaler:       termscaler.ScalerLinear,
 	}
 }
 
@@ -143,7 +146,7 @@ func (s *BarGraph) writeBarGrouped(idx int, key string, vals ...int64) {
 			sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
 		}
 		color.Write(&sb, color.GroupColors[i%len(color.GroupColors)], func(w io.StringWriter) {
-			termunicode.BarWrite(w, vals[i], s.maxLineVal, int64(s.BarSize))
+			termunicode.BarWriteScaled(w, s.Scaler.Scale(vals[i], 0, s.maxLineVal), s.BarSize)
 		})
 		sb.WriteString(" ")
 		sb.WriteString(humanize.Hi(vals[i]))

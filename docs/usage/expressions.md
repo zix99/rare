@@ -356,11 +356,13 @@ Colorizes the 2nd argument.
 
 #### Bars
 
-Syntax: `{bar {val} "maxVal" "length"}`
+Syntax: `{bar {val} "maxVal" "length" ["scale"]}`
 
 Note: If unicode is disabled, will use pipe character
 
 Draws a "bar" with the length `(val / maxVal) * length`
+
+Scale can be `linear`, `log10`, or `log2` (Default: `lienar`)
 
 ### Paths
 
