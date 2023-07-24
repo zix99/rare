@@ -69,6 +69,22 @@ func TestLogScale2(t *testing.T) {
 	assert.Equal(t, []int64{1, 3, 6, 11, 21, 39, 73, 135, 251, 464, 857, 1584, 2928, 5411, 10000}, s.ScaleKeys(16, 0, 10000))
 }
 
+func TestLengthVal(t *testing.T) {
+	s, _ := ScalerByName("linear")
+	assert.Equal(t, 0, s.LengthVal(5, -5, 0, 10))
+	assert.Equal(t, 0, s.LengthVal(5, 0, 0, 10))
+	assert.Equal(t, 2, s.LengthVal(5, 5, 0, 10))
+	assert.Equal(t, 5, s.LengthVal(5, 10, 0, 10))
+	assert.Equal(t, 5, s.LengthVal(5, 20, 0, 10))
+	assert.Equal(t, 1, s.LengthVal(5, 120, 100, 200))
+	assert.Equal(t, 3, s.LengthVal(5, 175, 100, 200))
+
+	// Edge cases
+	assert.Equal(t, 0, s.LengthVal(5, 20, 20, 10))
+	assert.Equal(t, 5, s.LengthVal(5, 20, 10, 10))
+	assert.Equal(t, 0, s.LengthVal(5, -100, 0, -10))
+}
+
 func TestLinearKeySet(t *testing.T) {
 	assert.Equal(t, []int64{0, 25, 50, 75, 100}, ScalerLinear.ScaleKeys(5, 0, 100))
 	assert.Equal(t, []int64{50, 62, 75, 87, 100}, ScalerLinear.ScaleKeys(5, 50, 100))
