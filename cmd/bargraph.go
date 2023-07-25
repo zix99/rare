@@ -4,7 +4,6 @@ import (
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/csv"
-	"rare/pkg/logger"
 	"rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli/v2"
@@ -28,7 +27,7 @@ func bargraphFunction(c *cli.Context) error {
 	writer.Stacked = stacked
 	if c.IsSet(helpers.ScaleFlag.Name) {
 		if stacked {
-			logger.Fatal("Unable to set graph scale on stacked graphs")
+			return cli.Exit("Unable to set graph scale on stacked graphs", helpers.ExitCodeInvalidUsage)
 		}
 		writer.Scaler = helpers.BuildScalerOrFail(scaleName)
 	}
