@@ -50,12 +50,21 @@ Matched: 6 / 6 (Groups: 4)
 
 # Or with Bars/percentages
 ./rare histo --match "(\d+)" -e "{1}" -x simple.log
-1                   3          [50.0%] ||||||||||||||||||||||||||||||||||||||||||||||||||
-0                   1          [16.7%] ||||||||||||||||
-2                   1          [16.7%] ||||||||||||||||
-3                   1          [16.7%] ||||||||||||||||
+1                   7          [58.3%] ||||||||||||||||||||||||||||||||||||||||||||||||||
+3                   2          [16.7%] ||||||||||||||
+2                   2          [16.7%] ||||||||||||||
+0                   1          [ 8.3%] |||||||
 
-Matched: 6 / 6 (Groups: 4)
+Matched: 12 / 12 (Groups: 4)
+
+# Logarithmic Scale
+./rare histo --match "(\d+)" -e "{1}" --scale log10 -x simple.log
+1                   7          [58.3%] ||||||||||||||||||||||||||||||||||||||||||
+3                   2          [16.7%] |||||||||||||||
+2                   2          [16.7%] |||||||||||||||
+0                   1          [ 8.3%] 
+
+Matched: 12 / 12 (Groups: 4)
 ```
 
 ## Nginx
@@ -106,7 +115,7 @@ This shows an example of how to bucket the values into size of `1000`. In this c
 sense to see the histogram by number of bytes, but we might want to know the ratio of various orders-of-magnitudes.
 
 ```sh
-$ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3}) (\d+)' -e "{bucket {4} 10000}" -n 10 access.log -b
+$ rare histo -m '"(\w{3,4}) ([A-Za-z0-9/.]+).*" (\d{3}) (\d+)' -e "{bucket {4} 10000}" -n 10 -b access.log
 0                   144239     ||||||||||||||||||||||||||||||||||||||||||||||||||
 190000              2599       
 10000               1290       
