@@ -3,10 +3,11 @@ package termunicode
 import (
 	"io"
 	"rare/pkg/color"
-	"strings"
+	"rare/pkg/multiterm/termscaler"
 )
 
 const nonUnicodeBlock rune = '|'
+const nonUnicodeBlockStr string = string(nonUnicodeBlock)
 
 const fullBlock rune = '\u2588'
 
@@ -41,7 +42,7 @@ var barAscii = [...]rune{
 	'F',
 }
 
-const barUnicodePartCount int64 = int64(len(barUnicode))
+const barUnicodePartCount = len(barUnicode)
 
 // write a length of runes for a given bar parameters
 func barWriteRunes(w io.StringWriter, blockChar rune, val, maxVal, maxLen int64) {
@@ -56,24 +57,10 @@ func barWriteRunes(w io.StringWriter, blockChar rune, val, maxVal, maxLen int64)
 	}
 }
 
-// BarWriteFull does not write partial bars to the end. Useful for stacking
-func BarWriteFull(w io.StringWriter, val, maxVal, maxLen int64) {
-	var blockChar rune = nonUnicodeBlock
-	if UnicodeEnabled {
-		blockChar = fullBlock
-	}
-
-	barWriteRunes(w, blockChar, val, maxVal, maxLen)
-}
-
 // Write a bar, possibly with partial runes. Not to be used with stacking
-func BarWrite(w io.StringWriter, val, maxVal, maxLen int64) {
-	if val > maxVal {
-		val = maxVal
-	}
-
+func BarWrite(w io.StringWriter, val float64, maxLen int) {
 	if UnicodeEnabled {
-		remainingBlocks := val * maxLen * barUnicodePartCount / maxVal
+		remainingBlocks := termscaler.LengthVal(maxLen*barUnicodePartCount, val)
 		for remainingBlocks >= barUnicodePartCount {
 			w.WriteString(string(fullBlock))
 			remainingBlocks -= barUnicodePartCount
@@ -82,19 +69,12 @@ func BarWrite(w io.StringWriter, val, maxVal, maxLen int64) {
 			w.WriteString(string(barUnicode[remainingBlocks]))
 		}
 	} else {
-		blocks := val * maxLen / maxVal
+		blocks := termscaler.LengthVal(maxLen, val)
 		for blocks > 0 {
-			w.WriteString(string(nonUnicodeBlock))
+			w.WriteString(nonUnicodeBlockStr)
 			blocks--
 		}
 	}
-}
-
-// BarWrite, but to a string
-func BarString(val, maxVal, maxLen int64) string {
-	var sb strings.Builder
-	BarWrite(&sb, val, maxVal, maxLen)
-	return sb.String()
 }
 
 /*

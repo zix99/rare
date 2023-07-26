@@ -2,6 +2,7 @@ package termunicode
 
 import (
 	"rare/pkg/color"
+	"rare/pkg/multiterm/termscaler"
 	"rare/pkg/testutil"
 	"strings"
 	"testing"
@@ -11,26 +12,25 @@ import (
 
 func TestWriteBar(t *testing.T) {
 	var sb strings.Builder
-	BarWrite(&sb, 1, 8, 1)
+	BarWrite(&sb, termscaler.ScalerLinear.Scale(1, 0, 8), 1)
 	assert.Equal(t, string(barUnicode[1]), sb.String())
 
 	sb.Reset()
-	BarWrite(&sb, 10, 8, 1)
+	BarWrite(&sb, termscaler.ScalerLinear.Scale(10, 0, 8), 1)
 	assert.Equal(t, string(fullBlock), sb.String())
-
-	assert.Equal(t, string(barUnicode[5]), BarString(5, 8, 1))
 
 	sb.Reset()
-	BarWriteFull(&sb, 1, 8, 10)
-	assert.Equal(t, string(fullBlock), sb.String())
+	BarWrite(&sb, termscaler.ScalerLinear.Scale(5, 0, 8), 1)
+	assert.Equal(t, string(barUnicode[5]), sb.String())
 }
 
 func TestWriteBarFallbacks(t *testing.T) {
-	UnicodeEnabled = false
+	testutil.SwitchGlobal(&UnicodeEnabled, false)
+	defer testutil.RestoreGlobals()
 
-	assert.Equal(t, "|||||", BarString(5, 10, 10))
-
-	UnicodeEnabled = true
+	var sb strings.Builder
+	BarWrite(&sb, termscaler.ScalerLinear.Scale(5, 0, 10), 10)
+	assert.Equal(t, "|||||", sb.String())
 }
 
 func TestWriteBarStacked(t *testing.T) {
@@ -55,6 +55,33 @@ func TestWriteBarStacked(t *testing.T) {
 	sb.Reset()
 	BarWriteStacked(&sb, 10, 10, 1, 3, 2)
 	assert.Equal(t, "\x1b[31m█\x1b[0m\x1b[32m███\x1b[0m\x1b[33m██\x1b[0m", sb.String())
+}
+
+func TestBarWriteScaled(t *testing.T) {
+	defer testutil.RestoreGlobals()
+	testutil.SwitchGlobal(&UnicodeEnabled, false)
+	var sb strings.Builder
+
+	BarWrite(&sb, 0.0, 6)
+	assert.Equal(t, "", sb.String())
+	sb.Reset()
+
+	BarWrite(&sb, 0.5, 6)
+	assert.Equal(t, "|||", sb.String())
+	sb.Reset()
+
+	BarWrite(&sb, 1.0, 6)
+	assert.Equal(t, "||||||", sb.String())
+	sb.Reset()
+
+	testutil.SwitchGlobal(&UnicodeEnabled, true)
+	BarWrite(&sb, 0.45, 16)
+	assert.Equal(t, "███████▏", sb.String())
+	sb.Reset()
+
+	BarWrite(&sb, 1.0, 16)
+	assert.Equal(t, "████████████████", sb.String())
+	sb.Reset()
 }
 
 func TestBarKeyChar(t *testing.T) {

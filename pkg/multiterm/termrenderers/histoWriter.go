@@ -2,9 +2,11 @@ package termrenderers
 
 import (
 	"fmt"
+	"io"
 	"rare/pkg/color"
 	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termscaler"
 	"rare/pkg/multiterm/termunicode"
 	"strings"
 )
@@ -23,6 +25,7 @@ type HistoWriter struct {
 
 	ShowBar        bool
 	ShowPercentage bool
+	Scaler         termscaler.Scaler
 }
 
 func NewHistogram(term multiterm.MultilineTerm, maxLines int) *HistoWriter {
@@ -30,6 +33,7 @@ func NewHistogram(term multiterm.MultilineTerm, maxLines int) *HistoWriter {
 		writer:         term,
 		ShowBar:        true,
 		ShowPercentage: true,
+		Scaler:         termscaler.ScalerLinear,
 		textSpacing:    16,
 		items:          make([]histoPair, maxLines),
 	}
@@ -98,7 +102,9 @@ func (s *HistoWriter) writeLine(line int, key string, val int64) {
 
 	if s.ShowBar && s.maxVal > 0 {
 		sb.WriteString(" ")
-		sb.WriteString(color.Wrap(color.Blue, termunicode.BarString(val, s.maxVal, 50)))
+		color.Write(&sb, color.Blue, func(w io.StringWriter) {
+			termunicode.BarWrite(w, s.Scaler.Scale(val, 0, s.maxVal), 50)
+		})
 	}
 
 	s.writer.WriteForLine(line, sb.String())

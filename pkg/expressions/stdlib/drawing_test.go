@@ -1,6 +1,8 @@
 package stdlib
 
 import (
+	"rare/pkg/multiterm/termunicode"
+	"rare/pkg/testutil"
 	"testing"
 )
 
@@ -29,10 +31,15 @@ func TestAddingColor(t *testing.T) {
 }
 
 func TestBarGraph(t *testing.T) {
-	testExpression(t,
-		mockContext(),
-		"{bar 2 5 5}",
-		"██")
+	testutil.SwitchGlobal(&termunicode.UnicodeEnabled, false)
+	defer testutil.RestoreGlobals()
+
+	testExpression(t, mockContext(), "{bar 2 5 5}", "||")
+	testExpression(t, mockContext(), "{bar 10 100 10}", "|")
+	testExpression(t, mockContext(), "{bar 10 100 10 log10}", "|||||")
+	testExpressionErr(t, mockContext(), "{bar 2 {0} 5}", "<BAD-TYPE>", ErrNum)
+	testExpressionErr(t, mockContext(), "{bar 10 100 10 badlog}", "<ENUM>", ErrEnum)
+	testExpressionErr(t, mockContext(), "{bar 10 100 10 {0}}", "<CONST>", ErrConst)
 }
 
 func TestBarGraphErrorCases(t *testing.T) {

@@ -29,11 +29,12 @@ func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.Ma
 
 func histoFunction(c *cli.Context) error {
 	var (
-		topItems = c.Int("n")
-		atLeast  = c.Int64("atleast")
-		extra    = c.Bool("extra")
-		all      = c.Bool("all")
-		sortName = c.String(helpers.DefaultSortFlag.Name)
+		topItems   = c.Int("n")
+		atLeast    = c.Int64("atleast")
+		extra      = c.Bool("extra")
+		all        = c.Bool("all")
+		sortName   = c.String(helpers.DefaultSortFlag.Name)
+		scalerName = c.String(helpers.ScaleFlag.Name)
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
@@ -41,6 +42,7 @@ func histoFunction(c *cli.Context) error {
 	writer := termrenderers.NewHistogram(vt, topItems)
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
+	writer.Scaler = helpers.BuildScalerOrFail(scalerName)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
@@ -130,6 +132,7 @@ func histogramCommand() *cli.Command {
 			helpers.SnapshotFlag,
 			helpers.NoOutFlag,
 			helpers.CSVFlag,
+			helpers.ScaleFlag,
 		},
 	})
 }

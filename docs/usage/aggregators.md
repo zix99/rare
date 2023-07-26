@@ -49,6 +49,8 @@ of an extracted match.  That is to say, on every line a regex will be
 matched (or not), and the matched groups can be used to extract and build
 a key, that will act as the bucketing name.
 
+Supports [alternative scales](#alternative-scales)
+
 ### Example
 
 Extract HTTP verb, URL and status code.  Key off of status code and verb.
@@ -77,6 +79,8 @@ rare help bargraph
 
 Similar to histogram or table, bargraph can generate a stacked or grouped
 bargraph by one or two keys.
+
+Supports [alternative scales](#alternative-scales)
 
 ### Example
 
