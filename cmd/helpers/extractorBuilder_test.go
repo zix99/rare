@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"rare/pkg/testutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -48,8 +49,33 @@ func TestBuildingExtractorFromContext(t *testing.T) {
 		cmd,
 	}
 
-	app.Run([]string{"app", "test"})
-	app.Run([]string{"app", "test", "-i", "{eq {0} abc}", "../testdata/log.txt"})
-	app.Run([]string{"app", "test", "-f", "../testdata/log.txt"})
+	runApp := func(args string) error {
+		return app.Run(append([]string{"app", "test"}, testutil.SplitQuotedString(args)...))
+	}
+
+	assert.NoError(t, runApp(""))
+	assert.NoError(t, runApp(`-I -i "{eq {0} abc}" ../testdata/log.txt`))
+	assert.NoError(t, runApp(`-f ../testdata/log.txt`))
+	testLogFatal(t, 2, func() {
+		runApp("--batch 0 ../testdata/log.txt")
+	})
+	testLogFatal(t, 2, func() {
+		runApp("--readers 0 ../testdata/log.txt")
+	})
+	testLogFatal(t, 2, func() {
+		runApp("--poll ../testdata/log.txt")
+	})
+	testLogFatal(t, 2, func() {
+		runApp("--tail ../testdata/log.txt")
+	})
+	testLogFatal(t, 2, func() {
+		runApp("-z -")
+	})
+	testLogFatal(t, 2, func() {
+		runApp(`-m ".(" -`)
+	})
+	testLogFatal(t, 2, func() {
+		runApp(`-i "{0" -`)
+	})
 	assert.Equal(t, 3, actionCalled)
 }

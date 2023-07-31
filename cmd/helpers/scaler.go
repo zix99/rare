@@ -27,7 +27,7 @@ func BuildScaler(scalerName string) (termscaler.Scaler, error) {
 func BuildScalerOrFail(scalerName string) termscaler.Scaler {
 	s, err := BuildScaler(scalerName)
 	if err != nil {
-		logger.Fatal(err)
+		logger.Fatal(ExitCodeInvalidUsage, err)
 	}
 	return s
 }
