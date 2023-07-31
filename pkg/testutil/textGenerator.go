@@ -2,11 +2,12 @@ package testutil
 
 import (
 	"io"
+	"sync/atomic"
 )
 
 type textGeneratingReader struct {
 	maxChunk int
-	closed   bool
+	closed   int32
 }
 
 var _ io.Reader = &textGeneratingReader{}
@@ -22,7 +23,7 @@ func NewTextGenerator(maxReadSize int) io.ReadCloser {
 }
 
 func (s *textGeneratingReader) Read(buf []byte) (int, error) {
-	if s.closed {
+	if atomic.LoadInt32(&s.closed) > 0 {
 		return 0, io.EOF
 	}
 
@@ -39,9 +40,8 @@ func (s *textGeneratingReader) Read(buf []byte) (int, error) {
 }
 
 func (s *textGeneratingReader) Close() error {
-	if s.closed {
+	if atomic.SwapInt32(&s.closed, 1) > 0 {
 		return io.EOF
 	}
-	s.closed = true
 	return nil
 }
