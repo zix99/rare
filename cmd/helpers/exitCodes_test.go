@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"io/ioutil"
 	"rare/pkg/aggregation"
 	"rare/pkg/extractor"
 	"rare/pkg/extractor/batchers"
@@ -13,7 +12,7 @@ import (
 
 func TestDetermineErrorState(t *testing.T) {
 	reader := testutil.NewTextGenerator(100)
-	b := batchers.OpenReaderToChan("test", ioutil.NopCloser(reader), 1, 1024)
+	b := batchers.OpenReaderToChan("test", reader, 1, 1024)
 	ext, _ := extractor.New(b.BatchChan(), &extractor.Config{
 		Regex:   ".*",
 		Extract: "{0}",

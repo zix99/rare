@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,4 +32,12 @@ func TestGeneratesData(t *testing.T) {
 	for i := 0; i < n; i++ {
 		assert.NotZero(t, buf[i])
 	}
+
+	zero(buf)
+	rg.Close()
+	n, err = rg.Read(buf)
+	assert.Zero(t, n)
+	assert.ErrorIs(t, err, io.EOF)
+
+	assert.ErrorIs(t, rg.Close(), io.EOF)
 }

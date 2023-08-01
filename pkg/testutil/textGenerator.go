@@ -39,6 +39,7 @@ func (s *textGeneratingReader) Read(buf []byte) (int, error) {
 	return size, nil
 }
 
+// Close, next Read() will return EOF (thread-safe, for testing)
 func (s *textGeneratingReader) Close() error {
 	if atomic.SwapInt32(&s.closed, 1) > 0 {
 		return io.EOF
