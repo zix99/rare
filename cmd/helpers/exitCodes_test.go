@@ -2,23 +2,36 @@ package helpers
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
+type mockExitState struct {
+	batchErr, aggErr, extSum int
+}
+
+func (s *mockExitState) ReadErrors() int {
+	return s.batchErr
+}
+
+func (s *mockExitState) ParseErrors() uint64 {
+	return uint64(s.aggErr)
+}
+
+func (s *mockExitState) MatchedLines() uint64 {
+	return uint64(s.extSum)
+}
+
 func TestDetermineErrorState(t *testing.T) {
-	// reader := testutil.NewTextGenerator(100)
-	// b := batchers.OpenReaderToChan("test", reader, 1, 1024)
-	// ext, _ := extractor.New(b.BatchChan(), &extractor.Config{
-	// 	Regex:   ".*",
-	// 	Extract: "{0}",
-	// })
-	// agg := aggregation.NewCounter()
+	s := mockExitState{0, 0, 1}
+	assert.NoError(t, DetermineErrorState(&s, &s, &s))
 
-	// for batch := range ext.ReadChan() {
-	// 	for _, item := range batch {
-	// 		agg.Sample(item.Extracted)
-	// 	}
-	// 	reader.Close() // Close soon after reading /some/ data
-	// }
+	s = mockExitState{0, 0, 0}
+	assert.Error(t, DetermineErrorState(&s, &s, &s))
 
-	// assert.NoError(t, DetermineErrorState(b, ext, agg))
+	s = mockExitState{0, 1, 1}
+	assert.Error(t, DetermineErrorState(&s, &s, &s))
+
+	s = mockExitState{1, 0, 1}
+	assert.Error(t, DetermineErrorState(&s, &s, &s))
 }

@@ -1,10 +1,6 @@
 package helpers
 
 import (
-	"rare/pkg/aggregation"
-	"rare/pkg/extractor"
-	"rare/pkg/extractor/batchers"
-
 	"github.com/urfave/cli/v2"
 )
 
@@ -13,7 +9,19 @@ const (
 	ExitCodeInvalidUsage = 2
 )
 
-func DetermineErrorState(b *batchers.Batcher, e *extractor.Extractor, agg aggregation.Aggregator) error {
+type (
+	BatcherErrors interface {
+		ReadErrors() int
+	}
+	ExtractorSummary interface {
+		MatchedLines() uint64
+	}
+	AggregationErrors interface {
+		ParseErrors() uint64
+	}
+)
+
+func DetermineErrorState(b BatcherErrors, e ExtractorSummary, agg AggregationErrors) error {
 	if b.ReadErrors() > 0 {
 		return cli.Exit("Read errors", ExitCodeInvalidUsage)
 	}

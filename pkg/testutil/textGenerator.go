@@ -15,7 +15,7 @@ var _ io.Reader = &textGeneratingReader{}
 var validText []byte = []byte("abcdefghijklmnopqrstuvwxyz\n")
 
 // NewTextGenerator creates a io.reader that generates random alphaetical text separated by new-lines
-// Will generate infinitely
+// Will generate infinitely until closed
 func NewTextGenerator(maxReadSize int) io.ReadCloser {
 	return &textGeneratingReader{
 		maxChunk: maxReadSize,
