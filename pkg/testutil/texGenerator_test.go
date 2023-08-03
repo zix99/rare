@@ -34,7 +34,7 @@ func TestGeneratesData(t *testing.T) {
 	}
 
 	zero(buf)
-	rg.Close()
+	assert.NoError(t, rg.Close())
 	n, err = rg.Read(buf)
 	assert.Zero(t, n)
 	assert.ErrorIs(t, err, io.EOF)
