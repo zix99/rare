@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"log"
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
 	"rare/pkg/color"
 	"rare/pkg/humanize"
+	"rare/pkg/logger"
 	"rare/pkg/multiterm"
 	"strconv"
 
@@ -43,7 +43,7 @@ func parseStringSet(vals []string) []float64 {
 	for idx, val := range vals {
 		parsedVal, err := strconv.ParseFloat(val, 64)
 		if err != nil {
-			log.Fatalf("%s is not a number: %v", val, err)
+			logger.Fatalf(helpers.ExitCodeInvalidUsage, "%s is not a number: %v", val, err)
 		}
 		ret[idx] = parsedVal
 	}

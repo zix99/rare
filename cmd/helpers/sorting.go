@@ -31,7 +31,7 @@ func DefaultSortFlagWithDefault(dflt string) *cli.StringFlag {
 func BuildSorterOrFail(fullName string) sorting.NameValueSorter {
 	sorter, err := BuildSorter(fullName)
 	if err != nil {
-		logger.Fatal(err)
+		logger.Fatal(ExitCodeInvalidUsage, err)
 	}
 	return sorter
 }

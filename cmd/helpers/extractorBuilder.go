@@ -36,23 +36,23 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 	)
 
 	if batchSize < 1 {
-		logger.Fatalf("Batch size must be >= 1, is %d", batchSize)
+		logger.Fatalf(ExitCodeInvalidUsage, "Batch size must be >= 1, is %d", batchSize)
 	}
 	if concurrentReaders < 1 {
-		logger.Fatalf("Must have at least 1 reader")
+		logger.Fatalf(ExitCodeInvalidUsage, "Must have at least 1 reader")
 	}
 	if followPoll && !follow {
-		logger.Fatalf("Follow (-f) must be enabled for --poll")
+		logger.Fatalf(ExitCodeInvalidUsage, "Follow (-f) must be enabled for --poll")
 	}
 	if followTail && !follow {
-		logger.Fatalf("Follow (-f) must be enabled for --tail")
+		logger.Fatalf(ExitCodeInvalidUsage, "Follow (-f) must be enabled for --tail")
 	}
 
 	fileglobs := c.Args().Slice()
 
 	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
 		if gunzip {
-			logger.Fatalln("Cannot decompress (-z) with stdin")
+			logger.Fatalln(ExitCodeInvalidUsage, "Cannot decompress (-z) with stdin")
 		}
 		if follow {
 			logger.Println("Cannot follow a stdin stream, not a file")
@@ -88,14 +88,14 @@ func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, se
 	if len(ignoreSlice) > 0 {
 		ignoreExp, err := extractor.NewIgnoreExpressions(ignoreSlice...)
 		if err != nil {
-			logger.Fatalln(err)
+			logger.Fatalln(ExitCodeInvalidUsage, err)
 		}
 		config.Ignore = ignoreExp
 	}
 
 	ret, err := extractor.New(batcher.BatchChan(), &config)
 	if err != nil {
-		logger.Fatalln(err)
+		logger.Fatalln(ExitCodeInvalidUsage, err)
 	}
 	return ret
 }

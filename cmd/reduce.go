@@ -37,7 +37,7 @@ func reduceFunction(c *cli.Context) error {
 	for _, group := range groupExpr {
 		name, val := parseKeyValue(group)
 		if err := aggr.AddGroupExpr(name, val); err != nil {
-			logger.Fatalf("Error compiling group expression %s: %s", group, err)
+			logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error compiling group expression %s: %s", group, err)
 		}
 	}
 
@@ -46,7 +46,7 @@ func reduceFunction(c *cli.Context) error {
 	for _, expr := range accumExprs {
 		name, initial, val := parseKeyValInitial(expr, defaultInitial)
 		if err := aggr.AddDataExpr(name, val, initial); err != nil {
-			logger.Fatalf("Error compiling expression %s: %s", expr, err)
+			logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error compiling expression %s: %s", expr, err)
 		} else {
 			if len(name) > maxKeylen {
 				maxKeylen = len(name)
@@ -61,7 +61,7 @@ func reduceFunction(c *cli.Context) error {
 	}
 	if sort != "" {
 		if err := aggr.SetSort(sort); err != nil {
-			logger.Fatalf("Error setting sort: %s", err)
+			logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error setting sort: %s", err)
 		}
 	}
 

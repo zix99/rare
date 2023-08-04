@@ -13,6 +13,9 @@ func TestBuildSorter(t *testing.T) {
 	assert.NotNil(t, BuildSorterOrFail("contextual"))
 	assert.NotNil(t, BuildSorterOrFail("value"))
 	assert.NotNil(t, BuildSorterOrFail("value:reverse"))
+	testLogFatal(t, 2, func() {
+		BuildSorterOrFail("fake")
+	})
 }
 
 func TestOrderResults(t *testing.T) {

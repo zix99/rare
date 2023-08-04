@@ -13,6 +13,9 @@ var logBuffer *bytes.Buffer
 
 const logPrefix = "[Log] "
 
+// Allow overriding exit for unit tests
+var OsExit = os.Exit
+
 func init() {
 	resetLogger()
 }
@@ -29,25 +32,28 @@ func DeferLogs() {
 func ImmediateLogs() {
 	if logBuffer != nil {
 		os.Stderr.Write(logBuffer.Bytes())
-		logBuffer = nil
 		resetLogger()
 	}
 }
 
 func resetLogger() {
+	logBuffer = nil
 	logger = log.New(os.Stderr, logPrefix, 0)
 }
 
-func Fatalln(s interface{}) {
-	logger.Fatalln(s)
+func Fatalln(code int, s interface{}) {
+	logger.Println(s)
+	OsExit(code)
 }
 
-func Fatal(v ...interface{}) {
-	logger.Fatal(v...)
+func Fatal(code int, v ...interface{}) {
+	logger.Print(v...)
+	OsExit(code)
 }
 
-func Fatalf(s string, args ...interface{}) {
-	Fatalln(fmt.Sprintf(s, args...))
+func Fatalf(code int, s string, args ...interface{}) {
+	logger.Printf(s, args...)
+	OsExit(code)
 }
 
 func Println(s interface{}) {

@@ -47,3 +47,15 @@ func TestParseKIV(t *testing.T) {
 	assert.Equal(t, "1", i)
 	assert.Equal(t, "efg", v)
 }
+
+func TestReduceFatals(t *testing.T) {
+	catchLogFatal(t, 2, func() {
+		testCommand(reduceCommand(), `-m (\d+) -g {0 -a {0} testdata/log.txt`)
+	})
+	catchLogFatal(t, 2, func() {
+		testCommand(reduceCommand(), `-m (\d+) -g {0} -a {0 testdata/log.txt`)
+	})
+	catchLogFatal(t, 2, func() {
+		testCommand(reduceCommand(), `-m (\d+) -g {0} -a {0} --sort {0 testdata/log.txt`)
+	})
+}

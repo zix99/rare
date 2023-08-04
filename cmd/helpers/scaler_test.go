@@ -20,4 +20,7 @@ func TestBuildScaler(t *testing.T) {
 func TestBuildScalerOrFail(t *testing.T) {
 	assert.NotNil(t, BuildScalerOrFail(""))
 	assert.NotNil(t, BuildScalerOrFail("linear"))
+	testLogFatal(t, 2, func() {
+		BuildScalerOrFail("fake")
+	})
 }

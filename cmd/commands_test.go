@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"rare/pkg/logger"
 	"rare/pkg/testutil"
 	"testing"
 
@@ -41,4 +42,22 @@ func testCommand(command *cli.Command, cmd string) error {
 	commandArgs := append([]string{"app", "_testcommand"}, testutil.SplitQuotedString(cmd)...)
 
 	return app.Run(commandArgs)
+}
+
+// Cause logger.fatal* to result in panic() for testability
+func catchLogFatal(t *testing.T, expectsCode int, f func()) (code int) {
+	code = -1
+
+	oldExit := logger.OsExit
+	defer func() {
+		logger.OsExit = oldExit
+	}()
+	logger.OsExit = func(v int) {
+		code = v
+		panic("logger.osexit")
+	}
+
+	assert.PanicsWithValue(t, "logger.osexit", f)
+	assert.Equal(t, expectsCode, code)
+	return
 }
