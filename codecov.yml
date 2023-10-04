@@ -1,0 +1,4 @@
+
+# Ignore things impossible or not valuable to test
+ignore:
+  - profiling.go

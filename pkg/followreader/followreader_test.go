@@ -101,3 +101,18 @@ func (s *testAppendingFile) Close() {
 		panic(err)
 	}
 }
+
+func TestFollowReaderNew(t *testing.T) {
+	af := CreateAppendingTempFile()
+	defer af.Close()
+
+	f, err := New(af.Name(), false, false)
+	assert.NoError(t, err)
+	assert.NotNil(t, f)
+	f.Close()
+
+	f, err = New(af.Name(), false, true)
+	assert.NoError(t, err)
+	assert.NotNil(t, f)
+	f.Close()
+}
