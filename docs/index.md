@@ -41,7 +41,15 @@ Take a look at [examples](usage/examples.md) to see more of what *rare* does.
 
     I will leave it up to the user as to which they find suitable to use for their situation.  Generally, if you know what *rare* is getting as an input, the pcre version is perfectly safe and can be much faster.
 
-### Manual
+### Bash Script
+
+This script downloads the latest version from github, and installs it to `~/.local/bin` (`/usr/bin` if *root*).
+
+```sh
+curl -sfL https://rare.zdyn.net/install.sh | bash -
+```
+
+### Manual (Prebuilt Binary)
 
 Download appropriate binary or package from [Releases](https://github.com/zix99/rare/releases)
 
