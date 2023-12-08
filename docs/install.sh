@@ -23,17 +23,28 @@ trap "rm -rf \"$TMP_DIR\"" EXIT INT TERM
 # Detect version
 OS="$(uname -s)"
 ARCH="$(uname -m)"
-if [[ $ARCH == "aarch64" ]]; then
-    ARCH=arm64
-fi
+
+TAR_SUFFIX="tar.gz"
+INSTALL_DIR="$HOME/.local/bin"
+case $OS in
+    aarch64)
+        OS=arm64
+        ;;
+    MSYS_NT*)
+        OS=Windows
+        TAR_SUFFIX="zip"
+        ;;
+    Darwin)
+        INSTALL_DIR="$HOME/bin"
+        ;;
+esac
 
 # Download
-TAR_FILENAME="${FILE_BASENAME}_${LATEST}_${OS}_${ARCH}.tar.gz"
-echo "Downloading $TAR_FILENAME to $TMP_DIR..." >&2
+TAR_FILENAME="${FILE_BASENAME}_${LATEST}_${OS}_${ARCH}.${TAR_SUFFIX}"
+URL="$RELEASES_URL/download/$LATEST/$TAR_FILENAME"
 
 cd $TMP_DIR
-
-URL="$RELEASES_URL/download/$LATEST/$TAR_FILENAME"
+echo "Downloading $TAR_FILENAME to $TMP_DIR..." >&2
 curl -sfLO $URL
 tar xzf $TAR_FILENAME
 
@@ -44,19 +55,11 @@ fi
 
 # Install
 if [[ $USER == "root" ]]; then
-    echo "Installing as root..." >&2
     INSTALL_DIR="/usr/bin"
+    echo "Installing as root to $INSTALL_DIR..." >&2
     chown root:root rare*
 else
-    echo "Installing to user home .local/bin ..." >&2
-    case $OS in
-        Darwin)
-            INSTALL_DIR="$HOME/bin"
-            ;;
-        *)
-            INSTALL_DIR="$HOME/.local/bin"
-            ;;
-    esac
+    echo "Installing to user home $INSTALL_DIR ..." >&2
     mkdir -p $INSTALL_DIR
 fi
 
