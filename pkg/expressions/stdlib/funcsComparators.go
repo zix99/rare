@@ -115,6 +115,25 @@ func kfIf(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}), nil
 }
 
+// {switch ifTrue val ifTrue val ... [ifFalseVal]}
+func kfSwitch(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) <= 1 {
+		return stageErrArgRange(args, "2+")
+	}
+
+	return func(context KeyBuilderContext) string {
+		for i := 0; i+1 < len(args); i += 2 {
+			if Truthy(args[i](context)) {
+				return args[i+1](context)
+			}
+		}
+		if len(args)%2 == 1 {
+			return args[len(args)-1](context)
+		}
+		return ""
+	}, nil
+}
+
 func kfUnless(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
 		return stageErrArgCount(args, 2)

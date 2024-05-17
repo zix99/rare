@@ -43,6 +43,7 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 
 	// Comparisons
 	"if":     KeyBuilderFunction(kfIf),
+	"switch": kfSwitch,
 	"unless": KeyBuilderFunction(kfUnless),
 	"eq": stringComparator(func(a, b string) string {
 		if a == b {
@@ -93,6 +94,11 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"basename": kfPathBase,
 	"dirname":  kfPathDir,
 	"extname":  kfPathExt,
+
+	// File operations
+	"load":   kfLoadFile,
+	"lookup": kfLookupKey,
+	"haskey": kfHasKey,
 
 	// Formatting
 	"hi":      KeyBuilderFunction(kfHumanizeInt),

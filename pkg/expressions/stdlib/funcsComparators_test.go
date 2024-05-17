@@ -17,6 +17,15 @@ func TestIfStatement(t *testing.T) {
 	testExpression(t, mockContext(), `{if {neq "" ""} true false}`, "false")
 }
 
+func TestSwitch(t *testing.T) {
+	testExpression(t, mockContext("a"), "{switch {eq {0} a} isa {eq {0} b} isb 1 null}", "isa")
+	testExpression(t, mockContext("b"), "{switch {eq {0} a} isa {eq {0} b} isb 1 null}", "isb")
+	testExpression(t, mockContext("c"), "{switch {eq {0} a} isa {eq {0} b} isb 1 null}", "null")
+	testExpression(t, mockContext("c"), "{switch {eq {0} a} isa {eq {0} b} isb null}", "null")
+	testExpression(t, mockContext("a"), "{switch {eq {0} a} isa {eq {0} b} isb 1}", "isa")
+	testExpressionErr(t, mockContext("a"), "{switch {eq {0} a}}", "<ARGN>", ErrArgCount)
+}
+
 func TestUnlessStatement(t *testing.T) {
 	testExpression(t, mockContext("abc"), `{unless {1} {0}} {unless abc efg} {unless "" bob}`, "abc  bob")
 	testExpressionErr(t, mockContext("abc"), `{unless joe}`, "<ARGN>", ErrArgCount)

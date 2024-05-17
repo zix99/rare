@@ -54,3 +54,21 @@ func testExpressionErr(t *testing.T, context KeyBuilderContext, expression strin
 		}
 	}
 }
+
+// benchmark an expreession, as a sub-benchmark. Checks value before running test
+func benchmarkExpression(b *testing.B, context KeyBuilderContext, expression, expected string) {
+	kb, err := NewStdKeyBuilderEx(false).Compile(expression)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	if s := kb.BuildKey(context); s != expected {
+		b.Fatalf("%s != %s", s, expected)
+	}
+
+	b.Run(expression, func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			kb.BuildKey(context)
+		}
+	})
+}
