@@ -7,6 +7,7 @@ import (
 	"rare/cmd"
 	"rare/cmd/helpers"
 	"rare/pkg/color"
+	"rare/pkg/expressions/stdlib"
 	"rare/pkg/fastregex"
 	"rare/pkg/humanize"
 	"rare/pkg/logger"
@@ -59,6 +60,11 @@ func buildApp() *cli.App {
 			Usage:   "Disable usage of unicode characters",
 		},
 		&cli.BoolFlag{
+			Name:    "noload",
+			Aliases: []string{"nl"},
+			Usage:   "Disable external file loading in expressions",
+		},
+		&cli.BoolFlag{
 			Name:  "color",
 			Usage: "Force-enable color output",
 		},
@@ -101,6 +107,9 @@ func buildApp() *cli.App {
 		}
 		if c.Bool("nounicode") {
 			termunicode.UnicodeEnabled = false
+		}
+		if c.Bool("noload") {
+			stdlib.DisableLoad = true
 		}
 		return nil
 	})

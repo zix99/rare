@@ -8,9 +8,15 @@ import (
 	"strings"
 )
 
+var DisableLoad = false
+
 // {load "filename"}
 // loads static file as string
 func kfLoadFile(args []expressions.KeyBuilderStage) (expressions.KeyBuilderStage, error) {
+	if DisableLoad {
+		return stageErrorf(ErrFile, "loading disabled")
+	}
+
 	if len(args) != 1 {
 		return stageErrArgCount(args, 1)
 	}

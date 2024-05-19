@@ -278,6 +278,9 @@ Syntax: `{load "filename"}`
 
 Loads a given filename as text.
 
+To globally disable file loading in expressions for security reasons, specify
+`--noload` as global argument.
+
 #### Lookup, HasKey
 
 Syntax: `{lookup key "kv-pairs" ["commentPrefix"]}`, `{haskey key "kv-pairs" ["commentPrefix"]}`
