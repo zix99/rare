@@ -22,13 +22,13 @@ func kfLoadFile(args []expressions.KeyBuilderStage) (expressions.KeyBuilderStage
 
 	f, err := os.Open(filename)
 	if err != nil {
-		return stageError(newFuncErr("<FILE>", "Unable to open file: "+filename))
+		return stageErrorf(ErrFile, "Unable to open file: "+filename)
 	}
 	defer f.Close()
 
 	content, err := io.ReadAll(f)
 	if err != nil {
-		return stageError(newFuncErr("<FILE>", "Error reading file: "+filename))
+		return stageErrorf(ErrFile, "Error reading file: "+filename)
 	}
 
 	sContent := string(content)
@@ -84,8 +84,8 @@ func kfLookupKey(args []expressions.KeyBuilderStage) (expressions.KeyBuilderStag
 
 // {haskey key "table" [commentprefix]}
 func kfHasKey(args []expressions.KeyBuilderStage) (expressions.KeyBuilderStage, error) {
-	if len(args) != 2 {
-		return stageErrArgCount(args, 2)
+	if !isArgCountBetween(args, 2, 3) {
+		return stageErrArgRange(args, "2-3")
 	}
 
 	content, ok := expressions.EvalStaticStage(args[1])

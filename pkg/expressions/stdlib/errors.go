@@ -24,6 +24,7 @@ const (
 	ErrorEnum     = "<ENUM>"        // A given value is not contained within a set
 	ErrorArgName  = "<NAME>"        // A variable accessed by a given name does not exist
 	ErrorEmpty    = "<EMPTY>"       // A value was expected, but was empty
+	ErrorFile     = "<FILE>"
 )
 
 // Compilation errors
@@ -33,6 +34,7 @@ var (
 	ErrConst   = newFuncErr(ErrorConst, "expected const")
 	ErrEnum    = newFuncErr(ErrorEnum, "unable to find value in set")
 	ErrEmpty   = newFuncErr(ErrorEmpty, "invalid empty value")
+	ErrFile    = newFuncErr(ErrorFile, "unable to read file")
 )
 
 var (
@@ -43,6 +45,12 @@ func stageError(err funcError) (KeyBuilderStage, error) {
 	return func(ctx KeyBuilderContext) string {
 		return err.expr
 	}, err.err
+}
+
+func stageErrorf(err funcError, msg string) (KeyBuilderStage, error) {
+	return func(ctx KeyBuilderContext) string {
+		return err.expr
+	}, fmt.Errorf("%s, %w", msg, err.err)
 }
 
 func stageArgError(err funcError, argIndex int) (KeyBuilderStage, error) {
