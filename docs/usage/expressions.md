@@ -158,6 +158,14 @@ Syntax: `{if val ifTrue ifFalse}`, `{if val ifTrue}`, `{unless val ifFalse}`
 
 If `val` is truthy, then return `ifTrue` else optionally return `ifFalse`
 
+#### Switch
+
+Syntax: `{switch ifTrue val ifTrue val ... [ifFalseVal]}`
+
+In pairs, if a given value is truthy, return the value immediately after. If
+there is an odd number of arguments, the last value is used as the "else" result.
+Otherwise, empty string is returned.
+
 #### Equals, NotEquals, Not
 
 Syntax: `{eq a b}`, `{neq a b}`, `{not a}`
@@ -258,6 +266,41 @@ Concatenates a set of arguments with a null separator.  Commonly used
 to form arrays that have meaning for a given aggregator.
 
 Specifying multiple expressions is equivalent, eg. `{$ a b}` is the same as `-e a -e b`
+
+### File Loading and Lookup Tables
+
+Load external static content as either raw string, or to be used to lookup
+a value given a key.
+
+#### Load
+
+Syntax: `{load "filename"}`
+
+Loads a given filename as text.
+
+To globally disable file loading in expressions for security reasons, specify
+`--noload` as global argument.
+
+#### Lookup, HasKey
+
+Syntax: `{lookup key "kv-pairs" ["commentPrefix"]}`, `{haskey key "kv-pairs" ["commentPrefix"]}`
+
+Given a set of kv-pairs (eg. from a loaded file), lookup a key. For `lookup` return a value
+and for `haskey` return truthy or falsey.
+
+If a `commentPrefix` is provided, lines in lookup text are ignored if they start with the prefix.
+
+Example kv-pairs text. Keys and values are separated by any whitespace.
+
+```
+key1 val1
+key2 val2
+#comment if '#' set as prefix
+key3 val3
+
+#blank lines are ignored
+too many values are also ignored
+```
 
 ### Ranges (Arrays)
 
