@@ -48,7 +48,7 @@ func TestLoadFile(t *testing.T) {
 	kb := stdlib.NewStdKeyBuilder()
 	funcs, err := LoadDefinitionsFile(kb, "example.funcfile")
 	assert.NoError(t, err)
-	assert.Len(t, funcs, 1)
+	assert.Len(t, funcs, 3)
 
 	_, err = LoadDefinitionsFile(kb, "notfile.funcfile")
 	assert.Error(t, err)

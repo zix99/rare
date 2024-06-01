@@ -1,2 +1,17 @@
 # test func
 double {sumi {0} {0}}
+
+# Blank space above
+multipline {switch \
+    {eq {0} a} isa \
+    {eq {0} b} isb \
+}
+
+multipline2 {switch \
+    {eq {0} a} isa \ #inline
+
+    #Blank above
+    {eq {0} b} isb \
+    # else
+    b \
+}
