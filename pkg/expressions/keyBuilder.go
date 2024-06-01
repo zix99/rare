@@ -33,8 +33,13 @@ func NewKeyBuilder() *KeyBuilder {
 // Funcs appends a map of functions to be used by the parser
 func (s *KeyBuilder) Funcs(funcs map[string]KeyBuilderFunction) {
 	for k, f := range funcs {
-		s.functions[k] = f
+		s.Func(k, f)
 	}
+}
+
+// Funcs adds a single function used by the parser
+func (s *KeyBuilder) Func(name string, f KeyBuilderFunction) {
+	s.functions[name] = f
 }
 
 // Compile builds a new key-builder, returning error(s) on build issues

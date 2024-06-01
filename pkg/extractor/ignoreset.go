@@ -2,7 +2,7 @@ package extractor
 
 import (
 	"rare/pkg/expressions"
-	"rare/pkg/expressions/stdlib"
+	"rare/pkg/expressions/funclib"
 )
 
 type IgnoreSet interface {
@@ -22,7 +22,7 @@ func NewIgnoreExpressions(expSet ...string) (IgnoreSet, error) {
 	}
 
 	for _, exp := range expSet {
-		compiled, err := stdlib.NewStdKeyBuilder().Compile(exp)
+		compiled, err := funclib.NewKeyBuilder().Compile(exp)
 		if err != nil {
 			return nil, err
 		}

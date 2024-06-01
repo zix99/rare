@@ -7,7 +7,7 @@ import (
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
 	"rare/pkg/csv"
-	"rare/pkg/expressions/stdlib"
+	"rare/pkg/expressions/funclib"
 	"rare/pkg/logger"
 	"rare/pkg/multiterm/termrenderers"
 	"strings"
@@ -31,7 +31,7 @@ func reduceFunction(c *cli.Context) error {
 	batcher := helpers.BuildBatcherFromArguments(c)
 	extractor := helpers.BuildExtractorFromArguments(c, batcher)
 
-	aggr := aggregation.NewAccumulatingGroup(stdlib.NewStdKeyBuilder())
+	aggr := aggregation.NewAccumulatingGroup(funclib.NewKeyBuilder())
 
 	// Set up groups
 	for _, group := range groupExpr {

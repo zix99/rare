@@ -7,6 +7,8 @@ import (
 	"rare/cmd"
 	"rare/cmd/helpers"
 	"rare/pkg/color"
+	"rare/pkg/expressions/funcfile"
+	"rare/pkg/expressions/funclib"
 	"rare/pkg/expressions/stdlib"
 	"rare/pkg/fastregex"
 	"rare/pkg/humanize"
@@ -64,6 +66,11 @@ func buildApp() *cli.App {
 			Aliases: []string{"nl"},
 			Usage:   "Disable external file loading in expressions",
 		},
+		&cli.StringSliceFlag{
+			Name:    "funcs",
+			EnvVars: []string{"RARE_FUNC_FILES"},
+			Usage:   "Specify filenames to load expressions from",
+		},
 		&cli.BoolFlag{
 			Name:  "color",
 			Usage: "Force-enable color output",
@@ -110,6 +117,12 @@ func buildApp() *cli.App {
 		}
 		if c.Bool("noload") {
 			stdlib.DisableLoad = true
+		}
+		if funcs := c.StringSlice("funcs"); len(funcs) > 0 {
+			cmplr := funclib.NewKeyBuilder()
+			for _, ff := range funcs {
+				funclib.TryAddFunctions(funcfile.LoadDefinitionsFile(cmplr, ff))
+			}
 		}
 		return nil
 	})

@@ -12,11 +12,16 @@ type ObjectPool[T any] struct {
 
 // Create an object pool of an initial size. May grow later
 func NewObjectPool[T any](size int) *ObjectPool[T] {
+	return NewObjectPoolEx(size, func() *T { return new(T) })
+}
+
+// Create an object pool with a custom object initializer
+func NewObjectPoolEx[T any](size int, newer func() *T) *ObjectPool[T] {
 	ret := &ObjectPool[T]{
 		pool: make([]*T, size),
 	}
 	for i := 0; i < size; i++ {
-		ret.pool[i] = new(T)
+		ret.pool[i] = newer()
 	}
 	return ret
 }
