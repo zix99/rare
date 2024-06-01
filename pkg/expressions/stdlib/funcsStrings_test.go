@@ -8,6 +8,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestLen(t *testing.T) {
+	testExpression(t, mockContext("hello"), "{len {0}}", "5")
+	testExpression(t, mockContext("hello"), "{len \"\"}", "0")
+	testExpression(t, mockContext("hello"), "{len hi}", "2")
+	testExpressionErr(t, mockContext("hello"), "{len {0} there}", "<ARGN>", ErrArgCount)
+}
+
 func TestUpperLower(t *testing.T) {
 	testExpressionErr(t, mockContext("aBc"), "{upper {0}} {upper a b}", "ABC <ARGN>", ErrArgCount)
 	testExpressionErr(t, mockContext("aBc"), "{lower {0}} {lower a b}", "abc <ARGN>", ErrArgCount)

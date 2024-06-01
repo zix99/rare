@@ -17,6 +17,7 @@ nav:
     - Examples: usage/examples.md
     - Advanced:
       - JSON: usage/json.md
+      - Expression Funcs File: usage/funcsfile.md
       - Regular Expressions: usage/regexp.md
     - CLI Docs: cli-help.md
   - Benchmarks: benchmarks.md

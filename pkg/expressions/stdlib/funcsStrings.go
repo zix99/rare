@@ -9,6 +9,16 @@ import (
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
+// {len string}
+func kfLen(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 1 {
+		return stageErrArgCount(args, 1)
+	}
+	return func(context KeyBuilderContext) string {
+		return strconv.Itoa(len(args[0](context)))
+	}, nil
+}
+
 // {prefix string prefix}
 func kfPrefix(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
