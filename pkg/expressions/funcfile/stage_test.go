@@ -26,6 +26,17 @@ func TestCustomFunc(t *testing.T) {
 	assert.Equal(t, val, "kd: 250")
 }
 
+func TestCustomEdgeCases(t *testing.T) {
+	k := stdlib.NewStdKeyBuilder()
+	_, err := createAndAddFunc(k, "err", "{unclosed func")
+	assert.Error(t, err)
+
+	_, err = createAndAddFunc(k, "doublesrc", "{test} {sumi {0} {0}} missing: {1}")
+	assert.NoError(t, err)
+	kb, _ := k.Compile("{doublesrc 5}")
+	assert.Equal(t, "testval 10 missing: ", kb.BuildKey(&testContext))
+}
+
 // BenchmarkCustomFunc-4   	 4767489	       244.2 ns/op	      16 B/op	       2 allocs/op
 // BenchmarkCustomFunc-4   	 7563214	       160.4 ns/op	       3 B/op	       1 allocs/op
 func BenchmarkCustomFunc(b *testing.B) {
