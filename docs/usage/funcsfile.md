@@ -23,13 +23,13 @@ export RARE_FUNC_FILES=/path/to/custom.funcs
 rare filter -m '(\d+)' -e '{double {1}}' access.log
 ```
 
-Can load multiple files by specifying `--funcs` multiple times, or
-providing a comma-separated list to `$RARE_FUNC_FILES`
+You can load multiple files by providing `--funcs` argument multiple
+times, or providing a comma-separated list to `$RARE_FUNC_FILES`
 
 ## Format
 
 A functions file is key-value pairs of `name` to `expression`. Lines
-starting with `#`, or any characters after `#`, is considered a comment.
+starting with `#`, or any characters after `#`, are considered comments.
 
 *Expressions* can be multi-line by ending the previous line with a `\`.
 

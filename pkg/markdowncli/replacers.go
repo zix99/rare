@@ -18,7 +18,7 @@ func replaceWithColor(clr color.ColorCode) regexReplacerFunc {
 	})
 }
 
-var localLinkRegexp = regexp.MustCompile(`\[\w+\]\((\w+).md\)`)
+var localLinkRegexp = regexp.MustCompile(`\[[\w\s]+\]\((\w+).md\)`)
 
 func replaceLocalLinkWithDocsCommand(match string) string {
 	parts := localLinkRegexp.FindStringSubmatch(match)
