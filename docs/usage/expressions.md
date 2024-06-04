@@ -324,6 +324,14 @@ Syntax: `{@ ele0 ele1 ele2}` (`{$ ele0 ele1 ele2}` is equivalent)
 
 Creates an array with the provided elements. Use `{@}` for an array of all matches.
 
+#### @len
+
+Syntax: `{@len array}`
+
+Returns the length of an array.  Empty "" returns 0, a literal will be 1.
+
+**Note:** This is a linear-time operation.
+
 #### @in
 
 Syntax: `{@in <val> array}` or `{@in <val> {@ val0 val1 val2 ...}}`

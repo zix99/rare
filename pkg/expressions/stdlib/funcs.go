@@ -82,6 +82,7 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 
 	// Ranges
 	"@":       kfJoin(ArraySeparator),
+	"@len":    kfArrayLen,
 	"@map":    kfArrayMap,
 	"@split":  kfArraySplit,
 	"@select": kfArraySelect,

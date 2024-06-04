@@ -11,6 +11,13 @@ func TestArray(t *testing.T) {
 	testExpression(t, mockContext("q"), "{$ {0}}", "q")
 }
 
+func TestArrayLen(t *testing.T) {
+	testExpression(t, mockContext("abc"), "{@len {0}}", "1")
+	testExpression(t, mockContext(expressions.MakeArray("a", "bc", "c")), "{@len {0}}", "3")
+	testExpression(t, mockContext(""), "{@len {0}}", "0")
+	testExpressionErr(t, mockContext(), "{@len a b}", "<ARGN>", ErrArgCount)
+}
+
 func TestArraySplit(t *testing.T) {
 	testExpression(
 		t,
