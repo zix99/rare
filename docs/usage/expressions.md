@@ -42,6 +42,10 @@ $ rare expression -d 15 -d 20 -k key=30 "The sum is {sumi {0} {1} {key}}"
 The sum is 65
 ```
 
+### Extending
+
+You can add custom functions to *rare* using a [Funcs File](funcsfile.md)
+
 ## Examples
 
 ### Parsing an nginx access.log file
@@ -149,6 +153,12 @@ Syntax: `{clamp intVal "min" "max"}`
 Clamps a given input `intVal` between `min` and `max`.  If falls outside bucket, returns
 the word "min" or "max" as appropriate.  If you wish to not see these values, you can
 filter with `--ignore`
+
+#### Len
+
+Syntax: `{len string}`
+
+Returns the length of the provided `string`. eg. the string of `hello` returns 5.
 
 ### Logic
 
@@ -314,9 +324,17 @@ Syntax: `{@ ele0 ele1 ele2}` (`{$ ele0 ele1 ele2}` is equivalent)
 
 Creates an array with the provided elements. Use `{@}` for an array of all matches.
 
+#### @len
+
+Syntax: `{@len <arr>}`
+
+Returns the length of an array.  Empty "" returns 0, a literal will be 1.
+
+**Note:** This is a linear-time operation.
+
 #### @in
 
-Syntax: `{@in <val> array}` or `{@in <val> {@ val0 val1 val2 ...}}`
+Syntax: `{@in <val> <arr>}` or `{@in <val> {@ val0 val1 val2 ...}}`
 
 Returns truthy if a given `val` is contained within the array.
 

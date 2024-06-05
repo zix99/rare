@@ -30,6 +30,7 @@ func TestZeroAllocs(t *testing.T) {
 	assert.Zero(t, res.AllocsPerOp())
 }
 
+// BenchmarkObjPool-4   	24965836	        44.38 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkObjPool(b *testing.B) {
 	type testObj struct{}
 

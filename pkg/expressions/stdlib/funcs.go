@@ -66,6 +66,7 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"or":  KeyBuilderFunction(kfOr),
 
 	// Strings
+	"len":    KeyBuilderFunction(kfLen),
 	"like":   KeyBuilderFunction(kfLike),
 	"prefix": KeyBuilderFunction(kfPrefix),
 	"suffix": KeyBuilderFunction(kfSuffix),
@@ -81,6 +82,7 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 
 	// Ranges
 	"@":       kfJoin(ArraySeparator),
+	"@len":    kfArrayLen,
 	"@map":    kfArrayMap,
 	"@split":  kfArraySplit,
 	"@select": kfArraySelect,

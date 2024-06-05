@@ -8,7 +8,7 @@ import (
 	"rare/pkg/color"
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/exprofiler"
-	"rare/pkg/expressions/stdlib"
+	"rare/pkg/expressions/funclib"
 	"rare/pkg/humanize"
 	"rare/pkg/minijson"
 	"strconv"
@@ -45,7 +45,7 @@ func expressionFunction(c *cli.Context) error {
 		expString = string(b)
 	}
 
-	builder := stdlib.NewStdKeyBuilderEx(!noOptimize)
+	builder := funclib.NewKeyBuilderEx(!noOptimize)
 	compiled, err := builder.Compile(expString)
 
 	if err != nil {

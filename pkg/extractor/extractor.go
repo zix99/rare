@@ -2,7 +2,7 @@ package extractor
 
 import (
 	"rare/pkg/expressions"
-	"rare/pkg/expressions/stdlib"
+	"rare/pkg/expressions/funclib"
 	"rare/pkg/fastregex"
 	"sync"
 	"sync/atomic"
@@ -39,7 +39,8 @@ type Config struct {
 }
 
 // Extractor is the representation of the reader
-//  Expects someone to consume its ReadChan()
+//
+//	Expects someone to consume its ReadChan()
 type Extractor struct {
 	readChan       chan []Match
 	compiledRegexp fastregex.CompiledRegexp
@@ -151,7 +152,7 @@ func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch
 
 // New an extractor from an input channel
 func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
-	compiledExpression, compErr := stdlib.NewStdKeyBuilder().Compile(config.Extract)
+	compiledExpression, compErr := funclib.NewKeyBuilder().Compile(config.Extract)
 	if compErr != nil {
 		return nil, compErr
 	}

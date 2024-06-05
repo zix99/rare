@@ -4,6 +4,7 @@ import (
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 	"rare/pkg/slicepool"
 	"rare/pkg/stringSplitter"
+	"strconv"
 	"strings"
 )
 
@@ -32,6 +33,22 @@ func (s *subContext) Eval(stage KeyBuilderStage, v0, v1 string) string {
 	s.vals[1] = v1
 
 	return stage(s)
+}
+
+// {@len <arr>}
+func kfArrayLen(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 1 {
+		return stageErrArgCount(args, 1)
+	}
+	return func(context KeyBuilderContext) string {
+		val := args[0](context)
+		if val == "" {
+			return "0"
+		}
+
+		count := strings.Count(val, ArraySeparatorString) + 1
+		return strconv.Itoa(count)
+	}, nil
 }
 
 // {@split <string> "delim"}
