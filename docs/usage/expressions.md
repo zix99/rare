@@ -326,7 +326,7 @@ Creates an array with the provided elements. Use `{@}` for an array of all match
 
 #### @len
 
-Syntax: `{@len array}`
+Syntax: `{@len <arr>}`
 
 Returns the length of an array.  Empty "" returns 0, a literal will be 1.
 
@@ -334,7 +334,7 @@ Returns the length of an array.  Empty "" returns 0, a literal will be 1.
 
 #### @in
 
-Syntax: `{@in <val> array}` or `{@in <val> {@ val0 val1 val2 ...}}`
+Syntax: `{@in <val> <arr>}` or `{@in <val> {@ val0 val1 val2 ...}}`
 
 Returns truthy if a given `val` is contained within the array.
 
