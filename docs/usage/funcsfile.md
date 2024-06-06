@@ -5,7 +5,7 @@ helpers that can be loaded and used in *rare*.
 
 ## Example
 
-For example, if you frequently need to double a number you
+For example, if you frequently need to *double* a number you
 could create a function:
 
 ```funcfile title="custom.funcs"
@@ -32,6 +32,9 @@ A functions file is key-value pairs of `name` to `expression`. Lines
 starting with `#`, or any characters after `#`, are considered comments.
 
 *Expressions* can be multi-line by ending the previous line with a `\`.
+
+Integer keys (eg. `{0}`) refer to arguments passed into the function. Named
+keys (eg. `{line}`) will pass-through to the match context.
 
 ```funcsfile
 # Allows comments that start with '#'
