@@ -13,7 +13,7 @@ func voidFunc(args []expressions.KeyBuilderStage) (expressions.KeyBuilderStage, 
 }
 
 func TestFunctionSet(t *testing.T) {
-	assert.NotZero(t, Functions)
+	assert.NotZero(t, Builtins)
 }
 
 func TestAddFunction(t *testing.T) {

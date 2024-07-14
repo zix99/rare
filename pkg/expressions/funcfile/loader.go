@@ -53,7 +53,7 @@ func LoadDefinitions(compiler *expressions.KeyBuilder, r io.Reader, source strin
 		// Split arguments
 		args := strings.SplitN(phrase, " ", 2)
 		if len(args) != 2 {
-			logger.Printf("%s:%d Missing expression in line: %s", source, linenum, phrase)
+			logger.Printf("%s:%d Missing expression for '%s'", source, linenum, phrase)
 			continue
 		}
 
