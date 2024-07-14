@@ -1,5 +1,6 @@
 .vscode/
 *.log
+*.ff
 main
 rare
 rare.exe
