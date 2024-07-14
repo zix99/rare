@@ -148,7 +148,7 @@ func buildSpecialKeyJson(matches []string, values map[string]string) string {
 
 func extractFuncNames(lib funclib.FunctionSet) []string {
 	ret := make([]string, 0, len(lib))
-	for name, _ := range lib {
+	for name := range lib {
 		ret = append(ret, name)
 	}
 	sort.Strings(ret)
