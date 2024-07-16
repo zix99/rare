@@ -1,10 +1,13 @@
 package funclib
 
-import "rare/pkg/expressions"
+import (
+	"rare/pkg/expressions"
+)
 
 func NewKeyBuilderEx(autoOptimize bool) *expressions.KeyBuilder {
 	kb := expressions.NewKeyBuilderEx(autoOptimize)
-	kb.Funcs(Functions)
+	kb.Funcs(Builtins)
+	kb.Funcs(Additional)
 	return kb
 }
 

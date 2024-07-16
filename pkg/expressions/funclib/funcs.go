@@ -8,12 +8,14 @@ import (
 
 type FunctionSet map[string]expressions.KeyBuilderFunction
 
-var Functions FunctionSet = mapMerge(
+var Builtins FunctionSet = mapMerge(
 	stdlib.StandardFunctions)
+
+var Additional FunctionSet = make(FunctionSet)
 
 func AddFunctions(funcs FunctionSet) {
 	for name, fnc := range funcs {
-		Functions[name] = fnc
+		Additional[name] = fnc
 	}
 }
 

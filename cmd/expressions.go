@@ -11,6 +11,7 @@ import (
 	"rare/pkg/expressions/funclib"
 	"rare/pkg/humanize"
 	"rare/pkg/minijson"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -28,7 +29,16 @@ func expressionFunction(c *cli.Context) error {
 		stats       = c.Bool("stats")
 		skipNewline = c.Bool("skip-newline")
 		detailed    = stats || benchmark
+		listFuncs   = c.Bool("listfuncs")
 	)
+
+	if listFuncs {
+		fmt.Println(color.Wrap(color.Bold, "Builtin:  "), strings.Join(extractFuncNames(funclib.Builtins), ", "))
+		if len(funclib.Additional) > 0 {
+			fmt.Println(color.Wrap(color.Bold, "FuncsFile:"), strings.Join(extractFuncNames(funclib.Additional), ", "))
+		}
+		return nil
+	}
 
 	if c.NArg() != 1 {
 		return errors.New("expected exactly 1 expression argument. Use - for stdin")
@@ -136,16 +146,29 @@ func buildSpecialKeyJson(matches []string, values map[string]string) string {
 	return json.String()
 }
 
+func extractFuncNames(lib funclib.FunctionSet) []string {
+	ret := make([]string, 0, len(lib))
+	for name := range lib {
+		ret = append(ret, name)
+	}
+	sort.Strings(ret)
+	return ret
+}
+
 func expressionCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "expression",
 		Usage:       "Evaluate and benchmark expressions",
 		Description: "Given an expression, and optionally some data, test the output and performance of an expression",
 		ArgsUsage:   "<expression|->",
-		Aliases:     []string{"exp"},
+		Aliases:     []string{"exp", "expr"},
 		Action:      expressionFunction,
 		Category:    cmdCatHelp,
 		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "listfuncs",
+				Usage: "Lists all available expression functions",
+			},
 			&cli.BoolFlag{
 				Name:    "skip-newline",
 				Aliases: []string{"n"},

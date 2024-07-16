@@ -17,10 +17,10 @@ func LoadDefinitionsFile(compiler *expressions.KeyBuilder, filename string) (map
 	}
 	defer f.Close()
 
-	return LoadDefinitions(compiler, f)
+	return LoadDefinitions(compiler, f, filename)
 }
 
-func LoadDefinitions(compiler *expressions.KeyBuilder, r io.Reader) (map[string]expressions.KeyBuilderFunction, error) {
+func LoadDefinitions(compiler *expressions.KeyBuilder, r io.Reader, source string) (map[string]expressions.KeyBuilderFunction, error) {
 	scanner := bufio.NewScanner(r)
 	ret := make(map[string]expressions.KeyBuilderFunction)
 
@@ -53,13 +53,14 @@ func LoadDefinitions(compiler *expressions.KeyBuilder, r io.Reader) (map[string]
 		// Split arguments
 		args := strings.SplitN(phrase, " ", 2)
 		if len(args) != 2 {
+			logger.Printf("%s:%d Missing expression for '%s'", source, linenum, phrase)
 			continue
 		}
 
 		// Compile and save
 		fnc, err := createAndAddFunc(compiler, args[0], args[1])
 		if err != nil {
-			logger.Printf("Error creating function '%s', line %d: %s", args[0], linenum, err)
+			logger.Printf("%s:%d Error creating function '%s': %s", source, linenum, args[0], err)
 			errors++
 		} else {
 			ret[args[0]] = fnc
@@ -67,7 +68,7 @@ func LoadDefinitions(compiler *expressions.KeyBuilder, r io.Reader) (map[string]
 	}
 
 	if errors > 0 {
-		return ret, fmt.Errorf("%d compile errors while loading func spec", errors)
+		return ret, fmt.Errorf("%s: Had %d error(s)", source, errors)
 	}
 	return ret, nil
 }

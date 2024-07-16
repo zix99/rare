@@ -21,7 +21,7 @@ func TestLoadDefinitions(t *testing.T) {
 		{0} {0}}
 	`
 	kb := stdlib.NewStdKeyBuilder()
-	funcs, err := LoadDefinitions(kb, strings.NewReader(data))
+	funcs, err := LoadDefinitions(kb, strings.NewReader(data), "test")
 	assert.NoError(t, err)
 	assert.Len(t, funcs, 2)
 	assert.Contains(t, funcs, "quad")
@@ -39,7 +39,7 @@ func TestLoadDefinitionsErrs(t *testing.T) {
 
 	`
 	kb := stdlib.NewStdKeyBuilder()
-	funcs, err := LoadDefinitions(kb, strings.NewReader(data))
+	funcs, err := LoadDefinitions(kb, strings.NewReader(data), "test")
 	assert.NotNil(t, err)
 	assert.Len(t, funcs, 0)
 }

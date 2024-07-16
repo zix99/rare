@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"rare/pkg/expressions/funclib"
 	"rare/pkg/testutil"
 	"testing"
 
@@ -67,6 +68,19 @@ func TestExpressionErrors(t *testing.T) {
 	assert.Error(t, err)
 	assert.Empty(t, o)
 	assert.NotEmpty(t, e)
+}
+
+func TestListFuncs(t *testing.T) {
+	testutil.StoreGlobal(&funclib.Additional)
+	defer testutil.RestoreGlobals()
+
+	funclib.Additional["test"] = nil
+
+	o, e, err := testCommandCapture(expressionCommand(), "--listfuncs")
+	assert.NoError(t, err)
+	assert.Empty(t, e)
+	assert.Contains(t, o, "Builtin:")
+	assert.Contains(t, o, "FuncsFile: test")
 }
 
 func TestKeyParser(t *testing.T) {
