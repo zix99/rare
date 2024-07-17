@@ -26,6 +26,12 @@ rare filter -m '(\d+)' -e '{double {1}}' access.log
 You can load multiple files by providing `--funcs` argument multiple
 times, or providing a comma-separated list to `$RARE_FUNC_FILES`
 
+### Testing
+
+To validate that your function(s) are showing up as expected, you
+can test them with `rare expr ...` or list them by running
+`rare expr --listfuncs`.
+
 ## Format
 
 A functions file is key-value pairs of `name` to `expression`. Lines
