@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -20,7 +21,7 @@ func gendocCommand() *cli.Command {
 			} else {
 				text, _ = c.App.ToMarkdown()
 			}
-			fmt.Print(text)
+			fmt.Print(strings.ReplaceAll(text, "\x00", "")) //HACK: Some null characters are in generated docs (from array sep?)
 			return nil
 		},
 		Flags: []cli.Flag{
