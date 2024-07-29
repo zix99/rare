@@ -165,7 +165,7 @@ Create a 2D heatmap of extracted data
 
 **--csv, -o**="": Write final results to csv. Use - to output to stdout
 
-**--delim**="": Character to tabulate on. Use {$} helper by default (default: )
+**--delim**="": Character to tabulate on. Use {$} helper by default (default: \x00)
 
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
@@ -311,7 +311,7 @@ Create a 2D summarizing table of extracted data
 
 **--csv, -o**="": Write final results to csv. Use - to output to stdout
 
-**--delim**="": Character to tabulate on. Use {$} helper by default (default: )
+**--delim**="": Character to tabulate on. Use {$} helper by default (default: \x00)
 
 **--extra, -x**: Display row and column totals
 

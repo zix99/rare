@@ -24,7 +24,11 @@ func gendocCommand() *cli.Command {
 				text, _ = c.App.ToMarkdown()
 				text = addDepthToMd(strings.NewReader(text), 1)
 			}
-			fmt.Print(strings.ReplaceAll(text, "\x00", "")) //HACK: Some null characters are in generated docs (from array sep?)
+
+			// HACK: Some null characters are in generated docs (from array sep?)
+			// Normal cli help accounts for this, but markdown gen doesn't
+			fmt.Print(strings.ReplaceAll(text, "\x00", "\\x00"))
+
 			return nil
 		},
 		Flags: []cli.Flag{
