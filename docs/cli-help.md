@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 rare - A fast regex parser, extractor and realtime aggregator
 
-# SYNOPSIS
+## SYNOPSIS
 
 rare
 
@@ -19,7 +19,7 @@ rare
 [--version|-v]
 ```
 
-# DESCRIPTION
+## DESCRIPTION
 
 Aggregate and display information parsed from text files using
 	regex and a simple handlebars-like expressions.
@@ -34,7 +34,7 @@ Aggregate and display information parsed from text files using
 rare [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 ```
 
-# GLOBAL OPTIONS
+## GLOBAL OPTIONS
 
 **--color**: Force-enable color output
 
@@ -57,9 +57,9 @@ rare [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 **--version, -v**: print the version
 
 
-# COMMANDS
+## COMMANDS
 
-## filter, f
+### filter, f
 
 Filter incoming results with search criteria, and output raw matches
 
@@ -97,7 +97,7 @@ Filter incoming results with search criteria, and output raw matches
 
 **--workers, -w**="": Set number of data processors (default: 3)
 
-## histogram, histo, h
+### histogram, histo, h
 
 Summarize results by extracting them to a histogram
 
@@ -153,7 +153,7 @@ Summarize results by extracting them to a histogram
 
 **--workers, -w**="": Set number of data processors (default: 3)
 
-## heatmap, heat, hm
+### heatmap, heat, hm
 
 Create a 2D heatmap of extracted data
 
@@ -209,7 +209,7 @@ Create a 2D heatmap of extracted data
 
 **--workers, -w**="": Set number of data processors (default: 3)
 
-## bargraph, bars, bar, b
+### bargraph, bars, bar, b
 
 Create a bargraph of the given 1 or 2 dimension data
 
@@ -255,7 +255,7 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--workers, -w**="": Set number of data processors (default: 3)
 
-## analyze, a
+### analyze, a
 
 Numerical analysis on a set of filtered data
 
@@ -297,7 +297,7 @@ Numerical analysis on a set of filtered data
 
 **--workers, -w**="": Set number of data processors (default: 3)
 
-## tabulate, table, t
+### tabulate, table, t
 
 Create a 2D summarizing table of extracted data
 
@@ -353,7 +353,7 @@ Create a 2D summarizing table of extracted data
 
 **--workers, -w**="": Set number of data processors (default: 3)
 
-## reduce, r
+### reduce, r
 
 Aggregate the results of a query based on an expression, pulling customized summary from the extracted data
 
@@ -409,13 +409,13 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--workers, -w**="": Set number of data processors (default: 3)
 
-## docs
+### docs
 
 Access detailed documentation
 
 **--no-pager, -n**: Don't use pager to view documentation
 
-## expression, exp, expr
+### expression, exp, expr
 
 Evaluate and benchmark expressions
 
@@ -433,6 +433,6 @@ Evaluate and benchmark expressions
 
 **--stats, -s**: Display stats about the expression
 
-## help, h
+### help, h
 
 Shows a list of commands or help for one command

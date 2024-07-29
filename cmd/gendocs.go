@@ -3,7 +3,9 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -20,6 +22,7 @@ func gendocCommand() *cli.Command {
 				text, _ = c.App.ToMan()
 			} else {
 				text, _ = c.App.ToMarkdown()
+				text = addDepthToMd(strings.NewReader(text), 1)
 			}
 			fmt.Print(strings.ReplaceAll(text, "\x00", "")) //HACK: Some null characters are in generated docs (from array sep?)
 			return nil
@@ -31,6 +34,23 @@ func gendocCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func addDepthToMd(r io.Reader, depth int) string {
+	s := bufio.NewScanner(r)
+	var ret strings.Builder
+	headerDepthStr := strings.Repeat("#", depth)
+
+	for s.Scan() {
+		line := s.Text()
+		if strings.HasPrefix(line, "#") {
+			ret.WriteString(headerDepthStr)
+		}
+		ret.WriteString(line)
+		ret.WriteRune('\n')
+	}
+
+	return ret.String()
 }
 
 func init() {
