@@ -10,7 +10,7 @@ import (
 // ErrLog is the logger that is controlled by this log controller
 var logger *log.Logger
 var logBuffer *bytes.Buffer
-var mux sync.Mutex
+var mux sync.RWMutex
 
 const logPrefix = "[Log] "
 
@@ -49,46 +49,46 @@ func resetLogger() {
 }
 
 func Fatalln(code int, s interface{}) {
-	mux.Lock()
-	defer mux.Unlock()
+	mux.RLock()
+	defer mux.RUnlock()
 
 	logger.Println(s)
 	OsExit(code)
 }
 
 func Fatal(code int, v ...interface{}) {
-	mux.Lock()
-	defer mux.Unlock()
+	mux.RLock()
+	defer mux.RUnlock()
 
 	logger.Print(v...)
 	OsExit(code)
 }
 
 func Fatalf(code int, s string, args ...interface{}) {
-	mux.Lock()
-	defer mux.Unlock()
+	mux.RLock()
+	defer mux.RUnlock()
 
 	logger.Printf(s, args...)
 	OsExit(code)
 }
 
 func Println(s interface{}) {
-	mux.Lock()
-	defer mux.Unlock()
+	mux.RLock()
+	defer mux.RUnlock()
 
 	logger.Println(s)
 }
 
 func Print(v ...interface{}) {
-	mux.Lock()
-	defer mux.Unlock()
+	mux.RLock()
+	defer mux.RUnlock()
 
 	logger.Print(v...)
 }
 
 func Printf(s string, args ...interface{}) {
-	mux.Lock()
-	defer mux.Unlock()
+	mux.RLock()
+	defer mux.RUnlock()
 
 	logger.Printf(s, args...)
 }
