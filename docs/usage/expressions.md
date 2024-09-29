@@ -451,7 +451,7 @@ See: [json](json.md) for more information.
 
 Syntax: `{time str "[format:cache]" "[tz:utc]"}`
 
-Parse a given time-string into a unix second time (default format: `auto`)
+Parse a given time-string into a unix second time (default format: `cache`)
 
 ##### Format Auto-Detection
 
@@ -461,7 +461,7 @@ If the format is unable to be resolved, it must be specified manually with a for
 
 If ommitted or "cache": The first seen date will determine the format for all dates going forward (faster)
 
-If "auto":   The date format will always be auto-detected each time. This can be used if the date could be in different formats (slower)
+If "auto": The date format will be auto-detected with each parse. This can be used if the date could be in different formats (slower)
 
 ##### Timezones
 
@@ -476,7 +476,7 @@ Syntax: `{time now}`
 
 These are special values to output:
 
- * `now` - return the current unix timestamp cached at the start of *rare* `{time now}`
+ * `now` - return the current unix timestamp cached at the start of *rare*
  * `live` - return the current unix timestamp the moment it's executed
  * `delta` - return the number of seconds that *rare* has executed
 
@@ -496,7 +496,7 @@ ANSIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339
 MONTH, MONTHNAME, MNTH, DAY, WEEKDAY, WDAY, YEAR, HOUR, MINUTE, SECOND, TIMEZONE, NTIMEZONE
 
 **Custom formats:**
-You can provide a custom format using go's well-known date. Here's an exercept from their docs:
+You can provide a custom format using go's well-known date. Here's an exercept from the docs:
 
 To define your own format, write down what the reference time would look like formatted your way; see the values of constants
 like ANSIC, StampMicro or Kitchen for examples. The model is to demonstrate what the reference time looks like so that the Format

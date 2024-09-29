@@ -85,6 +85,10 @@ func TestTimeDelta(t *testing.T) {
 	val := kb.BuildKey(mockContext())
 	assert.NotEmpty(t, val)
 
+	iVal, errVal := strconv.Atoi(val)
+	assert.NoError(t, errVal)
+	assert.Less(t, iVal, 300) // Delta should always be relatively lower (at least lower than running the test)
+
 	time.Sleep(1 * time.Second)
 
 	val2 := kb.BuildKey(mockContext())
