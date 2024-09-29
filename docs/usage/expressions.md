@@ -447,31 +447,13 @@ See: [json](json.md) for more information.
 
 ### Time
 
-Syntax:
-`{time str "[format:cache]" "[tz:utc]"}`
-`{timeformat unixtime "[format:RFC3339]" "[tz:utc]"}`
-`{timeattr unixtime attr [tz:utc]"}`
-`{duration dur}`
-`{durationformat secs}`
-`{buckettime str bucket "[format]" "[tz:utc]"}`
+#### Time Parsing
 
-These three time functions provide you a way to parse and manipulate time.
+Syntax: `{time str "[format:cache]" "[tz:utc]"}`
 
- * `time`: Parse a given time-string into a unix second time (default: auto-detection)
- * `timeformat`: Takes a unix time, and formats it (default: RFC3339)
- * `timeattr`: Extracts an attribute about a given datetime (weekday, week, yearweek, quarter)
- * `duration`: Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
- * `durationformat`: Formats a duration (in seconds) to a human-readable time, (eg. 4h0m0s)
- * `buckettime`: Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
+Parse a given time-string into a unix second time (default format: `auto`)
 
-
-**Timezones:**
-
-The following values are accepted for a `tz` (timezone): `utc`, `local`, or a valid *IANA Time Zone*
-
-By default, all datetimes are processed as UTC, unless explicit in the datetime itself, or overridden via a parameter.
-
-**Format Auto-Detection:**
+##### Format Auto-Detection
 
 If the format argument is ommitted or set to "auto", it will attempt to resolve the format of the time.
 
@@ -481,13 +463,31 @@ If ommitted or "cache": The first seen date will determine the format for all da
 
 If "auto":   The date format will always be auto-detected each time. This can be used if the date could be in different formats (slower)
 
-**Special Time Values:**
+##### Timezones
 
- * The time `now` will return the current unix timestamp cached at the start of *rare* `{time now}`
- * The time `live` will return the current unix timestamp the moment it's executed
- * The time `delta` will return the number of seconds that *rare* has executed
+The following values are accepted for a `tz` (timezone): `utc`, `local`, or a valid *IANA Time Zone*
 
-#### Time Formats
+By default, all datetimes are processed as UTC, unless explicit in the datetime itself, or overridden via a parameter.
+
+
+#### Time Values
+
+Syntax: `{time now}`
+
+These are special values to output:
+
+ * `now` - return the current unix timestamp cached at the start of *rare* `{time now}`
+ * `live` - return the current unix timestamp the moment it's executed
+ * `delta` - return the number of seconds that *rare* has executed
+
+
+#### Time Format
+
+Syntax: `{timeformat unixtime "[format:RFC3339]" "[tz:utc]"}`
+
+Takes a unix time, and formats it (default: `RFC3339`)
+
+To reformat a time, you need to parse it first, eg: `{timeformat {time {0}} RFC3339}`
 
 **Supported Formats:**
 ANSIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339N, NGINX
@@ -498,11 +498,40 @@ MONTH, MONTHNAME, MNTH, DAY, WEEKDAY, WDAY, YEAR, HOUR, MINUTE, SECOND, TIMEZONE
 **Custom formats:**
 You can provide a custom format using go's well-known date. Here's an exercept from their docs:
 
-**From go docs:**
-To define your own format, write down what the reference time would look like formatted your way; see the values of constants like ANSIC, StampMicro or Kitchen for examples. The model is to demonstrate what the reference time looks like so that the Format and Parse methods can apply the same transformation to a general time value.
+To define your own format, write down what the reference time would look like formatted your way; see the values of constants
+like ANSIC, StampMicro or Kitchen for examples. The model is to demonstrate what the reference time looks like so that the Format
+and Parse methods can apply the same transformation to a general time value.
 
-The reference time used in the layouts is the specific time:
-Mon Jan 2 15:04:05 MST 2006
+The reference time used in the layouts is the specific time: `Mon Jan 2 15:04:05 MST 2006`
+
+#### Time Attribute
+
+Syntax: `{timeattr unixtime attr [tz:utc]"}`
+
+Extracts an attribute about a given datetime
+
+*Supports*: `weekday`, `week`, `yearweek`, `quarter`
+
+#### Durations
+
+Syntax: `{duration dur}`
+
+Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
+
+From there, you can do arithmatic on time, for instance: `{sumi {time now} {duration 1h}}`
+
+##### Format Duration
+
+Syntax: `{durationformat secs}`
+
+Formats a duration (in seconds) to a human-readable time, (eg. 4h0m0s)
+
+#### Time Bucket
+
+Syntax: `{buckettime str bucket "[format]" "[tz:utc]"}`
+
+Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
+
 
 ## Errors
 
