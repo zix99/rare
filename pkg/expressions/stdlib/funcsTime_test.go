@@ -58,7 +58,38 @@ func TestTimeNow(t *testing.T) {
 	ival, perr := strconv.ParseInt(val, 10, 64)
 	assert.NoError(t, perr)
 	assert.NotZero(t, ival)
+}
 
+func TestTimeLive(t *testing.T) {
+	t.Parallel()
+
+	kb, err := NewStdKeyBuilder().Compile("{time live}")
+	assert.Nil(t, err)
+
+	val := kb.BuildKey(mockContext())
+	assert.NotEmpty(t, val)
+
+	time.Sleep(1 * time.Second)
+
+	val2 := kb.BuildKey(mockContext())
+	assert.NotEmpty(t, val)
+	assert.NotEqual(t, val, val2)
+}
+
+func TestTimeDelta(t *testing.T) {
+	t.Parallel()
+
+	kb, err := NewStdKeyBuilder().Compile("{time delta}")
+	assert.Nil(t, err)
+
+	val := kb.BuildKey(mockContext())
+	assert.NotEmpty(t, val)
+
+	time.Sleep(1 * time.Second)
+
+	val2 := kb.BuildKey(mockContext())
+	assert.NotEmpty(t, val)
+	assert.NotEqual(t, val, val2)
 }
 
 func TestTimeExpressionDetectionFailure(t *testing.T) {

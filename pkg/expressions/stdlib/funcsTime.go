@@ -122,6 +122,17 @@ func kfTimeParse(args []KeyBuilderStage) (KeyBuilderStage, error) {
 			return func(context KeyBuilderContext) string {
 				return now
 			}, nil
+		case "live":
+			return func(context KeyBuilderContext) string {
+				context.GetMatch(-1) // HACK: Touch the context so it doesn't get optimized out
+				return strconv.FormatInt(time.Now().Unix(), 10)
+			}, nil
+		case "delta":
+			start := time.Now().Unix()
+			return func(context KeyBuilderContext) string {
+				context.GetMatch(-1) // HACK: Touch the context so it doesn't get optimized out
+				return strconv.FormatInt(time.Now().Unix()-start, 10)
+			}, nil
 		}
 	}
 

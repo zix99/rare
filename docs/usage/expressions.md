@@ -481,8 +481,11 @@ If ommitted or "cache": The first seen date will determine the format for all da
 
 If "auto":   The date format will always be auto-detected each time. This can be used if the date could be in different formats (slower)
 
-**Special Values:**
-The time `now` will return the current unix timestamp `{time now}`
+**Special Time Values:**
+
+ * The time `now` will return the current unix timestamp cached at the start of *rare* `{time now}`
+ * The time `live` will return the current unix timestamp the moment it's executed
+ * The time `delta` will return the number of seconds that *rare* has executed
 
 #### Time Formats
 
