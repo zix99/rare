@@ -155,11 +155,21 @@ func (s *TableAggregator) ColTotal(k string) int64 {
 	return s.cols[k]
 }
 
+// Sum all data
 func (s *TableAggregator) Sum() (ret int64) {
 	for _, v := range s.cols {
 		ret += v
 	}
 	return
+}
+
+// Trim data. Returns number of fields trimmed
+func (s *TableAggregator) Trim(predicate func(col, row string, val int64) bool) int {
+	trimmed := 0
+
+	// TODO: Ability to delete data from the table based on predicate
+
+	return trimmed
 }
 
 func (s *TableRow) Name() string {
