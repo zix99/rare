@@ -167,7 +167,26 @@ func (s *TableAggregator) Sum() (ret int64) {
 func (s *TableAggregator) Trim(predicate func(col, row string, val int64) bool) int {
 	trimmed := 0
 
-	// TODO: Ability to delete data from the table based on predicate
+	for colName := range s.cols {
+
+		removeAllInCol := true
+		for rowName, row := range s.rows {
+			if predicate(colName, rowName, row.cols[colName]) {
+				delete(row.cols, colName)
+				trimmed++
+			} else {
+				removeAllInCol = false
+			}
+
+			if len(row.cols) == 0 {
+				delete(s.rows, rowName)
+			}
+		}
+
+		if removeAllInCol {
+			delete(s.cols, colName)
+		}
+	}
 
 	return trimmed
 }

@@ -4,10 +4,10 @@ import (
 	"rare/pkg/aggregation"
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
+	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termscaler"
 	"rare/pkg/multiterm/termunicode"
-	"strconv"
 	"strings"
 )
 
@@ -64,8 +64,8 @@ func (s *Spark) WriteTable(agg *aggregation.TableAggregator, rowSorter, colSorte
 			termunicode.SparkWrite(&sb, s.Scaler.Scale(row.Value(colNames[j]), minVal, maxVal))
 		}
 
-		vFirst := strconv.FormatInt(row.Value(colNames[0]), 10)
-		vLast := strconv.FormatInt(row.Value(colNames[len(colNames)-1]), 10)
+		vFirst := humanize.Hi(row.Value(colNames[0]))
+		vLast := humanize.Hi(row.Value(colNames[len(colNames)-1]))
 		s.table.WriteRow(i+1, color.Wrap(color.Yellow, row.Name()), color.Wrap(color.BrightBlack, vFirst), sb.String(), color.Wrap(color.BrightBlack, vLast))
 
 		sb.Reset()
