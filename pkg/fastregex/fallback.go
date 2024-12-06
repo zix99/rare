@@ -1,4 +1,4 @@
-// +build !linux !cgo !pcre2
+//go:build !(linux && cgo && pcre2)
 
 package fastregex
 
