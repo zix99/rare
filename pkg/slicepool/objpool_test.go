@@ -22,6 +22,17 @@ func TestSimpleObjPool(t *testing.T) {
 	assert.Len(t, op.pool, 2)
 }
 
+func TestSimpleObjPoolCustomNew(t *testing.T) {
+	type testObj struct{ item int }
+
+	op := NewObjectPoolEx[testObj](1, func() *testObj {
+		return &testObj{5}
+	})
+
+	assert.Equal(t, 5, op.Get().item)
+	assert.Equal(t, 5, op.Get().item)
+}
+
 func TestZeroAllocs(t *testing.T) {
 	if testing.Short() {
 		t.SkipNow()
