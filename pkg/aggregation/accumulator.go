@@ -133,7 +133,7 @@ func (s *AccumulatingGroup) Sample(element string) {
 	ctx.keyLookup = nil
 
 	// Get which group this will belong to
-	groupKey := s.buildGroupKey(element, ctx)
+	groupKey := s.buildGroupKey(ctx)
 
 	rowData, hasRow := s.data[groupKey]
 	if !hasRow {
@@ -164,7 +164,7 @@ func (s *AccumulatingGroup) ParseErrors() uint64 {
 	return 0
 }
 
-func (s *AccumulatingGroup) buildGroupKey(element string, ctx expressions.KeyBuilderContext) GroupKey {
+func (s *AccumulatingGroup) buildGroupKey(ctx expressions.KeyBuilderContext) GroupKey {
 	if len(s.groupDef) == 0 {
 		return ""
 	}

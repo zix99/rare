@@ -162,7 +162,7 @@ func BenchmarkGroupKey(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		accum.buildGroupKey("hello\x00thar", &ctx)
+		accum.buildGroupKey(&ctx)
 	}
 }
 

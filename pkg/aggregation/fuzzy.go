@@ -1,4 +1,4 @@
-// +build experimental
+//go:build experimental
 
 package aggregation
 

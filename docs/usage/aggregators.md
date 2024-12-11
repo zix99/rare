@@ -291,3 +291,17 @@ These are the supported modifiers:
 Some of the aggregators support alternative display scaling: `linear` (default), `log10`, and `log2`.
 
 In aggregators that support it, you can specify with `--scale log10`
+
+### CSV Output
+
+Many of the aggregators support outputting the final results to csv.  You can do this
+with `--csv <filename>`.
+
+Additionally, you can output to *stdout* with `-`, which causes nothing else to be
+output.
+
+Example:
+
+```bash
+rare histo --match "(\d+)" -e "{1}" --csv - simple.log
+```
