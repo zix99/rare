@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"rare/cmd/helpers"
 	"rare/pkg/aggregation"
-	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
 	"rare/pkg/csv"
 	"rare/pkg/expressions"
@@ -23,14 +22,16 @@ func sparkFunction(c *cli.Context) error {
 		numCols    = c.Int("cols")
 		noTruncate = c.Bool("notruncate")
 		scalerName = c.String(helpers.ScaleFlag.Name)
+		sortRows   = c.String("sort-rows")
+		sortCols   = c.String("sort-cols")
 	)
 
 	counter := aggregation.NewTable(delim)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
-	rowSorter := sorting.NVNameSorter // TODO
-	colSorter := sorting.NVNameSorter // TODO
+	rowSorter := helpers.BuildSorterOrFail(sortRows)
+	colSorter := helpers.BuildSorterOrFail(sortCols)
 
 	vt := helpers.BuildVTermFromArguments(c)
 	writer := termrenderers.NewSpark(vt, numRows, numCols)
@@ -38,7 +39,7 @@ func sparkFunction(c *cli.Context) error {
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 
-		// Trim unused data from the data store (keep it tidy!)
+		// Trim unused data from the data store (keep memory tidy!)
 		if !noTruncate {
 			if keepCols := counter.OrderedColumns(colSorter); len(keepCols) > numCols {
 				keepCols = keepCols[len(keepCols)-numCols:]
@@ -100,6 +101,16 @@ func sparkCommand() *cli.Command {
 				Name:  "notruncate",
 				Usage: "Disable truncating data that doesnt fit in the sparkline",
 				Value: false,
+			},
+			&cli.StringFlag{
+				Name:  "sort-rows",
+				Usage: helpers.DefaultSortFlag.Usage,
+				Value: "value",
+			},
+			&cli.StringFlag{
+				Name:  "sort-cols",
+				Usage: helpers.DefaultSortFlag.Usage,
+				Value: "value",
 			},
 			helpers.SnapshotFlag,
 			helpers.NoOutFlag,
