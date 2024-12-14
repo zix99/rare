@@ -14,8 +14,6 @@ import (
 )
 
 func sparkFunction(c *cli.Context) error {
-	// TODO: Table decoration flags (eg first/last data point, average?)
-
 	var (
 		delim      = c.String("delim")
 		numRows    = c.Int("num")
