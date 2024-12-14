@@ -110,7 +110,7 @@ func sparkCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:  "sort-cols",
 				Usage: helpers.DefaultSortFlag.Usage,
-				Value: "value",
+				Value: "numeric",
 			},
 			helpers.SnapshotFlag,
 			helpers.NoOutFlag,
