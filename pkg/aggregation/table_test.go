@@ -46,8 +46,9 @@ func TestSimpleTable(t *testing.T) {
 	assert.Equal(t, int64(5), table.Sum())
 
 	// Minmax
-	assert.Equal(t, int64(0), table.ComputeMin())
-	assert.Equal(t, int64(3), table.ComputeMax())
+	min, max := table.ComputeMinMax()
+	assert.Equal(t, int64(0), min)
+	assert.Equal(t, int64(3), max)
 }
 
 func TestTableMultiIncrement(t *testing.T) {
@@ -74,8 +75,9 @@ func TestTableMultiIncrement(t *testing.T) {
 	assert.Equal(t, int64(6), table.Sum())
 
 	// Minmax
-	assert.Equal(t, int64(0), table.ComputeMin())
-	assert.Equal(t, int64(5), table.ComputeMax())
+	min, max := table.ComputeMinMax()
+	assert.Equal(t, int64(0), min)
+	assert.Equal(t, int64(5), max)
 }
 
 func TestSingleRowTable(t *testing.T) {
@@ -115,4 +117,17 @@ func TestTrimData(t *testing.T) {
 	assert.Equal(t, 15, trimmed)
 	assert.Len(t, table.Rows(), 1)
 	assert.Len(t, table.Rows()[0].cols, 5)
+}
+
+// BenchmarkMinMax-4   	 1020728	      1234 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkMinMax(b *testing.B) {
+	table := NewTable(" ")
+	for i := 0; i < 10; i++ {
+		table.Sample(fmt.Sprintf("%d a", i))
+		table.Sample(fmt.Sprintf("%d b", i))
+	}
+
+	for i := 0; i < b.N; i++ {
+		table.ComputeMinMax()
+	}
 }

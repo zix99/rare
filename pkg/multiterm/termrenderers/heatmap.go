@@ -61,12 +61,16 @@ func (s *Heatmap) WriteFooter(idx int, line string) {
 
 func (s *Heatmap) UpdateMinMaxFromData(agg *aggregation.TableAggregator) {
 	min := s.minVal
-	if !s.FixedMin {
-		min = agg.ComputeMin()
-	}
 	max := s.maxVal
-	if !s.FixedMax {
-		max = agg.ComputeMax()
+
+	if !s.FixedMin || !s.FixedMax {
+		tableMin, tableMax := agg.ComputeMinMax()
+		if !s.FixedMin {
+			min = tableMin
+		}
+		if !s.FixedMax {
+			max = tableMax
+		}
 	}
 
 	s.UpdateMinMax(min, max)

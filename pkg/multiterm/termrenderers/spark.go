@@ -28,8 +28,7 @@ func NewSpark(term multiterm.MultilineTerm, rows, cols int) *Spark {
 }
 
 func (s *Spark) WriteTable(agg *aggregation.TableAggregator, rowSorter, colSorter sorting.NameValueSorter) {
-	minVal := agg.ComputeMin() // Optimization: ComputeMinMax()
-	maxVal := agg.ComputeMax()
+	minVal, maxVal := agg.ComputeMinMax()
 
 	colNames := agg.OrderedColumns(colSorter)
 	if len(colNames) > s.colCount {

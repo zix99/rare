@@ -120,32 +120,26 @@ func (s *TableAggregator) OrderedRows(sorter sorting.NameValueSorter) []*TableRo
 	return rows
 }
 
-func (s *TableAggregator) ComputeMin() (ret int64) {
-	ret = math.MaxInt64
-	for _, r := range s.rows {
-		for colKey := range s.cols {
-			if val := r.cols[colKey]; val < ret {
-				ret = val
-			}
-		}
-	}
-	if ret == math.MaxInt64 {
-		return 0
-	}
-	return
-}
+func (s *TableAggregator) ComputeMinMax() (min, max int64) {
+	min, max = math.MaxInt64, math.MinInt64
 
-func (s *TableAggregator) ComputeMax() (ret int64) {
-	ret = math.MinInt64
 	for _, r := range s.rows {
 		for colKey := range s.cols {
-			if val := r.cols[colKey]; val > ret {
-				ret = val
+			val := r.cols[colKey]
+			if val < min {
+				min = val
+			}
+			if val > max {
+				max = val
 			}
 		}
 	}
-	if ret == math.MinInt64 {
-		return 0
+
+	if min == math.MinInt64 {
+		min = 0
+	}
+	if max == math.MaxInt64 {
+		max = 0
 	}
 	return
 }
