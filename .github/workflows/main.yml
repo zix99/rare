@@ -13,7 +13,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.18
+          go-version: 1.23
       - name: Checkout
         uses: actions/checkout@v1
       - name: Get

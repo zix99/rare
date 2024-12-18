@@ -81,7 +81,7 @@ sudo port install rare
 
 Clone the repo, and:
 
-Requires GO 1.18 or higher
+Requires GO 1.23 or higher
 
 ```sh
 go mod download

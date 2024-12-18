@@ -1,6 +1,6 @@
 module rare
 
-go 1.18
+go 1.23
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210207001429-0eec95c9db7e
