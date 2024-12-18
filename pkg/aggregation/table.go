@@ -135,10 +135,10 @@ func (s *TableAggregator) ComputeMinMax() (min, max int64) {
 		}
 	}
 
-	if min == math.MinInt64 {
+	if min == math.MaxInt64 {
 		min = 0
 	}
-	if max == math.MaxInt64 {
+	if max == math.MinInt64 {
 		max = 0
 	}
 	return
