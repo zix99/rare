@@ -80,6 +80,13 @@ func TestTableMultiIncrement(t *testing.T) {
 	assert.Equal(t, int64(5), max)
 }
 
+func TestEmptyTableMinMax(t *testing.T) {
+	table := NewTable(" ")
+	min, max := table.ComputeMinMax()
+	assert.Equal(t, int64(0), min)
+	assert.Equal(t, int64(0), max)
+}
+
 func TestSingleRowTable(t *testing.T) {
 	table := NewTable(" ")
 	table.Sample("a")
