@@ -43,7 +43,7 @@ func NewPolling(filename string, reopen bool) (*PollingFollowReader, error) {
 
 // Drain navigates to the end of the stream
 func (s *PollingFollowReader) Drain() error {
-	offset, err := s.f.Seek(0, os.SEEK_END)
+	offset, err := s.f.Seek(0, io.SeekEnd)
 	if err == nil {
 		s.readBytes = offset
 	}

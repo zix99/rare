@@ -1,7 +1,6 @@
 package followreader
 
 import (
-	"io/ioutil"
 	"os"
 	"sync"
 	"testing"
@@ -38,7 +37,7 @@ func CreateAppendingFromFile(filename string) *testAppendingFile {
 }
 
 func CreateAppendingTempFile() *testAppendingFile {
-	f, err := ioutil.TempFile("", "go-test-")
+	f, err := os.CreateTemp("", "go-test-")
 	if err != nil {
 		panic(err)
 	}
