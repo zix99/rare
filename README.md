@@ -39,6 +39,7 @@ Output formats include:
 * `histogram` will count instances of the extracted key
 * `table` will count the key in 2 dimensions
 * `heatmap` will display a color-coded version of the strength of a cell in a dense format
+* `sparkline` draws rows of sparklines for the data
 * `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
 * `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
 * `reduce` allows evaluating data using expressions, and grouping/sorting the output

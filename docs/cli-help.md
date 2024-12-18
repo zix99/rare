@@ -209,6 +209,60 @@ Create a 2D heatmap of extracted data
 
 **--workers, -w**="": Set number of data processors (default: 3)
 
+### spark, sparkline, s
+
+Create rows of sparkline graphs
+
+**--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
+
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+
+**--cols**="": Number of columns to display (default: 65)
+
+**--csv, -o**="": Write final results to csv. Use - to output to stdout
+
+**--delim**="": Character to tabulate on. Use {$} helper by default (default: \x00)
+
+**--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
+
+**--follow, -f**: Read appended data as file grows
+
+**--gunzip, -z**: Attempt to decompress file when reading
+
+**--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
+
+**--ignore-case, -I**: Augment regex to be case insensitive
+
+**--match, -m**="": Regex to create match groups to summarize on (default: .*)
+
+**--noout**: Don't output any aggregation to stdout
+
+**--notruncate**: Disable truncating data that doesnt fit in the sparkline
+
+**--num, --rows, -n**="": Number of elements (rows) to display (default: 20)
+
+**--poll**: When following a file, poll for changes rather than using inotify
+
+**--posix, -p**: Compile regex as against posix standard
+
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+
+**--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
+
+**--reopen, -F**: Same as -f, but will reopen recreated files
+
+**--scale**="": Defines data-scaling (linear, log10, log2) (default: linear)
+
+**--snapshot**: In aggregators that support it, only output final results, and not progressive updates. Will enable automatically when piping output
+
+**--sort-cols**="": Sorting method for display (value, text, numeric, contextual, date) (default: numeric)
+
+**--sort-rows**="": Sorting method for display (value, text, numeric, contextual, date) (default: value)
+
+**--tail, -t**: When following a file, navigate to the end of the file to skip existing content
+
+**--workers, -w**="": Set number of data processors (default: 3)
+
 ### bargraph, bars, bar, b
 
 Create a bargraph of the given 1 or 2 dimension data
