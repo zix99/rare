@@ -62,7 +62,7 @@ func (s *NotifyFollowReader) Close() error {
 
 func (s *NotifyFollowReader) Drain() error {
 	if s.f != nil {
-		_, err := s.f.Seek(0, os.SEEK_END)
+		_, err := s.f.Seek(0, io.SeekEnd)
 		return err
 	}
 	return nil

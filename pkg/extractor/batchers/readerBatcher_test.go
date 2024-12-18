@@ -1,7 +1,7 @@
 package batchers
 
 import (
-	"io/ioutil"
+	"io"
 	"strings"
 	"testing"
 
@@ -9,7 +9,7 @@ import (
 )
 
 func TestOpenReaderToChan(t *testing.T) {
-	r := ioutil.NopCloser(strings.NewReader("Hello\nthere\nbob"))
+	r := io.NopCloser(strings.NewReader("Hello\nthere\nbob"))
 	b := OpenReaderToChan("src", r, 1, 1)
 
 	b1 := <-b.BatchChan()

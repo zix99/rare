@@ -1,7 +1,6 @@
 package batchers
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -22,7 +21,7 @@ func TestBatchFollowFile(t *testing.T) {
 }
 
 func TestBatchFollowTailFile(t *testing.T) {
-	tmp, err := ioutil.TempFile("", "followtest-")
+	tmp, err := os.CreateTemp("", "followtest-")
 	if err != nil {
 		panic(err)
 	}
