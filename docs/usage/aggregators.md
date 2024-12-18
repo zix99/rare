@@ -226,7 +226,9 @@ rare help sparkline
 ### Summary
 
 Creates one or more sparklines based on table-style input. Provide
-multiple inputs using `{$ a b}` helper.
+multiple inputs using `{$ a b}` helper. Unlike other output styles,
+columns in the spark graph are right-aligned to always show
+the most recent data on the right side.
 
 Supports [alternative scales](#alternative-scales)
 
