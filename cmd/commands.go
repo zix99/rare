@@ -12,6 +12,7 @@ var commands []*cli.Command = []*cli.Command{
 	filterCommand(),
 	histogramCommand(),
 	heatmapCommand(),
+	sparkCommand(),
 	bargraphCommand(),
 	analyzeCommand(),
 	tabulateCommand(),

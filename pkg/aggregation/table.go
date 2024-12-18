@@ -120,32 +120,26 @@ func (s *TableAggregator) OrderedRows(sorter sorting.NameValueSorter) []*TableRo
 	return rows
 }
 
-func (s *TableAggregator) ComputeMin() (ret int64) {
-	ret = math.MaxInt64
-	for _, r := range s.rows {
-		for colKey := range s.cols {
-			if val := r.cols[colKey]; val < ret {
-				ret = val
-			}
-		}
-	}
-	if ret == math.MaxInt64 {
-		return 0
-	}
-	return
-}
+func (s *TableAggregator) ComputeMinMax() (min, max int64) {
+	min, max = math.MaxInt64, math.MinInt64
 
-func (s *TableAggregator) ComputeMax() (ret int64) {
-	ret = math.MinInt64
 	for _, r := range s.rows {
 		for colKey := range s.cols {
-			if val := r.cols[colKey]; val > ret {
-				ret = val
+			val := r.cols[colKey]
+			if val < min {
+				min = val
+			}
+			if val > max {
+				max = val
 			}
 		}
 	}
-	if ret == math.MinInt64 {
-		return 0
+
+	if min == math.MaxInt64 {
+		min = 0
+	}
+	if max == math.MinInt64 {
+		max = 0
 	}
 	return
 }
@@ -155,11 +149,40 @@ func (s *TableAggregator) ColTotal(k string) int64 {
 	return s.cols[k]
 }
 
+// Sum all data
 func (s *TableAggregator) Sum() (ret int64) {
 	for _, v := range s.cols {
 		ret += v
 	}
 	return
+}
+
+// Trim data. Returns number of fields trimmed
+func (s *TableAggregator) Trim(predicate func(col, row string, val int64) bool) int {
+	trimmed := 0
+
+	for colName := range s.cols {
+
+		removeAllInCol := true
+		for rowName, row := range s.rows {
+			if predicate(colName, rowName, row.cols[colName]) {
+				delete(row.cols, colName)
+				trimmed++
+			} else {
+				removeAllInCol = false
+			}
+
+			if len(row.cols) == 0 {
+				delete(s.rows, rowName)
+			}
+		}
+
+		if removeAllInCol {
+			delete(s.cols, colName)
+		}
+	}
+
+	return trimmed
 }
 
 func (s *TableRow) Name() string {

@@ -1,7 +1,9 @@
 package aggregation
 
 import (
+	"fmt"
 	"rare/pkg/aggregation/sorting"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -44,8 +46,9 @@ func TestSimpleTable(t *testing.T) {
 	assert.Equal(t, int64(5), table.Sum())
 
 	// Minmax
-	assert.Equal(t, int64(0), table.ComputeMin())
-	assert.Equal(t, int64(3), table.ComputeMax())
+	min, max := table.ComputeMinMax()
+	assert.Equal(t, int64(0), min)
+	assert.Equal(t, int64(3), max)
 }
 
 func TestTableMultiIncrement(t *testing.T) {
@@ -72,8 +75,16 @@ func TestTableMultiIncrement(t *testing.T) {
 	assert.Equal(t, int64(6), table.Sum())
 
 	// Minmax
-	assert.Equal(t, int64(0), table.ComputeMin())
-	assert.Equal(t, int64(5), table.ComputeMax())
+	min, max := table.ComputeMinMax()
+	assert.Equal(t, int64(0), min)
+	assert.Equal(t, int64(5), max)
+}
+
+func TestEmptyTableMinMax(t *testing.T) {
+	table := NewTable(" ")
+	min, max := table.ComputeMinMax()
+	assert.Equal(t, int64(0), min)
+	assert.Equal(t, int64(0), max)
 }
 
 func TestSingleRowTable(t *testing.T) {
@@ -90,4 +101,40 @@ func TestSingleRowTable(t *testing.T) {
 
 	assert.Equal(t, int64(2), rows[0].Value("a"))
 	assert.Equal(t, int64(1), rows[0].Value("b"))
+}
+
+func TestTrimData(t *testing.T) {
+	table := NewTable(" ")
+	for i := 0; i < 10; i++ {
+		table.Sample(fmt.Sprintf("%d a", i))
+		table.Sample(fmt.Sprintf("%d b", i))
+	}
+
+	assert.Len(t, table.Columns(), 10)
+
+	trimmed := table.Trim(func(col, row string, val int64) bool {
+		if row == "b" {
+			return true
+		}
+		cVal, _ := strconv.Atoi(col)
+		return cVal < 5
+	})
+
+	assert.ElementsMatch(t, []string{"5", "6", "7", "8", "9"}, table.Columns())
+	assert.Equal(t, 15, trimmed)
+	assert.Len(t, table.Rows(), 1)
+	assert.Len(t, table.Rows()[0].cols, 5)
+}
+
+// BenchmarkMinMax-4   	 1020728	      1234 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkMinMax(b *testing.B) {
+	table := NewTable(" ")
+	for i := 0; i < 10; i++ {
+		table.Sample(fmt.Sprintf("%d a", i))
+		table.Sample(fmt.Sprintf("%d b", i))
+	}
+
+	for i := 0; i < b.N; i++ {
+		table.ComputeMinMax()
+	}
 }

@@ -217,6 +217,41 @@ Matched: 1,035,666 / 1,035,666 (R: 8; C: 61)
 
 ![Gif of heatmap](../images/heatmap.gif)
 
+## Sparkline
+
+```
+rare help sparkline
+```
+
+### Summary
+
+Creates one or more sparklines based on table-style input. Provide
+multiple inputs using `{$ a b}` helper. Unlike other output styles,
+columns in the spark graph are right-aligned to always show
+the most recent data on the right side.
+
+Supports [alternative scales](#alternative-scales)
+
+### Example
+
+```bash
+$ rare spark -m '\[(.+?)\].*" (\d+)' \
+    -e "{timeattr {time {1}} yearweek}" -e "{2}" access.log
+
+    First  2019-34................................................2020-9 Last  
+404 15,396 ..._._-.^_._.._..________.____.__.___.____________.______.___ 5,946 
+200 7,146  _____________________________________________________________ 4,938 
+400 162    _____________________________________________________________ 522   
+405 6      _____________________________________________________________ 6     
+408 0      _____________________________________________________________ 6     
+304 0      _____________________________________________________________ 0     
+301 6      _____________________________________________________________ 0     
+206 0      _____________________________________________________________ 0     
+Matched: 1,034,166 / 1,034,166 (R: 8; C: 61)
+```
+
+![Gif of sparkline](../images/rare-spark.gif)
+
 ## Reduce
 
 ```
