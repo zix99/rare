@@ -32,9 +32,9 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v1
+        uses: goreleaser/goreleaser-action@v6.1.0
         with:
-          version: v1.1.0
+          version: v2.5.0
           args: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
