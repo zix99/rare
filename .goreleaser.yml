@@ -1,3 +1,4 @@
+version: 2
 before:
   hooks:
     - sh -c "go run . _gendoc --man | gzip > rare.1.gz"
@@ -44,12 +45,12 @@ builds:
 
 archives:
 - allow_different_binary_count: true
-  replacements:
-    darwin: Darwin
-    linux: Linux
-    windows: Windows
-    386: i386
-    amd64: x86_64
+  name_template: >-
+    {{- .ProjectName }}_
+    {{- .Version }}_
+    {{- title .Os }}_
+    {{- if eq .Arch "amd64" }}x86_64
+    {{- else }}{{ .Arch }}{{ end -}}
   format_overrides:
     - goos: windows
       format: zip
@@ -61,7 +62,7 @@ archives:
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
@@ -87,7 +88,7 @@ nfpms:
       dst: /usr/share/man/man1/rare.1.gz
 
 brews:
-- tap:
+- repository:
     owner: zix99
     name: homebrew-rare
   commit_author:
