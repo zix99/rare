@@ -7,9 +7,9 @@ import (
 )
 
 func TestArithmatic(t *testing.T) {
-	kb, _ := NewStdKeyBuilder().Compile("{sumi {1} {4}} {multi {1} 2} {divi {1} 2} {subi {1} 10}")
+	kb, _ := NewStdKeyBuilder().Compile("{sumi {1} {4}} {multi {1} 2} {divi {1} 2} {subi {1} 10} {modi {1} 7}")
 	key := kb.BuildKey(mockContext("ab", "100", "1000000", "5000000.123456", "22"))
-	assert.Equal(t, "122 200 50 90", key)
+	assert.Equal(t, "122 200 50 90 2", key)
 }
 
 func TestArithmaticError(t *testing.T) {
