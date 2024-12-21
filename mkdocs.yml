@@ -24,11 +24,31 @@ nav:
   - Contributing: contributing.md
   - License: license.md
 
+exclude_docs: images/*.md
+
 theme:
   name: material
   features:
     - navigation.expand
+    - content.code.copy
+    - content.action.edit
+    - navigation.footer
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
   custom_dir: docs/overrides
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 
 markdown_extensions:
   - toc:
