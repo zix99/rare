@@ -114,9 +114,9 @@ Create exponentially (base-10) increase buckets.
 
 ### Arithmetic
 
-#### Sumi, Subi, Multi, Divi
+#### Sumi, Subi, Multi, Divi, Modi
 
-Syntax: `{sumi ...}`, `{subi ...}`, `{multi ...}`, `{divi ...}`
+Syntax: `{sumi ...}`, `{subi ...}`, `{multi ...}`, `{divi ...}`, `{modi ...}`
 
 Evaluates integers using operator from left to right. Requires at least 2 arguments.
 
