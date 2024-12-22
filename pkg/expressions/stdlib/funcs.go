@@ -21,6 +21,7 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"subi":  arithmaticHelperi(func(a, b int) int { return a - b }),
 	"multi": arithmaticHelperi(func(a, b int) int { return a * b }),
 	"divi":  arithmaticHelperi(func(a, b int) int { return a / b }),
+	"modi":  arithmaticHelperi(func(a, b int) int { return a % b }),
 	"maxi": arithmaticHelperi(func(a, b int) int {
 		if a > b {
 			return a
@@ -39,6 +40,11 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"divf":  arithmaticHelperf(func(a, b float64) float64 { return a / b }),
 	"ceil":  unaryArithmaticHelperfi(func(f float64) int64 { return int64(math.Ceil(f)) }),
 	"floor": unaryArithmaticHelperfi(func(f float64) int64 { return int64(math.Floor(f)) }),
+	"log10": unaryArithmaticHelperf(math.Log10),
+	"log2":  unaryArithmaticHelperf(math.Log2),
+	"ln":    unaryArithmaticHelperf(math.Log),
+	"pow":   arithmaticHelperf(math.Pow),
+	"sqrt":  unaryArithmaticHelperf(math.Sqrt),
 	"round": kfRound,
 
 	// Comparisons

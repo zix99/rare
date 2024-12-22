@@ -114,9 +114,9 @@ Create exponentially (base-10) increase buckets.
 
 ### Arithmetic
 
-#### Sumi, Subi, Multi, Divi
+#### Sumi, Subi, Multi, Divi, Modi
 
-Syntax: `{sumi ...}`, `{subi ...}`, `{multi ...}`, `{divi ...}`
+Syntax: `{sumi ...}`, `{subi ...}`, `{multi ...}`, `{divi ...}`, `{modi ...}`
 
 Evaluates integers using operator from left to right. Requires at least 2 arguments.
 
@@ -145,6 +145,12 @@ Syntax: `{floor val}`, `{ceil val}`, `{round val [precision=0]}`
 Returns the floor, ceil, or rounded format of a floating-point number.
 
 Eg: `{floor 123.765}` will result in `123`
+
+#### log, pow, sqrt
+
+Syntax: `{log10 val}`, `{log2 val}`, `{ln val}`, `{pow val exp}`, `{sqrt val}`
+
+Returns the log (10, 2, or natural), power, or sqrt of a floating-point number.
 
 #### Clamp
 
