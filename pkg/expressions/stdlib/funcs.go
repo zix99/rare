@@ -40,6 +40,11 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"divf":  arithmaticHelperf(func(a, b float64) float64 { return a / b }),
 	"ceil":  unaryArithmaticHelperfi(func(f float64) int64 { return int64(math.Ceil(f)) }),
 	"floor": unaryArithmaticHelperfi(func(f float64) int64 { return int64(math.Floor(f)) }),
+	"log10": unaryArithmaticHelperf(math.Log10),
+	"log2":  unaryArithmaticHelperf(math.Log2),
+	"ln":    unaryArithmaticHelperf(math.Log),
+	"pow":   arithmaticHelperf(math.Pow),
+	"sqrt":  unaryArithmaticHelperf(math.Sqrt),
 	"round": kfRound,
 
 	// Comparisons

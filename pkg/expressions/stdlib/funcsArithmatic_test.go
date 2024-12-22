@@ -45,3 +45,13 @@ func TestFloorCeilRound(t *testing.T) {
 	testExpressionErr(t, mockContext("123.123"), "{round {0} {0}}", "<CONST>", ErrConst)
 	testExpressionErr(t, mockContext("123.123"), "{round {0} b}", "<CONST>", ErrConst)
 }
+
+func TestLogPow(t *testing.T) {
+	testExpression(t, mockContext("100"), "{log10 {0}}", "2")
+	testExpression(t, mockContext("64"), "{log2 {0}}", "6")
+	testExpression(t, mockContext("64"), "{round {ln {0}} 4}", "4.1589")
+	testExpression(t, mockContext("3"), "{pow {0} 3}", "27")
+	testExpression(t, mockContext("81"), "{sqrt {0}}", "9")
+
+	testExpressionErr(t, mockContext(), "{sqrt 1 2}", "<ARGN>", ErrArgCount)
+}

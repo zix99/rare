@@ -146,6 +146,12 @@ Returns the floor, ceil, or rounded format of a floating-point number.
 
 Eg: `{floor 123.765}` will result in `123`
 
+#### log, pow, sqrt
+
+Syntax: `{log10 val}`, `{log2 val}`, `{ln val}`, `{pow val exp}`, `{sqrt val}`
+
+Returns the log (10, 2, or natural), power, or sqrt of a floating-point number.
+
 #### Clamp
 
 Syntax: `{clamp intVal "min" "max"}`
