@@ -146,7 +146,7 @@ Returns the floor, ceil, or rounded format of a floating-point number.
 
 Eg: `{floor 123.765}` will result in `123`
 
-#### log, pow, sqrt
+#### Log, Pow, Sqrt
 
 Syntax: `{log10 val}`, `{log2 val}`, `{ln val}`, `{pow val exp}`, `{sqrt val}`
 
@@ -543,14 +543,13 @@ Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, 
 
 The following error strings may be returned while compiling or evaluating your expression
 
-```go
-const (
-	ErrorType     = "<BAD-TYPE>"    // Error parsing the principle value of the input because of unexpected type
-	ErrorParsing  = "<PARSE-ERROR>" // Error parsing the principle value of the input (non-numeric)
-	ErrorArgCount = "<ARGN>"        // Function to not support a variation with the given argument count
-	ErrorConst    = "<CONST>"       // Expected constant value
-	ErrorEnum     = "<ENUM>"        // A given value is not contained within a set
-	ErrorArgName  = "<NAME>"        // A variable accessed by a given name does not exist
-	ErrorEmpty    = "<EMPTY>"       // A value was expected, but was empty
-)
-```
+| Name      | Code            | Description                                                               |
+|-----------|-----------------|---------------------------------------------------------------------------|
+| Type      | `<BAD-TYPE>`    | Error parsing the principle value of the input because of unexpected type |
+| Parsing   | `<PARSE-ERROR>` | Error parsing the principle value of the input (non-numeric)              |
+| Arg Count | `<ARGN>`        | Function to not support a variation with the given argument count         |
+| Const     | `<CONST>`       | Expected constant value                                                   |
+| Enum      | `<ENUM>`        | A given value is not contained within a set                               |
+| Arg Name  | `<NAME>`        | A variable accessed by a given name does not exist                        |
+| Empty     | `<EMPTY>`       | A value was expected, but was empty                                       |
+
