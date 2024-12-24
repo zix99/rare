@@ -411,6 +411,11 @@ Examples: (Array `[1,2,3,4]`)
 
 #### @range
 
+!!! warning
+	Since `range` creates an array, large arrays will consume
+	a lot of memory. For non-static arrays, it will be created
+	each time and could be slow.
+
 Syntax: `{@range [start] <stop> [incr]}`
 
 Creates an array from start..stop, incrementing by `incr`. Start
@@ -424,6 +429,11 @@ Eg:
 
 
 #### @for
+
+!!! warningn
+	Since `for` creates an array, large arrays will consume
+	a lot of memory. For non-static arrays, it will be created
+	each time and could be slow.
 
 Syntax: `{@for <start> <whileExpr> <incrExpr>}`
 
