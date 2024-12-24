@@ -270,8 +270,8 @@ func kfArrayRange(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}, nil
 }
 
-// {@range <start> <contExpr> <incrExpr>}
-func kfArrayRangeOverExpr(args []KeyBuilderStage) (KeyBuilderStage, error) {
+// {@for <start> <contExpr> <incrExpr>}
+func kfArrayFor(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 3 {
 		return stageErrArgCount(args, 3)
 	}

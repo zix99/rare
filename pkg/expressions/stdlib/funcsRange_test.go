@@ -252,6 +252,11 @@ func TestArrayRange(t *testing.T) {
 	testExpressionErr(t, mockContext(), "{@range 1 2 3 4}", "<ARGN>", ErrArgCount)
 }
 
+func TestArrayFor(t *testing.T) {
+	testExpressionErr(t, mockContext(), "{@for 5}", "<ARGN>", ErrArgCount)
+	testExpression(t, mockContext(), "{@for 2 {lt {1} 5} {sumi {0} 2}}", expressions.MakeArray("2", "4", "6", "8", "10"))
+}
+
 func TestArrayIn(t *testing.T) {
 	testExpression(t, mockContext("ab"), "{@in {0} {$ cd ab qef}}", "1")
 	testExpression(t, mockContext("a"), "{@in {0} {$ cd ab qef}}", "")
