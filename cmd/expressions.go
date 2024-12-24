@@ -30,6 +30,7 @@ func expressionFunction(c *cli.Context) error {
 		skipNewline = c.Bool("skip-newline")
 		detailed    = stats || benchmark
 		listFuncs   = c.Bool("listfuncs")
+		raw         = c.Bool("raw")
 	)
 
 	if listFuncs {
@@ -82,6 +83,11 @@ func expressionFunction(c *cli.Context) error {
 
 	// Output results
 	result := compiled.BuildKey(&expCtx)
+
+	if !raw {
+		result = smartFormatResult(result)
+	}
+
 	if detailed {
 		fmt.Printf("Expression: %s\n", color.Wrap(color.BrightWhite, expString))
 		fmt.Printf("Result:     %s\n", color.Wrap(color.BrightYellow, result))
@@ -146,6 +152,23 @@ func buildSpecialKeyJson(matches []string, values map[string]string) string {
 	return json.String()
 }
 
+func smartFormatResult(s string) string {
+	if strings.ContainsRune(s, expressions.ArraySeparator) {
+		// Output array
+		var sb strings.Builder
+		sb.WriteRune('[')
+		for idx, val := range strings.Split(s, expressions.ArraySeparatorString) {
+			if idx > 0 {
+				sb.WriteString(", ")
+			}
+			sb.WriteString(val)
+		}
+		sb.WriteRune(']')
+		return sb.String()
+	}
+	return s
+}
+
 func extractFuncNames(lib funclib.FunctionSet) []string {
 	ret := make([]string, 0, len(lib))
 	for name := range lib {
@@ -173,6 +196,11 @@ func expressionCommand() *cli.Command {
 				Name:    "skip-newline",
 				Aliases: []string{"n"},
 				Usage:   "Don't add a newline character when printing plain result",
+			},
+			&cli.BoolFlag{
+				Name:    "raw",
+				Aliases: []string{"r"},
+				Usage:   "Don't format arrays, output raw with null-separators",
 			},
 			&cli.BoolFlag{
 				Name:    "benchmark",
