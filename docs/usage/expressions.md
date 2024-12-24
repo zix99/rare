@@ -552,4 +552,4 @@ The following error strings may be returned while compiling or evaluating your e
 | Enum      | `<ENUM>`        | A given value is not contained within a set                               |
 | Arg Name  | `<NAME>`        | A variable accessed by a given name does not exist                        |
 | Empty     | `<EMPTY>`       | A value was expected, but was empty                                       |
-
+| File      | `<FILE>`        | Unable to read file                                                       |

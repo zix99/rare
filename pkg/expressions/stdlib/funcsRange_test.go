@@ -225,6 +225,33 @@ func TestArrayFilter(t *testing.T) {
 	)
 }
 
+func TestArrayRange(t *testing.T) {
+	// 1 Arg
+	testExpression(t, mockContext("5"), "{@range {0}}", expressions.MakeArray("0", "1", "2", "3", "4"))
+	testExpression(t, mockContext("0"), "{@range {0}}", expressions.MakeArray())
+	testExpression(t, mockContext("-1"), "{@range {0}}", expressions.MakeArray("<BAD-TYPE>"))
+	testExpression(t, mockContext("abc"), "{@range {0}}", expressions.MakeArray("<BAD-TYPE>"))
+
+	// 2 Arg
+	testExpression(t, mockContext("5"), "{@range 1 {0}}", expressions.MakeArray("1", "2", "3", "4"))
+	testExpression(t, mockContext("0"), "{@range 0 {0}}", expressions.MakeArray())
+	testExpression(t, mockContext("-1"), "{@range 0 {0}}", expressions.MakeArray("<BAD-TYPE>"))
+	testExpression(t, mockContext("-1"), "{@range -1 2}", expressions.MakeArray("-1", "0", "1"))
+	testExpression(t, mockContext("-1"), "{@range 5 3}", expressions.MakeArray("<BAD-TYPE>"))
+	testExpression(t, mockContext("abc"), "{@range 0 {0}}", expressions.MakeArray("<BAD-TYPE>"))
+
+	// 3 Arg
+	testExpression(t, mockContext("5"), "{@range 1 {0} 1}", expressions.MakeArray("1", "2", "3", "4"))
+	testExpression(t, mockContext("0"), "{@range 0 {0} 1}", expressions.MakeArray())
+	testExpression(t, mockContext("-1"), "{@range 0 {0} 1}", expressions.MakeArray("<BAD-TYPE>"))
+	testExpression(t, mockContext("-1"), "{@range -1 2 1}", expressions.MakeArray("-1", "0", "1"))
+	testExpression(t, mockContext("-1"), "{@range 5 3 1}", expressions.MakeArray("<BAD-TYPE>"))
+	testExpression(t, mockContext("abc"), "{@range 0 {0} 1}", expressions.MakeArray("<BAD-TYPE>"))
+
+	// 4+ arg
+	testExpressionErr(t, mockContext(), "{@range 1 2 3 4}", "<ARGN>", ErrArgCount)
+}
+
 func TestArrayIn(t *testing.T) {
 	testExpression(t, mockContext("ab"), "{@in {0} {$ cd ab qef}}", "1")
 	testExpression(t, mockContext("a"), "{@in {0} {$ cd ab qef}}", "")

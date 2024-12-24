@@ -225,6 +225,86 @@ func kfArraySlice(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}, nil
 }
 
+// {@range [start] <end> [incr]}
+func kfArrayRange(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	var sStart, sStop, sIncr KeyBuilderStage
+	sStart = literal("0")
+	sIncr = literal("1")
+
+	switch len(args) {
+	case 1:
+		sStop = args[0]
+	case 2:
+		sStart, sStop = args[0], args[1]
+	case 3:
+		sStart, sStop, sIncr = args[0], args[1], args[2]
+	default:
+		return stageErrArgRange(args, "1-3")
+	}
+
+	return func(context KeyBuilderContext) string {
+		start, err := strconv.Atoi(sStart(context))
+		if err != nil {
+			return ErrorNum
+		}
+
+		stop, err := strconv.Atoi(sStop(context))
+		if err != nil || stop < start {
+			return ErrorNum
+		}
+
+		incr, err := strconv.Atoi(sIncr(context))
+		if err != nil || incr == 0 {
+			return ErrorNum
+		}
+
+		var sb strings.Builder
+		for i := start; i < stop; i += incr {
+			if i > start {
+				sb.WriteRune(ArraySeparator)
+			}
+			sb.WriteString(strconv.Itoa(i))
+		}
+
+		return sb.String()
+	}, nil
+}
+
+// {@range <start> <contExpr> <incrExpr>}
+func kfArrayRangeOverExpr(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 3 {
+		return stageErrArgCount(args, 3)
+	}
+
+	return func(context KeyBuilderContext) string {
+		val := args[0](context)
+
+		sub := subContextPool.Get()
+		defer subContextPool.Return(sub)
+
+		var sb strings.Builder
+
+		idx := 0
+		for {
+			sCount := strconv.Itoa(idx)
+			if !Truthy(sub.Eval(args[1], val, sCount)) {
+				break
+			}
+
+			if sb.Len() > 0 {
+				sb.WriteRune(ArraySeparator)
+			}
+			sb.WriteString(val)
+
+			val = sub.Eval(args[2], val, sCount)
+
+			idx++
+		}
+
+		return sb.String()
+	}, nil
+}
+
 // {@filter <arr> <truthy-statement>}
 func kfArrayFilter(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {
