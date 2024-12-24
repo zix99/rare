@@ -409,6 +409,36 @@ Examples: (Array `[1,2,3,4]`)
 - `{@slice {array} -2 1}` - [3]
 
 
+#### @range
+
+Syntax: `{@range [start] <stop> [incr]}`
+
+Creates an array from start..stop, incrementing by `incr`. Start
+defaults to `0` and incr to `1`
+
+Eg:
+
+`{@range 5}` will result in `[0, 1, 2, 3, 4]`
+
+`{@range 1 10 2}` will result in `[1, 3, 5, 7, 9]`
+
+
+#### @for
+
+Syntax: `{@for <start> <whileExpr> <incrExpr>}`
+
+Unlike `@range`, `@for` uses expressions to increment and check when done
+as a *truthy* statement.  In the sub-expressions `{0}` is the current value
+and `{1}` is the index of the increment.
+
+Eg.
+
+`{@for 0 {lt {0} 5} {sumi {0} 1}}` will result in `[0, 1, 2, 3, 4]`
+
+or something more complex, such as a doubling sequence:
+
+`{@for 1 {lt {1} 5} {sumi {0} {0}}}` will result in `[1, 2, 4, 8, 16]`
+
 ### Drawing
 
 #### Colors
