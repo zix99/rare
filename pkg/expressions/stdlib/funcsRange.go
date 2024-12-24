@@ -249,18 +249,29 @@ func kfArrayRange(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		}
 
 		stop, err := strconv.Atoi(sStop(context))
-		if err != nil || stop < start {
+		if err != nil {
 			return ErrorNum
 		}
 
 		incr, err := strconv.Atoi(sIncr(context))
-		if err != nil || incr == 0 {
+		if err != nil {
 			return ErrorNum
 		}
 
+		// Some validation
+		if incr == 0 {
+			return ErrorValue
+		}
+		if incr > 0 && start > stop {
+			return ErrorValue
+		}
+		if incr < 0 && start < stop {
+			return ErrorValue
+		}
+
 		var sb strings.Builder
-		for i := start; i < stop; i += incr {
-			if i > start {
+		for i := start; (incr > 0 && i < stop) || (incr < 0 && i > stop); i += incr {
+			if sb.Len() > 0 {
 				sb.WriteRune(ArraySeparator)
 			}
 			sb.WriteString(strconv.Itoa(i))
@@ -276,6 +287,8 @@ func kfArrayFor(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgCount(args, 3)
 	}
 
+	const MAX_ITERATIONS = 1_000_000
+
 	return func(context KeyBuilderContext) string {
 		val := args[0](context)
 
@@ -286,8 +299,8 @@ func kfArrayFor(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 		idx := 0
 		for {
-			sCount := strconv.Itoa(idx)
-			if !Truthy(sub.Eval(args[1], val, sCount)) {
+			sIdx := strconv.Itoa(idx)
+			if !Truthy(sub.Eval(args[1], val, sIdx)) {
 				break
 			}
 
@@ -296,9 +309,12 @@ func kfArrayFor(args []KeyBuilderStage) (KeyBuilderStage, error) {
 			}
 			sb.WriteString(val)
 
-			val = sub.Eval(args[2], val, sCount)
+			val = sub.Eval(args[2], val, sIdx)
 
 			idx++
+			if idx > MAX_ITERATIONS { // Prevent infinite loop/memory-crash
+				return "<INF>"
+			}
 		}
 
 		return sb.String()
