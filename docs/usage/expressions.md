@@ -416,7 +416,7 @@ Examples: (Array `[1,2,3,4]`)
 	a lot of memory. For non-static arrays, it will be created
 	each time and could be slow.
 
-Syntax: `{@range [start] <stop> [incr]}`
+Syntax: `{@range [start=0] <stop> [incr=1]}`
 
 Creates an array from start..stop, incrementing by `incr`. Start
 defaults to `0` and incr to `1`
