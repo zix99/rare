@@ -430,7 +430,7 @@ Eg:
 
 #### @for
 
-!!! warningn
+!!! warning
 	Since `for` creates an array, large arrays will consume
 	a lot of memory. For non-static arrays, it will be created
 	each time and could be slow.
