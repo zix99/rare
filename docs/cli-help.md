@@ -483,6 +483,8 @@ Evaluate and benchmark expressions
 
 **--no-optimize**: Disable expression static analysis optimization
 
+**--raw, -r**: Don't format arrays, output raw with null-separators
+
 **--skip-newline, -n**: Don't add a newline character when printing plain result
 
 **--stats, -s**: Display stats about the expression

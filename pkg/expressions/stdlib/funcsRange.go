@@ -225,6 +225,102 @@ func kfArraySlice(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}, nil
 }
 
+// {@range [start] <end> [incr]}
+func kfArrayRange(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	var sStart, sStop, sIncr KeyBuilderStage
+	sStart = literal("0")
+	sIncr = literal("1")
+
+	switch len(args) {
+	case 1:
+		sStop = args[0]
+	case 2:
+		sStart, sStop = args[0], args[1]
+	case 3:
+		sStart, sStop, sIncr = args[0], args[1], args[2]
+	default:
+		return stageErrArgRange(args, "1-3")
+	}
+
+	return func(context KeyBuilderContext) string {
+		start, err := strconv.Atoi(sStart(context))
+		if err != nil {
+			return ErrorNum
+		}
+
+		stop, err := strconv.Atoi(sStop(context))
+		if err != nil {
+			return ErrorNum
+		}
+
+		incr, err := strconv.Atoi(sIncr(context))
+		if err != nil {
+			return ErrorNum
+		}
+
+		// Some validation
+		if incr == 0 {
+			return ErrorValue
+		}
+		if incr > 0 && start > stop {
+			return ErrorValue
+		}
+		if incr < 0 && start < stop {
+			return ErrorValue
+		}
+
+		var sb strings.Builder
+		for i := start; (incr > 0 && i < stop) || (incr < 0 && i > stop); i += incr {
+			if sb.Len() > 0 {
+				sb.WriteRune(ArraySeparator)
+			}
+			sb.WriteString(strconv.Itoa(i))
+		}
+
+		return sb.String()
+	}, nil
+}
+
+// {@for <start> <contExpr> <incrExpr>}
+func kfArrayFor(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 3 {
+		return stageErrArgCount(args, 3)
+	}
+
+	const MAX_ITERATIONS = 1_000_000
+
+	return func(context KeyBuilderContext) string {
+		val := args[0](context)
+
+		sub := subContextPool.Get()
+		defer subContextPool.Return(sub)
+
+		var sb strings.Builder
+
+		idx := 0
+		for {
+			sIdx := strconv.Itoa(idx)
+			if !Truthy(sub.Eval(args[1], val, sIdx)) {
+				break
+			}
+
+			if sb.Len() > 0 {
+				sb.WriteRune(ArraySeparator)
+			}
+			sb.WriteString(val)
+
+			val = sub.Eval(args[2], val, sIdx)
+
+			idx++
+			if idx > MAX_ITERATIONS { // Prevent infinite loop/memory-crash
+				return "<INF>"
+			}
+		}
+
+		return sb.String()
+	}, nil
+}
+
 // {@filter <arr> <truthy-statement>}
 func kfArrayFilter(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 2 {

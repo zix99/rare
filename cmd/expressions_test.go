@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"rare/pkg/expressions"
 	"rare/pkg/expressions/funclib"
 	"rare/pkg/testutil"
 	"testing"
@@ -99,4 +100,12 @@ func TestKeyParser(t *testing.T) {
 	k, v = parseKeyValue("a=b=c")
 	assert.Equal(t, "a", k)
 	assert.Equal(t, "b=c", v)
+}
+
+func TestSmartFormatResult(t *testing.T) {
+	assert.Equal(t, "1234", smartFormatResult("1234"))
+	assert.Equal(t, "abc", smartFormatResult("abc"))
+	assert.Equal(t, "", smartFormatResult(""))
+	assert.Equal(t, "a", smartFormatResult(expressions.MakeArray("a")))
+	assert.Equal(t, "[a, b, c]", smartFormatResult(expressions.MakeArray("a", "b", "c")))
 }

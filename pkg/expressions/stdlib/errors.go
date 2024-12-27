@@ -24,7 +24,8 @@ const (
 	ErrorEnum     = "<ENUM>"        // A given value is not contained within a set
 	ErrorArgName  = "<NAME>"        // A variable accessed by a given name does not exist
 	ErrorEmpty    = "<EMPTY>"       // A value was expected, but was empty
-	ErrorFile     = "<FILE>"
+	ErrorFile     = "<FILE>"        // Unable to read file
+	ErrorValue    = "<VALUE>"       // Value is out of range or invalid (eg. range incrementer is 0)
 )
 
 // Compilation errors

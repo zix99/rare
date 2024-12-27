@@ -409,6 +409,46 @@ Examples: (Array `[1,2,3,4]`)
 - `{@slice {array} -2 1}` - [3]
 
 
+#### @range
+
+!!! warning
+	Since `range` creates an array, large arrays will consume
+	a lot of memory. For non-static arrays, it will be created
+	each time and could be slow.
+
+Syntax: `{@range [start=0] <stop> [incr=1]}`
+
+Creates an array from start..stop, incrementing by `incr`. Start
+defaults to `0` and incr to `1`
+
+Eg:
+
+`{@range 5}` will result in `[0, 1, 2, 3, 4]`
+
+`{@range 1 10 2}` will result in `[1, 3, 5, 7, 9]`
+
+
+#### @for
+
+!!! warning
+	Since `for` creates an array, large arrays will consume
+	a lot of memory. For non-static arrays, it will be created
+	each time and could be slow.
+
+Syntax: `{@for <start> <whileExpr> <incrExpr>}`
+
+Unlike `@range`, `@for` uses expressions to increment and check when done
+as a *truthy* statement.  In the sub-expressions `{0}` is the current value
+and `{1}` is the index of the increment.
+
+Eg.
+
+`{@for 0 {lt {0} 5} {sumi {0} 1}}` will result in `[0, 1, 2, 3, 4]`
+
+or something more complex, such as a doubling sequence:
+
+`{@for 1 {lt {1} 5} {sumi {0} {0}}}` will result in `[1, 2, 4, 8, 16]`
+
 ### Drawing
 
 #### Colors
@@ -552,4 +592,5 @@ The following error strings may be returned while compiling or evaluating your e
 | Enum      | `<ENUM>`        | A given value is not contained within a set                               |
 | Arg Name  | `<NAME>`        | A variable accessed by a given name does not exist                        |
 | Empty     | `<EMPTY>`       | A value was expected, but was empty                                       |
-
+| File      | `<FILE>`        | Unable to read file                                                       |
+| Value     | `<VALUE>`       | Value is out of range or invalid (eg. range incrementer is 0)             |
