@@ -12,7 +12,6 @@ import (
 // this is a subset of functionality
 // %{key} -- Named key
 // %{} or %{?key} -- Named skipped key
-// %{+key} -- Append key, but MUST appear in-order, and will include delim
 // Does NOT support reference keys directly
 
 // Like fastregex, Dissect is NOT thread-safe, and an instance should be created
@@ -82,7 +81,6 @@ func New(expr string) (*Dissect, error) {
 		case keyName[0] == '?':
 			skipped = true
 			keyName = keyName[1:]
-			// TODO: Append
 		}
 
 		parts = append(parts, token{
