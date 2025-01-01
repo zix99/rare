@@ -146,7 +146,7 @@ func getExtractorFlags() []cli.Flag {
 			Usage:    "Compile regex as against posix standard",
 		},
 		&cli.StringFlag{
-			Name:     "match,m",
+			Name:     "match",
 			Aliases:  []string{"m"},
 			Category: cliCategoryMatching,
 			Usage:    "Regex to create match groups to summarize on",

@@ -7,7 +7,7 @@ type CompiledRegexp interface {
 
 // Regexp serves as an abstraction interface for regex classes
 // and shares the same methods as the re2/regexp implementation
-// which allows for easy fallback. This interface is expeted
+// which allows for easy fallback. This interface is expected
 // to only be used by a single thread/goroutine
 type Regexp interface {
 	Match(b []byte) bool

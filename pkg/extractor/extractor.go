@@ -3,7 +3,7 @@ package extractor
 import (
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/funclib"
-	"rare/pkg/fastregex"
+	"rare/pkg/matchers/fastregex"
 	"sync"
 	"sync/atomic"
 	"unsafe"

@@ -10,9 +10,9 @@ import (
 	"rare/pkg/expressions/funcfile"
 	"rare/pkg/expressions/funclib"
 	"rare/pkg/expressions/stdlib"
-	"rare/pkg/fastregex"
 	"rare/pkg/humanize"
 	"rare/pkg/logger"
+	"rare/pkg/matchers/fastregex"
 	"rare/pkg/multiterm"
 	"rare/pkg/multiterm/termunicode"
 

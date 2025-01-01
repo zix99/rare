@@ -60,7 +60,7 @@ func TestNoPrefixSuffix(t *testing.T) {
 	assert.Equal(t, []int{0, 5, 0, 5}, d.FindSubmatchIndex([]byte("a b c")))
 }
 
-func TestErrorCompile(t *testing.T) {
+func TestErrorNew(t *testing.T) {
 	// Unclosed
 	_, err := New("unclosed %{")
 	assert.ErrorIs(t, err, ErrorUnclosedToken)
