@@ -116,8 +116,7 @@ func BuildMatcherFromArguments(c *cli.Context) (matchers.Factory, error) {
 	case c.IsSet("match") && c.IsSet("dissect"):
 		return nil, errors.New("match and dissect conflict")
 	case c.IsSet("dissect"):
-		// TODO: Ignore case
-		d, err := dissect.Compile(dissectExpr)
+		d, err := dissect.CompileEx(dissectExpr, ignoreCase)
 		if err != nil {
 			return nil, err
 		}

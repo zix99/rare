@@ -23,8 +23,9 @@ type token struct {
 }
 
 type Dissect struct {
-	tokens []token
-	prefix string
+	tokens  []token
+	prefix  string
+	indexOf func(src, of string) int
 
 	groupNames map[string]int
 	groupCount int
@@ -35,7 +36,7 @@ type DissectInstance struct {
 	groupPool *slicepool.IntPool
 }
 
-func Compile(expr string) (*Dissect, error) {
+func CompileEx(expr string, ignoreCase bool) (*Dissect, error) {
 
 	parts := make([]token, 0)
 	groupNames := make(map[string]int)
@@ -73,6 +74,10 @@ func Compile(expr string) (*Dissect, error) {
 		keyUntil := expr[:end]
 		expr = expr[end:]
 
+		if ignoreCase {
+			keyUntil = strings.ToLower(keyUntil)
+		}
+
 		skipped := false
 
 		switch {
@@ -98,12 +103,23 @@ func Compile(expr string) (*Dissect, error) {
 		}
 	}
 
+	indexOfFunc := strings.Index
+	if ignoreCase {
+		indexOfFunc = indexIgnoreCase
+		prefix = strings.ToLower(prefix)
+	}
+
 	return &Dissect{
 		groupNames: groupNames,
 		groupCount: groupIndex,
 		tokens:     parts,
 		prefix:     prefix,
+		indexOf:    indexOfFunc,
 	}, nil
+}
+
+func Compile(expr string) (*Dissect, error) {
+	return CompileEx(expr, false)
 }
 
 func MustCompile(expr string) *Dissect {
@@ -129,7 +145,7 @@ func (s *DissectInstance) FindSubmatchIndex(b []byte) []int {
 
 	start := 0
 	if s.prefix != "" {
-		start = strings.Index(str, s.prefix)
+		start = s.indexOf(str, s.prefix)
 		if start < 0 {
 			return nil
 		}
@@ -146,7 +162,7 @@ func (s *DissectInstance) FindSubmatchIndex(b []byte) []int {
 		if token.until == "" {
 			endOffset = len(str[start:])
 		} else {
-			endOffset = strings.Index(str[start:], token.until)
+			endOffset = s.indexOf(str[start:], token.until)
 			if endOffset < 0 {
 				return nil
 			}

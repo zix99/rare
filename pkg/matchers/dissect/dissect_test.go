@@ -33,6 +33,7 @@ func TestNoTokens(t *testing.T) {
 	assert.Equal(t, []int{0, 4}, d.FindSubmatchIndex([]byte("testa")))
 	assert.Equal(t, []int{0, 4}, d.FindSubmatchIndex([]byte("testabc")))
 	assert.Equal(t, []int{3, 7}, d.FindSubmatchIndex([]byte("abctestabc")))
+	assert.Nil(t, d.FindSubmatchIndex([]byte("tEst")))
 }
 
 func TestPrefix(t *testing.T) {
@@ -80,9 +81,24 @@ func TestMustPanics(t *testing.T) {
 	})
 }
 
-// 88 ns
+func TestIgnoreCase(t *testing.T) {
+	d, err := CompileEx("TeSt1", true)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []int{0, 5}, d.CreateInstance().FindSubmatchIndex([]byte("test1")))
+	assert.Equal(t, []int{0, 5}, d.CreateInstance().FindSubmatchIndex([]byte("tEst1")))
+	assert.Equal(t, []int{0, 5}, d.CreateInstance().FindSubmatchIndex([]byte("TEST1")))
+	assert.Equal(t, []int{1, 6}, d.CreateInstance().FindSubmatchIndex([]byte("ATest123")))
+	assert.Nil(t, d.CreateInstance().FindSubmatchIndex([]byte("asdf")))
+
+	d, err = CompileEx("pref %{val} post", true)
+	assert.NoError(t, err)
+	assert.Equal(t, []int{2, 13, 7, 8}, d.CreateInstance().FindSubmatchIndex([]byte("a Pref 5 pOst")))
+}
+
+// BenchmarkDissect-4   	13347456	        86.07 ns/op	      32 B/op	       0 allocs/op
 func BenchmarkDissect(b *testing.B) {
-	d, _ := Compile("t%{val} ")
+	d, _ := CompileEx("t%{val} ", true)
 	di := d.CreateInstance()
 	val := []byte("this is a test ")
 
