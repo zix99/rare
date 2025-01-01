@@ -3,7 +3,7 @@ package extractor
 import (
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/funclib"
-	"rare/pkg/matchers/fastregex"
+	"rare/pkg/matchers"
 	"sync"
 	"sync/atomic"
 	"unsafe"
@@ -31,11 +31,10 @@ type Match struct {
 
 // Config for the extractor
 type Config struct {
-	Posix   bool      // Posix parse regex
-	Regex   string    // Regex to find matches
-	Extract string    // Extract these values from regex (expression)
-	Workers int       // Workers to parse regex
-	Ignore  IgnoreSet // Ignore these truthy expressions
+	Matcher matchers.Factory // Matcher
+	Extract string           // Extract these values from regex (expression)
+	Workers int              // Workers to parse regex
+	Ignore  IgnoreSet        // Ignore these truthy expressions
 }
 
 // Extractor is the representation of the reader
@@ -43,7 +42,7 @@ type Config struct {
 //	Expects someone to consume its ReadChan()
 type Extractor struct {
 	readChan       chan []Match
-	compiledRegexp fastregex.CompiledRegexp
+	compiledRegexp matchers.Factory
 	readLines      uint64
 	matchedLines   uint64
 	ignoredLines   uint64
@@ -54,7 +53,7 @@ type Extractor struct {
 
 type extractorInstance struct {
 	*Extractor
-	re      fastregex.Regexp
+	re      matchers.Matcher
 	context *SliceSpaceExpressionContext
 }
 
@@ -157,14 +156,9 @@ func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 		return nil, compErr
 	}
 
-	compiledRegex, err := fastregex.CompileEx(config.Regex, config.Posix)
-	if err != nil {
-		return nil, err
-	}
-
 	extractor := Extractor{
 		readChan:       make(chan []Match, 5),
-		compiledRegexp: compiledRegex,
+		compiledRegexp: config.Matcher,
 		keyBuilder:     compiledExpression,
 		config:         *config,
 		ignore:         config.Ignore,
