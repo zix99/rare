@@ -35,7 +35,7 @@ type DissectInstance struct {
 	groupPool *slicepool.IntPool
 }
 
-func New(expr string) (*Dissect, error) {
+func Compile(expr string) (*Dissect, error) {
 
 	parts := make([]token, 0)
 	groupNames := make(map[string]int)
@@ -106,8 +106,8 @@ func New(expr string) (*Dissect, error) {
 	}, nil
 }
 
-func MustNew(expr string) *Dissect {
-	d, err := New(expr)
+func MustCompile(expr string) *Dissect {
+	d, err := Compile(expr)
 	if err != nil {
 		panic(err)
 	}
