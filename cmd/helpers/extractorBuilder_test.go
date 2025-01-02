@@ -56,6 +56,10 @@ func TestBuildingExtractorFromContext(t *testing.T) {
 	assert.NoError(t, runApp(""))
 	assert.NoError(t, runApp(`-I -i "{eq {0} abc}" ../testdata/log.txt`))
 	assert.NoError(t, runApp(`-f ../testdata/log.txt`))
+	assert.NoError(t, runApp(`-m ".*" ../testdata/log.txt`))
+	assert.NoError(t, runApp(`-I -m ".*" ../testdata/log.txt`))
+	assert.NoError(t, runApp(`-d "%{}" ../testdata/log.txt`))
+	assert.NoError(t, runApp(`-I -d "%{}" ../testdata/log.txt`))
 	testLogFatal(t, 2, func() {
 		runApp("--batch 0 ../testdata/log.txt")
 	})
@@ -77,5 +81,11 @@ func TestBuildingExtractorFromContext(t *testing.T) {
 	testLogFatal(t, 2, func() {
 		runApp(`-i "{0" -`)
 	})
-	assert.Equal(t, 3, actionCalled)
+	testLogFatal(t, 2, func() {
+		runApp(`-m regex -d dissect -`)
+	})
+	testLogFatal(t, 2, func() {
+		runApp(`-d "%{unclosed" -`)
+	})
+	assert.Equal(t, 7, actionCalled)
 }
