@@ -121,7 +121,7 @@ func BuildMatcherFromArguments(c *cli.Context) (matchers.Factory, error) {
 			return nil, err
 		}
 		return matchers.ToFactory(d), nil
-	default: // match has a default (OPTIMIZE: Dont bother with regex now that we have a wrapper??)
+	case c.IsSet("match"):
 		if ignoreCase {
 			matchExpr = "(?i)" + matchExpr
 		}
@@ -131,6 +131,8 @@ func BuildMatcherFromArguments(c *cli.Context) (matchers.Factory, error) {
 			return nil, err
 		}
 		return matchers.ToFactory(r), nil
+	default:
+		return &matchers.AlwaysMatch{}, nil
 	}
 }
 

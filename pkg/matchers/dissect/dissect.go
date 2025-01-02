@@ -46,12 +46,12 @@ func CompileEx(expr string, ignoreCase bool) (*Dissect, error) {
 	for {
 		start := strings.Index(expr, "%{")
 		if start < 0 {
-			if groupIndex == 0 { // no tokens in expr
+			if len(parts) == 0 { // no tokens in expr
 				prefix = expr
 			}
 			break
 		}
-		if groupIndex == 0 {
+		if len(parts) == 0 {
 			prefix = expr[:start]
 		}
 		expr = expr[start+2:]
@@ -78,12 +78,12 @@ func CompileEx(expr string, ignoreCase bool) (*Dissect, error) {
 			keyUntil = strings.ToLower(keyUntil)
 		}
 
+		// Special flags
 		skipped := false
-
 		switch {
-		case len(keyName) == 0:
+		case len(keyName) == 0: // empty skip
 			skipped = true
-		case keyName[0] == '?':
+		case keyName[0] == '?': // named skip
 			skipped = true
 			keyName = keyName[1:]
 		}

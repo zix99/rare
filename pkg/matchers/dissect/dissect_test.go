@@ -17,6 +17,14 @@ func TestDissectBasic(t *testing.T) {
 	}, d.SubexpNameTable())
 }
 
+func TestPrefixOnSkipKey(t *testing.T) {
+	d := MustCompile("prefix %{}: %{val}").CreateInstance()
+
+	assert.Nil(t, d.FindSubmatchIndex([]byte("a: b")))
+	assert.Equal(t, []int{0, 11, 10, 11}, d.FindSubmatchIndex([]byte("prefix a: b")))
+	assert.Nil(t, d.FindSubmatchIndex([]byte("Prefix a: b")))
+}
+
 func TestEmpty(t *testing.T) {
 	d := MustCompile("").CreateInstance()
 	assert.Equal(t, []int{0, 0}, d.FindSubmatchIndex([]byte("hello")))
