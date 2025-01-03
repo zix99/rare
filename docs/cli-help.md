@@ -67,6 +67,8 @@ Filter incoming results with search criteria, and output raw matches
 
 **--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
 
+**--dissect, -d**="": Dissect expression create match groups to summarize on
+
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
@@ -75,7 +77,7 @@ Filter incoming results with search criteria, and output raw matches
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
 
-**--ignore-case, -I**: Augment regex to be case insensitive
+**--ignore-case, -I**: Augment matcher to be case insensitive
 
 **--line, -l**: Output source file and line number
 
@@ -113,6 +115,8 @@ Summarize results by extracting them to a histogram
 
 **--csv, -o**="": Write final results to csv. Use - to output to stdout
 
+**--dissect, -d**="": Dissect expression create match groups to summarize on
+
 **--extra, -x**: Alias for -b --percentage
 
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
@@ -123,7 +127,7 @@ Summarize results by extracting them to a histogram
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
 
-**--ignore-case, -I**: Augment regex to be case insensitive
+**--ignore-case, -I**: Augment matcher to be case insensitive
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
@@ -167,6 +171,8 @@ Create a 2D heatmap of extracted data
 
 **--delim**="": Character to tabulate on. Use {$} helper by default (default: \x00)
 
+**--dissect, -d**="": Dissect expression create match groups to summarize on
+
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
@@ -175,7 +181,7 @@ Create a 2D heatmap of extracted data
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
 
-**--ignore-case, -I**: Augment regex to be case insensitive
+**--ignore-case, -I**: Augment matcher to be case insensitive
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
@@ -223,6 +229,8 @@ Create rows of sparkline graphs
 
 **--delim**="": Character to tabulate on. Use {$} helper by default (default: \x00)
 
+**--dissect, -d**="": Dissect expression create match groups to summarize on
+
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
@@ -231,7 +239,7 @@ Create rows of sparkline graphs
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
 
-**--ignore-case, -I**: Augment regex to be case insensitive
+**--ignore-case, -I**: Augment matcher to be case insensitive
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
@@ -273,6 +281,8 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--csv, -o**="": Write final results to csv. Use - to output to stdout
 
+**--dissect, -d**="": Dissect expression create match groups to summarize on
+
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
@@ -281,7 +291,7 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
 
-**--ignore-case, -I**: Augment regex to be case insensitive
+**--ignore-case, -I**: Augment matcher to be case insensitive
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
@@ -317,6 +327,8 @@ Numerical analysis on a set of filtered data
 
 **--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
 
+**--dissect, -d**="": Dissect expression create match groups to summarize on
+
 **--extra, -x**: Displays extra analysis on the data (Requires more memory and cpu)
 
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
@@ -327,7 +339,7 @@ Numerical analysis on a set of filtered data
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
 
-**--ignore-case, -I**: Augment regex to be case insensitive
+**--ignore-case, -I**: Augment matcher to be case insensitive
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
@@ -367,6 +379,8 @@ Create a 2D summarizing table of extracted data
 
 **--delim**="": Character to tabulate on. Use {$} helper by default (default: \x00)
 
+**--dissect, -d**="": Dissect expression create match groups to summarize on
+
 **--extra, -x**: Display row and column totals
 
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
@@ -377,7 +391,7 @@ Create a 2D summarizing table of extracted data
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
 
-**--ignore-case, -I**: Augment regex to be case insensitive
+**--ignore-case, -I**: Augment matcher to be case insensitive
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
@@ -421,6 +435,8 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--csv, -o**="": Write final results to csv. Use - to output to stdout
 
+**--dissect, -d**="": Dissect expression create match groups to summarize on
+
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{@}])
 
 **--follow, -f**: Read appended data as file grows
@@ -431,7 +447,7 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
 
-**--ignore-case, -I**: Augment regex to be case insensitive
+**--ignore-case, -I**: Augment matcher to be case insensitive
 
 **--initial**="": Specify the default initial value for any accumulators that don't specify (default: 0)
 

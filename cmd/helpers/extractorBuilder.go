@@ -211,7 +211,7 @@ func getExtractorFlags() []cli.Flag {
 			Name:     "ignore-case",
 			Aliases:  []string{"I"},
 			Category: cliCategoryMatching,
-			Usage:    "Augment regex to be case insensitive",
+			Usage:    "Augment matcher to be case insensitive",
 		},
 		&cli.IntFlag{
 			Name:     "batch",

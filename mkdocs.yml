@@ -19,6 +19,7 @@ nav:
       - JSON: usage/json.md
       - Funcs File: usage/funcsfile.md
       - Regular Expressions: usage/regexp.md
+      - Dissect Expressions: usage/dissect.md
     - CLI Docs: cli-help.md
   - Benchmarks: benchmarks.md
   - Contributing: contributing.md

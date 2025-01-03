@@ -23,11 +23,11 @@ Read more at:
 
 ## Extraction (Matching)
 
-Extraction is denoted with `-m` (match) and is the process of reading a line in
-a file or set of files and parsing it with a regular expression into the
-match-groups denoted by the regex.
+Extraction is denoted with `-m` (regex) or `-d` (dissect) and is the process of reading
+a line in a file or set of files and parsing it with a regular expression into the
+match-groups denoted by the matcher.
 
-If the regex doesn't match, the line is discarded (a non-match)
+If the expression doesn't match, the line is discarded (a non-match)
 
 These match groups are then fed into the next stage, the expression.
 
@@ -62,6 +62,7 @@ Aggregator types:
 * `histogram` will count instances of the extracted key
 * `table` will count the key in 2 dimensions
 * `heatmap` will generate a 2D visualization using colored blocks to denote value
+* `sparkline` will generate a 2D visualization with the results being a sparkline
 * `bargraph` will create either a stacked or non-stacked bargraph based on 2 dimensions
 * `analyze` will use the key as a numeric value and compute mean/median/mode/stddev/percentiles
 * `reduce` allows evaluating data using expressions, and grouping/sorting the output

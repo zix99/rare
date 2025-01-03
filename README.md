@@ -20,6 +20,7 @@ See [rare.zdyn.net](https://rare.zdyn.net) or the [docs/ folder](docs/) for the 
 ## Features
 
  * Multiple summary formats including: filter (like grep), histogram, bar graphs, tables, heatmaps, reduce, and numerical analysis
+ * Parse using regex (`-m`) or dissect tokenizer (`-d`)
  * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
  * Optional gzip decompression (with `-z`)
  * Following `-f` or re-open following `-F` (use `--poll` to poll, and `--tail` to tail)
