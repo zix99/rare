@@ -23,7 +23,7 @@ type InputBatch struct {
 type Match struct {
 	bLine      BString // Keep the pointer around next to line
 	Line       string  // Unsafe pointer to bLine (no-copy)
-	Indices    []int   // match indices as returned by regexp
+	Indices    []int   // match indices as returned by matcher
 	Extracted  string  // The extracted expression
 	LineNumber uint64  // Line number
 	Source     string  // Source name
@@ -32,8 +32,8 @@ type Match struct {
 // Config for the extractor
 type Config struct {
 	Matcher matchers.Factory // Matcher
-	Extract string           // Extract these values from regex (expression)
-	Workers int              // Workers to parse regex
+	Extract string           // Extract these values from matcher (expression)
+	Workers int              // Workers to parse matcher
 	Ignore  IgnoreSet        // Ignore these truthy expressions
 }
 
@@ -42,7 +42,7 @@ type Config struct {
 //	Expects someone to consume its ReadChan()
 type Extractor struct {
 	readChan       chan []Match
-	compiledRegexp matchers.Factory
+	matcherFactory matchers.Factory
 	readLines      uint64
 	matchedLines   uint64
 	ignoredLines   uint64
@@ -53,7 +53,7 @@ type Extractor struct {
 
 type extractorInstance struct {
 	*Extractor
-	re      matchers.Matcher
+	matcher matchers.Matcher
 	context *SliceSpaceExpressionContext
 }
 
@@ -76,7 +76,7 @@ func (s *Extractor) ReadChan() <-chan []Match {
 // async safe
 func (s *extractorInstance) processLineSync(source string, lineNum uint64, line BString) (Match, bool) {
 	atomic.AddUint64(&s.readLines, 1)
-	matches := s.re.FindSubmatchIndex(line)
+	matches := s.matcher.FindSubmatchIndex(line)
 
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
@@ -118,12 +118,12 @@ func (s *extractorInstance) processLineSync(source string, lineNum uint64, line 
 func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch) {
 	defer wg.Done()
 
-	re := s.compiledRegexp.CreateInstance()
+	matcher := s.matcherFactory.CreateInstance()
 	si := extractorInstance{
 		Extractor: s,
-		re:        re,
+		matcher:   matcher,
 		context: &SliceSpaceExpressionContext{
-			nameTable: re.SubexpNameTable(),
+			nameTable: matcher.SubexpNameTable(),
 		},
 	}
 
@@ -158,7 +158,7 @@ func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 
 	extractor := Extractor{
 		readChan:       make(chan []Match, 5),
-		compiledRegexp: config.Matcher,
+		matcherFactory: config.Matcher,
 		keyBuilder:     compiledExpression,
 		config:         *config,
 		ignore:         config.Ignore,

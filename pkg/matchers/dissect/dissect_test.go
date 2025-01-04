@@ -106,7 +106,7 @@ func TestIgnoreCase(t *testing.T) {
 
 // BenchmarkDissect-4   	13347456	        86.07 ns/op	      32 B/op	       0 allocs/op
 func BenchmarkDissect(b *testing.B) {
-	d, _ := CompileEx("t%{val} ", true)
+	d, _ := CompileEx("t%{val} ", false)
 	di := d.CreateInstance()
 	val := []byte("this is a test ")
 
