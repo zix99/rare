@@ -37,6 +37,20 @@ func TestFilterExtractFull(t *testing.T) {
 	assert.Equal(t, "Matched: 3 / 6\n", eout)
 }
 
+func TestFilterWithDissect(t *testing.T) {
+	out, eout, err := testCommandCapture(filterCommand(), `-d "%{w0} is %{w1} " -e "{0}: {w0}={2}" testdata/log.txt`)
+	assert.NoError(t, err)
+	assert.Equal(t, "this is a : this=a\n22 is the : 22=the\n5 is the : 5=the\n", out)
+	assert.Equal(t, "Matched: 3 / 6\n", eout)
+}
+
+func TestFilterWithDissectIgnoreCase(t *testing.T) {
+	out, eout, err := testCommandCapture(filterCommand(), `-I -d "%{w0} IS %{w1} " -e "{0}: {w0}={2}" testdata/log.txt`)
+	assert.NoError(t, err)
+	assert.Equal(t, "this is a : this=a\n22 is the : 22=the\n5 is the : 5=the\n", out)
+	assert.Equal(t, "Matched: 3 / 6\n", eout)
+}
+
 func TestFilterFromStdin(t *testing.T) {
 	out, eout, err := testutil.Capture(func(w *os.File) error {
 		go func() {

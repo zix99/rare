@@ -54,3 +54,14 @@ func TestOverflowSpark(t *testing.T) {
 	s.Close()
 	assert.True(t, vt.IsClosed())
 }
+
+func TestEmptySpark(t *testing.T) {
+	vt := multiterm.NewVirtualTerm()
+	s := NewSpark(vt, 2, 2)
+
+	agg := aggregation.NewTable(" ")
+	s.WriteTable(agg, sorting.NVNameSorter, sorting.NVNameSorter)
+
+	s.Close()
+	assert.True(t, vt.IsClosed())
+}
