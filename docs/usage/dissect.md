@@ -34,7 +34,14 @@ Will match:
 prefix bob : 123
 ```
 
-And will extract two keys:
+And extract 3 index-keys:
+```
+0: prefix bob : 123
+1: bob
+2: 123
+```
+
+And will extract two named keys:
 ```
 name=bob
 value=123
