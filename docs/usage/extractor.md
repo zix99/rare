@@ -19,7 +19,7 @@ More than one matcher can **not** be specified at the same time.
 
 ### Regex
 
-A regex express is specified with `--match` or `-m`, and follows common
+A regex expression is specified with `--match` or `-m`, and follows common
 [regex syntax](regexp.md).
 
 When matching a regex, groups and keys are extracted both index and
