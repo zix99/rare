@@ -4,6 +4,8 @@ import (
 	"io"
 	"rare/pkg/extractor"
 	"rare/pkg/extractor/batchers"
+	"rare/pkg/matchers"
+	"rare/pkg/matchers/fastregex"
 	"strings"
 	"testing"
 
@@ -31,7 +33,7 @@ func TestAggregationLoop(t *testing.T) {
 	// Build a real extractor
 	batcher := batchers.OpenReaderToChan("test", io.NopCloser(strings.NewReader(testData)), 1, 1)
 	ex, err := extractor.New(batcher.BatchChan(), &extractor.Config{
-		Regex:   `(\d+)`,
+		Matcher: matchers.ToFactory(fastregex.MustCompile(`(\d+)`)),
 		Extract: "val:{1}",
 		Workers: 1,
 	})

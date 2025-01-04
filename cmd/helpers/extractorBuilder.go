@@ -1,12 +1,16 @@
 package helpers
 
 import (
+	"errors"
 	"os"
 	"rare/pkg/expressions"
 	"rare/pkg/extractor"
 	"rare/pkg/extractor/batchers"
 	"rare/pkg/extractor/dirwalk"
 	"rare/pkg/logger"
+	"rare/pkg/matchers"
+	"rare/pkg/matchers/dissect"
+	"rare/pkg/matchers/fastregex"
 	"runtime"
 	"strings"
 
@@ -74,15 +78,15 @@ func BuildExtractorFromArguments(c *cli.Context, batcher *batchers.Batcher) *ext
 
 func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, sep string) *extractor.Extractor {
 	config := extractor.Config{
-		Posix:   c.Bool("posix"),
-		Regex:   c.String("match"),
 		Extract: strings.Join(c.StringSlice("extract"), sep),
 		Workers: c.Int("workers"),
 	}
 
-	if c.Bool("ignore-case") {
-		config.Regex = "(?i)" + config.Regex
+	matcher, err := BuildMatcherFromArguments(c)
+	if err != nil {
+		logger.Fatalln(ExitCodeInvalidUsage, err)
 	}
+	config.Matcher = matcher
 
 	ignoreSlice := c.StringSlice("ignore")
 	if len(ignoreSlice) > 0 {
@@ -98,6 +102,38 @@ func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, se
 		logger.Fatalln(ExitCodeInvalidUsage, err)
 	}
 	return ret
+}
+
+func BuildMatcherFromArguments(c *cli.Context) (matchers.Factory, error) {
+	var (
+		matchExpr   = c.String("match")
+		dissectExpr = c.String("dissect")
+		posix       = c.Bool("posix")
+		ignoreCase  = c.Bool("ignore-case")
+	)
+
+	switch {
+	case c.IsSet("match") && c.IsSet("dissect"):
+		return nil, errors.New("match and dissect conflict")
+	case c.IsSet("dissect"):
+		d, err := dissect.CompileEx(dissectExpr, ignoreCase)
+		if err != nil {
+			return nil, err
+		}
+		return matchers.ToFactory(d), nil
+	case c.IsSet("match"):
+		if ignoreCase {
+			matchExpr = "(?i)" + matchExpr
+		}
+
+		r, err := fastregex.CompileEx(matchExpr, posix)
+		if err != nil {
+			return nil, err
+		}
+		return matchers.ToFactory(r), nil
+	default:
+		return &matchers.AlwaysMatch{}, nil
+	}
 }
 
 func getExtractorFlags() []cli.Flag {
@@ -146,11 +182,17 @@ func getExtractorFlags() []cli.Flag {
 			Usage:    "Compile regex as against posix standard",
 		},
 		&cli.StringFlag{
-			Name:     "match,m",
+			Name:     "match",
 			Aliases:  []string{"m"},
 			Category: cliCategoryMatching,
 			Usage:    "Regex to create match groups to summarize on",
 			Value:    ".*",
+		},
+		&cli.StringFlag{
+			Name:     "dissect",
+			Aliases:  []string{"d"},
+			Category: cliCategoryMatching,
+			Usage:    "Dissect expression create match groups to summarize on",
 		},
 		&cli.StringSliceFlag{
 			Name:     "extract",
@@ -169,7 +211,7 @@ func getExtractorFlags() []cli.Flag {
 			Name:     "ignore-case",
 			Aliases:  []string{"I"},
 			Category: cliCategoryMatching,
-			Usage:    "Augment regex to be case insensitive",
+			Usage:    "Augment matcher to be case insensitive",
 		},
 		&cli.IntFlag{
 			Name:     "batch",

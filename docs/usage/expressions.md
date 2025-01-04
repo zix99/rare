@@ -16,7 +16,7 @@ The basic syntax structure is as follows:
  * Characters can be escaped with `\`, including `\{` or `\n`
  * Expressions are surrounded by `{}`.
  * An integer in an expression denotes a matched value from the regex (or other input) eg. `{2}`. The entire match will always be `{0}`
- * A string in an expression is a special key or a named regex group eg. `{src}` or `{group1}`
+ * A string in an expression is a special key or a named regex/dissect group eg. `{src}` or `{group1}`
  * When an expression has space(s), the first literal will be the name of a helper function.
    From there, the logic is nested. eg `{coalesce {4} {3} notfound}`
  * Quotes in an argument create a single argument eg. `{coalesce {4} {3} "not found"}`
@@ -59,7 +59,7 @@ rare histo \
 	-b access.log
 ```
 
-The above parses the method `{1}`, url `{2}`, status `{3}`, and response size `{4}` in the regex.
+The above parses the method `{1}`, url `{2}`, status `{3}`, and response size `{4}` in the matcher.
 
 It extracts the `<method> <url> <bytesize bucketed to 10k>`. It will ignore `-i` if response size `{4}` is less-than `1024*1024` (1MB).
 

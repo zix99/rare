@@ -1,6 +1,8 @@
 package extractor
 
 import (
+	"rare/pkg/matchers"
+	"rare/pkg/matchers/fastregex"
 	"strings"
 	"testing"
 
@@ -15,7 +17,7 @@ xxx`
 func TestBasicExtractor(t *testing.T) {
 	input := convertReaderToBatches("test", strings.NewReader(testData), 1)
 	ex, err := New(input, &Config{
-		Regex:   `(\d+)`,
+		Matcher: matchers.ToFactory(fastregex.MustCompile(`(\d+)`)),
 		Extract: "val:{1}",
 		Workers: 1,
 	})
@@ -39,7 +41,7 @@ func TestBasicExtractor(t *testing.T) {
 func TestSourceAndLine(t *testing.T) {
 	input := convertReaderToBatches("test", strings.NewReader(testData), 1)
 	ex, err := New(input, &Config{
-		Regex:   `(\d+)`,
+		Matcher: matchers.ToFactory(fastregex.MustCompile(`(\d+)`)),
 		Extract: "{src} {line} val:{1} {bad} {@}",
 		Workers: 1,
 	})
@@ -57,7 +59,7 @@ func TestIgnoreLines(t *testing.T) {
 	input := convertReaderToBatches("test", strings.NewReader(testData), 1)
 	ignore, _ := NewIgnoreExpressions(`{eq {1} "123"}`)
 	ex, err := New(input, &Config{
-		Regex:   `(\d+)`,
+		Matcher: matchers.ToFactory(fastregex.MustCompile(`(\d+)`)),
 		Extract: "{src} {line} val:{1} {bad}{500}",
 		Workers: 1,
 		Ignore:  ignore,
@@ -72,7 +74,7 @@ func TestIgnoreLines(t *testing.T) {
 func TestNamedGroup(t *testing.T) {
 	input := convertReaderToBatches("test", strings.NewReader(testData), 1)
 	ex, err := New(input, &Config{
-		Regex:   `(?P<num>\d+)`,
+		Matcher: matchers.ToFactory(fastregex.MustCompile(`(?P<num>\d+)`)),
 		Extract: "val:{1}:{num}",
 		Workers: 1,
 	})
@@ -87,7 +89,7 @@ func TestNamedGroup(t *testing.T) {
 func TestJSONOutput(t *testing.T) {
 	input := convertReaderToBatches("test", strings.NewReader(testData), 1)
 	ex, err := New(input, &Config{
-		Regex:   `(?P<num>\d+)`,
+		Matcher: matchers.ToFactory(fastregex.MustCompile(`(?P<num>\d+)`)),
 		Extract: "{.} {#} {.#} {#.}",
 		Workers: 1,
 	})
@@ -100,7 +102,7 @@ func TestJSONOutput(t *testing.T) {
 func TestGH10SliceBoundsPanic(t *testing.T) {
 	input := convertReaderToBatches("", strings.NewReader("this is an [ERROR] message"), 1)
 	ex, err := New(input, &Config{
-		Regex:   `\[(INFO)|(ERROR)|(WARNING)|(CRITICAL)\]`,
+		Matcher: matchers.ToFactory(fastregex.MustCompile(`\[(INFO)|(ERROR)|(WARNING)|(CRITICAL)\]`)),
 		Extract: "val:{2} val:{3}",
 		Workers: 1,
 	})

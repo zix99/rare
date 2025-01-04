@@ -3,7 +3,7 @@ package extractor
 import (
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/funclib"
-	"rare/pkg/fastregex"
+	"rare/pkg/matchers"
 	"sync"
 	"sync/atomic"
 	"unsafe"
@@ -23,7 +23,7 @@ type InputBatch struct {
 type Match struct {
 	bLine      BString // Keep the pointer around next to line
 	Line       string  // Unsafe pointer to bLine (no-copy)
-	Indices    []int   // match indices as returned by regexp
+	Indices    []int   // match indices as returned by matcher
 	Extracted  string  // The extracted expression
 	LineNumber uint64  // Line number
 	Source     string  // Source name
@@ -31,11 +31,10 @@ type Match struct {
 
 // Config for the extractor
 type Config struct {
-	Posix   bool      // Posix parse regex
-	Regex   string    // Regex to find matches
-	Extract string    // Extract these values from regex (expression)
-	Workers int       // Workers to parse regex
-	Ignore  IgnoreSet // Ignore these truthy expressions
+	Matcher matchers.Factory // Matcher
+	Extract string           // Extract these values from matcher (expression)
+	Workers int              // Workers to parse matcher
+	Ignore  IgnoreSet        // Ignore these truthy expressions
 }
 
 // Extractor is the representation of the reader
@@ -43,7 +42,7 @@ type Config struct {
 //	Expects someone to consume its ReadChan()
 type Extractor struct {
 	readChan       chan []Match
-	compiledRegexp fastregex.CompiledRegexp
+	matcherFactory matchers.Factory
 	readLines      uint64
 	matchedLines   uint64
 	ignoredLines   uint64
@@ -54,7 +53,7 @@ type Extractor struct {
 
 type extractorInstance struct {
 	*Extractor
-	re      fastregex.Regexp
+	matcher matchers.Matcher
 	context *SliceSpaceExpressionContext
 }
 
@@ -77,7 +76,7 @@ func (s *Extractor) ReadChan() <-chan []Match {
 // async safe
 func (s *extractorInstance) processLineSync(source string, lineNum uint64, line BString) (Match, bool) {
 	atomic.AddUint64(&s.readLines, 1)
-	matches := s.re.FindSubmatchIndex(line)
+	matches := s.matcher.FindSubmatchIndex(line)
 
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
@@ -119,12 +118,12 @@ func (s *extractorInstance) processLineSync(source string, lineNum uint64, line 
 func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch) {
 	defer wg.Done()
 
-	re := s.compiledRegexp.CreateInstance()
+	matcher := s.matcherFactory.CreateInstance()
 	si := extractorInstance{
 		Extractor: s,
-		re:        re,
+		matcher:   matcher,
 		context: &SliceSpaceExpressionContext{
-			nameTable: re.SubexpNameTable(),
+			nameTable: matcher.SubexpNameTable(),
 		},
 	}
 
@@ -157,14 +156,9 @@ func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 		return nil, compErr
 	}
 
-	compiledRegex, err := fastregex.CompileEx(config.Regex, config.Posix)
-	if err != nil {
-		return nil, err
-	}
-
 	extractor := Extractor{
 		readChan:       make(chan []Match, 5),
-		compiledRegexp: compiledRegex,
+		matcherFactory: config.Matcher,
 		keyBuilder:     compiledExpression,
 		config:         *config,
 		ignore:         config.Ignore,

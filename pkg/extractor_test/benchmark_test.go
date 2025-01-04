@@ -2,6 +2,8 @@ package benchmark_test
 
 import (
 	"rare/pkg/extractor"
+	"rare/pkg/matchers"
+	"rare/pkg/matchers/fastregex"
 	"testing"
 )
 
@@ -29,7 +31,7 @@ func BenchmarkExtractor(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		gen := batchInputGenerator(10000, 100)
 		extractor, _ := extractor.New(gen, &extractor.Config{
-			Regex:   `(\d{3})`,
+			Matcher: matchers.ToFactory(fastregex.MustCompile(`(\d{3})`)),
 			Extract: "{bucket {1} 10}",
 			Workers: 2,
 		})
