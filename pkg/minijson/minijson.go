@@ -77,7 +77,7 @@ func (s *JsonObjectBuilder) writeKey(key string) {
 	s.keyCount++
 }
 
-var escapeLookup = [128]string{'\b': "\\b", '\f': "\\f", '\n': "\\n", '\r': "\\r", '\t': "\\t", '"': `\"`, '\\': `\\`}
+var escapeLookup = [93]string{'\b': "\\b", '\f': "\\f", '\n': "\\n", '\r': "\\r", '\t': "\\t", '"': `\"`, '\\': `\\`}
 
 func escape(s string) string {
 	var sb strings.Builder
@@ -103,10 +103,28 @@ func escape(s string) string {
 }
 
 func isNumeric(s string) bool {
-	for _, r := range s {
-		if (r < '0' || r > '9') && r != '.' {
+	i := 0
+	for ; i < len(s); i++ {
+		r := s[i]
+		if r == '.' {
+			if i == 0 {
+				return false
+			}
+			i++
+			if i >= len(s) {
+				return false
+			}
+			break
+		}
+		if r < '0' || r > '9' {
 			return false
 		}
 	}
-	return true
+	for ; i < len(s); i++ {
+		r := s[i]
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return i > 0
 }

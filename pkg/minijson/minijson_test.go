@@ -58,9 +58,13 @@ func TestIsNumeric(t *testing.T) {
 	assert.True(t, isNumeric("1"))
 	assert.True(t, isNumeric("123"))
 	assert.True(t, isNumeric("1.2"))
+	assert.False(t, isNumeric("1."))
+	assert.False(t, isNumeric(".1"))
+	assert.False(t, isNumeric("1.2.4"))
 	assert.True(t, isNumeric("1000"))
 	assert.False(t, isNumeric("0123a"))
 	assert.False(t, isNumeric("qq"))
+	assert.False(t, isNumeric(""))
 }
 
 func TestEscape(t *testing.T) {
@@ -101,5 +105,12 @@ func BenchmarkEscape(b *testing.B) {
 func BenchmarkEmptyEscape(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		escape("this is a test!")
+	}
+}
+
+// BenchmarkIsNumeric-4   	108330535	        11.17 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkIsNumeric(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		isNumeric("123.456")
 	}
 }
