@@ -40,7 +40,7 @@ func (s *Spark) WriteTable(agg *aggregation.TableAggregator, rowSorter, colSorte
 	sb.Grow(len(colNames))
 
 	// Write header
-	{
+	if len(colNames) > 0 {
 		dots := len(colNames) - len(colNames[0]) - len(colNames[len(colNames)-1])
 		if dots < 0 {
 			dots = 0
