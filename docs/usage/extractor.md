@@ -38,14 +38,15 @@ rare filter -m '"(\w{3,4}) ([A-Za-z0-9/.@_-]+)' access.log
 A dissect expression is specified with `--disect` or `-d`, and follows
 [dissect syntax](dissect.md).
 
-Like regex, groups are extracted by both index and name.
+Like regex, groups are extracted by both index and name. Dissect can
+be significantly faster than regex.
 
 Set ignore-case with `-I` or `--ignore-case`.
 
 **Example:**
 
 ```bash
-rare filter -d 'HTTP/1.1" %{code} ${size}' -e '{code}' access.log
+rare filter -d 'HTTP/1.1" %{code} %{size}' -e '{code}' access.log
 ```
 
 ## Examples
