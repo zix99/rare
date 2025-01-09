@@ -16,6 +16,15 @@ func TestDissectBasic(t *testing.T) {
 		"val2": 2,
 	}, d.SubexpNameTable())
 }
+func TestUtf8(t *testing.T) {
+	d := MustCompile("ûɾ %{key} ḝłįʈ").CreateInstance()
+
+	s := []byte("Ḽơᶉëᶆ ȋṕšᶙṁ ḍỡḽǭᵳ ʂǐť ӓṁệẗ, ĉṓɲṩḙċťᶒțûɾ ấɖḯƥĭṩčįɳġ ḝłįʈ, șếᶑ ᶁⱺ ẽḭŭŝḿꝋď ṫĕᶆᶈṓɍ ỉñḉīḑȋᵭṵńť ṷŧ ḹẩḇőꝛế éȶ đꝍꞎôꝛȇ ᵯáꞡᶇā ąⱡîɋṹẵ.")
+	m := d.FindSubmatchIndex(s)
+	assert.Equal(t, []int{85, 123, 90, 113}, m)
+	assert.Equal(t, []byte("ûɾ ấɖḯƥĭṩčįɳġ ḝłįʈ"), s[m[0]:m[1]])
+	assert.Equal(t, []byte("ấɖḯƥĭṩčįɳġ"), s[m[2]:m[3]])
+}
 
 func TestPrefixOnSkipKey(t *testing.T) {
 	d := MustCompile("prefix %{}: %{val}").CreateInstance()

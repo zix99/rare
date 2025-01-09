@@ -69,6 +69,12 @@ Matched: 12 / 12 (Groups: 4)
 
 ## Nginx
 
+Example line:
+
+```log
+123.123.123.123 - - [19/Aug/2019:02:26:25 +0000] "GET / HTTP/1.1" 200 546 "-" "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/98 Safari/537.4 (StatusCake)"
+```
+
 ### Highlight / Extract HTTP Code and Size
 
 ```sh
