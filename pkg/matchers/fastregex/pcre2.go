@@ -15,7 +15,6 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"rare/pkg/slicepool"
 	"runtime"
 	"unsafe"
 )
@@ -36,8 +35,7 @@ var _ CompiledRegexp = &pcre2Compiled{}
 
 // instance version
 type pcre2Regexp struct {
-	re        *pcre2Compiled
-	groupPool *slicepool.IntPool
+	re *pcre2Compiled
 
 	matchData *C.pcre2_match_data
 	context   *C.pcre2_match_context
@@ -95,8 +93,7 @@ func CompileEx(expr string, posix bool) (CompiledRegexp, error) {
 
 func (s *pcre2Compiled) CreateInstance() Regexp {
 	pcre := &pcre2Regexp{
-		re:        s,
-		groupPool: slicepool.NewIntPool(32 * 1024),
+		re: s,
 	}
 
 	if s.jitted {
@@ -133,6 +130,10 @@ func (s *pcre2Regexp) GroupCount() int {
 	return s.re.groupCount
 }
 
+func (s *pcre2Regexp) MatchBufSize() int {
+	return s.re.groupCount * 2
+}
+
 func (s *pcre2Regexp) SubexpNameTable() map[string]int {
 	return s.re.groupNames
 }
@@ -151,7 +152,7 @@ func (s *pcre2Regexp) MatchString(str string) bool {
 
 // FindSubmatchIndex, like regexp, returns a set of string indecies where the results are
 // FindSubmatchIndex is NOT thread-safe.  You need to create an instance of the fastregex engine
-func (s *pcre2Regexp) FindSubmatchIndex(b []byte) []int {
+func (s *pcre2Regexp) FindSubmatchIndexDst(b []byte, dst []int) []int {
 	if len(b) == 0 {
 		return nil
 	}
@@ -163,12 +164,11 @@ func (s *pcre2Regexp) FindSubmatchIndex(b []byte) []int {
 		return nil
 	}
 
-	ret := s.groupPool.Get(s.re.groupCount * 2)
 	for i := 0; i < s.re.groupCount*2; i++ {
-		ret[i] = int(*(*C.ulong)(unsafe.Pointer(uintptr(unsafe.Pointer(s.ovec)) + unsafe.Sizeof(*s.ovec)*uintptr(i))))
+		dst = append(dst, int(*(*C.ulong)(unsafe.Pointer(uintptr(unsafe.Pointer(s.ovec)) + unsafe.Sizeof(*s.ovec)*uintptr(i)))))
 	}
 
-	return ret
+	return dst
 }
 
 type compileError struct {

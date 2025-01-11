@@ -2,7 +2,11 @@
 
 package fastregex
 
-import "regexp"
+import (
+	"io"
+	"regexp"
+	_ "unsafe"
+)
 
 /*
 The fallback exposes the re2/regexp go implementaiton in the
@@ -14,6 +18,7 @@ const Version = "re2"
 type compiledRegexp struct {
 	*regexp.Regexp
 	groupNames map[string]int
+	bufSize    int
 }
 
 var (
@@ -29,6 +34,21 @@ func (s *compiledRegexp) SubexpNameTable() map[string]int {
 	return s.groupNames
 }
 
+//go:linkname regexp_doExecute regexp.(*Regexp).doExecute
+func regexp_doExecute(*regexp.Regexp, io.RuneReader, []byte, string, int, int, []int) []int
+
+func (s *compiledRegexp) FindSubmatchIndexDst(b []byte, dst []int) []int {
+	// HACK: By accessing the underlying function of FindSubmatchIndex, we're able to avoid
+	// an allocation done by the initial call, which seems to save 25-33% performance generally
+	// and also later gc cleanups
+	// Though hacky, this should be safe for a pinned version, and will have plenty of tests around it
+	return regexp_doExecute(s.Regexp, nil, b, "", 0, s.bufSize, dst)
+}
+
+func (s *compiledRegexp) MatchBufSize() int {
+	return s.bufSize
+}
+
 func CompileEx(expr string, posix bool) (CompiledRegexp, error) {
 	re, err := buildRegexp(expr, posix)
 	if err != nil {
@@ -37,6 +57,7 @@ func CompileEx(expr string, posix bool) (CompiledRegexp, error) {
 	return &compiledRegexp{
 		re,
 		createGroupNameTable(re),
+		(re.NumSubexp() + 1) * 2,
 	}, nil
 }
 
