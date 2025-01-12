@@ -70,6 +70,41 @@ func TestCaptureGroupNames(t *testing.T) {
 	assert.Equal(t, 2, table["thing"])
 }
 
+func TestMemoryZeroAllocs(t *testing.T) {
+	br := testing.Benchmark(BenchmarkFastRegex)
+	assert.Zero(t, br.AllocedBytesPerOp())
+	assert.Zero(t, br.AllocsPerOp())
+}
+
+func TestMemoryExpectations(t *testing.T) {
+	re := MustCompile(`t(\w+)`).CreateInstance()
+	d := []byte("hello there bob")
+
+	t.Run("nil alloc", func(t *testing.T) {
+		m := re.FindSubmatchIndexDst(d, nil)
+		assert.Equal(t, []int{6, 11, 7, 11}, m)
+	})
+
+	t.Run("undersized buf alloc", func(t *testing.T) {
+		buf := make([]int, 0, 1)
+		m := re.FindSubmatchIndexDst(d, buf)
+		assert.Equal(t, []int{6, 11, 7, 11}, m)
+		assert.NotSame(t, m[:1], buf[:1])
+	})
+
+	t.Run("sized buf alloc", func(t *testing.T) {
+		buf := make([]int, 0, re.MatchBufSize())
+		m := re.FindSubmatchIndexDst(d, buf)
+		assert.Equal(t, []int{6, 11, 7, 11}, m)
+		assert.Equal(t, m, buf[:len(m)])
+	})
+
+	t.Run("pre-allocd", func(t *testing.T) {
+		m := re.FindSubmatchIndexDst(d, make([]int, 2))
+		assert.Equal(t, []int{0, 0, 6, 11, 7, 11}, m)
+	})
+}
+
 // Benchmarks
 
 // pcre1: 273ns
