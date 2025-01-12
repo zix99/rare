@@ -53,8 +53,9 @@ type Extractor struct {
 
 type extractorInstance struct {
 	*Extractor
-	matcher matchers.Matcher
-	context *SliceSpaceExpressionContext
+	matcher    matchers.Matcher
+	matcherBuf []int
+	context    *SliceSpaceExpressionContext
 }
 
 func (s *Extractor) ReadLines() uint64 {
@@ -76,7 +77,7 @@ func (s *Extractor) ReadChan() <-chan []Match {
 // async safe
 func (s *extractorInstance) processLineSync(source string, lineNum uint64, line BString) (Match, bool) {
 	atomic.AddUint64(&s.readLines, 1)
-	matches := s.matcher.FindSubmatchIndex(line)
+	matches := s.matcher.FindSubmatchIndexDst(line, s.matcherBuf)
 
 	// Extract and forward to the ReadChan if there are matches
 	if len(matches) > 0 {
@@ -120,8 +121,9 @@ func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch
 
 	matcher := s.matcherFactory.CreateInstance()
 	si := extractorInstance{
-		Extractor: s,
-		matcher:   matcher,
+		Extractor:  s,
+		matcher:    matcher,
+		matcherBuf: make([]int, 0, matcher.MatchBufSize()),
 		context: &SliceSpaceExpressionContext{
 			nameTable: matcher.SubexpNameTable(),
 		},
