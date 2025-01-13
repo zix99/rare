@@ -101,7 +101,7 @@ func (s *extractorInstance) processLineSync(source string, lineNum uint64, line 
 				return Match{
 					bLine:      line, // Need to keep around what lineStringPtr is pointing to
 					Line:       lineStringPtr,
-					Indices:    matches,
+					Indices:    matches, // FIXME: This will break with shared matches buffer
 					Extracted:  extractedKey,
 					LineNumber: lineNum,
 					Source:     source,
