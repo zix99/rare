@@ -332,11 +332,13 @@ Creates an array with the provided elements. Use `{@}` for an array of all match
 
 #### @len
 
+!!! warning
+	This is a linear-time operation. Length of the array
+	is not stored and the string needs to be scanned.
+
 Syntax: `{@len <arr>}`
 
 Returns the length of an array.  Empty "" returns 0, a literal will be 1.
-
-**Note:** This is a linear-time operation.
 
 #### @in
 
