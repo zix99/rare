@@ -44,7 +44,7 @@ rare help histogram
 
 ### Summary
 
-The histogram format outputs an aggregation by counting the occurences
+The histogram format outputs an aggregation by counting the occurrences
 of an extracted match.  That is to say, on every line a regex will be
 matched (or not), and the matched groups can be used to extract and build
 a key, that will act as the bucketing name.

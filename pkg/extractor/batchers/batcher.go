@@ -177,7 +177,7 @@ func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batch
 }
 
 // syncReaderToBatcherWithTimeFlush is similar to `syncReaderToBatcher`, except if it gets a new line
-// it will flush the batch if n time has elapsed since the last flush, irregardless of how many items are in the current batch
+// it will flush the batch if n time has elapsed since the last flush, regardless of how many items are in the current batch
 // Good for potentially slow or more interactive workloads (tail, stdin, etc)
 func (s *Batcher) syncReaderToBatcherWithTimeFlush(sourceName string, reader io.Reader, batchSize int, autoFlush time.Duration) {
 	readerMetrics := newReaderMetrics(reader)

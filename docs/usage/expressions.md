@@ -90,7 +90,7 @@ Arguments surrounded by `[]` are optional.
 
 Syntax: `{coalesce ...}`
 
-Evaluates arguments in-order, chosing the first non-empty result.
+Evaluates arguments in-order, choosing the first non-empty result.
 
 #### Select Field
 
@@ -503,11 +503,11 @@ Parse a given time-string into a unix second time (default format: `cache`)
 
 ##### Format Auto-Detection
 
-If the format argument is ommitted or set to "auto", it will attempt to resolve the format of the time.
+If the format argument is omitted or set to "auto", it will attempt to resolve the format of the time.
 
 If the format is unable to be resolved, it must be specified manually with a format below, or a custom format.
 
-If ommitted or "cache": The first seen date will determine the format for all dates going forward (faster)
+If omitted or "cache": The first seen date will determine the format for all dates going forward (faster)
 
 If "auto": The date format will be auto-detected with each parse. This can be used if the date could be in different formats (slower)
 
@@ -566,7 +566,7 @@ Syntax: `{duration dur}`
 
 Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
 
-From there, you can do arithmatic on time, for instance: `{sumi {time now} {duration 1h}}`
+From there, you can do arithmetic on time, for instance: `{sumi {time now} {duration 1h}}`
 
 ##### Format Duration
 
