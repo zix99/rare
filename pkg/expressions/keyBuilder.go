@@ -43,7 +43,7 @@ func (s *KeyBuilder) Func(name string, f KeyBuilderFunction) {
 }
 
 // Compile builds a new key-builder, returning error(s) on build issues
-// if the CompiledKeyBuilder is not nil, then something is still useable (albeit may have problems)
+// if the CompiledKeyBuilder is not nil, then something is still usable (albeit may have problems)
 func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, *CompilerErrors) {
 	kb := &CompiledKeyBuilder{
 		stages: make([]KeyBuilderStage, 0),

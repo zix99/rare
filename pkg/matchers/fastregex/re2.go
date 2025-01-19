@@ -5,7 +5,7 @@ package fastregex
 import "regexp"
 
 /*
-The fallback exposes the re2/regexp go implementaiton in the
+The fallback exposes the re2/regexp go implementation in the
 cases where we can't compile with PCRE support
 */
 

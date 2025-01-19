@@ -49,7 +49,7 @@ func (s Scaler) remapMinMax(min, max int64) (float64, float64) {
 	return math.Floor(s.mapVal(float64(min))), math.Ceil(s.mapVal(float64(max)))
 }
 
-// Returns a val, betwen min and max, to a 0-1 float range
+// Returns a val, between min and max, to a 0-1 float range
 func (s Scaler) Scale(val, min, max int64) float64 {
 	if max < min {
 		return 0.0

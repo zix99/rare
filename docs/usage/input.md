@@ -59,11 +59,11 @@ you can specify `-t` or `--tail` to start following at the end.
 
 There are two ways to read from a pipe: implicit and explicit.
 
-Implicitely, if *rare* detects its stdin is a pipe, it will read it simply by not providing any arguments
+Implicitly, if *rare* detects its stdin is a pipe, it will read it simply by not providing any arguments
 
 `cat file.log | rare <aggregator>` or `rare <aggregator> < file.log`
 
-Explicitely, you can pass a single read argument of `-` (dash) to mandate reading from stdin
+Explicitly, you can pass a single read argument of `-` (dash) to mandate reading from stdin
 
 `cat file.log | rare <aggregator> -`
 
@@ -93,7 +93,7 @@ at the cost of being less real-time if input generation is slow.
 
 To counteract this, in the *follow* or *stdin* cases, there's also a flush timeout of
 250ms. This means if a new line has been received, and the duration has passed,
-that the batch will be processed irregardless of its current size.
+that the batch will be processed regardless of its current size.
 
 You can tweak this value with `--batch`
 

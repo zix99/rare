@@ -16,7 +16,7 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"isint": KeyBuilderFunction(kfIsInt),
 	"isnum": KeyBuilderFunction(kfIsNum),
 
-	// Arithmatic
+	// Arithmetic
 	"sumi":  arithmaticHelperi(func(a, b int) int { return a + b }),
 	"subi":  arithmaticHelperi(func(a, b int) int { return a - b }),
 	"multi": arithmaticHelperi(func(a, b int) int { return a * b }),

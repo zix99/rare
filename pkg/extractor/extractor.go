@@ -86,7 +86,7 @@ func (s *extractorInstance) processLineSync(source string, lineNum uint64, line 
 		//   as a pointer instead
 		lineStringPtr := *(*string)(unsafe.Pointer(&line))
 		// A context is created for each "instance", and since a context isn't shared beyond building a key
-		//   it's significantly faster to re-use a single context per goroutine
+		//   it's significantly faster to reuse a single context per goroutine
 		expContext := s.context
 		expContext.linePtr = lineStringPtr
 		expContext.indices = matches

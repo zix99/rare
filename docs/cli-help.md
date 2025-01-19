@@ -245,7 +245,7 @@ Create rows of sparkline graphs
 
 **--noout**: Don't output any aggregation to stdout
 
-**--notruncate**: Disable truncating data that doesnt fit in the sparkline
+**--notruncate**: Disable truncating data that doesn't fit in the sparkline
 
 **--num, --rows, -n**="": Number of elements (rows) to display (default: 20)
 

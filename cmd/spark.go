@@ -97,7 +97,7 @@ func sparkCommand() *cli.Command {
 			},
 			&cli.BoolFlag{
 				Name:  "notruncate",
-				Usage: "Disable truncating data that doesnt fit in the sparkline",
+				Usage: "Disable truncating data that doesn't fit in the sparkline",
 				Value: false,
 			},
 			&cli.StringFlag{

@@ -149,7 +149,7 @@ func (s *pcre2Regexp) MatchString(str string) bool {
 	return rc >= 0
 }
 
-// FindSubmatchIndex, like regexp, returns a set of string indecies where the results are
+// FindSubmatchIndex, like regexp, returns a set of string indices where the results are
 // FindSubmatchIndex is NOT thread-safe.  You need to create an instance of the fastregex engine
 func (s *pcre2Regexp) FindSubmatchIndex(b []byte) []int {
 	if len(b) == 0 {
