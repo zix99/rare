@@ -42,7 +42,14 @@ func (s *compiledRegexp) FindSubmatchIndexDst(b []byte, dst []int) []int {
 	// an allocation done by the initial call, which seems to save 25-33% performance generally
 	// and also later gc cleanups
 	// Though hacky, this should be safe for a pinned version, and will have plenty of tests around it
-	return regexp_doExecute(s.Regexp, nil, b, "", 0, s.bufSize, dst)
+	ret := regexp_doExecute(s.Regexp, nil, b, "", 0, s.bufSize, dst)
+	if ret == nil {
+		return nil
+	}
+	for len(ret) < s.bufSize {
+		ret = append(ret, -1)
+	}
+	return ret
 }
 
 func (s *compiledRegexp) MatchBufSize() int {
