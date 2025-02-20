@@ -1,6 +1,7 @@
 package dissect
 
 import (
+	"rare/pkg/testutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -118,10 +119,18 @@ func TestIgnoreCase(t *testing.T) {
 	assert.Equal(t, []int{2, 13, 7, 8}, d.CreateInstance().FindSubmatchIndexDst([]byte("a Pref 5 pOst"), nil))
 }
 
+func TestSameMemory(t *testing.T) {
+	d := MustCompile("test").CreateInstance()
+	assert.Equal(t, 2, d.MatchBufSize())
+	buf := make([]int, 0, 2)
+
+	ret := d.FindSubmatchIndexDst([]byte("test"), buf)
+	assert.Equal(t, []int{0, 4}, ret)
+	testutil.AssertSameMemory(t, buf, ret)
+}
+
 func TestZeroAlloc(t *testing.T) {
-	b := testing.Benchmark(BenchmarkDissect)
-	assert.Zero(t, b.AllocedBytesPerOp())
-	assert.Zero(t, b.AllocsPerOp())
+	testutil.AssertZeroAlloc(t, BenchmarkDissect)
 }
 
 // BenchmarkDissect-4   	24508795	        44.94 ns/op	       0 B/op	       0 allocs/op

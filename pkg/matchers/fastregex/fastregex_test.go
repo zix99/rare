@@ -72,7 +72,7 @@ func TestCaptureGroupNames(t *testing.T) {
 }
 
 func TestMemoryZeroAllocs(t *testing.T) {
-	testutil.ZeroAlloc(t, BenchmarkFastRegex)
+	testutil.AssertZeroAlloc(t, BenchmarkFastRegex)
 }
 
 func TestMemoryExpectations(t *testing.T) {
@@ -88,7 +88,7 @@ func TestMemoryExpectations(t *testing.T) {
 		buf := make([]int, 0, 1)
 		m := re.FindSubmatchIndexDst(d, buf)
 		assert.Equal(t, []int{6, 11, 7, 11}, m)
-		testutil.NotSameMemory(t, m, buf)
+		testutil.AssertNotSameMemory(t, m, buf)
 	})
 
 	t.Run("sized buf alloc", func(t *testing.T) {
@@ -96,14 +96,14 @@ func TestMemoryExpectations(t *testing.T) {
 		m := re.FindSubmatchIndexDst(d, buf)
 		assert.Equal(t, []int{6, 11, 7, 11}, m)
 		assert.Equal(t, m, buf[:len(m)])
-		testutil.SameMemory(t, m, buf)
+		testutil.AssertSameMemory(t, m, buf)
 	})
 
 	t.Run("pre-allocd", func(t *testing.T) {
 		buf := make([]int, 2)
 		m := re.FindSubmatchIndexDst(d, buf)
 		assert.Equal(t, []int{0, 0, 6, 11, 7, 11}, m)
-		testutil.NotSameMemory(t, m, buf)
+		testutil.AssertNotSameMemory(t, m, buf)
 	})
 }
 
