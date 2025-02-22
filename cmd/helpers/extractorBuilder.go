@@ -73,13 +73,14 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 }
 
 func BuildExtractorFromArguments(c *cli.Context, batcher *batchers.Batcher) *extractor.Extractor {
-	return BuildExtractorFromArgumentsEx(c, batcher, expressions.ArraySeparatorString)
+	return BuildExtractorFromArgumentsEx(c, batcher, expressions.ArraySeparatorString, false)
 }
 
-func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, sep string) *extractor.Extractor {
+func BuildExtractorFromArgumentsEx(c *cli.Context, batcher *batchers.Batcher, sep string, fullMatch bool) *extractor.Extractor {
 	config := extractor.Config{
-		Extract: strings.Join(c.StringSlice("extract"), sep),
-		Workers: c.Int("workers"),
+		Extract:   strings.Join(c.StringSlice("extract"), sep),
+		Workers:   c.Int("workers"),
+		FullMatch: fullMatch,
 	}
 
 	matcher, err := BuildMatcherFromArguments(c)
