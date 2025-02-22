@@ -268,10 +268,12 @@ can group and sort results.
 
 1. Extract data from a regex using `--match` (`-m`)
 1. Optionally group the data into buckets using `--group` (`-g`). Can use `key=value` format to give column a name
-1. Specify one or more "accumulators", which are expressions. `{.}` represents the current value, so for example, `{sumi {.} {1}}` adds the match `{1}` to the current value.
+1. Specify one or more "accumulators", which are expressions. `{.}` represents the current value,
+   so for example, `{sumi {.} {1}}` adds the match `{1}` to the current value.
     1. Can specify only expression, `key=expression` format or `key:initial=expression`.
     1. Can reference past accumulators by key, eg `{divi {key1} {key2}}`
-1. Optionally `--sort` the data based on an expression or reference to an accumulator. eg. `--sort {key1}`. Can reverse with `--sort-reverse` flag
+1. Optionally `--sort` the data based on an expression or reference to anaccumulator.
+   eg. `--sort {key1}`. Can reverse with `--sort-reverse` flag
 
 ### Example
 
@@ -306,10 +308,13 @@ flags for tables.
 These are the supported sorters:
 
 * `text` -- Pure alphanumeric sort.  Fastest, but can sort numbers oddly (eg. would sort 1, 11, 2, ...)
-* `numeric` -- Attempts to parse the value as numeric.  If unable to parse, falls back to alphanumeric (Default)
-* `contextual` -- Tries to use context to be smart about sorting, eg if it sees a month or weekday name, will sort by that. Falls back to numeric
+* `numeric` -- Attempts to parse the value as numeric.  If unable to parse, falls
+    back to alphanumeric (Default)
+* `contextual` -- Tries to use context to be smart about sorting, eg if it sees a month or weekday name,
+    will sort by that. Falls back to numeric
 * `date` -- Parses the value as if it were a date. Falls back to contextual
-* `value` -- Orders the results based on their aggregated *value*. eg. would put the most frequent item at the top. Defaults to descending order
+* `value` -- Orders the results based on their aggregated *value*. eg. would put the most frequent item
+    at the top. Defaults to descending order
 
 #### Modifiers
 
