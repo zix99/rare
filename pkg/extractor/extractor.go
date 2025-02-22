@@ -4,6 +4,7 @@ import (
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/funclib"
 	"rare/pkg/matchers"
+	"rare/pkg/slicepool"
 	"sync"
 	"sync/atomic"
 	"unsafe"
@@ -31,10 +32,11 @@ type Match struct {
 
 // Config for the extractor
 type Config struct {
-	Matcher matchers.Factory // Matcher
-	Extract string           // Extract these values from matcher (expression)
-	Workers int              // Workers to parse matcher
-	Ignore  IgnoreSet        // Ignore these truthy expressions
+	Matcher   matchers.Factory // Matcher
+	Extract   string           // Extract these values from matcher (expression)
+	Workers   int              // Workers to parse matcher
+	Ignore    IgnoreSet        // Ignore these truthy expressions
+	FullMatch bool             // Whether to return full match details (or only expression result)
 }
 
 // Extractor is the representation of the reader
@@ -56,6 +58,7 @@ type extractorInstance struct {
 	matcher    matchers.Matcher
 	matcherBuf []int
 	context    *SliceSpaceExpressionContext
+	indexPool  *slicepool.IntPool
 }
 
 func (s *Extractor) ReadLines() uint64 {
@@ -98,10 +101,19 @@ func (s *extractorInstance) processLineSync(source string, lineNum uint64, line 
 
 			if len(extractedKey) > 0 {
 				atomic.AddUint64(&s.matchedLines, 1)
+				if !s.config.FullMatch {
+					return Match{
+						Extracted: extractedKey,
+					}, true
+				}
+
+				matchesCopy := s.indexPool.Get(len(matches))
+				copy(matchesCopy, matches)
+
 				return Match{
 					bLine:      line, // Need to keep around what lineStringPtr is pointing to
 					Line:       lineStringPtr,
-					Indices:    matches, // FIXME: This will break with shared matches buffer
+					Indices:    matchesCopy,
 					Extracted:  extractedKey,
 					LineNumber: lineNum,
 					Source:     source,
@@ -127,6 +139,10 @@ func (s *Extractor) asyncWorker(wg *sync.WaitGroup, inputBatch <-chan InputBatch
 		context: &SliceSpaceExpressionContext{
 			nameTable: matcher.SubexpNameTable(),
 		},
+	}
+
+	if s.config.FullMatch {
+		si.indexPool = slicepool.NewIntPool(matcher.MatchBufSize() * 1024)
 	}
 
 	for {
