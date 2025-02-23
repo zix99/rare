@@ -208,6 +208,27 @@ go tool pprof -http=:8080 out.cpu.prof # CPU
 go tool pprof -http=:8080 out_num.prof # Memory
 ```
 
+### Documentation
+
+New functionality should be well-documented in `docs/` folder.  The docs are
+both published to the website via `mkdocs` and embedded in the application.
+
+Testing and publishing docs:
+
+```bash
+# Install mkdocs version
+pip3 install -r requirements.txt
+
+# Test locally
+mkdocs serve
+
+# Test cli docs
+go run . docs
+
+# If CLI arguments change, publish updated docs
+go run . _gendoc > docs/cli-help.md
+```
+
 ## License
 
     Copyright (C) 2019  Christopher LaPointe
