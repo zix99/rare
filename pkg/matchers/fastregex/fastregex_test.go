@@ -1,7 +1,6 @@
 package fastregex
 
 import (
-	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -68,44 +67,4 @@ func TestCaptureGroupNames(t *testing.T) {
 	assert.Len(t, table, 2)
 	assert.Equal(t, 1, table["num"])
 	assert.Equal(t, 2, table["thing"])
-}
-
-// Benchmarks
-
-// pcre1: 273ns
-// pcre1-jit: 197ns
-// pcre2: 308ns
-// pcre2-jit: 180ns
-func BenchmarkPCREMatch(b *testing.B) {
-	re := MustCompile(`t(\w+)`).CreateInstance()
-	for i := 0; i < b.N; i++ {
-		re.MatchString("this is a test")
-	}
-}
-
-// 305ns
-func BenchmarkRE2Match(b *testing.B) {
-	re := regexp.MustCompile(`t(\w+)`)
-	for i := 0; i < b.N; i++ {
-		re.MatchString("this is a test")
-	}
-}
-
-// pcre1: 500ns
-// pcre1-jit: 400ns
-// pcre2: 542ns
-// pcre2-jit: 422ns / 310 ns / 237ns
-func BenchmarkPCRESubMatch(b *testing.B) {
-	re := MustCompile(`t(\w+)`).CreateInstance()
-	for i := 0; i < b.N; i++ {
-		re.FindSubmatchIndex([]byte("this is a test"))
-	}
-}
-
-// 520ns
-func BenchmarkRE2SubMatch(b *testing.B) {
-	re := regexp.MustCompile(`t(\w+)`)
-	for i := 0; i < b.N; i++ {
-		re.FindSubmatchIndex([]byte("this is a test"))
-	}
 }
