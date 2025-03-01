@@ -20,9 +20,9 @@ func TestCaptureGroupCount(t *testing.T) {
 // pcre2-jit: 422ns / 310 ns / 237ns
 func BenchmarkPCRESubMatch(b *testing.B) {
 	re := MustCompile(`t(\w+)`).CreateInstance()
-	b := []byte("this is a test")
+	sb := []byte("this is a test")
 	for i := 0; i < b.N; i++ {
-		re.FindSubmatchIndex(b)
+		re.FindSubmatchIndex(sb)
 	}
 }
 
