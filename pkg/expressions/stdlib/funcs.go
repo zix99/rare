@@ -10,7 +10,6 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"bucket":    KeyBuilderFunction(kfBucket),
 	"clamp":     KeyBuilderFunction(kfClamp),
 	"expbucket": KeyBuilderFunction(kfExpBucket),
-	"bytesize":  KeyBuilderFunction(kfBytesize),
 
 	// Checks
 	"isint": KeyBuilderFunction(kfIsInt),
@@ -111,9 +110,12 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"haskey": kfHasKey,
 
 	// Formatting
-	"hi":      KeyBuilderFunction(kfHumanizeInt),
-	"hf":      KeyBuilderFunction(kfHumanizeFloat),
-	"percent": kfPercent,
+	"hi":         KeyBuilderFunction(kfHumanizeInt),
+	"hf":         KeyBuilderFunction(kfHumanizeFloat),
+	"bytesize":   kfBytesize,
+	"bytesizesi": kfBytesizeSi,
+	"downscale":  kfDownscale,
+	"percent":    kfPercent,
 
 	// Json
 	"json": KeyBuilderFunction(kfJsonQuery),
