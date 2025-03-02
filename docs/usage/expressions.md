@@ -254,12 +254,18 @@ Syntax: `{hf val}`, `{hi val}`, `{percent number [precision=1]}`
 
 Formats a number based with appropriate placement of commas and decimals
 
-#### ByteSize
+#### ByteSize, ByteSizeSi
 
-Syntax: `{bytesize intVal [precision=0]}`
+Syntax: `{bytesize intVal [precision=0]}`, `{bytesizesi intVal [precision=0]}`
 
-Create a human-readable byte-size format (eg 1024 = 1KB).  An optional precision
-allows adding decimals.
+Create a human-readable byte-size format (eg 1024 = 1KB), or in SI units (1000 = 1KB).
+An optional precision allows adding decimals.
+
+#### Downscale
+
+Syntax: `{downscale intVal [precision=0]}`
+
+Formats numbers by thousands (k), Millions (M), Billions (B), or Trillions (T).
 
 ### Collecting
 
