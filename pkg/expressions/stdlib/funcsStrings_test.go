@@ -80,6 +80,11 @@ func TestPercentFunction(t *testing.T) {
 	testExpression(t, mockContext("0.12345"), "{percent {0}}", "12.3%")
 	testExpression(t, mockContext("0.12345"), "{percent {0} 2}", "12.35%")
 	testExpressionErr(t, mockContext("0.12345"), "{percent {0} {0}}", "<CONST>", ErrConst)
+
+	testExpression(t, mockContext("0.12345"), "{percent {0} 2 0.5}", "24.69%")
+	testExpression(t, mockContext("50"), "{percent {0} 0 25 75}", "50%")
+
+	testExpressionErr(t, mockContext(), "{percent 0 1 2 3 4 5}", "<ARGN>", ErrArgCount)
 }
 
 func TestDownscalers(t *testing.T) {

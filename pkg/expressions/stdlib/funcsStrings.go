@@ -173,9 +173,10 @@ func kfFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}), nil
 }
 
+// {percent val [decimals=1] [[min] max]}
 func kfPercent(args []KeyBuilderStage) (KeyBuilderStage, error) {
-	if !isArgCountBetween(args, 1, 2) {
-		return stageErrArgRange(args, "1-2")
+	if !isArgCountBetween(args, 1, 4) {
+		return stageErrArgRange(args, "1-4")
 	}
 
 	decimals, hasDecimals := EvalArgInt(args, 1, 1)
@@ -183,13 +184,47 @@ func kfPercent(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageArgError(ErrConst, 1)
 	}
 
-	return func(context KeyBuilderContext) string {
-		val, err := strconv.ParseFloat(args[0](context), 64)
-		if err != nil {
-			return "Err%"
-		}
-		return strconv.FormatFloat(val*100.0, 'f', decimals, 64) + "%"
-	}, nil
+	switch len(args) {
+	case 3: // max, no min (0)
+		return func(context KeyBuilderContext) string {
+			max, err := strconv.ParseFloat(args[2](context), 64)
+			if err != nil {
+				return ErrorNum
+			}
+
+			val, err := strconv.ParseFloat(args[0](context), 64)
+			if err != nil {
+				return ErrorNum
+			}
+			return strconv.FormatFloat(val*100.0/max, 'f', decimals, 64) + "%"
+		}, nil
+	case 4: // min, max
+		return func(context KeyBuilderContext) string {
+			min, err := strconv.ParseFloat(args[2](context), 64)
+			if err != nil {
+				return ErrorNum
+			}
+
+			max, err := strconv.ParseFloat(args[3](context), 64)
+			if err != nil {
+				return ErrorNum
+			}
+
+			val, err := strconv.ParseFloat(args[0](context), 64)
+			if err != nil {
+				return ErrorNum
+			}
+			return strconv.FormatFloat((val-min)*100.0/(max-min), 'f', decimals, 64) + "%"
+		}, nil
+	default:
+		return func(context KeyBuilderContext) string {
+			val, err := strconv.ParseFloat(args[0](context), 64)
+			if err != nil {
+				return ErrorNum
+			}
+			return strconv.FormatFloat(val*100.0, 'f', decimals, 64) + "%"
+		}, nil
+	}
 }
 
 func kfHumanizeInt(args []KeyBuilderStage) (KeyBuilderStage, error) {
