@@ -279,6 +279,7 @@ An optional precision allows adding decimals.
 Syntax: `{downscale intVal [precision=0]}`
 
 Formats numbers by thousands (k), Millions (M), Billions (B), or Trillions (T).
+eg. `{downscale 10000}` will result in `10k`
 
 ### Collecting
 

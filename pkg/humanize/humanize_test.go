@@ -14,6 +14,8 @@ func TestHDisabled(t *testing.T) {
 	assert.Equal(t, "1000.0000", Hf(1000.0))
 	assert.Equal(t, "1000.00000", Hfd(1000.0, 5))
 	assert.Equal(t, "12341234", ByteSize(12341234))
+	assert.Equal(t, "12341234", ByteSizeSi(12341234))
+	assert.Equal(t, "12341234", Downscale(12341234, 0))
 	Enabled = true
 }
 
