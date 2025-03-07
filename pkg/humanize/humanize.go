@@ -39,28 +39,3 @@ func Hfd(arg float64, decimals int) string {
 	}
 	return humanizeFloat(arg, decimals)
 }
-
-var byteSizes = [...]string{"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"}
-
-func ByteSize(n uint64) string {
-	if !Enabled {
-		return strconv.FormatUint(n, 10)
-	}
-	return AlwaysByteSize(n, 2)
-}
-
-// AlwaysByteSize formats bytesize without checking `Enabled` first
-func AlwaysByteSize(n uint64, precision int) string {
-	if n < 1024 { // Never a decimal for byte-unit
-		return strconv.FormatUint(n, 10) + " " + byteSizes[0]
-	}
-
-	var nf float64 = float64(n)
-	labelIdx := 0
-	for nf >= 1024.0 && labelIdx < len(byteSizes)-1 {
-		nf /= 1024.0
-		labelIdx++
-	}
-
-	return strconv.FormatFloat(nf, 'f', precision, 64) + " " + byteSizes[labelIdx]
-}

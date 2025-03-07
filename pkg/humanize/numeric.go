@@ -26,7 +26,7 @@ type IntType interface {
 func humanizeInt[T IntType](v T) string {
 	var buf [32]byte // stack alloc
 
-	if v >= 0 && v < 100 { // faster for small numbers
+	if v >= 0 && v < 100 { // faster for small numbers (nSmalls in FormatInt)
 		return strconv.FormatInt(int64(v), 10)
 	}
 

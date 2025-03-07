@@ -246,20 +246,40 @@ Repeats the "string" the specified number of times
 
 #### Humanize Number (Add Commas)
 
-Syntax: `{hf val}`, `{hi val}`, `{percent number [precision=1]}`
+Syntax: `{hf val}`, `{hi val}`
 
  * hf: Float
  * hi: Int
- * percent: format as a percentage
 
 Formats a number based with appropriate placement of commas and decimals
 
-#### ByteSize
+#### Percent
 
-Syntax: `{bytesize intVal [precision=0]}`
+Syntax: `{percent val ["precision=1"] [[min=0] max=1]}`
 
-Create a human-readable byte-size format (eg 1024 = 1KB).  An optional precision
-allows adding decimals.
+Formats a number as a percentage.  By default, assumes the range is 0-1, therefor
+`0.1234` becomes `12.3%`.
+
+Eg.
+
+ * `{percent 0.1234}` will result in `12.3%`
+ * `{percent 0.1234 2` will result in `12.34%`
+ * `{percent 25 0 100}` will result in `25%`
+ * `{percent 100 4 50 150}` will result in `50.0000%`
+
+#### ByteSize, ByteSizeSi
+
+Syntax: `{bytesize intVal [precision=0]}`, `{bytesizesi intVal [precision=0]}`
+
+Create a human-readable byte-size format (eg 1024 = 1KB), or in SI units (1000 = 1KB).
+An optional precision allows adding decimals.
+
+#### Downscale
+
+Syntax: `{downscale intVal [precision=0]}`
+
+Formats numbers by thousands (k), Millions (M), Billions (B), or Trillions (T).
+eg. `{downscale 10000}` will result in `10k`
 
 ### Collecting
 

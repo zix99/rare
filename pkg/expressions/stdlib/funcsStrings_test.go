@@ -80,11 +80,25 @@ func TestPercentFunction(t *testing.T) {
 	testExpression(t, mockContext("0.12345"), "{percent {0}}", "12.3%")
 	testExpression(t, mockContext("0.12345"), "{percent {0} 2}", "12.35%")
 	testExpressionErr(t, mockContext("0.12345"), "{percent {0} {0}}", "<CONST>", ErrConst)
+
+	testExpression(t, mockContext("0.12345"), "{percent {0} 2 0.5}", "24.69%")
+	testExpression(t, mockContext("50"), "{percent {0} 0 25 75}", "50%")
+
+	testExpressionErr(t, mockContext(), "{percent 0 1 2 3 4 5}", "<ARGN>", ErrArgCount)
 }
 
-func TestByteSize(t *testing.T) {
+func TestDownscalers(t *testing.T) {
 	testExpression(t, mockContext("1000000"), "{bytesize {0}}", "977 KB")
 	testExpression(t, mockContext("1000000"), "{bytesize {0} 2}", "976.56 KB")
+	testExpressionErr(t, mockContext("1000000"), "{bytesize {0} 2 3}", "<ARGN>", ErrArgCount)
+
+	testExpression(t, mockContext("1000000"), "{bytesizesi {0}}", "1 mB")
+	testExpression(t, mockContext("1000000"), "{bytesizesi {0} 2}", "1.00 mB")
+	testExpressionErr(t, mockContext("1000000"), "{bytesizesi {0} 2 3}", "<ARGN>", ErrArgCount)
+
+	testExpression(t, mockContext("5120000"), "{downscale {0}}", "5M")
+	testExpression(t, mockContext("5120000"), "{downscale {0} 2}", "5.12M")
+	testExpressionErr(t, mockContext("5120000"), "{downscale {0} 2 3}", "<ARGN>", ErrArgCount)
 }
 
 func TestFormat(t *testing.T) {
