@@ -20,6 +20,7 @@ func sparkFunction(c *cli.Context) error {
 		numCols    = c.Int("cols")
 		noTruncate = c.Bool("notruncate")
 		scalerName = c.String(helpers.ScaleFlag.Name)
+		formatName = c.String(helpers.FormatFlag.Name)
 		sortRows   = c.String("sort-rows")
 		sortCols   = c.String("sort-cols")
 	)
@@ -34,6 +35,7 @@ func sparkFunction(c *cli.Context) error {
 	vt := helpers.BuildVTermFromArguments(c)
 	writer := termrenderers.NewSpark(vt, numRows, numCols)
 	writer.Scaler = helpers.BuildScalerOrFail(scalerName)
+	writer.Formatter = helpers.BuildFormatterOrFail(formatName)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 
@@ -114,6 +116,7 @@ func sparkCommand() *cli.Command {
 			helpers.NoOutFlag,
 			helpers.CSVFlag,
 			helpers.ScaleFlag,
+			helpers.FormatFlag,
 		},
 	})
 }

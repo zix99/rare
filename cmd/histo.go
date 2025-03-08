@@ -35,6 +35,7 @@ func histoFunction(c *cli.Context) error {
 		all        = c.Bool("all")
 		sortName   = c.String(helpers.DefaultSortFlag.Name)
 		scalerName = c.String(helpers.ScaleFlag.Name)
+		formatName = c.String(helpers.FormatFlag.Name)
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
@@ -43,6 +44,7 @@ func histoFunction(c *cli.Context) error {
 	writer.ShowBar = c.Bool("bars") || extra
 	writer.ShowPercentage = c.Bool("percentage") || extra
 	writer.Scaler = helpers.BuildScalerOrFail(scalerName)
+	writer.Formatter = helpers.BuildFormatterOrFail(formatName)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
@@ -133,6 +135,7 @@ func histogramCommand() *cli.Command {
 			helpers.NoOutFlag,
 			helpers.CSVFlag,
 			helpers.ScaleFlag,
+			helpers.FormatFlag,
 		},
 	})
 }

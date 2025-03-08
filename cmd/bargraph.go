@@ -16,9 +16,10 @@ go run . bars -sz -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} year nginx} {2
 
 func bargraphFunction(c *cli.Context) error {
 	var (
-		stacked   = c.Bool("stacked")
-		sortName  = c.String(helpers.DefaultSortFlag.Name)
-		scaleName = c.String(helpers.ScaleFlag.Name)
+		stacked    = c.Bool("stacked")
+		sortName   = c.String(helpers.DefaultSortFlag.Name)
+		scaleName  = c.String(helpers.ScaleFlag.Name)
+		formatName = c.String(helpers.FormatFlag.Name)
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
@@ -31,6 +32,7 @@ func bargraphFunction(c *cli.Context) error {
 		}
 		writer.Scaler = helpers.BuildScalerOrFail(scaleName)
 	}
+	writer.Formatter = helpers.BuildFormatterOrFail(formatName)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
@@ -80,6 +82,7 @@ func bargraphCommand() *cli.Command {
 			helpers.NoOutFlag,
 			helpers.CSVFlag,
 			helpers.ScaleFlag,
+			helpers.FormatFlag,
 		},
 	})
 }

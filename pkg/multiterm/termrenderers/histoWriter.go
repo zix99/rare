@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 	"rare/pkg/color"
-	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termformat"
 	"rare/pkg/multiterm/termscaler"
 	"rare/pkg/multiterm/termunicode"
 	"strings"
@@ -26,6 +26,7 @@ type HistoWriter struct {
 	ShowBar        bool
 	ShowPercentage bool
 	Scaler         termscaler.Scaler
+	Formatter      termformat.Formatter
 }
 
 func NewHistogram(term multiterm.MultilineTerm, maxLines int) *HistoWriter {
@@ -34,6 +35,7 @@ func NewHistogram(term multiterm.MultilineTerm, maxLines int) *HistoWriter {
 		ShowBar:        true,
 		ShowPercentage: true,
 		Scaler:         termscaler.ScalerLinear,
+		Formatter:      termformat.Default,
 		textSpacing:    16,
 		items:          make([]histoPair, maxLines),
 	}
@@ -93,7 +95,7 @@ func (s *HistoWriter) writeLine(line int, key string, val int64) {
 
 	sb.WriteString(color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.textSpacing))
 	sb.WriteString("    ")
-	fmt.Fprintf(&sb, "%-10s", humanize.Hi(val))
+	fmt.Fprintf(&sb, "%-10s", s.Formatter(val, 0, s.maxVal))
 	if s.ShowPercentage && s.samples > 0 {
 		percentage := float64(val) / float64(s.samples)
 		sb.WriteString(" ")
