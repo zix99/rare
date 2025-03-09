@@ -25,6 +25,17 @@ func TestExpressionMust(t *testing.T) {
 	})
 }
 
+func TestExpressionExpansion(t *testing.T) {
+	f, err := FromExpression("bytesize")
+	assert.Nil(t, err)
+	assert.Equal(t, f(1024, 0, 0), "1 KB")
+
+	f, err = FromExpression("not-a-func")
+	assert.Nil(t, err)
+	assert.Equal(t, "not-a-func", f(0, 1, 2))
+}
+
+// BenchmarkExpression-4   	 6994440	       158.7 ns/op	       8 B/op	       1 allocs/op
 func BenchmarkExpression(b *testing.B) {
 	f, _ := FromExpression("{0} {1}-{2}")
 	for range b.N {

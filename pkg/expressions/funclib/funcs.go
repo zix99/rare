@@ -29,6 +29,16 @@ func TryAddFunctions(funcs FunctionSet, err error) error {
 	return nil
 }
 
+func FunctionExists(name string) bool {
+	if _, has := Builtins[name]; has {
+		return true
+	}
+	if _, has := Additional[name]; has {
+		return true
+	}
+	return false
+}
+
 func mapMerge[T comparable, Q any](maps ...map[T]Q) (ret map[T]Q) {
 	ret = make(map[T]Q)
 	for _, m := range maps {

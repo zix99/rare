@@ -338,6 +338,8 @@ Many of the aggregators support custom number formatters, defaulting to simply *
 
 You can specify a custom expression to format the output via `--format`.
 
+Alternatively, you can short-hand the function name when it's a simple formatter (that only accepts 1 argument).
+
 It has 3 arguments:
 
  - `{0}` or `{value}` -- Value being formatted
@@ -346,7 +348,8 @@ It has 3 arguments:
 
 eg.
 
- - `{bytesize {value}}` -- Convert the number to bytes
+ - `{bytesize {value}}` OR `bytesize` -- Convert the number to bytes
+ - `{downscale {0}}` OR `downscale` -- Convert to suffixed-numbers (k, M, etc)
  - `{percent {0} 2 {1} {2}}` -- Converts the value to a percentage based on the range from min to max
 
 ### CSV Output

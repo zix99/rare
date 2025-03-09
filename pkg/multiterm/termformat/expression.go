@@ -3,7 +3,6 @@ package termformat
 import (
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/funclib"
-	"rare/pkg/slicepool"
 	"strconv"
 )
 
@@ -37,19 +36,26 @@ func (s *formatExpressionContext) GetKey(key string) string {
 	return ""
 }
 
+// Special case of the expression builder where if a function exists
+// it will be used to format. eg. providing just `bytesize` will yield `{bytesize {0}}`
+// This works well, since you'd probably never intend to return the word "bytesize" for the format
+func expandCompileExpression(expr string) (*expressions.CompiledKeyBuilder, *expressions.CompilerErrors) {
+	if funclib.FunctionExists(expr) {
+		expr = "{" + expr + " {0}}"
+	}
+	return funclib.NewKeyBuilder().Compile(expr)
+}
+
 // Build a formatter using the default expression engine
+// Single-threaded use only
 func FromExpression(expr string) (Formatter, error) {
-	kb, err := funclib.NewKeyBuilder().Compile(expr)
+	kb, err := expandCompileExpression(expr)
 	if err != nil {
 		return nil, err
 	}
 
-	pool := slicepool.NewObjectPool[formatExpressionContext](10)
-
+	ctx := &formatExpressionContext{}
 	return func(val, min, max int64) string {
-		ctx := pool.Get()
-		defer pool.Return(ctx)
-
 		*ctx = formatExpressionContext{val, min, max}
 		return kb.BuildKey(ctx)
 	}, nil
