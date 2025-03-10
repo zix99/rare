@@ -4,8 +4,8 @@ import (
 	"rare/pkg/aggregation"
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
-	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termformat"
 	"rare/pkg/multiterm/termscaler"
 	"rare/pkg/multiterm/termunicode"
 	"strings"
@@ -15,15 +15,17 @@ type Spark struct {
 	rowCount, colCount int
 	footerOffset       int
 	Scaler             termscaler.Scaler
+	Formatter          termformat.Formatter
 	table              *TableWriter
 }
 
 func NewSpark(term multiterm.MultilineTerm, rows, cols int) *Spark {
 	return &Spark{
-		rowCount: rows,
-		colCount: cols,
-		Scaler:   termscaler.ScalerLinear,
-		table:    NewTable(term, 4, rows+1),
+		rowCount:  rows,
+		colCount:  cols,
+		Scaler:    termscaler.ScalerLinear,
+		Formatter: termformat.Default,
+		table:     NewTable(term, 4, rows+1),
 	}
 }
 
@@ -63,8 +65,8 @@ func (s *Spark) WriteTable(agg *aggregation.TableAggregator, rowSorter, colSorte
 			termunicode.SparkWrite(&sb, s.Scaler.Scale(row.Value(colNames[j]), minVal, maxVal))
 		}
 
-		vFirst := humanize.Hi(row.Value(colNames[0]))
-		vLast := humanize.Hi(row.Value(colNames[len(colNames)-1]))
+		vFirst := s.Formatter(row.Value(colNames[0]), minVal, maxVal)
+		vLast := s.Formatter(row.Value(colNames[len(colNames)-1]), minVal, maxVal)
 		s.table.WriteRow(i+1, color.Wrap(color.Yellow, row.Name()), color.Wrap(color.BrightBlack, vFirst), sb.String(), color.Wrap(color.BrightBlack, vLast))
 
 		sb.Reset()

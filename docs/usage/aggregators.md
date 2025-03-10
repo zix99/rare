@@ -332,6 +332,26 @@ Some of the aggregators support alternative display scaling: `linear` (default),
 
 In aggregators that support it, you can specify with `--scale log10`
 
+### Formatting
+
+Many of the aggregators support custom number formatters, defaulting to simply *humanize* it (add commas).
+
+You can specify a custom expression to format the output via `--format`.
+
+Alternatively, you can short-hand the function name when it's a simple formatter (that only accepts 1 argument).
+
+It has 3 arguments:
+
+ - `{0}` or `{value}` -- Value being formatted
+ - `{1}` or `{min}` -- The min value in the set
+ - `{2}` or `{max}` -- The max value in the set
+
+eg.
+
+ - `{bytesize {value}}` OR `bytesize` -- Convert the number to bytes
+ - `{downscale {0}}` OR `downscale` -- Convert to suffixed-numbers (k, M, etc)
+ - `{percent {0} 2 {1} {2}}` -- Converts the value to a percentage based on the range from min to max
+
 ### CSV Output
 
 Many of the aggregators support outputting the final results to csv.  You can do this

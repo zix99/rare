@@ -25,6 +25,7 @@ func heatmapFunction(c *cli.Context) error {
 		sortRows   = c.String("sort-rows")
 		sortCols   = c.String("sort-cols")
 		scalerName = c.String(helpers.ScaleFlag.Name)
+		formatName = c.String(helpers.FormatFlag.Name)
 	)
 
 	counter := aggregation.NewTable(delim)
@@ -43,6 +44,7 @@ func heatmapFunction(c *cli.Context) error {
 		writer.UpdateMinMax(minVal, maxVal)
 	}
 	writer.Scaler = helpers.BuildScalerOrFail(scalerName)
+	writer.Formatter = helpers.BuildFormatterOrFail(formatName)
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		writer.WriteTable(counter, rowSorter, colSorter)
@@ -109,6 +111,7 @@ func heatmapCommand() *cli.Command {
 			helpers.NoOutFlag,
 			helpers.CSVFlag,
 			helpers.ScaleFlag,
+			helpers.FormatFlag,
 		},
 	})
 }

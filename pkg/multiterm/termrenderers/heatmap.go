@@ -4,8 +4,8 @@ import (
 	"rare/pkg/aggregation"
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
-	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termformat"
 	"rare/pkg/multiterm/termscaler"
 	"rare/pkg/multiterm/termunicode"
 	"strings"
@@ -19,6 +19,7 @@ type Heatmap struct {
 	maxRowKeyWidth     int // Max row width
 	currentRows        int // Currently used row count for non-footer
 	Scaler             termscaler.Scaler
+	Formatter          termformat.Formatter
 }
 
 func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
@@ -29,6 +30,7 @@ func NewHeatmap(term multiterm.MultilineTerm, rows, cols int) *Heatmap {
 		maxRowKeyWidth: 0,
 		maxVal:         1,
 		Scaler:         termscaler.ScalerLinear,
+		Formatter:      termformat.Default,
 	}
 }
 
@@ -91,7 +93,7 @@ func (s *Heatmap) UpdateMinMax(min, max int64) {
 		}
 		termunicode.HeatWrite(&sb, s.Scaler.Scale(item, s.minVal, s.maxVal))
 		sb.WriteString(" ")
-		sb.WriteString(humanize.Hi(item))
+		sb.WriteString(s.Formatter(item, min, max))
 	}
 
 	s.term.WriteForLine(0, sb.String())
