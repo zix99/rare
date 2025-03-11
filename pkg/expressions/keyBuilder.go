@@ -42,6 +42,11 @@ func (s *KeyBuilder) Func(name string, f KeyBuilderFunction) {
 	s.functions[name] = f
 }
 
+func (s *KeyBuilder) HasFunc(name string) (has bool) {
+	_, has = s.functions[name]
+	return
+}
+
 // Compile builds a new key-builder, returning error(s) on build issues
 // if the CompiledKeyBuilder is not nil, then something is still usable (albeit may have problems)
 func (s *KeyBuilder) Compile(template string) (*CompiledKeyBuilder, *CompilerErrors) {

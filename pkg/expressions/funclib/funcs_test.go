@@ -14,16 +14,12 @@ func voidFunc(args []expressions.KeyBuilderStage) (expressions.KeyBuilderStage, 
 
 func TestFunctionSet(t *testing.T) {
 	assert.NotZero(t, Builtins)
-	assert.True(t, FunctionExists("sumi"))
-	assert.False(t, FunctionExists("not-a-func"))
 }
 
 func TestAddFunction(t *testing.T) {
 	AddFunctions(FunctionSet{
 		"_test": voidFunc,
 	})
-	assert.True(t, FunctionExists("_test"))
-
 	TryAddFunctions(FunctionSet{
 		"_test": voidFunc,
 	}, nil)

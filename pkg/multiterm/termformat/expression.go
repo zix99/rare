@@ -40,10 +40,12 @@ func (s *formatExpressionContext) GetKey(key string) string {
 // it will be used to format. eg. providing just `bytesize` will yield `{bytesize {0}}`
 // This works well, since you'd probably never intend to return the word "bytesize" for the format
 func expandCompileExpression(expr string) (*expressions.CompiledKeyBuilder, *expressions.CompilerErrors) {
-	if funclib.FunctionExists(expr) {
+	compiler := funclib.NewKeyBuilder()
+
+	if compiler.HasFunc(expr) {
 		expr = "{" + expr + " {0}}"
 	}
-	return funclib.NewKeyBuilder().Compile(expr)
+	return compiler.Compile(expr)
 }
 
 // Build a formatter using the default expression engine
