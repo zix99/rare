@@ -7,7 +7,6 @@ import (
 	"rare/pkg/color"
 	"rare/pkg/csv"
 	"rare/pkg/expressions"
-	"rare/pkg/humanize"
 	"rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli/v2"
@@ -29,6 +28,7 @@ func tabulateFunction(c *cli.Context) error {
 		coltotals = c.Bool("coltotal") || c.Bool("x")
 		sortRows  = c.String("sort-rows")
 		sortCols  = c.String("sort-cols")
+		formatExp = c.String(helpers.FormatFlag.Name)
 	)
 
 	counter := aggregation.NewTable(delim)
@@ -39,10 +39,18 @@ func tabulateFunction(c *cli.Context) error {
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
 	rowSorter := helpers.BuildSorterOrFail(sortRows)
 	colSorter := helpers.BuildSorterOrFail(sortCols)
+	formatter := helpers.BuildFormatterOrFail(formatExp)
+
+	var min, max int64
+	needsMinMax := (formatExp != "")
 
 	helpers.RunAggregationLoop(ext, counter, func() {
 		cols := counter.OrderedColumns(colSorter)
 		cols = minColSlice(numCols, cols) // Cap columns
+
+		if needsMinMax {
+			min, max = counter.ComputeMinMax()
+		}
 
 		// Write header row
 		{
@@ -65,10 +73,10 @@ func tabulateFunction(c *cli.Context) error {
 			rowVals := make([]string, len(cols)+2)
 			rowVals[0] = color.Wrap(color.Yellow, row.Name())
 			for idx, colName := range cols {
-				rowVals[idx+1] = humanize.Hi(row.Value(colName))
+				rowVals[idx+1] = formatter(row.Value(colName), min, max)
 			}
 			if rowtotals {
-				rowVals[len(rowVals)-1] = color.Wrap(color.BrightBlack, humanize.Hi(row.Sum()))
+				rowVals[len(rowVals)-1] = color.Wrap(color.BrightBlack, formatter(row.Sum(), min, max))
 			}
 			writer.WriteRow(line, rowVals...)
 			line++
@@ -79,12 +87,12 @@ func tabulateFunction(c *cli.Context) error {
 			rowVals := make([]string, len(cols)+2)
 			rowVals[0] = color.Wrap(color.BrightBlack+color.Underline, "Total")
 			for idx, colName := range cols {
-				rowVals[idx+1] = color.Wrap(color.BrightBlack, humanize.Hi(counter.ColTotal(colName)))
+				rowVals[idx+1] = color.Wrap(color.BrightBlack, formatter(counter.ColTotal(colName), min, max))
 			}
 
 			if rowtotals { // super total
 				sum := counter.Sum()
-				rowVals[len(rowVals)-1] = color.Wrap(color.BrightWhite, humanize.Hi(sum))
+				rowVals[len(rowVals)-1] = color.Wrap(color.BrightWhite, formatter(sum, min, max))
 			}
 
 			writer.WriteRow(line, rowVals...)
@@ -157,6 +165,7 @@ func tabulateCommand() *cli.Command {
 			helpers.SnapshotFlag,
 			helpers.NoOutFlag,
 			helpers.CSVFlag,
+			helpers.FormatFlag,
 		},
 	})
 }
