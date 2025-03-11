@@ -3,8 +3,8 @@ package termrenderers
 import (
 	"io"
 	"rare/pkg/color"
-	"rare/pkg/humanize"
 	"rare/pkg/multiterm"
+	"rare/pkg/multiterm/termformat"
 	"rare/pkg/multiterm/termscaler"
 	"rare/pkg/multiterm/termunicode"
 	"strings"
@@ -25,9 +25,10 @@ type BarGraph struct {
 	maxRows      int
 	prefixLines  int
 
-	BarSize int
-	Stacked bool
-	Scaler  termscaler.Scaler
+	BarSize   int
+	Stacked   bool
+	Scaler    termscaler.Scaler
+	Formatter termformat.Formatter
 }
 
 func NewBarGraph(term multiterm.MultilineTerm) *BarGraph {
@@ -37,6 +38,7 @@ func NewBarGraph(term multiterm.MultilineTerm) *BarGraph {
 		Stacked:      false,
 		BarSize:      50,
 		Scaler:       termscaler.ScalerLinear,
+		Formatter:    termformat.Default,
 	}
 }
 
@@ -149,7 +151,7 @@ func (s *BarGraph) writeBarGrouped(idx int, key string, vals ...int64) {
 			termunicode.BarWrite(w, s.Scaler.Scale(vals[i], 0, s.maxLineVal), s.BarSize)
 		})
 		sb.WriteString(" ")
-		sb.WriteString(humanize.Hi(vals[i]))
+		sb.WriteString(s.Formatter(vals[i], 0, s.maxLineVal))
 		s.writer.WriteForLine(line+i, sb.String())
 
 		sb.Reset()
@@ -178,7 +180,7 @@ func (s *BarGraph) writeBarStacked(idx int, key string, vals ...int64) {
 	termunicode.BarWriteStacked(&sb, s.maxLineVal, int64(s.BarSize), vals...)
 
 	sb.WriteString("  ")
-	sb.WriteString(humanize.Hi(total))
+	sb.WriteString(s.Formatter(total, 0, s.maxLineVal))
 	s.writer.WriteForLine(line, sb.String())
 }
 
