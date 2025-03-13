@@ -11,15 +11,21 @@ func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
 		if len(args) < 2 {
 			return stageErrArgRange(args, "2+")
 		}
+
+		typedArgs, tOk := mapDynamicArgs(args, typedParsedInt)
+		if !tOk {
+			return stageError(ErrNum)
+		}
+
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
-			final, err := strconv.Atoi(args[0](context))
-			if err != nil {
+			final, ok := typedArgs[0](context)
+			if !ok {
 				return ErrorNum
 			}
 
 			for i := 1; i < len(args); i++ {
-				val, err := strconv.Atoi(args[i](context))
-				if err != nil {
+				val, ok := typedArgs[i](context)
+				if !ok {
 					return ErrorNum
 				}
 				final = equation(final, val)
@@ -36,15 +42,21 @@ func arithmaticHelperf(equation func(float64, float64) float64) KeyBuilderFuncti
 		if len(args) < 2 {
 			return stageErrArgRange(args, "2+")
 		}
+
+		typedArgs, tOk := mapDynamicArgs(args, typedParserFloat)
+		if !tOk {
+			return stageError(ErrNum)
+		}
+
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
-			final, err := strconv.ParseFloat(args[0](context), 64)
-			if err != nil {
+			final, ok := typedArgs[0](context)
+			if !ok {
 				return ErrorNum
 			}
 
 			for i := 1; i < len(args); i++ {
-				val, err := strconv.ParseFloat(args[i](context), 64)
-				if err != nil {
+				val, ok := typedArgs[i](context)
+				if !ok {
 					return ErrorNum
 				}
 				final = equation(final, val)

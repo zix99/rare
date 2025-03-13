@@ -69,7 +69,7 @@ func kfLower(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}, nil
 }
 
-// {substr {0} }
+// {substr {0} left len}
 func kfSubstr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 3 {
 		return stageErrArgCount(args, 3)
