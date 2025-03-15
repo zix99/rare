@@ -130,3 +130,8 @@ func BenchmarkSelectItem(b *testing.B) {
 		selectField("this  is\ta\ntest\x00really", 1)
 	}
 }
+
+// BenchmarkPercent/{percent_50_1_0_100}-4         	 2134676	       543.4 ns/op	      29 B/op	       2 allocs/op
+func BenchmarkPercent(b *testing.B) {
+	benchmarkExpression(b, mockContext(), "{percent 50 1 0 100}", "50.0%")
+}

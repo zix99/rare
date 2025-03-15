@@ -24,6 +24,12 @@ var (
 	}
 )
 
+func typedLiteral[T any](val T) typedStage[T] {
+	return func(context expressions.KeyBuilderContext) (T, bool) {
+		return val, true
+	}
+}
+
 func evalDynamicStage[T any](stage expressions.KeyBuilderStage, parser typedStageParser[T]) (typedStage[T], bool) {
 	if val, ok := expressions.EvalStaticStage(stage); ok {
 		if pval, ok := parser(val); ok {
