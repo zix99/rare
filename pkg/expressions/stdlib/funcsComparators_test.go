@@ -35,6 +35,7 @@ func TestComparisonEquality(t *testing.T) {
 	testExpression(t, mockContext("123", "1234"),
 		"{eq {0} 123} {eq {0} 1234} {not {eq {0} abc}} {neq 1 2} {neq 1 1}",
 		"1  1 1 ")
+	testExpressionErr(t, mockContext(), "{eq a}", "<ARGN>", ErrArgCount)
 }
 
 func TestComparisonExpression(t *testing.T) {
@@ -52,6 +53,11 @@ func TestNotExpression(t *testing.T) {
 func TestComparisonLtGtEqual(t *testing.T) {
 	testExpression(t, mockContext(), "{gte 1 1} {gte 1 2} {gte 2 1} {lte 1 1} {lte 1 2} {lte 2 1}",
 		"1  1 1 1 ")
+	testExpressionErr(t, mockContext(), "{gt a}", "<ARGN>", ErrArgCount)
+	testExpressionErr(t, mockContext(1), "{gt 1 a}", "<BAD-TYPE>", ErrNum)
+	testExpressionErr(t, mockContext(1), "{gt a 1}", "<BAD-TYPE>", ErrNum)
+	testExpression(t, mockContext("a"), "{gt {0} 1}", "<BAD-TYPE>")
+	testExpression(t, mockContext("a"), "{gt 1 {0}}", "<BAD-TYPE>")
 }
 
 func TestLike(t *testing.T) {
