@@ -78,7 +78,7 @@ func kfLookupKey(args []expressions.KeyBuilderStage) (expressions.KeyBuilderStag
 		return stageArgError(ErrConst, 1)
 	}
 
-	commentPrefix := expressions.EvalStageIndexOrDefault(args, 2, "")
+	commentPrefix := EvalStageIndexOrDefault(args, 2, "")
 
 	lookup := buildLookupTable(content, commentPrefix)
 
@@ -99,7 +99,7 @@ func kfHasKey(args []expressions.KeyBuilderStage) (expressions.KeyBuilderStage, 
 		return stageArgError(ErrConst, 1)
 	}
 
-	commentPrefix := expressions.EvalStageIndexOrDefault(args, 2, "")
+	commentPrefix := EvalStageIndexOrDefault(args, 2, "")
 
 	lookup := buildLookupTable(content, commentPrefix)
 
