@@ -131,7 +131,7 @@ func BenchmarkSelectItem(b *testing.B) {
 	}
 }
 
-// BenchmarkPercent/{percent_50_1_0_100}-4         	 2134676	       543.4 ns/op	      29 B/op	       2 allocs/op
+// BenchmarkPercent/{percent_50_1_0_100}-4         	 3397647	       341.3 ns/op	       5 B/op	       1 allocs/op
 func BenchmarkPercent(b *testing.B) {
 	benchmarkExpression(b, mockContext(), "{percent 50 1 0 100}", "50.0%")
 }

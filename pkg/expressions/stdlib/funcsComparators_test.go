@@ -59,3 +59,8 @@ func TestLike(t *testing.T) {
 	key := kb.BuildKey(mockContext("ab"))
 	assert.Equal(t, "ab", key)
 }
+
+// BenchmarkComparison/{gt_{0}_2}-4         	14308363	        81.00 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkComparison(b *testing.B) {
+	benchmarkExpression(b, mockContext("5"), "{gt {0} 2}", "1")
+}

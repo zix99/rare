@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEvalDynamicStageStatic(t *testing.T) {
-	s, ok := evalDynamicStage(func(kbc expressions.KeyBuilderContext) string {
+func TestTypedStageStatic(t *testing.T) {
+	s, ok := evalTypedStage(func(kbc expressions.KeyBuilderContext) string {
 		return "1.0"
 	}, typedParserFloat)
 	assert.True(t, ok)
@@ -18,16 +18,16 @@ func TestEvalDynamicStageStatic(t *testing.T) {
 	assert.Equal(t, 1.0, v)
 }
 
-func TestEvalDynamicStageStaticError(t *testing.T) {
-	s, ok := evalDynamicStage(func(kbc expressions.KeyBuilderContext) string {
+func TestTypedStageStaticError(t *testing.T) {
+	s, ok := evalTypedStage(func(kbc expressions.KeyBuilderContext) string {
 		return "blabla"
 	}, typedParserFloat)
 	assert.False(t, ok)
 	assert.Nil(t, s)
 }
 
-func TestEvalDynamicStageDynamic(t *testing.T) {
-	s, ok := evalDynamicStage(func(kbc expressions.KeyBuilderContext) string {
+func TestTypedStageDynamic(t *testing.T) {
+	s, ok := evalTypedStage(func(kbc expressions.KeyBuilderContext) string {
 		return kbc.GetMatch(0)
 	}, typedParserFloat)
 	assert.True(t, ok)
@@ -37,8 +37,8 @@ func TestEvalDynamicStageDynamic(t *testing.T) {
 	assert.Equal(t, 1.0, v)
 }
 
-func TestEvalDynamicStageDynamicError(t *testing.T) {
-	s, ok := evalDynamicStage(func(kbc expressions.KeyBuilderContext) string {
+func TestTypedStageDynamicError(t *testing.T) {
+	s, ok := evalTypedStage(func(kbc expressions.KeyBuilderContext) string {
 		return kbc.GetMatch(0)
 	}, typedParserFloat)
 	assert.True(t, ok)
@@ -47,7 +47,7 @@ func TestEvalDynamicStageDynamicError(t *testing.T) {
 	assert.False(t, vok)
 }
 
-func TestMapDynamicStages(t *testing.T) {
+func TestMapTypedStages(t *testing.T) {
 	stages := []expressions.KeyBuilderStage{
 		func(kbc expressions.KeyBuilderContext) string {
 			return "1"
@@ -60,7 +60,7 @@ func TestMapDynamicStages(t *testing.T) {
 		},
 	}
 
-	mstages, ok := mapDynamicArgs(stages, typedParsedInt)
+	mstages, ok := mapTypedArgs(stages, typedParsedInt)
 	assert.True(t, ok)
 
 	ctx := mockContext("5", "bla")

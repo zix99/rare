@@ -30,7 +30,11 @@ func typedLiteral[T any](val T) typedStage[T] {
 	}
 }
 
-func evalDynamicStage[T any](stage expressions.KeyBuilderStage, parser typedStageParser[T]) (typedStage[T], bool) {
+// Using a parser, turn a stage into a typed-stage. Return false on error (unable to parse static)
+// Returns a literal if able, otherwise returns a parser-wrapper
+// Useful when an expression function uses more than one typed argument and likely won't be optimized-out on its own
+// Saves the parse time (generally 10-50%)
+func evalTypedStage[T any](stage expressions.KeyBuilderStage, parser typedStageParser[T]) (typedStage[T], bool) {
 	if val, ok := expressions.EvalStaticStage(stage); ok {
 		if pval, ok := parser(val); ok {
 			return func(context expressions.KeyBuilderContext) (val T, ok bool) {
@@ -46,12 +50,13 @@ func evalDynamicStage[T any](stage expressions.KeyBuilderStage, parser typedStag
 	}, true
 }
 
-func mapDynamicArgs[T any](args []expressions.KeyBuilderStage, parser typedStageParser[T]) ([]typedStage[T], bool) {
+// Map an argument slice to typed stages
+func mapTypedArgs[T any](args []expressions.KeyBuilderStage, parser typedStageParser[T]) ([]typedStage[T], bool) {
 	ret := make([]typedStage[T], len(args))
 
 	for i, arg := range args {
 		var ok bool
-		ret[i], ok = evalDynamicStage(arg, parser)
+		ret[i], ok = evalTypedStage(arg, parser)
 		if !ok {
 			return nil, false
 		}

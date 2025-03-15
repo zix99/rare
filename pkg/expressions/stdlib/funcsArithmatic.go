@@ -12,7 +12,7 @@ func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
 			return stageErrArgRange(args, "2+")
 		}
 
-		typedArgs, tOk := mapDynamicArgs(args, typedParsedInt)
+		typedArgs, tOk := mapTypedArgs(args, typedParsedInt)
 		if !tOk {
 			return stageError(ErrNum)
 		}
@@ -43,7 +43,7 @@ func arithmaticHelperf(equation func(float64, float64) float64) KeyBuilderFuncti
 			return stageErrArgRange(args, "2+")
 		}
 
-		typedArgs, tOk := mapDynamicArgs(args, typedParserFloat)
+		typedArgs, tOk := mapTypedArgs(args, typedParserFloat)
 		if !tOk {
 			return stageError(ErrNum)
 		}

@@ -1,7 +1,6 @@
 package stdlib
 
 import (
-	"strconv"
 	"strings"
 
 	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
@@ -29,13 +28,23 @@ func arithmaticEqualityHelper(test func(float64, float64) bool) KeyBuilderFuncti
 		if len(args) != 2 {
 			return stageErrArgCount(args, 2)
 		}
+
+		leftArg, lOk := evalTypedStage(args[0], typedParserFloat)
+		if !lOk {
+			return stageArgError(ErrNum, 0)
+		}
+		rightArg, rOk := evalTypedStage(args[1], typedParserFloat)
+		if !rOk {
+			return stageArgError(ErrNum, 1)
+		}
+
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
-			left, err := strconv.ParseFloat(args[0](context), 64)
-			if err != nil {
+			left, lOk := leftArg(context)
+			if !lOk {
 				return ErrorNum
 			}
-			right, err := strconv.ParseFloat(args[1](context), 64)
-			if err != nil {
+			right, rOk := rightArg(context)
+			if !rOk {
 				return ErrorNum
 			}
 
