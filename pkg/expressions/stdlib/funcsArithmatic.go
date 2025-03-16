@@ -12,7 +12,7 @@ func arithmaticHelperi(equation func(int, int) int) KeyBuilderFunction {
 			return stageErrArgRange(args, "2+")
 		}
 
-		typedArgs, tOk := mapTypedArgs(args, typedParsedInt)
+		typedArgs, tOk := mapTypedArgs(args, typedParserInt)
 		if !tOk {
 			return stageError(ErrNum)
 		}

@@ -16,7 +16,7 @@ var (
 		}
 		return 0.0, false
 	}
-	typedParsedInt = func(s string) (int, bool) {
+	typedParserInt = func(s string) (int, bool) {
 		if v, err := strconv.Atoi(s); err == nil {
 			return v, true
 		}

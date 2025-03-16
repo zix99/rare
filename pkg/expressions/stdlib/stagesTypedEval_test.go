@@ -7,11 +7,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func wrapParserForTest[T any](parser typedStageParser[T]) (typedStageParser[T], *bool) {
+	wasParsed := false
+	return func(s string) (T, bool) {
+		wasParsed = true
+		return parser(s)
+	}, &wasParsed
+}
+
 func TestTypedStageStatic(t *testing.T) {
+	parser, wasParsed := wrapParserForTest(typedParserFloat)
 	s, ok := evalTypedStage(func(kbc expressions.KeyBuilderContext) string {
 		return "1.0"
-	}, typedParserFloat)
+	}, parser)
 	assert.True(t, ok)
+	assert.True(t, *wasParsed)
 
 	v, vok := s(mockContext("2"))
 	assert.True(t, vok)
@@ -27,14 +37,17 @@ func TestTypedStageStaticError(t *testing.T) {
 }
 
 func TestTypedStageDynamic(t *testing.T) {
+	parser, parsed := wrapParserForTest(typedParserFloat)
 	s, ok := evalTypedStage(func(kbc expressions.KeyBuilderContext) string {
 		return kbc.GetMatch(0)
-	}, typedParserFloat)
+	}, parser)
 	assert.True(t, ok)
+	assert.False(t, *parsed)
 
 	v, vok := s(mockContext("1.0"))
 	assert.True(t, vok)
 	assert.Equal(t, 1.0, v)
+	assert.True(t, *parsed)
 }
 
 func TestTypedStageDynamicError(t *testing.T) {
@@ -60,7 +73,7 @@ func TestMapTypedStages(t *testing.T) {
 		},
 	}
 
-	mstages, ok := mapTypedArgs(stages, typedParsedInt)
+	mstages, ok := mapTypedArgs(stages, typedParserInt)
 	assert.True(t, ok)
 
 	ctx := mockContext("5", "bla")
