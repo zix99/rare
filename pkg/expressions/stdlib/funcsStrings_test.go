@@ -85,6 +85,7 @@ func TestPercentFunction(t *testing.T) {
 	testExpression(t, mockContext("50"), "{percent {0} 0 25 75}", "50%")
 
 	testExpressionErr(t, mockContext(), "{percent 0 1 2 3 4 5}", "<ARGN>", ErrArgCount)
+	testExpressionErr(t, mockContext(), "{percent 0 1 a}", "<BAD-TYPE>", ErrNum)
 }
 
 func TestDownscalers(t *testing.T) {
@@ -129,4 +130,9 @@ func BenchmarkSelectItem(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		selectField("this  is\ta\ntest\x00really", 1)
 	}
+}
+
+// BenchmarkPercent/{percent_50_1_0_100}-4         	 3397647	       341.3 ns/op	       5 B/op	       1 allocs/op
+func BenchmarkPercent(b *testing.B) {
+	benchmarkExpression(b, mockContext(), "{percent 50 1 0 100}", "50.0%")
 }

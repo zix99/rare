@@ -55,3 +55,21 @@ func TestLogPow(t *testing.T) {
 
 	testExpressionErr(t, mockContext(), "{sqrt 1 2}", "<ARGN>", ErrArgCount)
 }
+
+// BenchmarkSumf/{sumf_0_1_2_3_4}-4         	 2699511	       429.5 ns/op	      26 B/op	       2 allocs/op
+
+// 2 args
+// Old:                BenchmarkSumf/{sumf_{0}_{0}}-4         	 3916035	       289.7 ns/op	      24 B/op	       1 allocs/op
+// Dynamic non-static: BenchmarkSumf/{sumf_{0}_{0}}-4         	 3949767	       296.8 ns/op	      24 B/op	       1 allocs/op
+// Dynamic single:     BenchmarkSumf/{sumf_{0}_1}-4         	 4475090	       261.7 ns/op	      24 B/op	       1 allocs/op
+// Dynamic static:     BenchmarkSumf/{sumf_1_1}-4         	 5338790	       220.0 ns/op	      24 B/op	       1 allocs/op
+func BenchmarkSumf(b *testing.B) {
+	benchmarkExpression(b, mockContext("1"), "{sumf 1 1}", "2")
+}
+
+// Old      : BenchmarkSumi/{sumi_1_1_1_1}-4         	21108159	        60.30 ns/op	       0 B/op	       0 allocs/op
+// 1 var    : BenchmarkSumi/{sumi_{0}_1_1_1}-4         	21317667	        47.90 ns/op	       0 B/op	       0 allocs/op
+// All typed: BenchmarkSumi/{sumi_1_1_1_1}-4         	31323100	        32.60 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkSumi(b *testing.B) {
+	benchmarkExpression(b, mockContext("1"), "{sumi 1 1 1 1}", "4")
+}
