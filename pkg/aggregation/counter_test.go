@@ -49,6 +49,7 @@ func TestInOrderItemsByKey(t *testing.T) {
 	assert.Equal(t, 3, len(items))
 	assert.Equal(t, 3, val.GroupCount())
 	assert.Equal(t, uint64(7), val.Count())
+	assert.Equal(t, int64(8), val.Total())
 	assert.Equal(t, uint64(1), val.ParseErrors())
 	assert.Equal(t, "abc", items[0].Name)
 	assert.Equal(t, int64(3), items[0].Item.Count())

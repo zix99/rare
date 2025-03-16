@@ -20,6 +20,7 @@ type MatchCounter struct {
 	matches map[string]*MatchItem
 	errors  uint64
 	samples uint64
+	total   int64
 }
 
 func NewCounter() *MatchCounter {
@@ -30,6 +31,10 @@ func NewCounter() *MatchCounter {
 
 func (s *MatchCounter) Count() uint64 {
 	return s.samples
+}
+
+func (s *MatchCounter) Total() int64 {
+	return s.total
 }
 
 func (s *MatchCounter) GroupCount() int {
@@ -65,6 +70,7 @@ func (s *MatchCounter) SampleValue(element string, count int64) {
 		s.matches[element] = item
 	}
 	item.count += count
+	s.total += count
 	s.samples++
 }
 

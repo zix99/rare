@@ -13,7 +13,7 @@ func TestBasicHisto(t *testing.T) {
 	mt := NewHistogram(vt, 5)
 
 	termunicode.UnicodeEnabled = false
-	mt.UpdateSamples(10000)
+	mt.UpdateTotal(10000)
 	mt.WriteForLine(1, "key", 1000)
 	mt.WriteFooter(0, "hello")
 	termunicode.UnicodeEnabled = true

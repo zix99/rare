@@ -17,7 +17,7 @@ import (
 func writeHistoOutput(writer *termrenderers.HistoWriter, counter *aggregation.MatchCounter, count int, sorter sorting.NameValueSorter, atLeast int64) {
 	items := counter.ItemsSortedBy(count, sorter)
 	line := 0
-	writer.UpdateSamples(counter.Count())
+	writer.UpdateTotal(counter.Total())
 	for _, match := range items {
 		count := match.Item.Count()
 		if count >= atLeast {
