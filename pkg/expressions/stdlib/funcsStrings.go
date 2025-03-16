@@ -192,9 +192,9 @@ func kfPercent(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		stageMax = typedLiteral(1.0)
 	case 3:
 		stageMin = typedLiteral(0.0)
-		stageMax, maxOk = evalTypedStage(args[2], typedParserFloat) // FIXME
+		stageMax, maxOk = evalTypedStage(args[2], typedParserFloat)
 	case 4:
-		stageMin, minOk = evalTypedStage(args[2], typedParserFloat) // FIXME
+		stageMin, minOk = evalTypedStage(args[2], typedParserFloat)
 		stageMax, maxOk = evalTypedStage(args[3], typedParserFloat)
 	}
 
