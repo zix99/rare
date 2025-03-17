@@ -15,18 +15,21 @@ func TestCommandGetter(t *testing.T) {
 	assert.NotNil(t, GetSupportedCommands())
 }
 
+// Test all commands in a list asserting no errors
 func testCommandSet(t *testing.T, command *cli.Command, commandArgList ...string) {
 	for _, args := range commandArgList {
 		assert.NoError(t, testCommand(command, args))
 	}
 }
 
+// Tests command via testCommand, returning stdout and stderr
 func testCommandCapture(command *cli.Command, cmd string) (stdout, stderr string, err error) {
 	return testutil.Capture(func(w *os.File) error {
 		return testCommand(command, cmd)
 	})
 }
 
+// Run a command, and returns any error
 func testCommand(command *cli.Command, cmd string) error {
 	app := cli.NewApp()
 
