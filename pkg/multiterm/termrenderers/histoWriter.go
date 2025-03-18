@@ -19,7 +19,7 @@ type histoPair struct {
 type HistoWriter struct {
 	writer      multiterm.MultilineTerm
 	maxVal      int64
-	samples     uint64
+	total       int64
 	textSpacing int
 	items       []histoPair
 
@@ -76,8 +76,8 @@ func (s *HistoWriter) WriteForLine(line int, key string, val int64) {
 	}
 }
 
-func (s *HistoWriter) UpdateSamples(samples uint64) {
-	s.samples = samples
+func (s *HistoWriter) UpdateTotal(total int64) {
+	s.total = total
 	s.fullRender()
 }
 
@@ -96,8 +96,8 @@ func (s *HistoWriter) writeLine(line int, key string, val int64) {
 	sb.WriteString(color.Wrapf(color.Yellow, "%-[2]*[1]s", key, s.textSpacing))
 	sb.WriteString("    ")
 	fmt.Fprintf(&sb, "%-10s", s.Formatter(val, 0, s.maxVal))
-	if s.ShowPercentage && s.samples > 0 {
-		percentage := float64(val) / float64(s.samples)
+	if s.ShowPercentage && s.total > 0 {
+		percentage := float64(val) / float64(s.total)
 		sb.WriteString(" ")
 		sb.WriteString(color.Wrapf(color.Cyan, "[%4.1f%%]", percentage*100.0))
 	}
