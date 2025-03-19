@@ -32,9 +32,9 @@ Take a look at [examples](usage/examples.md) to see more of what *rare* does.
 
 ## Installation
 
-!!! note "A Note on PCRE (Perl Compatible Regex Library)"
+!!! note "A Note on PCRE (Perl Compatible Regular Expressions)"
 
-    Besides your standard OS versions, there is an additional `pcre` build which is ~4x faster than go's `re2` implementation in moderately complex cases.  In order to use this, you must make sure that **libpcre2** is installed (eg `apt install libpcre2-8-0`).  Right now, it is only bundled with the linux distribution.
+    Besides your standard OS versions, there is an additional `pcre` build which is ~4x faster than go's `re2` implementation in moderately complex cases.  In order to use this, you must make sure that **libpcre2** is installed (eg `apt install libpcre2-8-0` or `dnf install pcre2`).  Right now, it is only bundled with the linux distribution.
 
     PCRE2 also comes with pitfalls, two of the most important are:
     1. That *rare* is now dynamically linked, meaning that you need to have libc and libpcre installed
