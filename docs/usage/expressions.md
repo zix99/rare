@@ -106,6 +106,16 @@ Syntax: `{bucket intVal "bucketSize"}`
 
 Given a value, create equal-sized buckets and place each value in those buckets
 
+eg. `{bucketrange 70 50}` will return `50`
+
+#### BucketRange
+
+Syntax: `{bucketrange intVal "bucketSize"}`
+
+Given a value, create equal-sized buckets and place value into bucket. Outputs range of bucket.
+
+eg. `{bucketrange 70 50}` will return `50 - 99`
+
 #### ExpBucket
 
 Syntax: `{expbucket intVal}`
