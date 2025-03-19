@@ -1,24 +1,12 @@
-package main
+package acceptance
 
 import (
 	"bufio"
 	"io"
-	"os"
-	"rare/pkg/testutil"
 	"strconv"
 	"strings"
 	"testing"
 )
-
-type testConfig struct {
-	name        string
-	cmd         string
-	stdout      strings.Builder
-	stderr      strings.Builder
-	outComp     stringComparer
-	errComp     stringComparer
-	expectError string
-}
 
 type stringComparer func(string, string) bool
 
@@ -31,49 +19,14 @@ var stringMatchers = map[string]stringComparer{
 	"ignorecase": strings.EqualFold,
 }
 
-// Run all the tests in acceptance.tests
-// See that file for format details
-// Run only these tests with this command:
-// go test -timeout 30s -run ^TestRunAcceptance$ ./ -v
-func TestRunAcceptance(t *testing.T) {
-	if testing.Short() {
-		t.SkipNow()
-	}
-
-	f, err := os.Open("acceptance.tests")
-	if err != nil {
-		t.Fatal("Unable to read tests file")
-	}
-	defer f.Close()
-
-	for test := range iterateTestDefinitions(t, f) {
-		t.Run(test.name, func(t *testing.T) {
-			runTestConfig(t, test)
-		})
-	}
-}
-
-func runTestConfig(t *testing.T, cfg testConfig) {
-	t.Logf("RUN: %s", cfg.cmd)
-
-	args := append([]string{"rare"}, testutil.SplitQuotedString(cfg.cmd)...)
-	sout, serr, err := testutil.Capture(func(w *os.File) error {
-		return cliMain(args...)
-	})
-
-	if (err != nil && err.Error() != cfg.expectError) || (err == nil && cfg.expectError != "") {
-		t.Errorf("ERROR: '%v', expected '%s'", err, cfg.expectError)
-	}
-
-	if !cfg.outComp(sout, cfg.stdout.String()) {
-		t.Errorf("STDOUT Expected:\n%s\nGot:\n%s\n", cfg.stdout.String(), sout)
-	}
-
-	if !cfg.errComp(serr, cfg.stderr.String()) || (len(serr) > 0 && cfg.stderr.Len() == 0) {
-		t.Errorf("STDERR Expected:\n%s\nGot:\n%s\n", cfg.stderr.String(), serr)
-	}
-
-	t.Logf("DONE: err=%v; stderr=%s; len(stdout)=%d", err, serr, len(sout))
+type testConfig struct {
+	name        string
+	cmd         string
+	stdout      strings.Builder
+	stderr      strings.Builder
+	outComp     stringComparer
+	errComp     stringComparer
+	expectError string
 }
 
 func iterateTestDefinitions(t *testing.T, r io.Reader) func(func(yield testConfig) bool) {

@@ -1,0 +1,10 @@
+
+# Example test
+NAME test
+MATCH EXACT
+INDENT 4
+RUN arg0 "arg 1"
+    Expected 'arg0' and 'arg 1'
+STDERR
+    err
+END
