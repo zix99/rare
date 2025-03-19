@@ -36,6 +36,7 @@ var (
 	ErrEnum    = newFuncErr(ErrorEnum, "unable to find value in set")
 	ErrEmpty   = newFuncErr(ErrorEmpty, "invalid empty value")
 	ErrFile    = newFuncErr(ErrorFile, "unable to read file")
+	ErrValue   = newFuncErr(ErrorValue, "value out of range")
 )
 
 var (

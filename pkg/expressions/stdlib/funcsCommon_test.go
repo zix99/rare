@@ -2,8 +2,6 @@ package stdlib
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestCoalesce(t *testing.T) {
@@ -14,11 +12,20 @@ func TestCoalesce(t *testing.T) {
 }
 
 func TestBucketing(t *testing.T) {
-	testContext := mockContext("ab", "cd", "123")
-	kb, _ := NewStdKeyBuilder().Compile("{bucket {2} 10} is bucketed")
-	key := kb.BuildKey(testContext)
-	assert.Equal(t, "120 is bucketed", key)
-	assert.Equal(t, 2, kb.StageCount())
+	testExpression(t, mockContext("ab", "cd", "123"), "{bucket {2} 10} is bucketed", "120 is bucketed")
+	testExpression(t, mockContext(), "{bucket -25 50}", "-50")
+	testExpressionErr(t, mockContext(), "{bucket 70 -50}", "<VALUE>", ErrValue)
+	testExpressionErr(t, mockContext(), "{bucket 5 a}", "<BAD-TYPE>", ErrNum)
+	testExpressionErr(t, mockContext(), "{bucket 5}", "<ARGN>", ErrArgCount)
+}
+
+func TestBucketRange(t *testing.T) {
+	testExpression(t, mockContext(), "{bucketrange 25 50}", "0 - 49")
+	testExpression(t, mockContext(), "{bucketrange -25 50}", "-50 - -1")
+	testExpression(t, mockContext(70), "{bucketrange {0} 50}", "50 - 99")
+	testExpressionErr(t, mockContext(), "{bucketrange 70 -50}", "<VALUE>", ErrValue)
+	testExpressionErr(t, mockContext(), "{bucketrange 5 a}", "<BAD-TYPE>", ErrNum)
+	testExpressionErr(t, mockContext(), "{bucketrange 5}", "<ARGN>", ErrArgCount)
 }
 
 func TestBucket(t *testing.T) {
