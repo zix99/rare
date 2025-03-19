@@ -6,10 +6,11 @@ import (
 )
 
 var StandardFunctions = map[string]KeyBuilderFunction{
-	"coalesce":  KeyBuilderFunction(kfCoalesce),
-	"bucket":    KeyBuilderFunction(kfBucket),
-	"clamp":     KeyBuilderFunction(kfClamp),
-	"expbucket": KeyBuilderFunction(kfExpBucket),
+	"coalesce":    KeyBuilderFunction(kfCoalesce),
+	"bucket":      KeyBuilderFunction(kfBucket),
+	"bucketrange": kfBucketRange,
+	"clamp":       KeyBuilderFunction(kfClamp),
+	"expbucket":   KeyBuilderFunction(kfExpBucket),
 
 	// Checks
 	"isint": KeyBuilderFunction(kfIsInt),

@@ -24,19 +24,61 @@ func kfBucket(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageErrArgCount(args, 2)
 	}
 
-	bucketSize, bucketSizeOk := EvalStageInt(args[1])
+	bucketSize, bucketSizeOk := EvalStageInt64(args[1])
 	if !bucketSizeOk {
 		return stageArgError(ErrNum, 1)
 	}
+	if bucketSize <= 0 {
+		return stageArgError(ErrValue, 1)
+	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		val, err := strconv.Atoi(args[0](context))
+		val, err := strconv.ParseInt(args[0](context), 10, 64)
 		if err != nil {
 			return ErrorNum
 		}
 
-		return strconv.Itoa((val / bucketSize) * bucketSize)
+		bucket := (val / bucketSize) * bucketSize
+		if val < 0 {
+			bucket -= bucketSize
+		}
+
+		return strconv.FormatInt(bucket, 10)
 	}), nil
+}
+
+func kfBucketRange(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 2 {
+		return stageErrArgCount(args, 2)
+	}
+
+	bucketSize, bucketSizeOk := EvalStageInt64(args[1])
+	if !bucketSizeOk {
+		return stageArgError(ErrNum, 1)
+	}
+	if bucketSize <= 0 {
+		return stageArgError(ErrValue, 1)
+	}
+
+	return func(context KeyBuilderContext) string {
+		val, err := strconv.ParseInt(args[0](context), 10, 64)
+		if err != nil {
+			return ErrorNum
+		}
+
+		var start, end int64
+		start = (val / bucketSize) * bucketSize
+		if val < 0 {
+			start -= bucketSize
+		}
+		end = start + (bucketSize - 1)
+
+		ret := make([]byte, 0, 20)
+		ret = strconv.AppendInt(ret, start, 10)
+		ret = append(ret, " - "...)
+		ret = strconv.AppendInt(ret, end, 10)
+		return string(ret)
+	}, nil
 }
 
 func kfClamp(args []KeyBuilderStage) (KeyBuilderStage, error) {
