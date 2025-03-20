@@ -24,6 +24,7 @@ type testConfig struct {
 	cmd         string
 	stdout      strings.Builder
 	stderr      strings.Builder
+	stdin       strings.Builder
 	outComp     stringComparer
 	errComp     stringComparer
 	expectError string
@@ -69,6 +70,8 @@ func iterateTestDefinitions(t *testing.T, r io.Reader) func(func(yield testConfi
 			case strings.HasPrefix(line, "STDERR"):
 				writeTarget = &cfg.stderr
 				cfg.errComp = matcher
+			case strings.HasPrefix(line, "STDIN"):
+				writeTarget = &cfg.stdin
 			case strings.HasPrefix(line, "ERR "):
 				cfg.expectError = line[4:]
 			case writeTarget != nil && strings.HasPrefix(line, "END"): // execute

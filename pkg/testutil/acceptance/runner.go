@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"rare/pkg/testutil"
+	"strings"
 	"testing"
 )
 
@@ -30,8 +31,15 @@ func RunTestSuiteFile(t *testing.T, filename string, runner Runner) {
 func runTestConfig(t *testing.T, cfg *testConfig, runner Runner) {
 	t.Logf("RUN: %s", cfg.cmd)
 
-	args := append([]string{"rare"}, testutil.SplitQuotedString(cfg.cmd)...)
+	args := append([]string{"app"}, testutil.SplitQuotedString(cfg.cmd)...)
 	sout, serr, err := testutil.Capture(func(w *os.File) error {
+		if cfg.stdin.Len() > 0 {
+			t.Logf("Copying %d bytes to stdin", cfg.stdin.Len())
+			go func() {
+				io.Copy(w, strings.NewReader(cfg.stdin.String()))
+				w.Close()
+			}()
+		}
 		return runner(args...)
 	})
 

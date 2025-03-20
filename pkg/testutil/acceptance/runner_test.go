@@ -13,3 +13,12 @@ func TestSimpleTests(t *testing.T) {
 		return nil
 	})
 }
+
+func TestStdinTests(t *testing.T) {
+	RunTestSuiteFile(t, "stdin.tests", func(args ...string) error {
+		var s string
+		fmt.Scanln(&s)
+		fmt.Printf("Expected '%s' and '%s' with stdin '%s'\n", args[1], args[2], s)
+		return nil
+	})
+}
