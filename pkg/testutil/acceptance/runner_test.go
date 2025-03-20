@@ -1,6 +1,7 @@
 package acceptance
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"testing"
@@ -8,6 +9,9 @@ import (
 
 func TestSimpleTests(t *testing.T) {
 	RunTestSuiteFile(t, "example.tests", func(args ...string) error {
+		if args[1] == "error" {
+			return errors.New("failed")
+		}
 		fmt.Printf("Expected '%s' and '%s'\n", args[1], args[2])
 		fmt.Fprintln(os.Stderr, "err")
 		return nil
