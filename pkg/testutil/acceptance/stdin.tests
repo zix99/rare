@@ -1,0 +1,11 @@
+
+# Test with stdin input
+NAME stdin test
+INDENT 4
+MATCH EXACT
+RUN arg0 arg1
+    Expected 'arg0' and 'arg1' with stdin 'someinput'
+STDIN
+    someinput
+END
+
