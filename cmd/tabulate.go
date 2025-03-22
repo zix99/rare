@@ -12,13 +12,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func minColSlice(count int, cols []string) []string {
-	if len(cols) < count {
-		return cols
-	}
-	return cols[:count]
-}
-
 func tabulateFunction(c *cli.Context) error {
 	var (
 		delim     = c.String("delim")
@@ -33,70 +26,21 @@ func tabulateFunction(c *cli.Context) error {
 
 	counter := aggregation.NewTable(delim)
 	vt := helpers.BuildVTermFromArguments(c)
-	writer := termrenderers.NewTable(vt, numCols+2, numRows+2)
+	writer := termrenderers.NewDataTable(vt, numCols, numRows)
+	writer.ShowRowTotals = rowtotals
+	writer.ShowColTotals = coltotals
 
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
 	rowSorter := helpers.BuildSorterOrFail(sortRows)
 	colSorter := helpers.BuildSorterOrFail(sortCols)
-	formatter := helpers.BuildFormatterOrFail(formatExp)
 
-	var min, max int64
-	needsMinMax := (formatExp != "")
+	if formatExp != "" {
+		writer.SetFormatter(helpers.BuildFormatterOrFail(formatExp))
+	}
 
 	helpers.RunAggregationLoop(ext, counter, func() {
-		cols := counter.OrderedColumns(colSorter)
-		cols = minColSlice(numCols, cols) // Cap columns
-
-		if needsMinMax {
-			min, max = counter.ComputeMinMax()
-		}
-
-		// Write header row
-		{
-			colNames := make([]string, len(cols)+2)
-			for i, name := range cols {
-				colNames[i+1] = color.Wrap(color.Underline+color.BrightBlue, name)
-			}
-			if rowtotals {
-				colNames[len(cols)+1] = color.Wrap(color.Underline+color.BrightBlack, "Total")
-			}
-			writer.WriteRow(0, colNames...)
-		}
-
-		// Write each row
-		rows := counter.OrderedRows(rowSorter)
-
-		line := 1
-		for i := 0; i < len(rows) && i < numRows; i++ {
-			row := rows[i]
-			rowVals := make([]string, len(cols)+2)
-			rowVals[0] = color.Wrap(color.Yellow, row.Name())
-			for idx, colName := range cols {
-				rowVals[idx+1] = formatter(row.Value(colName), min, max)
-			}
-			if rowtotals {
-				rowVals[len(rowVals)-1] = color.Wrap(color.BrightBlack, formatter(row.Sum(), min, max))
-			}
-			writer.WriteRow(line, rowVals...)
-			line++
-		}
-
-		// Write totals
-		if coltotals {
-			rowVals := make([]string, len(cols)+2)
-			rowVals[0] = color.Wrap(color.BrightBlack+color.Underline, "Total")
-			for idx, colName := range cols {
-				rowVals[idx+1] = color.Wrap(color.BrightBlack, formatter(counter.ColTotal(colName), min, max))
-			}
-
-			if rowtotals { // super total
-				sum := counter.Sum()
-				rowVals[len(rowVals)-1] = color.Wrap(color.BrightWhite, formatter(sum, min, max))
-			}
-
-			writer.WriteRow(line, rowVals...)
-		}
+		writer.WriteTable(counter, rowSorter, colSorter)
 
 		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
