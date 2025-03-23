@@ -20,7 +20,7 @@ type Expr struct {
 
 type OpFunc func(left, right float64) float64
 
-var orderOfOps = []string{"*", "/", "+", "-"}
+var orderOfOps = []string{"^", "*", "/", "+", "-"}
 
 func isOpBefore(op0, op1 string) bool {
 	for _, op := range orderOfOps {
@@ -40,13 +40,8 @@ var ops = map[string]OpFunc{
 	"-": func(left, right float64) float64 { return left - right },
 	"/": func(left, right float64) float64 { return left / right },
 	"^": func(left, right float64) float64 { return math.Pow(left, right) },
+	"%": func(left, right float64) float64 { return float64(int64(left) % int64(right)) },
 }
-
-// func Compile(s string) expressions.KeyBuilderStage {
-// 	return func(kbc expressions.KeyBuilderContext) string {
-
-// 	}
-// }
 
 type Context interface {
 	GetMatch(int) float64
@@ -77,10 +72,14 @@ func CompileEx(tokens ...string) *Expr {
 				value: &val,
 			}
 		} else {
-			// Assume expression
-			return &Expr{
-				named: &tok,
+			subtokens := slices.Collect(tokenizeExpr(tok))
+			if len(subtokens) == 1 {
+				// Assume named
+				return &Expr{
+					named: &tok,
+				}
 			}
+			return CompileEx(subtokens...)
 		}
 	}
 

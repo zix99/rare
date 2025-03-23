@@ -32,6 +32,20 @@ func TestSimpleOrderOfOps(t *testing.T) {
 	testFormula(t, mockContext("x", 123.0), "2+2*x", 248.0)
 }
 
+func TestParensFormula(t *testing.T) {
+	ctx := mockContext("x", 5.0, "y", 12.0)
+	testFormula(t, ctx, "x*(y+2)", 70.0)
+	testFormula(t, ctx, "x*((y+2)/2)", 35.0)
+	testFormula(t, ctx, "x*(y+2/2)", 5.0*13.0)
+}
+
+func TestNegativeNumbers(t *testing.T) {
+	ctx := mockContext("x", 5.0)
+	testFormula(t, ctx, "5 + -2", 3.0)
+	testFormula(t, ctx, "8 + -x", 3.0)
+	testFormula(t, ctx, "2 + -(3-2)", 1.0)
+}
+
 func mockContext(eles ...interface{}) Context {
 	m := make(map[string]float64)
 	for i := 0; i < len(eles); i += 2 {
