@@ -1,194 +1,158 @@
 package stdmath
 
 import (
-	"iter"
-	"math"
-	"slices"
+	"errors"
 	"strconv"
-	"strings"
 )
 
-type Operation rune
-
-type Expr struct {
-	Op          OpFunc
-	opCode      string
-	left, right *Expr
-	value       *float64
-	named       *string
-}
-
-type OpFunc func(left, right float64) float64
-
-var orderOfOps = []string{"^", "*", "/", "+", "-"}
-
-func isOpBefore(op0, op1 string) bool {
-	for _, op := range orderOfOps {
-		if op == op0 { // saw op0 first
-			return true
-		}
-		if op == op1 { // saw op1 first
-			return false
-		}
+type (
+	Expr interface {
+		Eval(ctx Context) float64
+		// ToFunction() func(ctx Context) float64 // TODO: Is this more performant??? (less interfaces, more closures)
 	}
-	panic("fixme")
+	exprVal struct {
+		v float64
+	}
+	exprVar struct {
+		name string
+	}
+	exprUnary struct {
+		op OpUnary
+		ex Expr
+	}
+	exprBinary struct {
+		op          OpFunc
+		opCode      string
+		left, right Expr
+	}
+)
+
+func (s *exprVal) Eval(ctx Context) float64 {
+	return s.v
+}
+func (s *exprVar) Eval(ctx Context) float64 {
+	return ctx.GetKey(s.name)
+}
+func (s *exprUnary) Eval(ctx Context) float64 {
+	return s.op(s.ex.Eval(ctx))
+}
+func (s *exprBinary) Eval(ctx Context) float64 {
+	return s.op(s.left.Eval(ctx), s.right.Eval(ctx))
 }
 
-var ops = map[string]OpFunc{
-	"+": func(left, right float64) float64 { return left + right },
-	"*": func(left, right float64) float64 { return left * right },
-	"-": func(left, right float64) float64 { return left - right },
-	"/": func(left, right float64) float64 { return left / right },
-	"^": func(left, right float64) float64 { return math.Pow(left, right) },
-	"%": func(left, right float64) float64 { return float64(int64(left) % int64(right)) },
-}
-
-type Context interface {
-	GetMatch(int) float64
-	GetKey(string) float64
-}
-
-type SimpleContext struct {
-	namedVals map[string]float64
-}
-
-func (s *SimpleContext) GetMatch(idx int) float64 {
-	return 0
-}
-
-func (s *SimpleContext) GetKey(k string) float64 {
-	return s.namedVals[k]
-}
-
-func Compile(expr string) *Expr {
-	return CompileEx(slices.Collect(tokenizeExpr(expr))...)
-}
-
-func CompileEx(tokens ...string) *Expr {
-	if len(tokens) == 1 {
-		tok := tokens[0]
-		if val, err := strconv.ParseFloat(tok, 64); err == nil {
-			return &Expr{
-				value: &val,
-			}
-		} else {
-			subtokens := slices.Collect(tokenizeExpr(tok))
-			if len(subtokens) == 1 {
-				// Assume named
-				return &Expr{
-					named: &tok,
-				}
-			}
-			return CompileEx(subtokens...)
-		}
+func Compile(expr string) (Expr, error) {
+	tokens, err := tokenizeExpr(expr)
+	if err != nil {
+		return nil, err
 	}
 
-	var ret *Expr
+	scanner := tokenScanner{tokens}
 
-	// lastOp := tokens[i+1]
-	for i := 0; i <= len(tokens)-3; i += 2 {
-		top := tokens[i+1]
-		tright := tokens[i+2]
+	return scanner.compileTokens()
+}
 
-		// if op is higher priority, put it in a group and nest
-		if ret == nil {
-			tleft := tokens[i]
-			ret = &Expr{
-				left:   CompileEx(tleft),
-				Op:     ops[top],
-				opCode: top,
-				right:  CompileEx(tright),
+type tokenScanner struct {
+	//tokens []token
+	next []token
+}
+
+func (s *tokenScanner) compileTokens() (Expr, error) {
+	var ret *exprBinary
+
+	var eFirst Expr
+
+	eFirst, _ = s.getNextExpr()
+	for !s.done() {
+		// TODO: Err check
+		op, opCode, _ := s.getNextOp()
+		nextExpr, _ := s.getNextExpr()
+
+		switch {
+		case ret == nil:
+			// TODO: Errors
+			ret = &exprBinary{
+				left:   eFirst,
+				op:     op,
+				opCode: opCode,
+				right:  nextExpr,
 			}
-		} else if isOpBefore(ret.opCode, top) { // eg. 3*3+3
-			ret = &Expr{
+		case isOpBefore(ret.opCode, opCode): // eg. 3*3+3
+			ret = &exprBinary{
 				left:   ret,
-				Op:     ops[top],
-				opCode: top,
-				right:  CompileEx(tright),
+				op:     op,
+				opCode: opCode,
+				right:  nextExpr,
 			}
-		} else { // eg 3+<3*3>
-			ret.right = &Expr{
+		default: // eg 3+3*3
+			ret.right = &exprBinary{
 				left:   ret.right,
-				Op:     ops[top],
-				opCode: top,
-				right:  CompileEx(tright),
+				op:     op,
+				opCode: opCode,
+				right:  nextExpr,
 			}
 		}
 	}
 
+	return ret, nil
+}
+
+func (s *tokenScanner) getNextExpr() (Expr, error) {
+	token := s.pop()
+	switch token.t {
+	case typeLiteral, typeGroup:
+		return compileToken(token)
+	case typeMod:
+		modifier := uniOps[token.val]
+		next, _ := s.getNextExpr()
+		// TODO: Error check
+		return &exprUnary{
+			op: modifier,
+			ex: next,
+		}, nil
+
+	default:
+		return nil, errors.New("unexpected token")
+	}
+}
+
+func (s *tokenScanner) getNextOp() (OpFunc, string, error) {
+	switch s.peek().t {
+	case typeOp:
+		token := s.pop()
+		op := ops[token.val] // TODO: Erro check
+		return op, token.val, nil
+	case typeGroup: // special case, implied multiplication
+		return ops["*"], "*", nil
+	default:
+		return nil, "", errors.New("expected operation")
+	}
+}
+
+func (s *tokenScanner) pop() token {
+	ret := s.next[0]
+	s.next = s.next[1:]
 	return ret
 }
 
-func (s *Expr) Eval(ctx Context) float64 {
-	if s.value != nil {
-		return *s.value
-	}
-	if s.named != nil {
-		return ctx.GetKey(*s.named)
-	}
-
-	return s.Op(s.left.Eval(ctx), s.right.Eval(ctx))
+func (s *tokenScanner) peek() token {
+	return s.next[0]
 }
 
-type tokenType int
-
-const (
-	literal tokenType = 1 << iota
-	grouping
-	operation
-)
-
-type token struct {
-	val string
-	op  tokenType
+func (s *tokenScanner) done() bool {
+	return len(s.next) == 0
 }
 
-func tokenizeExpr(s string) iter.Seq[string] {
-	return func(yield func(string) bool) {
-		var token strings.Builder
-		parens := 0
-
-		for _, r := range s {
-			switch {
-			case r == '(':
-				if parens > 0 {
-					token.WriteRune('(')
-				}
-				parens++
-			case r == ')':
-				parens--
-				if parens == 0 {
-					if !yield(token.String()) {
-						return
-					}
-					token.Reset()
-				} else if parens < 0 {
-					// error
-					panic("fixme")
-				} else {
-					token.WriteRune(')')
-				}
-			case r == ' ':
-				// skip
-			case parens == 0 && in(r, '+', '-', '*', '/', '^'): // operation FIXME: Use actual ops
-				if token.Len() > 0 && !yield(token.String()) {
-					return
-				}
-				if !yield(string(r)) {
-					return
-				}
-				token.Reset()
-			default: // token/value
-				token.WriteRune(r)
-			}
+// Turn a single token (literal or group) into an expression
+func compileToken(t token) (Expr, error) {
+	switch t.t {
+	case typeLiteral:
+		if v, err := strconv.ParseFloat(t.val, 64); err == nil {
+			return &exprVal{v}, nil
 		}
-
-		if token.Len() > 0 {
-			yield(token.String())
-		}
+		return &exprVar{t.val}, nil
+	case typeGroup:
+		return Compile(t.val)
 	}
-}
 
-func in[T comparable](s T, eles ...T) bool {
-	return slices.Contains(eles, s)
+	return nil, errors.New("unexpected type")
 }
