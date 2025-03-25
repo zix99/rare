@@ -9,7 +9,7 @@ type (
 	OpUnary func(float64) float64
 )
 
-var orderOfOps = []string{"^", "*", "/", "+", "-"}
+var orderOfOps = []string{"^", "*", "/", "+", "-", "&&", "||", "<=", ">=", ">", "<"}
 
 var ops = map[string]OpFunc{
 	"+":  func(left, right float64) float64 { return left + right },

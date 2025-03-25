@@ -40,6 +40,12 @@ func TestTokenizerImpliedMultiplication(t *testing.T) {
 	testTokenizer(t, "3(2)+1", "3(0) 2(1) +(2) 1(0)")
 }
 
+func TestMultiCharOp(t *testing.T) {
+	testTokenizer(t, "a > b", "a(0) >(2) b(0)")
+	testTokenizer(t, "a && b", "a(0) &&(2) b(0)")
+	testTokenizer(t, "1 <= 2", "1(0) <=(2) 2(0)")
+}
+
 // test forumla parses into expects
 // expects is a stringified token result in the format "val(type) ..."
 func testTokenizer(t *testing.T, formula, expects string) {

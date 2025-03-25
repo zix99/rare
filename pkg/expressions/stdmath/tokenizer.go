@@ -2,7 +2,6 @@ package stdmath
 
 import (
 	"errors"
-	"slices"
 	"strings"
 )
 
@@ -30,7 +29,9 @@ func tokenizeExpr(s string) ([]token, error) {
 	var sb strings.Builder
 	parens := 0
 
-	for _, r := range s {
+	for i := 0; i < len(s); i++ {
+		r := s[i]
+
 		switch {
 		// parens management
 		case r == '(' && parens > 0:
@@ -72,16 +73,19 @@ func tokenizeExpr(s string) ([]token, error) {
 			ret = append(ret, token{string(r), typeMod})
 
 		// operator
-		case parens == 0 && in(r, '+', '-', '*', '/', '^'): // operation FIXME: Use actual ops
+		case parens == 0 && inPrefix(s[i:], orderOfOps...) != nil:
 			if sb.Len() > 0 {
 				ret = append(ret, token{sb.String(), typeLiteral})
+				sb.Reset()
 			}
-			ret = append(ret, token{string(r), typeOp})
-			sb.Reset()
+
+			opCode := *inPrefix(s[i:], orderOfOps...)
+			ret = append(ret, token{opCode, typeOp})
+			i += len(opCode) - 1
 
 		// Token continuation
 		default:
-			sb.WriteRune(r)
+			sb.WriteByte(r)
 		}
 	}
 
@@ -92,6 +96,11 @@ func tokenizeExpr(s string) ([]token, error) {
 	return ret, nil
 }
 
-func in[T comparable](s T, eles ...T) bool {
-	return slices.Contains(eles, s)
+func inPrefix(s string, of ...string) *string {
+	for _, ele := range of {
+		if strings.HasPrefix(s, ele) {
+			return &ele
+		}
+	}
+	return nil
 }

@@ -43,6 +43,11 @@ func TestImpliedMultiplication(t *testing.T) {
 	testFormula(t, nil, "1+3(2)", 7.0)
 }
 
+func TestComparisons(t *testing.T) {
+	testFormula(t, nil, "1 <= 2", 1.0)
+	testFormula(t, nil, "1 >= 2", 0.0)
+}
+
 func mockContext(eles ...interface{}) Context {
 	m := make(map[string]float64)
 	for i := 0; i < len(eles); i += 2 {
