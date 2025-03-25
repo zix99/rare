@@ -32,21 +32,26 @@ func tokenizeExpr(s string) ([]token, error) {
 
 	for _, r := range s {
 		switch {
-		case r == '(':
-			if parens > 0 {
-				sb.WriteRune('(')
-			} else if sb.Len() > 0 {
-				// has previous token
-				prev := sb.String()
-				if _, uniOk := uniOps[prev]; uniOk {
-					ret = append(ret, token{prev, typeMod})
-				} else {
-					ret = append(ret, token{prev, typeLiteral})
-				}
-				sb.Reset()
+		// parens management
+		case r == '(' && parens > 0:
+			// Nested paren
+			sb.WriteRune('(')
+			parens++
+		case r == '(' && sb.Len() > 0:
+			// previous token. Possibly unary op or implicit multiply (literal)
+			prev := sb.String()
+			sb.Reset()
+
+			if _, uniOk := uniOps[prev]; uniOk {
+				ret = append(ret, token{prev, typeMod})
+			} else {
+				ret = append(ret, token{prev, typeLiteral})
 			}
 			parens++
-		case r == ')':
+		case r == '(':
+			// Other paren
+			parens++
+		case r == ')': // end paren
 			parens--
 			if parens == 0 {
 				ret = append(ret, token{sb.String(), typeGroup})
@@ -57,18 +62,25 @@ func tokenizeExpr(s string) ([]token, error) {
 			} else {
 				sb.WriteRune(')')
 			}
+
+		// Skip whitespace
 		case r == ' ':
 			// skip
-		case parens == 0 && sb.Len() == 0 && (len(ret) == 0 || (len(ret) > 0 && ret[len(ret)-1].t == typeOp)) && in(r, '-'): // modifier (unary)
+
+		// negative unary op on literal or group
+		case parens == 0 && sb.Len() == 0 && (len(ret) == 0 || (len(ret) > 0 && ret[len(ret)-1].t == typeOp)) && r == '-':
 			ret = append(ret, token{string(r), typeMod})
-			sb.Reset()
+
+		// operator
 		case parens == 0 && in(r, '+', '-', '*', '/', '^'): // operation FIXME: Use actual ops
 			if sb.Len() > 0 {
 				ret = append(ret, token{sb.String(), typeLiteral})
 			}
 			ret = append(ret, token{string(r), typeOp})
 			sb.Reset()
-		default: // token/value
+
+		// Token continuation
+		default:
 			sb.WriteRune(r)
 		}
 	}
