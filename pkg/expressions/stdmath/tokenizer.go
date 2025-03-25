@@ -37,7 +37,12 @@ func tokenizeExpr(s string) ([]token, error) {
 				sb.WriteRune('(')
 			} else if sb.Len() > 0 {
 				// has previous token
-				ret = append(ret, token{sb.String(), typeMod})
+				prev := sb.String()
+				if _, uniOk := uniOps[prev]; uniOk {
+					ret = append(ret, token{prev, typeMod})
+				} else {
+					ret = append(ret, token{prev, typeLiteral})
+				}
 				sb.Reset()
 			}
 			parens++

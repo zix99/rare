@@ -34,6 +34,12 @@ func TestTokenizerVariables(t *testing.T) {
 	testTokenizer(t, "abc", "abc(0)")
 }
 
+func TestTokenizerImpliedMultiplication(t *testing.T) {
+	testTokenizer(t, "3(2)", "3(0) 2(1)")
+	testTokenizer(t, "1+3(2)", "1(0) +(2) 3(0) 2(1)")
+	testTokenizer(t, "3(2)+1", "3(0) 2(1) +(2) 1(0)")
+}
+
 // test forumla parses into expects
 // expects is a stringified token result in the format "val(type) ..."
 func testTokenizer(t *testing.T, formula, expects string) {

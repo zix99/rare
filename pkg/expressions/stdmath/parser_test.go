@@ -34,6 +34,15 @@ func TestNegativeNumbers(t *testing.T) {
 	testFormula(t, ctx, "2 + -(3-2)", 1.0)
 }
 
+func TestMoreComplex(t *testing.T) {
+	testFormula(t, nil, "cos(3.1415926535)", -1.0)
+}
+
+func TestImpliedMultiplication(t *testing.T) {
+	testFormula(t, nil, "3(2)", 6.0)
+	testFormula(t, nil, "1+3(2)", 7.0)
+}
+
 func mockContext(eles ...interface{}) Context {
 	m := make(map[string]float64)
 	for i := 0; i < len(eles); i += 2 {
@@ -50,4 +59,15 @@ func testFormula(t *testing.T, ctx Context, f string, expected float64) {
 		ret := expr.Eval(ctx)
 		assert.Equal(t, expected, ret)
 	})
+}
+
+// BenchmarkFormula-4   	25900489	        42.30 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkFormula(b *testing.B) {
+	expr, _ := Compile("2 + 5 * x")
+	ctx := mockContext("x", 5.0)
+	f := expr.ToFunction()
+	for range b.N {
+		// expr.Eval(ctx)
+		f(ctx)
+	}
 }
