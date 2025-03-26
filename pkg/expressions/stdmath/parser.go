@@ -13,8 +13,11 @@ type (
 	exprVal struct {
 		v float64
 	}
-	exprVar struct {
+	exprNamedVar struct {
 		name string
+	}
+	exprIntVar struct {
+		idx int
 	}
 	exprUnary struct {
 		op OpUnary
@@ -30,8 +33,11 @@ type (
 func (s *exprVal) Eval(ctx Context) float64 {
 	return s.v
 }
-func (s *exprVar) Eval(ctx Context) float64 {
+func (s *exprNamedVar) Eval(ctx Context) float64 {
 	return ctx.GetKey(s.name)
+}
+func (s *exprIntVar) Eval(ctx Context) float64 {
+	return ctx.GetMatch(s.idx)
 }
 func (s *exprUnary) Eval(ctx Context) float64 {
 	return s.op(s.ex.Eval(ctx))
@@ -45,9 +51,14 @@ func (s *exprVal) ToFunction() func(ctx Context) float64 {
 		return s.v
 	}
 }
-func (s *exprVar) ToFunction() func(ctx Context) float64 {
+func (s *exprNamedVar) ToFunction() func(ctx Context) float64 {
 	return func(ctx Context) float64 {
 		return ctx.GetKey(s.name)
+	}
+}
+func (s *exprIntVar) ToFunction() func(ctx Context) float64 {
+	return func(ctx Context) float64 {
+		return ctx.GetMatch(s.idx)
 	}
 }
 func (s *exprUnary) ToFunction() func(ctx Context) float64 {
@@ -97,6 +108,7 @@ func (s *tokenScanner) compileTokens() (Expr, error) {
 		switch {
 		case ret == nil:
 			// TODO: Errors
+			// TODO: Move this outside of loop?
 			ret = &exprBinary{
 				left:   eFirst,
 				op:     op,
@@ -128,10 +140,14 @@ func (s *tokenScanner) getNextExpr() (Expr, error) {
 	switch token.t {
 	case typeLiteral, typeGroup:
 		return compileToken(token)
+
 	case typeMod:
 		modifier := uniOps[token.val]
-		next, _ := s.getNextExpr()
-		// TODO: Error check
+		next, err := s.getNextExpr()
+		if err != nil {
+			return nil, err
+		}
+
 		return &exprUnary{
 			op: modifier,
 			ex: next,
@@ -171,15 +187,26 @@ func (s *tokenScanner) done() bool {
 
 // Turn a single token (literal or group) into an expression
 func compileToken(t token) (Expr, error) {
-	switch t.t {
-	case typeLiteral:
+	switch {
+	case t.t == typeLiteral && isBraceBoxed(t.val):
+		inner := t.val[1 : len(t.val)-1]
+		if idx, err := strconv.Atoi(inner); err == nil {
+			return &exprIntVar{idx}, nil
+		}
+		return &exprNamedVar{inner}, nil
+	case t.t == typeLiteral:
 		if v, err := strconv.ParseFloat(t.val, 64); err == nil {
 			return &exprVal{v}, nil
 		}
-		return &exprVar{t.val}, nil
-	case typeGroup:
+		return &exprNamedVar{t.val}, nil
+	case t.t == typeGroup:
 		return Compile(t.val)
 	}
 
 	return nil, errors.New("unexpected type")
+}
+
+// String like "{xxx}"
+func isBraceBoxed(s string) bool {
+	return len(s) > 0 && s[0] == '{' && s[len(s)-1] == '}'
 }

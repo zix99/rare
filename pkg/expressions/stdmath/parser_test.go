@@ -48,6 +48,11 @@ func TestComparisons(t *testing.T) {
 	testFormula(t, nil, "1 >= 2", 0.0)
 }
 
+func TestExplicitVariable(t *testing.T) {
+	testFormula(t, mockContext("x", 150.0), "{x}/50", 3.0)
+	testFormula(t, mockContext(), "{1}+3.0", 3.0)
+}
+
 func mockContext(eles ...interface{}) Context {
 	m := make(map[string]float64)
 	for i := 0; i < len(eles); i += 2 {
