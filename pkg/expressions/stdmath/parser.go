@@ -83,6 +83,8 @@ func Compile(expr string) (Expr, error) {
 
 	scanner := tokenScanner{tokens}
 
+	// TODO: Reduce? (static analysis like expressions?) But unlike expressions, we can actually analyze what it is
+
 	return scanner.compileTokens()
 }
 
@@ -93,9 +95,7 @@ type tokenScanner struct {
 func (s *tokenScanner) compileTokens() (Expr, error) {
 	var ret *exprBinary
 
-	var eFirst Expr
-
-	eFirst, _ = s.getNextExpr()
+	eFirst, _ := s.getNextExpr()
 	if s.done() {
 		return eFirst, nil
 	}
