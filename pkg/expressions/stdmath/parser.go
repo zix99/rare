@@ -13,7 +13,6 @@ import (
 type (
 	Expr interface {
 		Eval(ctx Context) float64
-		ToFunction() func(ctx Context) float64 // TODO: Is this more performant??? (less interfaces, more closures)
 	}
 	exprVal struct {
 		v float64
@@ -49,35 +48,6 @@ func (s *exprUnary) Eval(ctx Context) float64 {
 }
 func (s *exprBinary) Eval(ctx Context) float64 {
 	return s.op(s.left.Eval(ctx), s.right.Eval(ctx))
-}
-
-func (s *exprVal) ToFunction() func(ctx Context) float64 {
-	return func(ctx Context) float64 {
-		return s.v
-	}
-}
-func (s *exprNamedVar) ToFunction() func(ctx Context) float64 {
-	return func(ctx Context) float64 {
-		return ctx.GetKey(s.name)
-	}
-}
-func (s *exprIntVar) ToFunction() func(ctx Context) float64 {
-	return func(ctx Context) float64 {
-		return ctx.GetMatch(s.idx)
-	}
-}
-func (s *exprUnary) ToFunction() func(ctx Context) float64 {
-	sub := s.ex.ToFunction()
-	return func(ctx Context) float64 {
-		return s.op(sub(ctx))
-	}
-}
-func (s *exprBinary) ToFunction() func(ctx Context) float64 {
-	left := s.left.ToFunction()
-	right := s.right.ToFunction()
-	return func(ctx Context) float64 {
-		return s.op(left(ctx), right(ctx))
-	}
 }
 
 func Compile(expr string) (Expr, error) {
