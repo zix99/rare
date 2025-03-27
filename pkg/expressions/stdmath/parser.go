@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+/* TODO
+- Reduce static expressions for pre-compute (Simplify)
+- Support generic types? Anything numeric should be able to compute generically
+*/
+
 type (
 	Expr interface {
 		Eval(ctx Context) float64
@@ -83,8 +88,6 @@ func Compile(expr string) (Expr, error) {
 
 	scanner := tokenScanner{tokens}
 
-	// TODO: Reduce? (static analysis like expressions?) But unlike expressions, we can actually analyze what it is
-
 	return scanner.compileTokens()
 }
 
@@ -101,14 +104,17 @@ func (s *tokenScanner) compileTokens() (Expr, error) {
 	}
 
 	for !s.done() {
-		// TODO: Err check
-		op, opCode, _ := s.getNextOp()
-		nextExpr, _ := s.getNextExpr()
+		op, opCode, err := s.getNextOp()
+		if err != nil {
+			return nil, err
+		}
+		nextExpr, err := s.getNextExpr()
+		if err != nil {
+			return nil, err
+		}
 
 		switch {
 		case ret == nil:
-			// TODO: Errors
-			// TODO: Move this outside of loop?
 			ret = &exprBinary{
 				left:   eFirst,
 				op:     op,
@@ -162,7 +168,10 @@ func (s *tokenScanner) getNextOp() (OpFunc, string, error) {
 	switch s.peek().t {
 	case typeOp:
 		token := s.pop()
-		op := ops[token.val] // TODO: Erro check
+		op, ok := ops[token.val]
+		if !ok {
+			return nil, "", errors.New("unrecognized op")
+		}
 		return op, token.val, nil
 	case typeGroup: // special case, implied multiplication
 		return ops["*"], "*", nil
@@ -194,11 +203,13 @@ func compileToken(t token) (Expr, error) {
 			return &exprIntVar{idx}, nil
 		}
 		return &exprNamedVar{inner}, nil
+
 	case t.t == typeLiteral:
 		if v, err := strconv.ParseFloat(t.val, 64); err == nil {
 			return &exprVal{v}, nil
 		}
 		return &exprNamedVar{t.val}, nil
+
 	case t.t == typeGroup:
 		return Compile(t.val)
 	}

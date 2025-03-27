@@ -1,7 +1,14 @@
 package stdmath
 
-import "testing"
+import (
+	"maps"
+	"slices"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestOrderOfOperationExhaustive(t *testing.T) {
-	// TODO
+	allOps := slices.Collect(maps.Keys(ops))
+	assert.ElementsMatch(t, allOps, orderOfOps)
 }

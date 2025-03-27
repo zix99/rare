@@ -53,6 +53,10 @@ func TestExplicitVariable(t *testing.T) {
 	testFormula(t, mockContext(), "{1}+3.0", 3.0)
 }
 
+func TestMultistageOrders(t *testing.T) {
+	testFormula(t, nil, "2*3 + 4*5 + 2*3*4", 50.0)
+}
+
 func mockContext(eles ...interface{}) Context {
 	m := make(map[string]float64)
 	for i := 0; i < len(eles); i += 2 {
@@ -73,11 +77,11 @@ func testFormula(t *testing.T, ctx Context, f string, expected float64) {
 
 // BenchmarkFormula-4   	25900489	        42.30 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkFormula(b *testing.B) {
-	expr, _ := Compile("2 + 5 * x")
+	expr, _ := Compile("2 + 5 + 123 + 32 + 123 + 123 + 123*x")
 	ctx := mockContext("x", 5.0)
-	f := expr.ToFunction()
+	// f := expr.ToFunction()
 	for range b.N {
-		// expr.Eval(ctx)
-		f(ctx)
+		expr.Eval(ctx)
+		///f(ctx)
 	}
 }

@@ -9,7 +9,7 @@ type (
 	OpUnary func(float64) float64
 )
 
-var orderOfOps = []string{"^", "*", "/", "+", "-", "&&", "||", "<=", ">=", ">", "<"}
+var orderOfOps = []string{"^", ">>", "<<", "*", "/", "%", "+", "-", "&&", "||", "==", "<=", ">=", ">", "<"}
 
 var ops = map[string]OpFunc{
 	"+":  func(left, right float64) float64 { return left + right },
@@ -35,7 +35,7 @@ var uniOps = map[string]OpUnary{
 	"-":   func(f float64) float64 { return -f },
 	"abs": math.Abs,
 
-	// todo
+	// todo (more)
 	"sin": math.Sin,
 	"cos": math.Cos,
 	"tan": math.Tan,
@@ -50,7 +50,7 @@ func isOpBefore(op0, op1 string) bool {
 			return false
 		}
 	}
-	panic("fixme")
+	panic("op not found")
 }
 
 func conditionalOp(truth bool) float64 {
