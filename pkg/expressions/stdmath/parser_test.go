@@ -9,6 +9,7 @@ import (
 )
 
 func TestSimpleEval(t *testing.T) {
+	testFormula(t, mockContext(), "2", 2.0)
 	testFormula(t, mockContext(), "2*3", 6.0)
 	testFormula(t, mockContext(), "2+3", 5.0)
 	testFormula(t, mockContext(), "2-3.5", -1.5)
@@ -29,10 +30,12 @@ func TestParensFormula(t *testing.T) {
 	testFormula(t, ctx, "x*(y+2)", 70.0)
 	testFormula(t, ctx, "x*((y+2)/2)", 35.0)
 	testFormula(t, ctx, "x*(y+2/2)", 5.0*13.0)
+	testFormula(t, ctx, "x*((y+2)/(2+2/2-1))", 35.0)
 }
 
 func TestNegativeNumbers(t *testing.T) {
 	ctx := mockContext("x", 5.0)
+	testFormula(t, ctx, "-2", -2.0)
 	testFormula(t, ctx, "5 + -2", 3.0)
 	testFormula(t, ctx, "8 + -x", 3.0)
 	testFormula(t, ctx, "2 + -(3-2)", 1.0)
@@ -53,6 +56,8 @@ func TestComparisons(t *testing.T) {
 }
 
 func TestExplicitVariable(t *testing.T) {
+	testFormula(t, mockContext("x", 123.0), "x", 123.0)
+	testFormula(t, mockContext("x", 123.0), "{x}", 123.0)
 	testFormula(t, mockContext("x", 150.0), "{x}/50", 3.0)
 	testFormula(t, mockContext(), "{1}+3.0", 3.0)
 }
@@ -68,6 +73,26 @@ func TestMultistageOrders(t *testing.T) {
 func TestSameLevelOrderOps(t *testing.T) {
 	testFormula(t, nil, "3*4/2", 6.0)
 	testFormula(t, nil, "4/2*3", 4/2.0*3.0)
+}
+
+func TestError(t *testing.T) {
+	_, err := Compile("")
+	assert.Error(t, err)
+
+	_, err = Compile("x+")
+	assert.Error(t, err)
+
+	_, err = Compile("(1+1)x")
+	assert.Error(t, err)
+
+	_, err = Compile("1+(1+")
+	assert.Error(t, err)
+
+	_, err = Compile("1+(1+1))")
+	assert.Error(t, err)
+
+	_, err = Compile("1+(1+)")
+	assert.Error(t, err)
 }
 
 func mockContext(eles ...interface{}) Context {

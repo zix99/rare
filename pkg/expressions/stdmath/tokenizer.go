@@ -20,7 +20,8 @@ type token struct {
 }
 
 var (
-	ErrTokenizerOverclosed = errors.New("over-closed paranthesis")
+	ErrTokenizerOverclosed = errors.New("over-closed parenthesis")
+	ErrTokenizerUnclosed   = errors.New("unclosed parenthesis")
 )
 
 func tokenizeExpr(s string) ([]token, error) {
@@ -87,6 +88,10 @@ func tokenizeExpr(s string) ([]token, error) {
 		default:
 			sb.WriteByte(r)
 		}
+	}
+
+	if parens > 0 {
+		return nil, ErrTokenizerUnclosed
 	}
 
 	if sb.Len() > 0 {

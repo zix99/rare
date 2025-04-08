@@ -58,7 +58,7 @@ func Compile(expr string) (Expr, error) {
 
 	scanner := tokenScanner{expr, tokens}
 
-	return scanner.compileTokens(""), nil
+	return scanner.compileTokens("")
 }
 
 type tokenScanner struct {
@@ -66,21 +66,39 @@ type tokenScanner struct {
 	next []token
 }
 
-func (s *tokenScanner) compileTokens(lastOpCode OpCode) (ret Expr) {
-	ret, _ = s.getNextExpr()
+func (s *tokenScanner) compileTokens(lastOpCode OpCode) (ret Expr, err error) {
+	if s.done() {
+		return nil, errors.New("unexpected end")
+	}
+
+	ret, err = s.getNextExpr()
+	if err != nil {
+		return nil, err
+	}
+
 	for !s.done() {
-		_, peekOp, _ := s.getNextOp(false)
+		_, peekOp, err := s.getNextOp(false)
+		if err != nil {
+			return nil, err
+		}
 		order := opCodeOrder(lastOpCode, peekOp)
 
 		switch order {
 		case -1: // * -> +
-			return // no op, just expression
+			return ret, nil // no op, just expression
 		case 0: // + -> +-
-			return
+			return ret, nil
 		case 1: // + -> *
 			// recurse
-			op, opCode, _ := s.getNextOp(true)
-			expr := s.compileTokens(opCode)
+			op, opCode, err := s.getNextOp(true)
+			if err != nil {
+				return nil, err
+			}
+
+			expr, err := s.compileTokens(opCode)
+			if err != nil {
+				return nil, err
+			}
 			ret = &exprBinary{
 				left:   ret,
 				op:     op,
@@ -90,7 +108,7 @@ func (s *tokenScanner) compileTokens(lastOpCode OpCode) (ret Expr) {
 		}
 	}
 
-	return
+	return ret, nil
 }
 
 func (s *tokenScanner) getNextExpr() (Expr, error) {
