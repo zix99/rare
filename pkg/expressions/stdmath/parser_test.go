@@ -21,6 +21,7 @@ func TestSimpleOrderOfOps(t *testing.T) {
 	testFormula(t, mockContext("x", 123.0), "2+x*2", 248.0)
 	testFormula(t, mockContext("x", 123.0), "2+2*x", 248.0)
 	testFormula(t, mockContext("x", 4.0), "x-2-4", -2.0)
+	testFormula(t, mockContext("x", 4.0), "x-2-4-8+2", -8.0)
 }
 
 func TestParensFormula(t *testing.T) {
@@ -115,9 +116,7 @@ func debugWriteTree(expr Expr, offset int) {
 func BenchmarkFormula(b *testing.B) {
 	expr, _ := Compile("2 + 5 + 123 + 32 + 123 + 123 + 123*x")
 	ctx := mockContext("x", 5.0)
-	// f := expr.ToFunction()
 	for range b.N {
 		expr.Eval(ctx)
-		///f(ctx)
 	}
 }
