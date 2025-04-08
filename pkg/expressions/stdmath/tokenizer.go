@@ -73,14 +73,14 @@ func tokenizeExpr(s string) ([]token, error) {
 			ret = append(ret, token{string(r), typeMod})
 
 		// operator
-		case parens == 0 && inPrefix(s[i:], allOpCodes...) != nil:
+		case parens == 0 && prefixInOps(s[i:]) != nil:
 			if sb.Len() > 0 {
 				ret = append(ret, token{sb.String(), typeLiteral})
 				sb.Reset()
 			}
 
-			opCode := *inPrefix(s[i:], allOpCodes...)
-			ret = append(ret, token{opCode, typeOp})
+			opCode := *prefixInOps(s[i:])
+			ret = append(ret, token{string(opCode), typeOp})
 			i += len(opCode) - 1
 
 		// Token continuation
@@ -94,14 +94,4 @@ func tokenizeExpr(s string) ([]token, error) {
 	}
 
 	return ret, nil
-}
-
-func inPrefix(s string, of ...OpCode) *string {
-	for _, ele := range of {
-		if strings.HasPrefix(s, string(ele)) {
-			sCode := string(ele)
-			return &sCode
-		}
-	}
-	return nil
 }

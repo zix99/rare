@@ -1,7 +1,6 @@
 package stdmath
 
 import (
-	"maps"
 	"math"
 	"slices"
 )
@@ -44,8 +43,6 @@ var ops = map[OpCode]OpFunc{
 	"||": nil,
 }
 
-var allOpCodes = slices.Collect(maps.Keys(ops))
-
 var uniOps = map[OpCode]OpUnary{
 	"-":   func(f float64) float64 { return -f },
 	"abs": math.Abs,
@@ -54,22 +51,6 @@ var uniOps = map[OpCode]OpUnary{
 	"sin": math.Sin,
 	"cos": math.Cos,
 	"tan": math.Tan,
-}
-
-func isOpAtOrBefore(op0, op1 OpCode) bool {
-	for _, opSet := range orderOfOps {
-		// if op == op0 { // saw op0 first
-		// 	return true
-		// }
-		// if op == op1 { // saw op1 first
-		// 	return false
-		// }
-		has0, has1 := slices.Contains(opSet, op0), slices.Contains(opSet, op1)
-		if has0 || has1 {
-			return has0
-		}
-	}
-	panic("op not found")
 }
 
 // -1 before, 0 same, 1 after
@@ -87,6 +68,20 @@ func opCodeOrder(op0, op1 OpCode) int {
 		}
 	}
 	panic("op not found")
+}
+
+func prefixInOps(s string) *OpCode {
+	const maxLen = 2
+	code := OpCode(s[:min(len(s), maxLen)])
+
+	for i := len(code); i >= 0; i-- {
+		sub := code[:i]
+		if _, ok := ops[sub]; ok {
+			return &sub
+		}
+	}
+
+	return nil
 }
 
 // returns 1/0 based on bool
