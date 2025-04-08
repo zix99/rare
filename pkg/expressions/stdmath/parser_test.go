@@ -42,9 +42,8 @@ func TestMoreComplex(t *testing.T) {
 }
 
 func TestImpliedMultiplication(t *testing.T) {
-	// FIXME
-	// testFormula(t, nil, "3(2)", 6.0)
-	// testFormula(t, nil, "1+3(2)", 7.0)
+	testFormula(t, nil, "3(2)", 6.0)
+	testFormula(t, nil, "1+3(2)", 7.0)
 }
 
 func TestComparisons(t *testing.T) {

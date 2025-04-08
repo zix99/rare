@@ -69,7 +69,7 @@ type tokenScanner struct {
 func (s *tokenScanner) compileTokens(lastOpCode OpCode) (ret Expr) {
 	ret, _ = s.getNextExpr()
 	for !s.done() {
-		peekOp := OpCode(s.peek().val)
+		_, peekOp, _ := s.getNextOp(false)
 		order := opCodeOrder(lastOpCode, peekOp)
 
 		switch order {
@@ -79,7 +79,7 @@ func (s *tokenScanner) compileTokens(lastOpCode OpCode) (ret Expr) {
 			return
 		case 1: // + -> *
 			// recurse
-			op, opCode, _ := s.getNextOp()
+			op, opCode, _ := s.getNextOp(true)
 			expr := s.compileTokens(opCode)
 			ret = &exprBinary{
 				left:   ret,
@@ -116,10 +116,13 @@ func (s *tokenScanner) getNextExpr() (Expr, error) {
 	}
 }
 
-func (s *tokenScanner) getNextOp() (OpFunc, OpCode, error) {
+func (s *tokenScanner) getNextOp(pop bool) (OpFunc, OpCode, error) {
 	switch s.peek().t {
 	case typeOp:
-		token := s.pop()
+		token := s.peek()
+		if pop {
+			s.pop()
+		}
 		op, ok := ops[OpCode(token.val)]
 		if !ok {
 			return nil, "", errors.New("unrecognized op")
