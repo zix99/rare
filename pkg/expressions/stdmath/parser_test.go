@@ -1,6 +1,8 @@
 package stdmath
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,6 +20,7 @@ func TestSimpleOrderOfOps(t *testing.T) {
 	testFormula(t, mockContext("x", 123.0), "x*2+2", 248.0)
 	testFormula(t, mockContext("x", 123.0), "2+x*2", 248.0)
 	testFormula(t, mockContext("x", 123.0), "2+2*x", 248.0)
+	testFormula(t, mockContext("x", 4.0), "x-2-4", -2.0)
 }
 
 func TestParensFormula(t *testing.T) {
@@ -44,6 +47,7 @@ func TestImpliedMultiplication(t *testing.T) {
 }
 
 func TestComparisons(t *testing.T) {
+	// FIXME: allOpCodes isn't ordered by length of opcode (so matching < then =)
 	testFormula(t, nil, "1 <= 2", 1.0)
 	testFormula(t, nil, "1 >= 2", 0.0)
 }
@@ -55,6 +59,15 @@ func TestExplicitVariable(t *testing.T) {
 
 func TestMultistageOrders(t *testing.T) {
 	testFormula(t, nil, "2*3 + 4*5 + 2*3*4", 50.0)
+	testFormula(t, nil, "3+4^2+1", 3.0+16+1.0)
+	testFormula(t, nil, "3 + 4*5 + 2*3", 3+4*5+2*3)
+	testFormula(t, nil, "1+2*5^2", 51.0)
+	testFormula(t, nil, "3^3*3", 27*3.0)
+}
+
+func TestSameLevelOrderOps(t *testing.T) {
+	testFormula(t, nil, "3*4/2", 6.0)
+	testFormula(t, nil, "4/2*3", 4/2.0*3.0)
 }
 
 func mockContext(eles ...interface{}) Context {
@@ -71,8 +84,32 @@ func testFormula(t *testing.T, ctx Context, f string, expected float64) {
 		assert.NoError(t, err)
 
 		ret := expr.Eval(ctx)
-		assert.Equal(t, expected, ret)
+		if !assert.Equal(t, expected, ret) {
+			debugWriteTree(expr, 0)
+		}
 	})
+}
+
+func debugWriteTree(expr Expr, offset int) {
+	fmt.Print(strings.Repeat(" ", offset*2))
+
+	switch v := expr.(type) {
+	case *exprBinary:
+		fmt.Println("Binary Op: ", v.opCode)
+		debugWriteTree(v.left, offset+1)
+		debugWriteTree(v.right, offset+1)
+	case *exprUnary:
+		fmt.Println("Unary: ", v.op)
+		debugWriteTree(v.ex, offset+1)
+	case *exprVal:
+		fmt.Println("Val: ", v.v)
+	case *exprIntVar:
+		fmt.Println("Var: ", v.idx)
+	case *exprNamedVar:
+		fmt.Println("Var: ", v.name)
+	default:
+		fmt.Println("Unknown")
+	}
 }
 
 // BenchmarkFormula-4   	25900489	        42.30 ns/op	       0 B/op	       0 allocs/op

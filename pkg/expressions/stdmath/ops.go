@@ -1,17 +1,30 @@
 package stdmath
 
-import "math"
+import (
+	"maps"
+	"math"
+	"slices"
+)
 
 // type Operation rune
 
 type (
 	OpFunc  func(left, right float64) float64
 	OpUnary func(float64) float64
+
+	OpCode string
 )
 
-var orderOfOps = []string{"^", ">>", "<<", "*", "/", "%", "+", "-", "&&", "||", "==", "<=", ">=", ">", "<"}
+var orderOfOps = [][]OpCode{
+	{"^"},
+	{">>", "<<"},
+	{"*", "/", "%"},
+	{"+", "-"},
+	{"&&", "||"},
+	{"==", "<=", ">=", ">", "<"},
+}
 
-var ops = map[string]OpFunc{
+var ops = map[OpCode]OpFunc{
 	"+":  func(left, right float64) float64 { return left + right },
 	"*":  func(left, right float64) float64 { return left * right },
 	"-":  func(left, right float64) float64 { return left - right },
@@ -31,7 +44,9 @@ var ops = map[string]OpFunc{
 	"||": nil,
 }
 
-var uniOps = map[string]OpUnary{
+var allOpCodes = slices.Collect(maps.Keys(ops))
+
+var uniOps = map[OpCode]OpUnary{
 	"-":   func(f float64) float64 { return -f },
 	"abs": math.Abs,
 
@@ -41,21 +56,47 @@ var uniOps = map[string]OpUnary{
 	"tan": math.Tan,
 }
 
-func isOpBefore(op0, op1 string) bool {
-	for _, op := range orderOfOps {
-		if op == op0 { // saw op0 first
-			return true
-		}
-		if op == op1 { // saw op1 first
-			return false
+func isOpAtOrBefore(op0, op1 OpCode) bool {
+	for _, opSet := range orderOfOps {
+		// if op == op0 { // saw op0 first
+		// 	return true
+		// }
+		// if op == op1 { // saw op1 first
+		// 	return false
+		// }
+		has0, has1 := slices.Contains(opSet, op0), slices.Contains(opSet, op1)
+		if has0 || has1 {
+			return has0
 		}
 	}
 	panic("op not found")
 }
 
+// -1 before, 0 same, 1 after
+func opCodeOrder(op0, op1 OpCode) int {
+	for _, opSet := range orderOfOps {
+		has0, has1 := slices.Contains(opSet, op0), slices.Contains(opSet, op1)
+		if has0 && has1 {
+			return 0
+		}
+		if has0 {
+			return -1
+		}
+		if has1 {
+			return 1
+		}
+	}
+	panic("op not found")
+}
+
+// returns 1/0 based on bool
 func conditionalOp(truth bool) float64 {
 	if truth {
 		return 1.0
 	}
 	return 0.0
+}
+
+func truthy(val float64) bool {
+	return val != 0.0
 }

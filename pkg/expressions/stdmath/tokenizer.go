@@ -43,7 +43,7 @@ func tokenizeExpr(s string) ([]token, error) {
 			prev := sb.String()
 			sb.Reset()
 
-			if _, uniOk := uniOps[prev]; uniOk {
+			if _, uniOk := uniOps[OpCode(prev)]; uniOk {
 				ret = append(ret, token{prev, typeMod})
 			} else {
 				ret = append(ret, token{prev, typeLiteral})
@@ -73,13 +73,13 @@ func tokenizeExpr(s string) ([]token, error) {
 			ret = append(ret, token{string(r), typeMod})
 
 		// operator
-		case parens == 0 && inPrefix(s[i:], orderOfOps...) != nil:
+		case parens == 0 && inPrefix(s[i:], allOpCodes...) != nil:
 			if sb.Len() > 0 {
 				ret = append(ret, token{sb.String(), typeLiteral})
 				sb.Reset()
 			}
 
-			opCode := *inPrefix(s[i:], orderOfOps...)
+			opCode := *inPrefix(s[i:], allOpCodes...)
 			ret = append(ret, token{opCode, typeOp})
 			i += len(opCode) - 1
 
@@ -96,10 +96,11 @@ func tokenizeExpr(s string) ([]token, error) {
 	return ret, nil
 }
 
-func inPrefix(s string, of ...string) *string {
+func inPrefix(s string, of ...OpCode) *string {
 	for _, ele := range of {
-		if strings.HasPrefix(s, ele) {
-			return &ele
+		if strings.HasPrefix(s, string(ele)) {
+			sCode := string(ele)
+			return &sCode
 		}
 	}
 	return nil

@@ -29,7 +29,7 @@ type (
 	}
 	exprBinary struct {
 		op          OpFunc
-		opCode      string
+		opCode      OpCode
 		left, right Expr
 	}
 )
@@ -56,59 +56,41 @@ func Compile(expr string) (Expr, error) {
 		return nil, err
 	}
 
-	scanner := tokenScanner{tokens}
+	scanner := tokenScanner{expr, tokens}
 
-	return scanner.compileTokens()
+	return scanner.compileTokens(""), nil
 }
 
 type tokenScanner struct {
+	s    string
 	next []token
 }
 
-func (s *tokenScanner) compileTokens() (Expr, error) {
-	var ret *exprBinary
-
-	eFirst, _ := s.getNextExpr()
-	if s.done() {
-		return eFirst, nil
-	}
-
+func (s *tokenScanner) compileTokens(lastOpCode OpCode) (ret Expr) {
+	ret, _ = s.getNextExpr()
 	for !s.done() {
-		op, opCode, err := s.getNextOp()
-		if err != nil {
-			return nil, err
-		}
-		nextExpr, err := s.getNextExpr()
-		if err != nil {
-			return nil, err
-		}
+		peekOp := OpCode(s.peek().val)
+		order := opCodeOrder(lastOpCode, peekOp)
 
-		switch {
-		case ret == nil:
-			ret = &exprBinary{
-				left:   eFirst,
-				op:     op,
-				opCode: opCode,
-				right:  nextExpr,
-			}
-		case isOpBefore(ret.opCode, opCode): // eg. 3*3+3
+		switch order {
+		case -1: // * -> +
+			return // no op, just expression
+		case 0: // + -> +-
+			return
+		case 1: // + -> *
+			// recurse
+			op, opCode, _ := s.getNextOp()
+			expr := s.compileTokens(opCode)
 			ret = &exprBinary{
 				left:   ret,
 				op:     op,
 				opCode: opCode,
-				right:  nextExpr,
-			}
-		default: // eg 3+3*3
-			ret.right = &exprBinary{
-				left:   ret.right,
-				op:     op,
-				opCode: opCode,
-				right:  nextExpr,
+				right:  expr,
 			}
 		}
 	}
 
-	return ret, nil
+	return
 }
 
 func (s *tokenScanner) getNextExpr() (Expr, error) {
@@ -118,7 +100,7 @@ func (s *tokenScanner) getNextExpr() (Expr, error) {
 		return compileToken(token)
 
 	case typeMod:
-		modifier := uniOps[token.val]
+		modifier := uniOps[OpCode(token.val)]
 		next, err := s.getNextExpr()
 		if err != nil {
 			return nil, err
@@ -134,15 +116,15 @@ func (s *tokenScanner) getNextExpr() (Expr, error) {
 	}
 }
 
-func (s *tokenScanner) getNextOp() (OpFunc, string, error) {
+func (s *tokenScanner) getNextOp() (OpFunc, OpCode, error) {
 	switch s.peek().t {
 	case typeOp:
 		token := s.pop()
-		op, ok := ops[token.val]
+		op, ok := ops[OpCode(token.val)]
 		if !ok {
 			return nil, "", errors.New("unrecognized op")
 		}
-		return op, token.val, nil
+		return op, OpCode(token.val), nil
 	case typeGroup: // special case, implied multiplication
 		return ops["*"], "*", nil
 	default:
