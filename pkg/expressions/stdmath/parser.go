@@ -99,15 +99,15 @@ func (s *tokenScanner) compileTokens(lastOpCode OpCode) (ret Expr, err error) {
 				return nil, err
 			}
 			ret = &exprBinary{
-				left:   ret,
+				left:   simplify(ret),
 				op:     op,
 				opCode: opCode,
-				right:  expr,
+				right:  simplify(expr),
 			}
 		}
 	}
 
-	return ret, nil
+	return simplify(ret), nil
 }
 
 func (s *tokenScanner) getNextExpr() (Expr, error) {
