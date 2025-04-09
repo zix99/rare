@@ -11,10 +11,6 @@ import (
 */
 
 type (
-	Number interface {
-		int | int32 | int64 | float32 | float64
-	}
-
 	Expr interface {
 		Eval(ctx Context) float64
 	}
