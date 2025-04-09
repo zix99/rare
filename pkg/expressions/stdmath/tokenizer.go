@@ -70,7 +70,7 @@ func tokenizeExpr(s string) ([]token, error) {
 			// skip
 
 		// negative unary op on literal or group
-		case parens == 0 && sb.Len() == 0 && (len(ret) == 0 || (len(ret) > 0 && ret[len(ret)-1].t == typeOp)) && r == '-':
+		case parens == 0 && sb.Len() == 0 && (len(ret) == 0 || (len(ret) > 0 && ret[len(ret)-1].t == typeOp)) && hasUnaryOp(r):
 			ret = append(ret, token{string(r), typeMod})
 
 		// operator

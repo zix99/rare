@@ -26,3 +26,22 @@ func TestPrefixInOps(t *testing.T) {
 	assert.EqualValues(t, "<=", *prefixInOps("<= b"))
 	assert.EqualValues(t, "<", *prefixInOps("< b"))
 }
+
+func TestUnaryNot(t *testing.T) {
+	testFormula(t, nil, "!1", 0.0)
+	testOp(t, "!(1 > 2)", 1.0)
+}
+
+func testOp(t *testing.T, f string, expected float64) {
+	t.Helper()
+
+	expr, err := Compile(f)
+	if !assert.NoError(t, err) {
+		t.FailNow()
+	}
+
+	ret := expr.Eval(nil)
+	if !assert.Equal(t, expected, ret) {
+		debugWriteTree(expr, 0)
+	}
+}

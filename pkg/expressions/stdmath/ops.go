@@ -19,8 +19,8 @@ var orderOfOps = [][]OpCode{
 	{">>", "<<"},
 	{"*", "/", "%"},
 	{"+", "-"},
-	{"&&", "||"},
 	{"==", "<=", ">=", ">", "<"},
+	{"&&", "||"},
 }
 
 var ops = map[OpCode]OpFunc{
@@ -39,8 +39,8 @@ var ops = map[OpCode]OpFunc{
 	"==": func(left, right float64) float64 { return conditionalOp(left == right) },
 
 	// todo
-	"&&": nil,
-	"||": nil,
+	"&&": func(left, right float64) float64 { return conditionalOp(truthy(left) && truthy(right)) },
+	"||": func(left, right float64) float64 { return conditionalOp(truthy(left) || truthy(right)) },
 }
 
 var uniOps = map[OpCode]OpUnary{
@@ -51,6 +51,9 @@ var uniOps = map[OpCode]OpUnary{
 	"sin": math.Sin,
 	"cos": math.Cos,
 	"tan": math.Tan,
+
+	// unary comparisons
+	"!": func(f float64) float64 { return conditionalOp(!truthy(f)) },
 }
 
 // -1 before, 0 same, 1 after
@@ -82,6 +85,11 @@ func prefixInOps(s string) *OpCode {
 	}
 
 	return nil
+}
+
+func hasUnaryOp(r byte) bool {
+	_, ok := uniOps[OpCode(r)]
+	return ok
 }
 
 // returns 1/0 based on bool

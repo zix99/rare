@@ -11,6 +11,10 @@ import (
 */
 
 type (
+	Number interface {
+		int | int32 | int64 | float32 | float64
+	}
+
 	Expr interface {
 		Eval(ctx Context) float64
 	}
@@ -20,7 +24,7 @@ type (
 	exprNamedVar struct {
 		name string
 	}
-	exprIntVar struct {
+	exprIndexVar struct {
 		idx int
 	}
 	exprUnary struct {
@@ -40,7 +44,7 @@ func (s *exprVal) Eval(ctx Context) float64 {
 func (s *exprNamedVar) Eval(ctx Context) float64 {
 	return ctx.GetKey(s.name)
 }
-func (s *exprIntVar) Eval(ctx Context) float64 {
+func (s *exprIndexVar) Eval(ctx Context) float64 {
 	return ctx.GetMatch(s.idx)
 }
 func (s *exprUnary) Eval(ctx Context) float64 {
@@ -81,9 +85,8 @@ func (s *tokenScanner) compileTokens(lastOpCode OpCode) (ret Expr, err error) {
 		if err != nil {
 			return nil, err
 		}
-		order := opCodeOrder(lastOpCode, peekOp)
 
-		switch order {
+		switch opCodeOrder(lastOpCode, peekOp) {
 		case -1: // * -> +
 			return ret, nil // no op, just expression
 		case 0: // + -> +-
@@ -173,7 +176,7 @@ func compileToken(t token) (Expr, error) {
 	case t.t == typeLiteral && isBraceBoxed(t.val):
 		inner := t.val[1 : len(t.val)-1]
 		if idx, err := strconv.Atoi(inner); err == nil {
-			return &exprIntVar{idx}, nil
+			return &exprIndexVar{idx}, nil
 		}
 		return &exprNamedVar{inner}, nil
 

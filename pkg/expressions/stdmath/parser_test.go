@@ -39,6 +39,11 @@ func TestNegativeNumbers(t *testing.T) {
 	testFormula(t, ctx, "5 + -2", 3.0)
 	testFormula(t, ctx, "8 + -x", 3.0)
 	testFormula(t, ctx, "2 + -(3-2)", 1.0)
+	testFormula(t, ctx, "2 - -(3-2)", 3.0)
+}
+
+func TestUnaryOp(t *testing.T) {
+	testFormula(t, mockContext("x", 5.0), "-x", -5.0)
 }
 
 func TestMoreComplex(t *testing.T) {
@@ -75,6 +80,10 @@ func TestSameLevelOrderOps(t *testing.T) {
 	testFormula(t, nil, "4/2*3", 4/2.0*3.0)
 }
 
+func TestTruthyStatement(t *testing.T) {
+	testFormula(t, nil, "1 < 2 && 5 > 4 && 5+2>=6", 1.0)
+}
+
 func TestError(t *testing.T) {
 	_, err := Compile("")
 	assert.Error(t, err)
@@ -104,7 +113,9 @@ func mockContext(eles ...interface{}) Context {
 }
 
 func testFormula(t *testing.T, ctx Context, f string, expected float64) {
+	t.Helper()
 	t.Run(f, func(t *testing.T) {
+		t.Helper()
 		expr, err := Compile(f)
 		assert.NoError(t, err)
 
@@ -128,7 +139,7 @@ func debugWriteTree(expr Expr, offset int) {
 		debugWriteTree(v.ex, offset+1)
 	case *exprVal:
 		fmt.Println("Val: ", v.v)
-	case *exprIntVar:
+	case *exprIndexVar:
 		fmt.Println("Var: ", v.idx)
 	case *exprNamedVar:
 		fmt.Println("Var: ", v.name)
