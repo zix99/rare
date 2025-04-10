@@ -124,7 +124,7 @@ func (s *tokenScanner) done() bool {
 // Turn a single token (literal or group) into an expression
 func compileToken(t token) (Expr, error) {
 	switch {
-	case t.t == typeLiteral && isBraceBoxed(t.val):
+	case t.t == typeLiteral && isBoxed(t.val):
 		inner := t.val[1 : len(t.val)-1]
 		if idx, err := strconv.Atoi(inner); err == nil {
 			return &exprIndexVar{idx}, nil
@@ -145,6 +145,6 @@ func compileToken(t token) (Expr, error) {
 }
 
 // String like "{xxx}"
-func isBraceBoxed(s string) bool {
-	return len(s) > 0 && s[0] == '{' && s[len(s)-1] == '}'
+func isBoxed(s string) bool {
+	return len(s) >= 2 && s[0] == '[' && s[len(s)-1] == ']'
 }

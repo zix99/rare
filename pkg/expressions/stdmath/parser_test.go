@@ -62,9 +62,9 @@ func TestComparisons(t *testing.T) {
 
 func TestExplicitVariable(t *testing.T) {
 	testFormula(t, mockContext("x", 123.0), "x", 123.0)
-	testFormula(t, mockContext("x", 123.0), "{x}", 123.0)
-	testFormula(t, mockContext("x", 150.0), "{x}/50", 3.0)
-	testFormula(t, mockContext(), "{1}+3.0", 3.0)
+	testFormula(t, mockContext("x", 123.0), "[x]", 123.0)
+	testFormula(t, mockContext("x", 150.0), "[x]/50", 3.0)
+	testFormula(t, mockContext(), "[1]+3.0", 3.0)
 }
 
 func TestMultistageOrders(t *testing.T) {

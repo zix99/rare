@@ -47,6 +47,9 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"sqrt":  unaryArithmaticHelperf(math.Sqrt),
 	"round": kfRound,
 
+	// Formula eval
+	"!": kfMath,
+
 	// Comparisons
 	"if":     KeyBuilderFunction(kfIf),
 	"switch": kfSwitch,
