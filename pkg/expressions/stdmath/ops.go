@@ -18,27 +18,35 @@ var orderOfOps = [][]OpCode{
 	{"^"},
 	{">>", "<<"},
 	{"*", "/", "%"},
+	{"&", "|"},
 	{"+", "-"},
 	{"==", "<=", ">=", ">", "<"},
 	{"&&", "||"},
 }
 
 var ops = map[OpCode]OpFunc{
-	"+":  func(left, right float64) float64 { return left + right },
-	"*":  func(left, right float64) float64 { return left * right },
-	"-":  func(left, right float64) float64 { return left - right },
-	"/":  func(left, right float64) float64 { return left / right },
-	"^":  math.Pow,
-	"%":  func(left, right float64) float64 { return float64(int64(left) % int64(right)) },
+	// Basic
+	"+": func(left, right float64) float64 { return left + right },
+	"*": func(left, right float64) float64 { return left * right },
+	"-": func(left, right float64) float64 { return left - right },
+	"/": func(left, right float64) float64 { return left / right },
+	"^": math.Pow,
+	"%": func(left, right float64) float64 { return float64(int64(left) % int64(right)) },
+
+	// Shift
 	"<<": func(left, right float64) float64 { return float64(int64(left) << int64(right)) },
 	">>": func(left, right float64) float64 { return float64(int64(left) >> int64(right)) },
+	"&":  func(left, right float64) float64 { return float64(int64(left) & int64(right)) },
+	"|":  func(left, right float64) float64 { return float64(int64(left) | int64(right)) },
+
+	// Comparisons
 	"<":  func(left, right float64) float64 { return conditionalOp(left < right) },
 	"<=": func(left, right float64) float64 { return conditionalOp(left <= right) },
 	">":  func(left, right float64) float64 { return conditionalOp(left > right) },
 	">=": func(left, right float64) float64 { return conditionalOp(left >= right) },
 	"==": func(left, right float64) float64 { return conditionalOp(left == right) },
 
-	// todo
+	// Comparison
 	"&&": func(left, right float64) float64 { return conditionalOp(truthy(left) && truthy(right)) },
 	"||": func(left, right float64) float64 { return conditionalOp(truthy(left) || truthy(right)) },
 }
@@ -47,10 +55,26 @@ var uniOps = map[OpCode]OpUnary{
 	"-":   func(f float64) float64 { return -f },
 	"abs": math.Abs,
 
-	// todo (more)
-	"sin": math.Sin,
-	"cos": math.Cos,
-	"tan": math.Tan,
+	// Trig
+	"sin":  math.Sin,
+	"asin": math.Asin,
+	"cos":  math.Cos,
+	"acos": math.Acos,
+	"tan":  math.Tan,
+	"atan": math.Atan,
+	"sqrt": math.Sqrt,
+
+	// rounding
+	"floor": math.Floor,
+	"ceil":  math.Ceil,
+	"round": math.Round,
+
+	// Log
+	"exp":   math.Exp,
+	"exp2":  math.Exp2,
+	"log":   math.Log,
+	"log10": math.Log10,
+	"log2":  math.Log2,
 
 	// unary comparisons
 	"!": func(f float64) float64 { return conditionalOp(!truthy(f)) },

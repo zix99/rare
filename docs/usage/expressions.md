@@ -124,6 +124,19 @@ Create exponentially (base-10) increase buckets.
 
 ### Arithmetic
 
+#### Math Formulas
+
+Syntax: `{! "expr"}`
+
+Evaluates a mathematic expression, optionally referencing matches.
+
+Variables in expressions are referenced using brackets rather than
+braces. eg. `[0]` instead of `{0}`
+
+Eg: `{! 2+2}`, `{! 2+x}`, `{! 2+[0]}`
+
+See: [Math](math.md) for more information
+
 #### Sumi, Subi, Multi, Divi, Modi
 
 Syntax: `{sumi ...}`, `{subi ...}`, `{multi ...}`, `{divi ...}`, `{modi ...}`
