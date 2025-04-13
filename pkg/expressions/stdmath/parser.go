@@ -1,7 +1,6 @@
 package stdmath
 
 import (
-	"errors"
 	"strconv"
 )
 
@@ -23,7 +22,7 @@ type tokenScanner struct {
 
 func (s *tokenScanner) compileTokens(lastOpCode OpCode) (ret Expr, err error) {
 	if s.done() {
-		return nil, errors.New("unexpected end")
+		return nil, ErrUnexpectedEnd
 	}
 
 	ret, err = s.getNextExpr()
@@ -84,7 +83,7 @@ func (s *tokenScanner) getNextExpr() (Expr, error) {
 		}, nil
 
 	default:
-		return nil, errors.New("unexpected token")
+		return nil, ErrExpectedExpression
 	}
 }
 
@@ -97,13 +96,13 @@ func (s *tokenScanner) getNextOp(pop bool) (OpFunc, OpCode, error) {
 		}
 		op, ok := ops[OpCode(token.val)]
 		if !ok {
-			return nil, "", errors.New("unrecognized op")
+			return nil, "", ErrUnknownOperation
 		}
 		return op, OpCode(token.val), nil
 	case typeGroup: // special case, implied multiplication
 		return ops["*"], "*", nil
 	default:
-		return nil, "", errors.New("expected operation")
+		return nil, "", ErrExpectedOperation
 	}
 }
 
@@ -147,7 +146,7 @@ func compileToken(t token) (Expr, error) {
 		return Compile(t.val)
 	}
 
-	return nil, errors.New("unexpected type")
+	return nil, ErrExpectedExpression
 }
 
 // String like "{xxx}"

@@ -86,22 +86,25 @@ func TestTruthyStatement(t *testing.T) {
 
 func TestError(t *testing.T) {
 	_, err := Compile("")
-	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrUnexpectedEnd)
 
 	_, err = Compile("x+")
-	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrUnexpectedEnd)
 
 	_, err = Compile("(1+1)x")
-	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrExpectedOperation)
 
 	_, err = Compile("1+(1+")
-	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrTokenizerUnclosed)
 
 	_, err = Compile("1+(1+1))")
-	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrTokenizerOverclosed)
 
 	_, err = Compile("1+(1+)")
-	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrUnexpectedEnd)
+
+	// _, err = Compile("1 $ 2")
+	// assert.Error(t, err)
 }
 
 func mockContext(eles ...interface{}) Context {

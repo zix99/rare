@@ -1,7 +1,6 @@
 package stdmath
 
 import (
-	"errors"
 	"strings"
 )
 
@@ -18,11 +17,6 @@ type token struct {
 	val string
 	t   tokenType
 }
-
-var (
-	ErrTokenizerOverclosed = errors.New("over-closed parenthesis")
-	ErrTokenizerUnclosed   = errors.New("unclosed parenthesis")
-)
 
 func tokenizeExpr(s string) ([]token, error) {
 	ret := make([]token, 0)
