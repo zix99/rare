@@ -132,6 +132,12 @@ func compileToken(t token) (Expr, error) {
 		return &exprNamedVar{inner}, nil
 
 	case t.t == typeLiteral:
+		// 0b, 0x, or 10 int
+		if v, err := strconv.ParseInt(t.val, 0, 64); err == nil {
+			return &exprVal{float64(v)}, nil
+		}
+
+		// const float
 		if v, err := strconv.ParseFloat(t.val, 64); err == nil {
 			return &exprVal{v}, nil
 		}

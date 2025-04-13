@@ -33,17 +33,12 @@ As a brief example
 
 ### Binary
 
-| Type  | Operators   |
-|-------|-------------|
-| Basic | `+ - * / ^` |
-
-**Basic Operations:** `+ - * / ^`
-
-**Bit Shift:** `<< >>`
-
-**Binary Operators:** `= <= >= > <`
-
-**Binary Combiners:** `&& ||`
+| Type       | Operators     |
+|------------|---------------|
+| Basic      | `+ - * / ^`   |
+| Bit        | `<< >> & |`   |
+| Comparison | `= <= >= < >` |
+| Combiners  | `&& ||`       |
 
 ### Unary
 
@@ -51,11 +46,20 @@ For single-character unary expressions, they can be applied directly
 prior to the value, eg `-x` or `!x`. For more complex expressions,
 they need to be followed by a group, eg. `cos(x)` or `abs(x+2)`
 
-- `-` Negative
-- `!` Binary not
-- `abs` Absolute value
-- `cos`
-- `sin`
-- `tan`
+| Type       | Operator                          |
+|------------|-----------------------------------|
+| Basic      | `-` `abs`                         |
+| Trig       | `sqrt sin asin cos acos tan atan` |
+| Rounding   | `floor ceil round`                |
+| Log        | `exp exp2 log log10 log2`         |
+| Comparison | `!` (binary not)                  |
 
 ### Formats
+
+Supports the following number formats:
+
+| Format  | Prefix | Example   |
+|---------|--------|-----------|
+| Base 10 | -      | `123.456` |
+| Binary  | `0b`   | `0b1101`  |
+| Hex     | `0x`   | `0x1BC`   |
