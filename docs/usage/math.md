@@ -26,8 +26,6 @@ If `x=4`, then the following will evaluate:
 {! 2(1+1) } => 4
 ```
 
-As a brief example
-
 
 ## Operations
 
