@@ -19,6 +19,8 @@ func mockContext(args ...interface{}) KeyBuilderContext {
 }
 
 func testExpression(t *testing.T, context KeyBuilderContext, expression string, expected string) {
+	t.Helper()
+
 	kb, err := NewStdKeyBuilder().Compile(expression)
 	assert.Nil(t, err)
 	assert.NotNil(t, kb)
@@ -30,6 +32,8 @@ func testExpression(t *testing.T, context KeyBuilderContext, expression string, 
 
 // if expected is nil, any error is acceptable
 func testExpressionErr(t *testing.T, context KeyBuilderContext, expression string, evalsTo string, expected ...interface{}) {
+	t.Helper()
+
 	kb, err := NewStdKeyBuilder().Compile(expression)
 	if evalsTo == "" {
 		assert.Nil(t, kb, "Expected not compiled with error")
