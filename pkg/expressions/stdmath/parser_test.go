@@ -44,6 +44,7 @@ func TestNegativeNumbers(t *testing.T) {
 
 func TestUnaryOp(t *testing.T) {
 	testFormula(t, mockContext("x", 5.0), "-x", -5.0)
+	testFormula(t, mockContext("x", 5.0), "-x+x*2", 5.0)
 }
 
 func TestMoreComplex(t *testing.T) {
@@ -73,6 +74,8 @@ func TestMultistageOrders(t *testing.T) {
 	testFormula(t, nil, "3 + 4*5 + 2*3", 3+4*5+2*3)
 	testFormula(t, nil, "1+2*5^2", 51.0)
 	testFormula(t, nil, "3^3*3", 27*3.0)
+
+	testFormula(t, nil, "3^2 + 2 * 4^2 - 1", 40)
 }
 
 func TestSameLevelOrderOps(t *testing.T) {
@@ -82,6 +85,7 @@ func TestSameLevelOrderOps(t *testing.T) {
 
 func TestTruthyStatement(t *testing.T) {
 	testFormula(t, nil, "1 < 2 && 5 > 4 && 5+2>=6", 1.0)
+	testFormula(t, nil, "5 < 2 || 4 > 2 || 0 > 1", 1.0)
 }
 
 func TestError(t *testing.T) {

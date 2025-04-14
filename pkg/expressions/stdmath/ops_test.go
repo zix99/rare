@@ -44,6 +44,20 @@ func TestOpsShift(t *testing.T) {
 }
 
 func TestOpCompare(t *testing.T) {
+	testOp(t, "1 < 2", 1.0)
+	testOp(t, "2 <= 2", 1.0)
+	testOp(t, "3 > 2", 1.0)
+	testOp(t, "3 >= 2", 1.0)
+	testOp(t, "5 == 5", 1.0)
+
+	testOp(t, "5 < 2", 0.0)
+	testOp(t, "2.5 <= 2", 0.0)
+	testOp(t, "2 > 2", 0.0)
+	testOp(t, "1 >= 2", 0.0)
+	testOp(t, "4 == 5", 0.0)
+}
+
+func TestOpCombine(t *testing.T) {
 	testOp(t, "1 && 0", 0)
 	testOp(t, "1 || 0", 1)
 }
