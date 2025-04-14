@@ -1,6 +1,7 @@
 package stdmath
 
 import (
+	"regexp"
 	"strconv"
 )
 
@@ -130,7 +131,7 @@ func compileToken(t token) (Expr, error) {
 		}
 		return &exprNamedVar{inner}, nil
 
-	case t.t == typeLiteral:
+	case t.t == typeLiteral: // numeric literal
 		// 0b, 0x, or 10 int
 		if v, err := strconv.ParseInt(t.val, 0, 64); err == nil {
 			return &exprVal{float64(v)}, nil
@@ -140,6 +141,11 @@ func compileToken(t token) (Expr, error) {
 		if v, err := strconv.ParseFloat(t.val, 64); err == nil {
 			return &exprVal{v}, nil
 		}
+
+		if !validVariableName(t.val) {
+			return nil, ErrTokenizerNumeric
+		}
+
 		return &exprNamedVar{t.val}, nil
 
 	case t.t == typeGroup:
@@ -152,4 +158,11 @@ func compileToken(t token) (Expr, error) {
 // String like "{xxx}"
 func isBoxed(s string) bool {
 	return len(s) >= 2 && s[0] == '[' && s[len(s)-1] == ']'
+}
+
+var validVariableRegex = regexp.MustCompile("(?i)^[a-z][a-z0-9]*$")
+
+// Check for valid variable names (in implicit cases)
+func validVariableName(s string) bool {
+	return validVariableRegex.MatchString(s)
 }

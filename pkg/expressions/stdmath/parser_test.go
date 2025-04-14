@@ -103,8 +103,8 @@ func TestError(t *testing.T) {
 	_, err = Compile("1+(1+)")
 	assert.ErrorIs(t, err, ErrUnexpectedEnd)
 
-	// _, err = Compile("1 $ 2")
-	// assert.Error(t, err)
+	_, err = Compile("1 $ 2")
+	assert.Error(t, err)
 }
 
 func mockContext(eles ...interface{}) Context {
@@ -149,6 +149,22 @@ func debugWriteTree(expr Expr, offset int) {
 	default:
 		fmt.Println("Unknown")
 	}
+}
+
+func TestInvalidVariableName(t *testing.T) {
+	assert.False(t, validVariableName("0abc"))
+	assert.False(t, validVariableName("9b"))
+	assert.False(t, validVariableName("9"))
+	assert.False(t, validVariableName("-9b"))
+
+	assert.False(t, validVariableName("-aa"))
+	assert.True(t, validVariableName("a0"))
+	assert.True(t, validVariableName("abc"))
+	assert.True(t, validVariableName("ABc"))
+
+	assert.True(t, validVariableName("a"))
+	assert.True(t, validVariableName("B"))
+	assert.False(t, validVariableName(""))
 }
 
 // BenchmarkFormula-4   	25900489	        42.30 ns/op	       0 B/op	       0 allocs/op
