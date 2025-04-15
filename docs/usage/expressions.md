@@ -106,7 +106,7 @@ Syntax: `{bucket intVal "bucketSize"}`
 
 Given a value, create equal-sized buckets and place each value in those buckets
 
-eg. `{bucketrange 70 50}` will return `50`
+eg. `{bucket 70 50}` will return `50`
 
 #### BucketRange
 
