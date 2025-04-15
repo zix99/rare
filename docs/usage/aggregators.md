@@ -44,7 +44,7 @@ rare help histogram
 
 ### Summary
 
-The histogram format outputs an aggregation by counting the occurences
+The histogram format outputs an aggregation by counting the occurrences
 of an extracted match.  That is to say, on every line a regex will be
 matched (or not), and the matched groups can be used to extract and build
 a key, that will act as the bucketing name.
@@ -268,10 +268,12 @@ can group and sort results.
 
 1. Extract data from a regex using `--match` (`-m`)
 1. Optionally group the data into buckets using `--group` (`-g`). Can use `key=value` format to give column a name
-1. Specify one or more "accumulators", which are expressions. `{.}` represents the current value, so for example, `{sumi {.} {1}}` adds the match `{1}` to the current value.
+1. Specify one or more "accumulators", which are expressions. `{.}` represents the current value,
+   so for example, `{sumi {.} {1}}` adds the match `{1}` to the current value.
     1. Can specify only expression, `key=expression` format or `key:initial=expression`.
     1. Can reference past accumulators by key, eg `{divi {key1} {key2}}`
-1. Optionally `--sort` the data based on an expression or reference to an accumulator. eg. `--sort {key1}`. Can reverse with `--sort-reverse` flag
+1. Optionally `--sort` the data based on an expression or reference to anaccumulator.
+   eg. `--sort {key1}`. Can reverse with `--sort-reverse` flag
 
 ### Example
 
@@ -306,10 +308,13 @@ flags for tables.
 These are the supported sorters:
 
 * `text` -- Pure alphanumeric sort.  Fastest, but can sort numbers oddly (eg. would sort 1, 11, 2, ...)
-* `numeric` -- Attempts to parse the value as numeric.  If unable to parse, falls back to alphanumeric (Default)
-* `contextual` -- Tries to use context to be smart about sorting, eg if it sees a month or weekday name, will sort by that. Falls back to numeric
+* `numeric` -- Attempts to parse the value as numeric.  If unable to parse, falls
+    back to alphanumeric (Default)
+* `contextual` -- Tries to use context to be smart about sorting, eg if it sees a month or weekday name,
+    will sort by that. Falls back to numeric
 * `date` -- Parses the value as if it were a date. Falls back to contextual
-* `value` -- Orders the results based on their aggregated *value*. eg. would put the most frequent item at the top. Defaults to descending order
+* `value` -- Orders the results based on their aggregated *value*. eg. would put the most frequent item
+    at the top. Defaults to descending order
 
 #### Modifiers
 
@@ -326,6 +331,26 @@ These are the supported modifiers:
 Some of the aggregators support alternative display scaling: `linear` (default), `log10`, and `log2`.
 
 In aggregators that support it, you can specify with `--scale log10`
+
+### Formatting
+
+Many of the aggregators support custom number formatters, defaulting to simply *humanize* it (add commas).
+
+You can specify a custom expression to format the output via `--format`.
+
+Alternatively, you can short-hand the function name when it's a simple formatter (that only accepts 1 argument).
+
+It has 3 arguments:
+
+ - `{0}` or `{value}` -- Value being formatted
+ - `{1}` or `{min}` -- The min value in the set
+ - `{2}` or `{max}` -- The max value in the set
+
+eg.
+
+ - `{bytesize {value}}` OR `bytesize` -- Convert the number to bytes
+ - `{downscale {0}}` OR `downscale` -- Convert to suffixed-numbers (k, M, etc)
+ - `{percent {0} 2 {1} {2}}` -- Converts the value to a percentage based on the range from min to max
 
 ### CSV Output
 

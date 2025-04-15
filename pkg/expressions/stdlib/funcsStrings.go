@@ -69,7 +69,7 @@ func kfLower(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}, nil
 }
 
-// {substr {0} }
+// {substr {0} left len}
 func kfSubstr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	if len(args) != 3 {
 		return stageErrArgCount(args, 3)
@@ -173,9 +173,10 @@ func kfFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}), nil
 }
 
+// {percent val [decimals=1] [[min] max]}
 func kfPercent(args []KeyBuilderStage) (KeyBuilderStage, error) {
-	if !isArgCountBetween(args, 1, 2) {
-		return stageErrArgRange(args, "1-2")
+	if !isArgCountBetween(args, 1, 4) {
+		return stageErrArgRange(args, "1-4")
 	}
 
 	decimals, hasDecimals := EvalArgInt(args, 1, 1)
@@ -183,12 +184,44 @@ func kfPercent(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageArgError(ErrConst, 1)
 	}
 
+	var stageMin, stageMax typedStage[float64]
+	minOk, maxOk := true, true
+	switch len(args) {
+	case 1, 2:
+		stageMin = typedLiteral(0.0)
+		stageMax = typedLiteral(1.0)
+	case 3:
+		stageMin = typedLiteral(0.0)
+		stageMax, maxOk = evalTypedStage(args[2], typedParserFloat)
+	case 4:
+		stageMin, minOk = evalTypedStage(args[2], typedParserFloat)
+		stageMax, maxOk = evalTypedStage(args[3], typedParserFloat)
+	}
+
+	if !minOk || !maxOk {
+		return stageError(ErrNum)
+	}
+
 	return func(context KeyBuilderContext) string {
-		val, err := strconv.ParseFloat(args[0](context), 64)
-		if err != nil {
-			return "Err%"
+		min, ok := stageMin(context)
+		if !ok {
+			return ErrorNum
 		}
-		return strconv.FormatFloat(val*100.0, 'f', decimals, 64) + "%"
+		max, ok := stageMax(context)
+		if !ok {
+			return ErrorNum
+		}
+
+		sVal := args[0](context)
+		val, err := strconv.ParseFloat(sVal, 64)
+		if err != nil {
+			return ErrorNum
+		}
+
+		ret := make([]byte, 0, 12)
+		ret = strconv.AppendFloat(ret, (val-min)*100.0/(max-min), 'f', decimals, 64)
+		ret = append(ret, '%')
+		return string(ret)
 	}, nil
 }
 
@@ -218,13 +251,14 @@ func kfHumanizeFloat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}), nil
 }
 
+// {bytesize val [precision]}
 func kfBytesize(args []KeyBuilderStage) (KeyBuilderStage, error) {
-	if len(args) < 1 {
-		return stageErrArgRange(args, "1+")
+	if !isArgCountBetween(args, 1, 2) {
+		return stageErrArgRange(args, "1-2")
 	}
 
-	precision, err := strconv.Atoi(EvalStageIndexOrDefault(args, 1, "0"))
-	if err != nil {
+	precision, pOk := EvalArgInt(args, 1, 0)
+	if !pOk {
 		return stageArgError(ErrNum, 1)
 	}
 
@@ -235,6 +269,46 @@ func kfBytesize(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		}
 		return humanize.AlwaysByteSize(val, precision)
 	}), nil
+}
+
+// {bytesizesi val [precision]}
+func kfBytesizeSi(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if !isArgCountBetween(args, 1, 2) {
+		return stageErrArgRange(args, "1-2")
+	}
+
+	precision, pOk := EvalArgInt(args, 1, 0)
+	if !pOk {
+		return stageArgError(ErrNum, 1)
+	}
+
+	return KeyBuilderStage(func(context KeyBuilderContext) string {
+		val, err := strconv.ParseUint(args[0](context), 10, 64)
+		if err != nil {
+			return ErrorNum
+		}
+		return humanize.AlwaysByteSizeSi(val, precision)
+	}), nil
+}
+
+// {downscale val [precision]}
+func kfDownscale(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if !isArgCountBetween(args, 1, 2) {
+		return stageErrArgRange(args, "1-2")
+	}
+
+	precision, pOk := EvalArgInt(args, 1, 0)
+	if !pOk {
+		return stageArgError(ErrNum, 1)
+	}
+
+	return func(context KeyBuilderContext) string {
+		val, err := strconv.ParseInt(args[0](context), 10, 64)
+		if err != nil {
+			return ErrorNum
+		}
+		return humanize.AlwaysDownscale(val, precision)
+	}, nil
 }
 
 func kfJoin(delim rune) KeyBuilderFunction {

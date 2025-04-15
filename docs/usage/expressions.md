@@ -90,7 +90,7 @@ Arguments surrounded by `[]` are optional.
 
 Syntax: `{coalesce ...}`
 
-Evaluates arguments in-order, chosing the first non-empty result.
+Evaluates arguments in-order, choosing the first non-empty result.
 
 #### Select Field
 
@@ -106,6 +106,16 @@ Syntax: `{bucket intVal "bucketSize"}`
 
 Given a value, create equal-sized buckets and place each value in those buckets
 
+eg. `{bucket 70 50}` will return `50`
+
+#### BucketRange
+
+Syntax: `{bucketrange intVal "bucketSize"}`
+
+Given a value, create equal-sized buckets and place value into bucket. Outputs range of bucket.
+
+eg. `{bucketrange 70 50}` will return `50 - 99`
+
 #### ExpBucket
 
 Syntax: `{expbucket intVal}`
@@ -113,6 +123,19 @@ Syntax: `{expbucket intVal}`
 Create exponentially (base-10) increase buckets.
 
 ### Arithmetic
+
+#### Math Formulas
+
+Syntax: `{! "expr"}`
+
+Evaluates a mathematic expression, optionally referencing matches.
+
+Variables in expressions are referenced using brackets rather than
+braces. eg. `[0]` instead of `{0}`
+
+Eg: `{! 2+2}`, `{! 2+x}`, `{! 2+[0]}`
+
+See: [Math](math.md) for more information
 
 #### Sumi, Subi, Multi, Divi, Modi
 
@@ -246,20 +269,40 @@ Repeats the "string" the specified number of times
 
 #### Humanize Number (Add Commas)
 
-Syntax: `{hf val}`, `{hi val}`, `{percent number [precision=1]}`
+Syntax: `{hf val}`, `{hi val}`
 
  * hf: Float
  * hi: Int
- * percent: format as a percentage
 
 Formats a number based with appropriate placement of commas and decimals
 
-#### ByteSize
+#### Percent
 
-Syntax: `{bytesize intVal [precision=0]}`
+Syntax: `{percent val ["precision=1"] [[min=0] max=1]}`
 
-Create a human-readable byte-size format (eg 1024 = 1KB).  An optional precision
-allows adding decimals.
+Formats a number as a percentage.  By default, assumes the range is 0-1, therefor
+`0.1234` becomes `12.3%`.
+
+Eg.
+
+ * `{percent 0.1234}` will result in `12.3%`
+ * `{percent 0.1234 2` will result in `12.34%`
+ * `{percent 25 0 100}` will result in `25%`
+ * `{percent 100 4 50 150}` will result in `50.0000%`
+
+#### ByteSize, ByteSizeSi
+
+Syntax: `{bytesize intVal [precision=0]}`, `{bytesizesi intVal [precision=0]}`
+
+Create a human-readable byte-size format (eg 1024 = 1KB), or in SI units (1000 = 1KB).
+An optional precision allows adding decimals.
+
+#### Downscale
+
+Syntax: `{downscale intVal [precision=0]}`
+
+Formats numbers by thousands (k), Millions (M), Billions (B), or Trillions (T).
+eg. `{downscale 10000}` will result in `10k`
 
 ### Collecting
 
@@ -332,11 +375,13 @@ Creates an array with the provided elements. Use `{@}` for an array of all match
 
 #### @len
 
+!!! warning
+	This is a linear-time operation. Length of the array
+	is not stored and the string needs to be scanned.
+
 Syntax: `{@len <arr>}`
 
 Returns the length of an array.  Empty "" returns 0, a literal will be 1.
-
-**Note:** This is a linear-time operation.
 
 #### @in
 
@@ -501,11 +546,11 @@ Parse a given time-string into a unix second time (default format: `cache`)
 
 ##### Format Auto-Detection
 
-If the format argument is ommitted or set to "auto", it will attempt to resolve the format of the time.
+If the format argument is omitted or set to "auto", it will attempt to resolve the format of the time.
 
 If the format is unable to be resolved, it must be specified manually with a format below, or a custom format.
 
-If ommitted or "cache": The first seen date will determine the format for all dates going forward (faster)
+If omitted or "cache": The first seen date will determine the format for all dates going forward (faster)
 
 If "auto": The date format will be auto-detected with each parse. This can be used if the date could be in different formats (slower)
 
@@ -564,7 +609,7 @@ Syntax: `{duration dur}`
 
 Use a duration expressed in s,m,h and convert it to seconds eg `{duration 24h}`
 
-From there, you can do arithmatic on time, for instance: `{sumi {time now} {duration 1h}}`
+From there, you can do arithmetic on time, for instance: `{sumi {time now} {duration 1h}}`
 
 ##### Format Duration
 

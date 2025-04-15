@@ -32,6 +32,14 @@ func TestSimpleReplacement(t *testing.T) {
 	assert.Equal(t, 3, len(kb.stages))
 }
 
+func TestEmpty(t *testing.T) {
+	kb, _ := NewKeyBuilder().Compile("")
+	key := kb.BuildKey(&testContext)
+
+	assert.Zero(t, kb.StageCount())
+	assert.Equal(t, "", key)
+}
+
 func TestUnterminatedReplacement(t *testing.T) {
 	kb, err := NewKeyBuilder().Compile("{0} is {123")
 	assert.Error(t, err)
@@ -121,6 +129,9 @@ var simpleFuncs = map[string]KeyBuilderFunction{
 func TestSimpleFuncs(t *testing.T) {
 	k := NewKeyBuilderEx(false)
 	k.Funcs(simpleFuncs)
+	assert.True(t, k.HasFunc("addi"))
+	assert.False(t, k.HasFunc("addb"))
+
 	kb, _ := k.Compile("value: {addi {addi 1 2} 2}")
 	assert.Equal(t, 2, kb.StageCount())
 	assert.Equal(t, "value: 5", kb.BuildKey(&KeyBuilderContextArray{}))

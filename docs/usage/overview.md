@@ -39,7 +39,7 @@ Read more at:
 
 Expressions `-e` take the match groups, and other pieces of information, and build
 a string-based key.  The match groups can be operated on by helpers to build
-the string-key (eg arithmatic, json parsing, simple logic).
+the string-key (eg arithmetic, json parsing, simple logic).
 
 The result of this key will act as the key for the aggregation stage.
 

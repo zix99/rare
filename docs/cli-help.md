@@ -123,6 +123,8 @@ Summarize results by extracting them to a histogram
 
 **--follow, -f**: Read appended data as file grows
 
+**--format, --fmt**="": Defines a format expression for displayed values
+
 **--gunzip, -z**: Attempt to decompress file when reading
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
@@ -176,6 +178,8 @@ Create a 2D heatmap of extracted data
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
+
+**--format, --fmt**="": Defines a format expression for displayed values
 
 **--gunzip, -z**: Attempt to decompress file when reading
 
@@ -235,6 +239,8 @@ Create rows of sparkline graphs
 
 **--follow, -f**: Read appended data as file grows
 
+**--format, --fmt**="": Defines a format expression for displayed values
+
 **--gunzip, -z**: Attempt to decompress file when reading
 
 **--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
@@ -245,7 +251,7 @@ Create rows of sparkline graphs
 
 **--noout**: Don't output any aggregation to stdout
 
-**--notruncate**: Disable truncating data that doesnt fit in the sparkline
+**--notruncate**: Disable truncating data that doesn't fit in the sparkline
 
 **--num, --rows, -n**="": Number of elements (rows) to display (default: 20)
 
@@ -286,6 +292,8 @@ Create a bargraph of the given 1 or 2 dimension data
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
+
+**--format, --fmt**="": Defines a format expression for displayed values
 
 **--gunzip, -z**: Attempt to decompress file when reading
 

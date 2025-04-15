@@ -1,0 +1,222 @@
+# Tests a set of commands for an expected output
+
+INDENT 4
+
+############## FILTER ##############################
+NAME filter match
+MATCH EXACT
+RUN filter -n 5 --match "(\d{3}) (\d+)" cmd/testdata/access.txt
+    2.3.4.1 - - [19/Aug/2019:02:26:25 +0000] "GET / HTTP/1.1" 200 546 "-" "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/98 Safari/537.4 (StatusCake)"
+    2.3.4.1 - - [19/Aug/2019:02:37:59 +0000] "GET / HTTP/1.1" 200 546 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/2.3.4.1 Safari/537.36"
+    2.3.4.1 - - [19/Aug/2019:02:37:59 +0000] "GET /favicon.ico HTTP/1.1" 404 199 "http://example.com/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/2.3.4.1 Safari/537.36"
+    2.3.4.1 - - [19/Aug/2019:02:38:03 +0000] "GET /mirror HTTP/1.1" 301 185 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/2.3.4.1 Safari/537.36"
+    2.3.4.1 - - [19/Aug/2019:02:38:03 +0000] "GET /mirror/ HTTP/1.1" 200 301 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/2.3.4.1 Safari/537.36"
+STDERR
+    Matched: 5 / 5
+END
+MATCH DEFAULT
+
+NAME filter stdin
+MATCH EXACT
+RUN filter --match "(\d+)" --ignore "{gt {1} 10}" -e "{multi {1} 2}" -
+STDIN
+    hello 5
+    6 here
+    maybe 500
+STDOUT
+    10
+    12
+STDERR
+    Matched: 2 / 3 (Ignored: 1)
+END
+
+NAME filter dissect
+MATCH EXACT
+RUN filter -n 5 --dissect "HTTP/1.1%{} %{code} %{size}" -e "Code: {code}" cmd/testdata/access.txt
+    Code: 200
+    Code: 200
+    Code: 404
+    Code: 301
+    Code: 200
+STDERR
+    Matched: 5 / 5
+END
+MATCH DEFAULT
+
+NAME filter extract
+RUN filter -n 5 --match "(\d{3}) (\d+)" -e "{1} {2}" cmd/testdata/access.txt
+    200 546
+    200 546
+    404 199
+    301 185
+    200 301
+STDERR
+    Matched: 5 / 5
+END
+
+NAME filter error
+RUN filter notafile
+ERR Read errors
+STDERR
+    Matched: 0 / 0
+END
+
+NAME filter decompress
+RUN f -z cmd/testdata/log.txt.gz
+    this is a text file with 5
+    22 is the next number
+    5 is the last
+    no numbers here
+    empty line above
+STDERR
+    Matched: 5 / 6 (Ignored: 1)
+END
+
+NAME filter json
+RUN filter -n 5 --match "(?P<code>\d{3}) (?P<bytes>\d+)" -e "Line {line} in {src}: {#}" cmd/testdata/access.txt
+    Line 1 in cmd/testdata/access.txt: {"0": "200 546", "1": 200, "2": 546}
+    Line 2 in cmd/testdata/access.txt: {"0": "200 546", "1": 200, "2": 546}
+    Line 3 in cmd/testdata/access.txt: {"0": "404 199", "1": 404, "2": 199}
+    Line 4 in cmd/testdata/access.txt: {"0": "301 185", "1": 301, "2": 185}
+    Line 5 in cmd/testdata/access.txt: {"0": "200 301", "1": 200, "2": 301}
+STDERR
+    Matched: 5 / 5
+END
+
+NAME filter json stdin
+RUN filter --match "(\d+)" -e "{src}:{line} = {1}" -
+STDIN
+    some 123
+    456
+    789
+STDOUT
+    <stdin>:1 = 123
+    <stdin>:2 = 456
+    <stdin>:3 = 789
+STDERR
+    Matched: 3 / 3
+END
+
+############## Histogram tests #####################
+NAME histo basic
+RUN histo --snapshot -m "(\d+)" -e "{bucket {1} 10}" cmd/testdata/log.txt
+    0                   2         
+    20                  1         
+
+
+
+    Matched: 3 / 6 (Groups: 2)
+END
+
+NAME histo extended
+RUN histo --snapshot -m "(\d+)" -e "{bucket {1} 10}" -x cmd/testdata/log.txt
+    0                   2          [66.7%] ██████████████████████████████████████████████████
+    20                  1          [33.3%] █████████████████████████
+
+
+
+    Matched: 3 / 6 (Groups: 2)
+END
+
+NAME histo percent
+RUN histo --percentage cmd/testdata/graph.txt
+    maria 19            1          [25.0%]
+    jill 3              1          [25.0%]
+    jack 93             1          [25.0%]
+    bob 22              1          [25.0%]
+
+    Matched: 4 / 4 (Groups: 4)
+END
+
+NAME histo percent non-1
+RUN histo --percentage -m "(\w+) (\d+)" -e "{1}" -e "{2}" cmd/testdata/graph.txt
+    jack                93         [67.9%]
+    bob                 22         [16.1%]
+    maria               19         [13.9%]
+    jill                3          [ 2.2%]
+
+    Matched: 4 / 4 (Groups: 4)
+END
+
+############# BARS #####################
+NAME bars non-stacked
+RUN bars -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{buckettime {1} year}" -e '{2}' cmd/testdata/access.txt
+            0 '200'  1 '301'  2 '404'
+    2019  ██████████████████████████████████████████████████ 47
+          █ 1
+          ██▏ 2
+    Matched: 50 / 50
+END
+
+
+NAME bars stacked
+RUN bars -s -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{buckettime {1} year}" -e '{2}' cmd/testdata/access.txt
+            0 '200'  1 '301'  2 '404'
+    2019  00000000000000000000000000000000000000000000000122  50
+    Matched: 50 / 50
+END
+
+
+############### Table #######################
+
+NAME simple table
+RUN table --snapshot -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{buckettime {1} year}" -e "{2}" cmd/testdata/access.txt
+        2019  
+    200 47    
+    404 2     
+    301 1     
+    Matched: 50 / 50 (R: 3; C: 1)
+END
+
+############## Heatmap #########################
+
+NAME simple heatmap
+RUN heatmap --snapshot -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{timeattr {time {1}} yearweek}" -e "{2}" cmd/testdata/access.txt
+     - 1    1 10    3 19    5 28    7 37    9 47
+     2019-34
+    200 9
+    301 -
+    404 -
+    Matched: 50 / 50 (R: 3; C: 1)
+END
+
+### Sparkline
+
+NAME spark test
+RUN spark -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{timeattr {time {1}} yearweek}" -e "{2}" cmd/testdata/access.txt
+        First 2019-342019-34 Last 
+    200 47    █              47   
+    404 2     _              2    
+    301 1     _              1    
+    Matched: 50 / 50 (R: 3; C: 1)
+END
+
+### Analyze bytes sent, only looking at 200's
+
+NAME analyze bytes sent
+RUN analyze -m "(\d{3}) (\d+)" -e "{2}" -i "{neq {1} 200}" cmd/testdata/access.txt
+    Samples:  47
+    Mean:     784.5319
+    StdDev:   1,116.8599
+    Min:      251.0000
+    Max:      4,998.0000
+
+    Matched: 47 / 50 (Ignored: 3)
+END
+
+### Reduce http data
+NAME reduce test
+RUN reduce --snapshot -m "(\d{3}) (\d+)" -g "http={1}" -a "total={sumi {.} {2}}" -a "count={sumi {.} 1}" -a "avg={divi {total} {count}}" --sort "-{avg}" cmd/testdata/access.txt
+    http total count avg 
+    200  36873 47    784 
+    404  398   2     199 
+    301  185   1     185 
+    Matched: 50 / 50 (R: 3; C: 4)
+END
+
+################ Help and Docs ########################
+
+NAME rare version
+RUN -v
+# any output is okay
+END

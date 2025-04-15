@@ -18,6 +18,7 @@ nav:
     - Advanced:
       - JSON: usage/json.md
       - Funcs File: usage/funcsfile.md
+      - Math: usage/math.md
       - Regular Expressions: usage/regexp.md
       - Dissect Expressions: usage/dissect.md
     - CLI Docs: cli-help.md

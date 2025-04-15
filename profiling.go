@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"runtime/pprof"
 	"time"
 
@@ -46,7 +47,13 @@ func init() {
 		app.Flags = append(app.Flags, &cli.StringFlag{
 			Name:  "profile",
 			Usage: "Write application profiling information as part of execution. Specify base-name",
+		}, &cli.BoolFlag{
+			Name:  "metrics",
+			Usage: "Outputs runtime memory metrics after a program runs",
 		})
+
+		var beforeMem runtime.MemStats
+		var start time.Time
 
 		oldBefore := app.Before
 		app.Before = func(c *cli.Context) error {
@@ -54,6 +61,11 @@ func init() {
 				basename := c.String("profile")
 				startProfiler(basename)
 			}
+			if c.Bool("metrics") {
+				runtime.ReadMemStats(&beforeMem)
+			}
+
+			start = time.Now()
 
 			if oldBefore != nil {
 				return oldBefore(c)
@@ -63,6 +75,19 @@ func init() {
 
 		oldAfter := app.After
 		app.After = func(c *cli.Context) error {
+			stop := time.Now()
+
+			if c.Bool("metrics") {
+				var after runtime.MemStats
+				runtime.ReadMemStats(&after)
+				fmt.Printf("Runtime: %s\n", stop.Sub(start).String())
+				fmt.Printf("Memory : total=%d; malloc=%d; free=%d; numgc=%d; pausegc=%s\n",
+					after.TotalAlloc-beforeMem.TotalAlloc,
+					after.Mallocs-beforeMem.Mallocs,
+					after.Frees-beforeMem.Frees,
+					after.NumGC-beforeMem.NumGC,
+					time.Duration(after.PauseTotalNs-beforeMem.PauseTotalNs).String())
+			}
 			if c.IsSet("profile") {
 				stopProfile()
 			}

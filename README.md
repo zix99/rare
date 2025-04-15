@@ -102,13 +102,13 @@ Available tags:
 * `rare_no_pprof` Disables profiling capabilities, which reduces binary size
 * `urfave_cli_no_docs` Disables man and markdown documentation generation, which reduces binary size
 
-**A Note on PCRE (Perl Compatible Regex Library)**
+**A Note on PCRE (Perl Compatible Regular Expressions)**
 
-Besides your standard OS versions, there is an additional `pcre` build which is ~4x faster than go's `re2` implementation in moderately complex cases.  In order to use this, you must make sure that **libpcre2** is installed (eg `apt install libpcre2-8-0`).  Right now, it is only bundled with the linux distribution.
+Besides your standard OS versions, there is an additional `pcre` build which is ~4x faster than go's `re2` implementation in moderately complex cases.  In order to use this, you must make sure that **libpcre2** is installed (eg `apt install libpcre2-8-0` or `dnf install pcre2`).  Right now, it is only bundled with the linux distribution.
 
 PCRE2 also comes with pitfalls, two of the most important are:
 1. That *rare* is now dynamically linked, meaning that you need to have libc and libpcre installed
-2. That pcre is an exponential-time algorithm (re2 is linear).  While it can be significantly faster than go's `re2`, it can also be catastropically slower in some situations. There is a good post [here](https://swtch.com/~rsc/regexp/regexp1.html) that talks about regexp timings.
+2. That pcre is an exponential-time algorithm (re2 is linear).  While it can be significantly faster than go's `re2`, it can also be catastrophically slower in some situations. There is a good post [here](https://swtch.com/~rsc/regexp/regexp1.html) that talks about regexp timings.
 
 I will leave it up to the user as to which they find suitable to use for their situation.  Generally, if you know what *rare* is getting as an input, the pcre version is perfectly safe and can be much faster.
 
@@ -140,7 +140,7 @@ $ rare histo input.txt
 Matched: 6 / 6 (Groups: 4)
 ```
 
-### Extact status and size from nginx logs
+### Extract status and size from nginx logs
 ```sh
 $ rare filter -n 4 -m "(\d{3}) (\d+)" -e "{1} {2}" access.log
 404 169
@@ -206,6 +206,27 @@ To Benchmark:
 go run . --profile out <your test code>
 go tool pprof -http=:8080 out.cpu.prof # CPU
 go tool pprof -http=:8080 out_num.prof # Memory
+```
+
+### Documentation
+
+New functionality should be well-documented in `docs/` folder.  The docs are
+both published to the website via `mkdocs` and embedded in the application.
+
+Testing and publishing docs:
+
+```bash
+# Install mkdocs version
+pip3 install -r requirements.txt
+
+# Test locally
+mkdocs serve
+
+# Test cli docs
+go run . docs
+
+# If CLI arguments change, publish updated docs
+go run . _gendoc > docs/cli-help.md
 ```
 
 ## License

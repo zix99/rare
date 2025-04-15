@@ -17,7 +17,7 @@ func newFuncErr(expr, message string) funcError {
 
 // Realtime errors
 const (
-	ErrorNum      = "<BAD-TYPE>"    // Error parsing the principle value of the input because of unexpected type (non-numeric)
+	ErrorNum      = "<BAD-TYPE>"    // Error parsing the principle value of the input because of unexpected type (numeric)
 	ErrorParsing  = "<PARSE-ERROR>" // Error parsing the principle value of the input (non-numeric)
 	ErrorArgCount = "<ARGN>"        // Function to not support a variation with the given argument count
 	ErrorConst    = "<CONST>"       // Expected constant value
@@ -36,6 +36,7 @@ var (
 	ErrEnum    = newFuncErr(ErrorEnum, "unable to find value in set")
 	ErrEmpty   = newFuncErr(ErrorEmpty, "invalid empty value")
 	ErrFile    = newFuncErr(ErrorFile, "unable to read file")
+	ErrValue   = newFuncErr(ErrorValue, "value out of range")
 )
 
 var (

@@ -1,13 +1,18 @@
 package cmd
 
 import (
+	"bufio"
 	"bytes"
+	"io"
 	"rare/docs"
 	"rare/pkg/markdowncli"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+const MAX_LINE_LEN = 140
 
 func TestDocs(t *testing.T) {
 	assert.NoError(t, testCommand(docsCommand(), ``))
@@ -23,7 +28,7 @@ func TestDocsProcess(t *testing.T) {
 
 	for _, entry := range entries {
 		entry := entry
-		t.Run(entry.Name(), func(t *testing.T) {
+		t.Run("md:"+entry.Name(), func(t *testing.T) {
 			t.Parallel()
 			f, err := docs.DocFS.Open(docs.BasePath + "/" + entry.Name())
 			assert.NoError(t, err)
@@ -34,5 +39,31 @@ func TestDocsProcess(t *testing.T) {
 
 			assert.NotZero(t, buf.Len())
 		})
+		t.Run("len:"+entry.Name(), func(t *testing.T) {
+			t.Parallel()
+			f, err := docs.DocFS.Open(docs.BasePath + "/" + entry.Name())
+			assert.NoError(t, err)
+			defer f.Close()
+
+			validateTerminalFit(t, f)
+		})
+	}
+}
+
+func validateTerminalFit(t *testing.T, r io.Reader) {
+	scanner := bufio.NewScanner(r)
+
+	ln := 0
+	codeblock := false
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		ln++
+
+		if strings.Contains(line, "```") {
+			codeblock = !codeblock
+		} else if !codeblock && len(line) > MAX_LINE_LEN {
+			t.Errorf("Line %d too long (%d): %s", ln, len(line), line)
+		}
 	}
 }

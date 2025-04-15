@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Exercise common commands for panics
 func TestHistogram(t *testing.T) {
 	testCommandSet(t, histogramCommand(),
 		`-m (\d+) testdata/log.txt`,

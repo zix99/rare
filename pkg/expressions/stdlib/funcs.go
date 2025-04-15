@@ -6,17 +6,17 @@ import (
 )
 
 var StandardFunctions = map[string]KeyBuilderFunction{
-	"coalesce":  KeyBuilderFunction(kfCoalesce),
-	"bucket":    KeyBuilderFunction(kfBucket),
-	"clamp":     KeyBuilderFunction(kfClamp),
-	"expbucket": KeyBuilderFunction(kfExpBucket),
-	"bytesize":  KeyBuilderFunction(kfBytesize),
+	"coalesce":    KeyBuilderFunction(kfCoalesce),
+	"bucket":      KeyBuilderFunction(kfBucket),
+	"bucketrange": kfBucketRange,
+	"clamp":       KeyBuilderFunction(kfClamp),
+	"expbucket":   KeyBuilderFunction(kfExpBucket),
 
 	// Checks
 	"isint": KeyBuilderFunction(kfIsInt),
 	"isnum": KeyBuilderFunction(kfIsNum),
 
-	// Arithmatic
+	// Arithmetic
 	"sumi":  arithmaticHelperi(func(a, b int) int { return a + b }),
 	"subi":  arithmaticHelperi(func(a, b int) int { return a - b }),
 	"multi": arithmaticHelperi(func(a, b int) int { return a * b }),
@@ -46,6 +46,9 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"pow":   arithmaticHelperf(math.Pow),
 	"sqrt":  unaryArithmaticHelperf(math.Sqrt),
 	"round": kfRound,
+
+	// Formula eval
+	"!": kfMath,
 
 	// Comparisons
 	"if":     KeyBuilderFunction(kfIf),
@@ -111,9 +114,12 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"haskey": kfHasKey,
 
 	// Formatting
-	"hi":      KeyBuilderFunction(kfHumanizeInt),
-	"hf":      KeyBuilderFunction(kfHumanizeFloat),
-	"percent": kfPercent,
+	"hi":         KeyBuilderFunction(kfHumanizeInt),
+	"hf":         KeyBuilderFunction(kfHumanizeFloat),
+	"bytesize":   kfBytesize,
+	"bytesizesi": kfBytesizeSi,
+	"downscale":  kfDownscale,
+	"percent":    kfPercent,
 
 	// Json
 	"json": KeyBuilderFunction(kfJsonQuery),

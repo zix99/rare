@@ -1,6 +1,7 @@
 package main
 
 import (
+	"rare/pkg/testutil/acceptance"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -46,4 +47,16 @@ func TestDupeFlags(t *testing.T) {
 			}
 		}
 	}
+}
+
+// Run all the tests in acceptance.tests
+// See that file for format details
+// Run only these tests with this command:
+// go test -timeout 30s -run ^TestRunAcceptance$ ./ -v
+func TestRunAcceptance(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
+
+	acceptance.RunTestSuiteFile(t, "acceptance.tests", cliMain)
 }

@@ -2,7 +2,6 @@ package fastregex
 
 import (
 	"rare/pkg/testutil"
-	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -108,44 +107,6 @@ func TestMemoryExpectations(t *testing.T) {
 }
 
 // Benchmarks
-
-// pcre1: 273ns
-// pcre1-jit: 197ns
-// pcre2: 308ns
-// pcre2-jit: 180ns
-func BenchmarkPCREMatch(b *testing.B) {
-	re := MustCompile(`t(\w+)`).CreateInstance()
-	for i := 0; i < b.N; i++ {
-		re.MatchString("this is a test")
-	}
-}
-
-// BenchmarkRE2Match-4   	 4593924	       255.4 ns/op	       0 B/op	       0 allocs/op
-func BenchmarkRE2Match(b *testing.B) {
-	re := regexp.MustCompile(`t(\w+)`)
-	for i := 0; i < b.N; i++ {
-		re.MatchString("this is a test")
-	}
-}
-
-// pcre1: 500ns
-// pcre1-jit: 400ns
-// pcre2: 542ns
-// pcre2-jit: 422ns / 310 ns / 237ns
-func BenchmarkPCRESubMatch(b *testing.B) {
-	re := MustCompile(`t(\w+)`).CreateInstance()
-	for i := 0; i < b.N; i++ {
-		re.FindSubmatchIndexDst([]byte("this is a test"), nil)
-	}
-}
-
-// 520ns
-func BenchmarkRE2SubMatch(b *testing.B) {
-	re := regexp.MustCompile(`t(\w+)`)
-	for i := 0; i < b.N; i++ {
-		re.FindSubmatchIndex([]byte("this is a test"))
-	}
-}
 
 // re2-findsubmatch:  BenchmarkFastRegex-4   	 2869810	       401.4 ns/op	      32 B/op	       1 allocs/op
 // re2-unsafeExecute: BenchmarkFastRegex-4   	 4154098	       292.3 ns/op	       0 B/op	       0 allocs/op
