@@ -111,10 +111,10 @@ func TestError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func mockContext(eles ...interface{}) Context {
+func mockContext(elems ...interface{}) Context {
 	m := make(map[string]float64)
-	for i := 0; i < len(eles); i += 2 {
-		m[eles[i].(string)] = eles[i+1].(float64)
+	for i := 0; i < len(elems); i += 2 {
+		m[elems[i].(string)] = elems[i+1].(float64)
 	}
 	return &SimpleContext{namedVals: m}
 }
