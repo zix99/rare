@@ -46,7 +46,7 @@ func TestMultiCharOp(t *testing.T) {
 	testTokenizer(t, "1 <= 2", "1(0) <=(2) 2(0)")
 }
 
-// test forumla parses into expects
+// test formula parses into expects
 // expects is a stringified token result in the format "val(type) ..."
 func testTokenizer(t *testing.T, formula, expects string) {
 	t.Run(formula, func(t *testing.T) {

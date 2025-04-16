@@ -7,6 +7,7 @@ type Factory interface {
 
 // A non-thread-safe matcher that can be used to find matches
 type Matcher interface {
-	FindSubmatchIndex(b []byte) []int
+	FindSubmatchIndexDst(b []byte, dst []int) []int
+	MatchBufSize() int
 	SubexpNameTable() map[string]int
 }

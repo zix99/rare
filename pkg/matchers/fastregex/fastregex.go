@@ -12,7 +12,17 @@ type CompiledRegexp interface {
 type Regexp interface {
 	Match(b []byte) bool
 	MatchString(str string) bool
-	FindSubmatchIndex(b []byte) []int
+
+	// Uses buffer specified by dst to fill indexes on match with b
+	// Returns nil on no match
+	// Dst can be nil, but an alloc will take place. Expects an array
+	// with capacity of `MatchBufSize()`, and len of 0
+	FindSubmatchIndexDst(b []byte, dst []int) []int
+
+	// Buf size needed to fulfill FindSubmatchIndexDst
+	MatchBufSize() int
+
+	// Returns the table of key->match index for FindSubmatch...
 	SubexpNameTable() map[string]int
 }
 

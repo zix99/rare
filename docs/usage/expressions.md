@@ -280,7 +280,7 @@ Formats a number based with appropriate placement of commas and decimals
 
 Syntax: `{percent val ["precision=1"] [[min=0] max=1]}`
 
-Formats a number as a percentage.  By default, assumes the range is 0-1, therefor
+Formats a number as a percentage.  By default, assumes the range is 0-1, therefore
 `0.1234` becomes `12.3%`.
 
 Eg.
