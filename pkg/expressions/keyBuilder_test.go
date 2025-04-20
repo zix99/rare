@@ -3,6 +3,7 @@ package expressions
 import (
 	"bytes"
 	"errors"
+	"rare/pkg/testutil"
 	"strconv"
 	"testing"
 	"text/template"
@@ -197,9 +198,5 @@ func BenchmarkOptimizedFunc(b *testing.B) {
 }
 
 func TestOptimizedZeroAllocs(t *testing.T) {
-	if testing.Short() {
-		t.SkipNow()
-	}
-	results := testing.Benchmark(BenchmarkOptimizedFunc)
-	assert.Zero(t, results.AllocsPerOp())
+	testutil.AssertZeroAlloc(t, BenchmarkOptimizedFunc)
 }

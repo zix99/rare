@@ -1,6 +1,7 @@
 package slicepool
 
 import (
+	"rare/pkg/testutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,11 +35,7 @@ func TestSimpleObjPoolCustomNew(t *testing.T) {
 }
 
 func TestZeroAllocs(t *testing.T) {
-	if testing.Short() {
-		t.SkipNow()
-	}
-	res := testing.Benchmark(BenchmarkObjPool)
-	assert.Zero(t, res.AllocsPerOp())
+	testutil.AssertZeroAlloc(t, BenchmarkObjPool)
 }
 
 // BenchmarkObjPool-4   	24965836	        44.38 ns/op	       0 B/op	       0 allocs/op

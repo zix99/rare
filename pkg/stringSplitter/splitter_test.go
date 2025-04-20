@@ -1,6 +1,7 @@
 package stringSplitter
 
 import (
+	"rare/pkg/testutil"
 	"strings"
 	"testing"
 
@@ -60,11 +61,7 @@ func BenchmarkSplitter(b *testing.B) {
 }
 
 func TestZeroAllocs(t *testing.T) {
-	if testing.Short() {
-		t.SkipNow()
-	}
-	results := testing.Benchmark(BenchmarkSplitter)
-	assert.Zero(t, results.AllocsPerOp())
+	testutil.AssertZeroAlloc(t, BenchmarkSplitter)
 }
 
 func BenchmarkSplitterNextOk(b *testing.B) {
