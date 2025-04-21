@@ -1,0 +1,51 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  # Building tasks
+  default:
+    desc: Test and build
+    cmds:
+      - task: test
+      - task: build
+
+  build:
+    desc: Build binary
+    cmds:
+      - go build .
+
+  # Test
+  test:
+    desc: Run all tests
+    cmds:
+      - go test ./...
+      - go test -tags=pcre2 rare/pkg/matchers/fastregex
+
+  test.acceptance:
+    desc: Run acceptance tests
+    cmds:
+      - go test -timeout 30s -run ^TestRunAcceptance$ ./ -v
+
+  check:
+    desc: Run static checks
+    cmds:
+      - go vet $(go list ./... | grep -v /vendor/)
+      - go run honnef.co/go/tools/cmd/staticcheck@2024.1.1 ./...
+
+  # Docs
+  mkdocs.serve:
+    cmds:
+      - mkdocs serve
+  
+  clidocs:
+    desc: clidocs
+    cmds:
+     - go run . _gendoc > docs/cli-help.md
+
+  # clean
+  clean:
+    ignore_error: true
+    cmds:
+      - rm rare rare.1.gz
+      - rm -r dist/
