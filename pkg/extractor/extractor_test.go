@@ -56,23 +56,21 @@ func TestSourceAndLine(t *testing.T) {
 }
 
 func TestIgnoreLines(t *testing.T) {
-	input := convertReaderToBatches("test", strings.NewReader(testData), 1)
 	ignore, _ := NewIgnoreExpressions(`{eq {1} "123"}`)
-	ex, err := New(input, &Config{
+
+	config := &Config{
 		Matcher: matchers.ToFactory(fastregex.MustCompile(`(\d+)`)),
 		Extract: "{src} {line} val:{1} {bad}{500}",
 		Workers: 1,
 		Ignore:  ignore,
+	}
+	testAllExtractors(t, config, func(t *testing.T, ex *Extractor, vals []string) {
+		assert.Len(t, vals, 1)
+
+		assert.Equal(t, uint64(2), ex.IgnoredLines())
+		assert.Equal(t, uint64(1), ex.MatchedLines())
+		assert.Equal(t, uint64(4), ex.ReadLines())
 	})
-	assert.NoError(t, err)
-
-	vals := unbatchMatches(ex.ReadFull())
-
-	assert.Len(t, vals, 1)
-
-	assert.Equal(t, uint64(2), ex.IgnoredLines())
-	assert.Equal(t, uint64(1), ex.MatchedLines())
-	assert.Equal(t, uint64(4), ex.ReadLines())
 }
 
 func TestNamedGroup(t *testing.T) {
@@ -91,16 +89,19 @@ func TestNamedGroup(t *testing.T) {
 }
 
 func TestJSONOutput(t *testing.T) {
-	input := convertReaderToBatches("test", strings.NewReader(testData), 1)
-	ex, err := New(input, &Config{
+	config := &Config{
 		Matcher: matchers.ToFactory(fastregex.MustCompile(`(?P<num>\d+)`)),
 		Extract: "{.} {#} {.#} {#.}",
 		Workers: 1,
-	})
+	}
 
-	assert.NoError(t, err)
-	vals := unbatchMatches(ex.ReadFull())
-	assert.Equal(t, `{"num": 123} {"0": 123, "1": 123} {"num": 123, "0": 123, "1": 123} {"num": 123, "0": 123, "1": 123}`, vals[0].Extracted)
+	testAllExtractors(t, config, func(t *testing.T, ex *Extractor, matches []string) {
+		assert.Equal(t, `{"num": 123} {"0": 123, "1": 123} {"num": 123, "0": 123, "1": 123} {"num": 123, "0": 123, "1": 123}`, matches[0])
+		assert.Equal(t, uint64(0), ex.IgnoredLines())
+		assert.Equal(t, uint64(3), ex.MatchedLines())
+		assert.Equal(t, uint64(4), ex.ReadLines())
+		assert.Len(t, matches, 3)
+	})
 }
 
 func TestGH10SliceBoundsPanic(t *testing.T) {
@@ -115,4 +116,27 @@ func TestGH10SliceBoundsPanic(t *testing.T) {
 	vals := unbatchMatches(ex.ReadFull())
 	assert.Equal(t, "val:ERROR val:", vals[0].Extracted)
 	assert.Equal(t, []int{12, 17, -1, -1, 12, 17, -1, -1, -1, -1}, vals[0].Indices)
+}
+
+// Utility function to test both full and simple extractors in one go (since almost all the logic is shared)
+func testAllExtractors(t *testing.T, config *Config, tester func(t *testing.T, ex *Extractor, matches []string)) {
+	t.Helper()
+
+	t.Run("full", func(t *testing.T) {
+		input := convertReaderToBatches("test", strings.NewReader(testData), 1)
+		ex, err := New(input, config)
+		assert.NoError(t, err)
+
+		vals := matchSetToString(unbatchMatches(ex.ReadFull()))
+		tester(t, ex, vals)
+	})
+
+	t.Run("simple", func(t *testing.T) {
+		input := convertReaderToBatches("test", strings.NewReader(testData), 1)
+		ex, err := New(input, config)
+		assert.NoError(t, err)
+
+		vals := unbatchMatches(ex.ReadSimple())
+		tester(t, ex, vals)
+	})
 }

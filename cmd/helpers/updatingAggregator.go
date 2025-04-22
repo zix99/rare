@@ -41,7 +41,7 @@ func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggrega
 	// Processing data from extractor
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, os.Interrupt)
-	reader := ext.ReadFull()
+	reader := ext.ReadSimple()
 PROCESSING_LOOP:
 	for {
 		select {
@@ -53,7 +53,7 @@ PROCESSING_LOOP:
 			}
 			outputMutex.Lock()
 			for _, match := range matchBatch {
-				aggregator.Sample(match.Extracted)
+				aggregator.Sample(match)
 			}
 			outputMutex.Unlock()
 		}
