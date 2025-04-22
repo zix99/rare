@@ -23,7 +23,7 @@ func TestBasicExtractor(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	vals := unbatchMatches(ex.ReadChan())
+	vals := unbatchMatches(ex.ReadFull())
 	assert.Equal(t, "abc 123", vals[0].Line)
 	assert.Equal(t, 4, len(vals[0].Indices))
 	assert.Equal(t, "val:123", vals[0].Extracted)
@@ -47,7 +47,7 @@ func TestSourceAndLine(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	vals := unbatchMatches(ex.ReadChan())
+	vals := unbatchMatches(ex.ReadFull())
 	assert.Equal(t, "test 1 val:123 <NAME> 123", vals[0].Extracted)
 	assert.Equal(t, uint64(1), vals[0].LineNumber)
 
@@ -66,9 +66,13 @@ func TestIgnoreLines(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	vals := unbatchMatches(ex.ReadChan())
+	vals := unbatchMatches(ex.ReadFull())
 
 	assert.Len(t, vals, 1)
+
+	assert.Equal(t, uint64(2), ex.IgnoredLines())
+	assert.Equal(t, uint64(1), ex.MatchedLines())
+	assert.Equal(t, uint64(4), ex.ReadLines())
 }
 
 func TestNamedGroup(t *testing.T) {
@@ -80,7 +84,7 @@ func TestNamedGroup(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	vals := unbatchMatches(ex.ReadChan())
+	vals := unbatchMatches(ex.ReadFull())
 	assert.Equal(t, "abc 123", vals[0].Line)
 	assert.Equal(t, 4, len(vals[0].Indices))
 	assert.Equal(t, "val:123:123", vals[0].Extracted)
@@ -95,7 +99,7 @@ func TestJSONOutput(t *testing.T) {
 	})
 
 	assert.NoError(t, err)
-	vals := unbatchMatches(ex.ReadChan())
+	vals := unbatchMatches(ex.ReadFull())
 	assert.Equal(t, `{"num": 123} {"0": 123, "1": 123} {"num": 123, "0": 123, "1": 123} {"num": 123, "0": 123, "1": 123}`, vals[0].Extracted)
 }
 
@@ -108,7 +112,7 @@ func TestGH10SliceBoundsPanic(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	vals := unbatchMatches(ex.ReadChan())
+	vals := unbatchMatches(ex.ReadFull())
 	assert.Equal(t, "val:ERROR val:", vals[0].Extracted)
 	assert.Equal(t, []int{12, 17, -1, -1, 12, 17, -1, -1, -1, -1}, vals[0].Indices)
 }

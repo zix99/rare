@@ -12,8 +12,10 @@ import (
 
 // RunAggregationLoop is a helper that takes care of output sync
 // And the main async loops for you, it has two inputs (in addition to the extractor)
-//   matchProcessor - to process a match
-//   writeOutput - triggered after a delay, only if there's an update
+//
+//	matchProcessor - to process a match
+//	writeOutput - triggered after a delay, only if there's an update
+//
 // The two functions are guaranteed to never happen at the same time
 func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggregator, writeOutput func()) {
 	logger.DeferLogs()
@@ -39,7 +41,7 @@ func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggrega
 	// Processing data from extractor
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, os.Interrupt)
-	reader := ext.ReadChan()
+	reader := ext.ReadFull()
 PROCESSING_LOOP:
 	for {
 		select {

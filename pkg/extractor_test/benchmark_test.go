@@ -35,7 +35,7 @@ func BenchmarkExtractor(b *testing.B) {
 			Extract: "{bucket {1} 10}",
 			Workers: 2,
 		})
-		reader := extractor.ReadChan()
+		reader := extractor.ReadFull()
 		for val := range reader {
 			total++
 			if val[0].Extracted != "120" {

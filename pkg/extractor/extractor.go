@@ -56,7 +56,7 @@ type Extractor struct {
 	matchedLines uint64
 	ignoredLines uint64
 
-	readChan <-chan []Match
+	input <-chan InputBatch
 }
 
 func (s *Extractor) ReadLines() uint64 {
@@ -71,10 +71,6 @@ func (s *Extractor) IgnoredLines() uint64 {
 	return atomic.LoadUint64(&s.ignoredLines)
 }
 
-func (s *Extractor) ReadChan() <-chan []Match {
-	return s.readChan
-}
-
 func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 	kb, err := funclib.NewKeyBuilder().Compile(config.Extract)
 	if err != nil {
@@ -85,21 +81,23 @@ func New(inputBatch <-chan InputBatch, config *Config) (*Extractor, error) {
 		config:     config,
 		keyBuilder: kb,
 		ignore:     config.Ignore,
+		input:      inputBatch,
 	}
-
-	ext.readChan = ext.ProcessFull(inputBatch)
 
 	return ext, nil
 }
 
-func (s *Extractor) workerFull(input <-chan InputBatch, output chan<- []Match) {
+func (s *Extractor) workerFull(output chan<- []Match) {
 	matcher := s.config.Matcher.CreateInstance()
 	exprCtx := &SliceSpaceExpressionContext{
 		nameTable: matcher.SubexpNameTable(),
 	}
 
-	for batch := range input {
-		var matchBatch []Match
+	for batch := range s.input {
+		var (
+			matchBatch   []Match
+			ignoredCount int = 0
+		)
 
 		// setup
 		atomic.AddUint64(&s.readLines, uint64(len(batch.Batch)))
@@ -141,13 +139,17 @@ func (s *Extractor) workerFull(input <-chan InputBatch, output chan<- []Match) {
 							Source:     batch.Source,
 						})
 					} else {
-						atomic.AddUint64(&s.ignoredLines, 1) // TODO: Batch?
+						ignoredCount++
 					}
 
 				} else {
-					atomic.AddUint64(&s.ignoredLines, 1) // TODO: Batch?
+					ignoredCount++
 				}
 			}
+		}
+
+		if ignoredCount > 0 {
+			atomic.AddUint64(&s.ignoredLines, uint64(ignoredCount))
 		}
 
 		// Emit batch if there is data
@@ -158,12 +160,15 @@ func (s *Extractor) workerFull(input <-chan InputBatch, output chan<- []Match) {
 	}
 }
 
-func (s *Extractor) ProcessFull(input <-chan InputBatch) <-chan []Match {
-	wc := s.config.getWorkerCount()
-	return startWorkers(wc, input, s.workerFull)
+func (s *Extractor) ReadFull() <-chan []Match {
+	return startWorkers(s.config.getWorkerCount(), s.workerFull)
 }
 
-func startWorkers[T any](count int, input <-chan InputBatch, worker func(input <-chan InputBatch, output chan<- []T)) <-chan []T {
+func (s *Extractor) ReadSimple() <-chan []string {
+	return nil
+}
+
+func startWorkers[T string | Match](count int, worker func(output chan<- []T)) <-chan []T {
 	var wg sync.WaitGroup
 	output := make(chan []T, count*2)
 
@@ -171,7 +176,7 @@ func startWorkers[T any](count int, input <-chan InputBatch, worker func(input <
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			worker(input, output)
+			worker(output)
 		}()
 	}
 
