@@ -46,7 +46,20 @@ Set ignore-case with `-I` or `--ignore-case`.
 **Example:**
 
 ```bash
-rare filter -d 'HTTP/1.1" %{code} %{size}' -e '{code}' access.log
+rare filter -d 'HTTP/1.1" %{code} %{size} ' -e '{code}' access.log
+```
+
+## Ignore
+
+You can provide one or more [expressions](expressions.md) via `--ignore` (`-i`). If
+the statement evaluates to truthy (non-empty), the matched line will be ignored.
+
+**Example:**
+
+To ignore all non-`200` http codes
+
+```bash
+rare filter -d 'HTTP/1.1" %{code} %{size} ' -i '{neq {code} 200}' -e '{code} {size}' access.log
 ```
 
 ## Examples
