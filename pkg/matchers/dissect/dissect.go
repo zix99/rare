@@ -1,7 +1,6 @@
 package dissect
 
 import (
-	"rare/pkg/slicepool"
 	"strings"
 	"unsafe"
 )
@@ -33,7 +32,6 @@ type Dissect struct {
 
 type DissectInstance struct {
 	*Dissect
-	groupPool *slicepool.IntPool
 }
 
 func CompileEx(expr string, ignoreCase bool) (*Dissect, error) {
@@ -131,16 +129,13 @@ func MustCompile(expr string) *Dissect {
 }
 
 func (s *Dissect) CreateInstance() *DissectInstance {
-	return &DissectInstance{
-		s,
-		slicepool.NewIntPool((s.groupCount*2 + 2) * 1024),
-	}
+	return &DissectInstance{s} // FIXME: Don't need instance anymore
 }
 
 // returns indexes of match [first, last, key0Start, key0End, key1Start, ...]
 // nil on no match
 // replicates logic from regex
-func (s *DissectInstance) FindSubmatchIndex(b []byte) []int {
+func (s *DissectInstance) FindSubmatchIndexDst(b []byte, dst []int) []int {
 	str := *(*string)(unsafe.Pointer(&b))
 
 	start := 0
@@ -152,8 +147,10 @@ func (s *DissectInstance) FindSubmatchIndex(b []byte) []int {
 		start += len(s.prefix)
 	}
 
-	ret := s.groupPool.Get(s.groupCount*2 + 2)
-	ret[0] = start - len(s.prefix)
+	if dst == nil {
+		dst = make([]int, 0, s.groupCount*2+2)
+	}
+	dst = append(dst, start-len(s.prefix), -1)
 
 	idx := 2
 	for _, token := range s.tokens {
@@ -169,16 +166,23 @@ func (s *DissectInstance) FindSubmatchIndex(b []byte) []int {
 		}
 
 		if !token.skip {
-			ret[idx] = start
-			ret[idx+1] = start + endOffset
+			dst = append(dst, start, start+endOffset)
 			idx += 2
 		}
 		start = start + endOffset + len(token.until)
 	}
 
-	ret[1] = start
+	dst[1] = start
 
-	return ret
+	return dst
+}
+
+func (s *DissectInstance) FindSubmatchIndex(b []byte) []int {
+	return s.FindSubmatchIndexDst(b, nil)
+}
+
+func (s *DissectInstance) MatchBufSize() int {
+	return s.groupCount*2 + 2
 }
 
 // Map of key-names to index's in FindSubmatchIndex's return

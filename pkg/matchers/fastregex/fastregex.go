@@ -14,6 +14,9 @@ type Regexp interface {
 	MatchString(str string) bool
 	FindSubmatchIndex(b []byte) []int
 	SubexpNameTable() map[string]int
+
+	FindSubmatchIndexDst(b []byte, dst []int) []int
+	MatchBufSize() int
 }
 
 // In addition, the following must be provided

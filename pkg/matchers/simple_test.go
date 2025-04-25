@@ -14,4 +14,6 @@ func TestSimpleMatcherAndFactory(t *testing.T) {
 
 	assert.Equal(t, []int{0, 0}, inst.FindSubmatchIndex([]byte{}))
 	assert.Equal(t, []int{0, 2}, inst.FindSubmatchIndex([]byte("hi")))
+	assert.Equal(t, []int{0, 2}, inst.FindSubmatchIndexDst([]byte("hi"), nil))
+	assert.Equal(t, []int{0, 2}, inst.FindSubmatchIndexDst([]byte("hi"), make([]int, 0, inst.MatchBufSize())))
 }

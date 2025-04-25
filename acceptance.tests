@@ -16,6 +16,12 @@ STDERR
 END
 MATCH DEFAULT
 
+NAME filter match
+RUN filter --match "(\d{3}) (\d+)" cmd/testdata/access.txt cmd/testdata/access.txt cmd/testdata/access.txt cmd/testdata/access.txt
+STDERR
+    Matched: 200 / 200
+END
+
 NAME filter stdin
 MATCH EXACT
 RUN filter --match "(\d+)" --ignore "{gt {1} 10}" -e "{multi {1} 2}" -

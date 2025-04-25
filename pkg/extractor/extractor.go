@@ -4,6 +4,7 @@ import (
 	"rare/pkg/expressions"
 	"rare/pkg/expressions/funclib"
 	"rare/pkg/matchers"
+	"rare/pkg/slicepool"
 	"sync"
 	"sync/atomic"
 	"unsafe"
@@ -101,6 +102,8 @@ func (s *Extractor) workerFull(output chan<- []Match) {
 	exprCtx := &SliceSpaceExpressionContext{
 		nameTable: matcher.SubexpNameTable(),
 	}
+	matchBuf := make([]int, 0, matcher.MatchBufSize())
+	bufCopyPool := slicepool.NewIntPool(1000 * matcher.MatchBufSize())
 
 	for batch := range s.input {
 		var (
@@ -114,7 +117,7 @@ func (s *Extractor) workerFull(output chan<- []Match) {
 
 		// Process each line
 		for idx, line := range batch.Batch {
-			matches := matcher.FindSubmatchIndex(line)
+			matches := matcher.FindSubmatchIndexDst(line, matchBuf)
 
 			if len(matches) > 0 {
 				// Speed is more important here than safety
@@ -139,10 +142,14 @@ func (s *Extractor) workerFull(output chan<- []Match) {
 							matchBatch = make([]Match, 0, len(batch.Batch))
 						}
 
+						// Need a copy of the local buffer (gets overwritten) to return
+						matchCopy := bufCopyPool.Get(len(matches))
+						copy(matchCopy, matches)
+
 						matchBatch = append(matchBatch, Match{
 							bLine:      line,
 							Line:       lineStringPtr,
-							Indices:    matches,
+							Indices:    matchCopy,
 							Extracted:  extractedKey,
 							LineNumber: exprCtx.lineNum,
 							Source:     batch.Source,
@@ -179,6 +186,7 @@ func (s *Extractor) workerSimple(output chan<- []string) {
 	exprCtx := &SliceSpaceExpressionContext{
 		nameTable: matcher.SubexpNameTable(),
 	}
+	matchBuf := make([]int, 0, matcher.MatchBufSize())
 
 	for batch := range s.input {
 		var (
@@ -192,7 +200,7 @@ func (s *Extractor) workerSimple(output chan<- []string) {
 
 		// Process each line
 		for idx, line := range batch.Batch {
-			matches := matcher.FindSubmatchIndex(line)
+			matches := matcher.FindSubmatchIndexDst(line, matchBuf)
 
 			if len(matches) > 0 {
 				// Speed is more important here than safety

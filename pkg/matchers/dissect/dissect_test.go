@@ -1,6 +1,7 @@
 package dissect
 
 import (
+	"rare/pkg/testutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,6 +17,7 @@ func TestDissectBasic(t *testing.T) {
 		"val2": 2,
 	}, d.SubexpNameTable())
 }
+
 func TestUtf8(t *testing.T) {
 	d := MustCompile("ûɾ %{key} ḝłįʈ").CreateInstance()
 
@@ -113,6 +115,26 @@ func TestIgnoreCase(t *testing.T) {
 	assert.Equal(t, []int{2, 13, 7, 8}, d.CreateInstance().FindSubmatchIndex([]byte("a Pref 5 pOst")))
 }
 
+func TestMemoryTarget(t *testing.T) {
+	d := MustCompile("prefix %{}: %{val}").CreateInstance()
+	str := []byte("prefix a: 123")
+
+	buf := make([]int, 0, d.MatchBufSize())
+	ret := d.FindSubmatchIndexDst([]byte(str), buf)
+	assert.Equal(t, []int{0, 13, 10, 13}, ret)
+	testutil.AssertSameMemory(t, buf, ret)
+
+	// undersized
+	buf = make([]int, 0, 2)
+	ret = d.FindSubmatchIndexDst([]byte(str), buf)
+	assert.Equal(t, []int{0, 13, 10, 13}, ret)
+	testutil.AssertNotSameMemory(t, buf, ret)
+}
+
+func TestDstZeroAlloc(t *testing.T) {
+	testutil.AssertZeroAlloc(t, BenchmarkDissectDst)
+}
+
 // BenchmarkDissect-4   	13347456	        86.07 ns/op	      32 B/op	       0 allocs/op
 func BenchmarkDissect(b *testing.B) {
 	d, _ := CompileEx("t%{val} ", false)
@@ -121,5 +143,17 @@ func BenchmarkDissect(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		di.FindSubmatchIndex(val)
+	}
+}
+
+// BenchmarkDissectDst-4   	23545326	        45.58 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkDissectDst(b *testing.B) {
+	d, _ := CompileEx("t%{val} ", false)
+	di := d.CreateInstance()
+	buf := make([]int, 0, di.MatchBufSize())
+	val := []byte("this is a test ")
+
+	for i := 0; i < b.N; i++ {
+		di.FindSubmatchIndexDst(val, buf)
 	}
 }
