@@ -30,10 +30,6 @@ type Dissect struct {
 	groupCount int
 }
 
-type DissectInstance struct {
-	*Dissect
-}
-
 func CompileEx(expr string, ignoreCase bool) (*Dissect, error) {
 
 	parts := make([]token, 0)
@@ -128,14 +124,10 @@ func MustCompile(expr string) *Dissect {
 	return d
 }
 
-func (s *Dissect) CreateInstance() *DissectInstance {
-	return &DissectInstance{s} // FIXME: Don't need instance anymore
-}
-
 // returns indexes of match [first, last, key0Start, key0End, key1Start, ...]
 // nil on no match
 // replicates logic from regex
-func (s *DissectInstance) FindSubmatchIndexDst(b []byte, dst []int) []int {
+func (s *Dissect) FindSubmatchIndexDst(b []byte, dst []int) []int {
 	str := *(*string)(unsafe.Pointer(&b))
 
 	start := 0
@@ -177,11 +169,11 @@ func (s *DissectInstance) FindSubmatchIndexDst(b []byte, dst []int) []int {
 	return dst
 }
 
-func (s *DissectInstance) FindSubmatchIndex(b []byte) []int {
+func (s *Dissect) FindSubmatchIndex(b []byte) []int {
 	return s.FindSubmatchIndexDst(b, nil)
 }
 
-func (s *DissectInstance) MatchBufSize() int {
+func (s *Dissect) MatchBufSize() int {
 	return s.groupCount*2 + 2
 }
 

@@ -17,3 +17,8 @@ func TestSimpleMatcherAndFactory(t *testing.T) {
 	assert.Equal(t, []int{0, 2}, inst.FindSubmatchIndexDst([]byte("hi"), nil))
 	assert.Equal(t, []int{0, 2}, inst.FindSubmatchIndexDst([]byte("hi"), make([]int, 0, inst.MatchBufSize())))
 }
+
+func TestNoFactory(t *testing.T) {
+	matcher := NoFactory(&AlwaysMatch{}).CreateInstance()
+	assert.Equal(t, 2, matcher.MatchBufSize())
+}

@@ -120,7 +120,7 @@ func BuildMatcherFromArguments(c *cli.Context) (matchers.Factory, error) {
 		if err != nil {
 			return nil, err
 		}
-		return matchers.ToFactory(d), nil
+		return matchers.NoFactory(d), nil
 	case c.IsSet("match"):
 		if ignoreCase {
 			matchExpr = "(?i)" + matchExpr
