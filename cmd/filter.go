@@ -21,7 +21,7 @@ func filterFunction(c *cli.Context) error {
 	batcher := helpers.BuildBatcherFromArguments(c)
 	extractor := helpers.BuildExtractorFromArgumentsEx(c, batcher, "\t")
 
-	readChan := extractor.ReadChan()
+	readChan := extractor.ReadFull()
 OUTER_LOOP:
 	for {
 		matchBatch, more := <-readChan
