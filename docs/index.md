@@ -17,16 +17,16 @@ Supports various CLI-based graphing and metric formats (filter (grep-like), hist
 
 ## Features
 
- * Multiple summary formats including: filter (like grep), histogram, bar graphs, tables, heatmaps, sparklines, reduce, and numerical analysis
- * Parse using regex (`-m`) or dissect tokenizer (`-d`)
- * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
- * Optional gzip decompression (with `-z`)
- * Following `-f` or re-open following `-F` (use `--poll` to poll, and `--tail` to tail)
- * Ignoring lines that match an expression (with `-i`)
+ * Multiple [summary formats](usage/aggregators.md) including: filter (like grep), histogram, bar graphs, tables, heatmaps, sparklines, reduce, and numerical analysis
+ * Parse using [regex](usage/regexp.md) (`-m`) or [dissect tokenizer](usage/dissect.md) (`-d`)
+ * File [glob expansions](usage/input.md#read-files) (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
+ * Optional [gzip decompression](usage/input.md#gzip) (with `-z`)
+ * [Following](usage/input.md#following-files) `-f` or re-open following `-F` (use `--poll` to poll, and `--tail` to tail)
+ * [Ignoring](usage/extractor.md#ignore) lines that match an expression (with `-i`)
  * Aggregating and realtime summary (Don't have to wait for all data to be scanned)
- * Multi-threaded reading, parsing, and aggregation (It's fast)
+ * Multi-threaded reading, parsing, and aggregation ([It's fast](benchmarks.md))
  * Color-coded outputs (optionally)
- * Pipe support (stdin for reading, stdout will disable realtime, and `--csv` formatting) eg. `tail -f | rare ... > out`
+ * [Pipe support](usage/input.md#stdinpipe) (stdin for reading, stdout will disable realtime, and `--csv` formatting) eg. `tail -f | rare ... > out`
 
 Take a look at [examples](usage/examples.md) to see more of what *rare* does.
 
