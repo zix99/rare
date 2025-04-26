@@ -99,10 +99,13 @@ sys     0m1.185s
 ```
 
 I believe the largest holdup here is the fact that zcat will pass all the data to grep via a synchronous pipe, whereas
-rare can process everything in async batches.  Using `pigz` or `zcat` instead didn't yield different results, but on single-file
+rare can process everything in async batches.  Using `pigz` or `zgrep` instead didn't yield different results, but on single-file
 results they did perform comparibly.
 
 ## Ripgrep
+
+Ripgrep (`rg`) is the most comparible for the use-case, but lacks
+the complete functionality that rare exposes.
 
 ```bash
 $ time rg -z '" (\d{3})' testdata/*.gz | wc -l
@@ -112,3 +115,8 @@ real    0m3.791s
 user    0m8.149s
 sys     0m4.420s
 ```
+
+# Other Tools
+
+If there are other tools worth comparing, please create
+a new issue on the [github tracker](https://github.com/zix99/rare/issues).
