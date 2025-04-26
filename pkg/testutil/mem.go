@@ -8,6 +8,8 @@ import (
 var IsRaceMode = false
 
 func AssertZeroAlloc(t *testing.T, bench func(b *testing.B)) {
+	t.Helper()
+
 	if testing.Short() {
 		t.Skip("skip short tests")
 	}
@@ -27,6 +29,7 @@ func AssertZeroAlloc(t *testing.T, bench func(b *testing.B)) {
 
 // Asserts two arrays/slices share the same memory block
 func AssertSameMemory[T any](t *testing.T, arr0, arr1 []T) {
+	t.Helper()
 	if !IsSameMemory(arr0, arr1) {
 		t.Error("Slices don't share underlying memory")
 	}
@@ -34,6 +37,7 @@ func AssertSameMemory[T any](t *testing.T, arr0, arr1 []T) {
 
 // Asserts two arrays/slices do NOT share the same memory block
 func AssertNotSameMemory[T any](t *testing.T, arr0, arr1 []T) {
+	t.Helper()
 	if IsSameMemory(arr0, arr1) {
 		t.Error("Slices don't share underlying memory")
 	}
