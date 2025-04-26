@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"bufio"
 	"os"
 
 	"rare/cmd/helpers"
@@ -21,28 +21,30 @@ func filterFunction(c *cli.Context) error {
 	batcher := helpers.BuildBatcherFromArguments(c)
 	extractor := helpers.BuildExtractorFromArgumentsEx(c, batcher, "\t")
 
+	stdout := bufio.NewWriter(os.Stdout)
+
 	readChan := extractor.ReadFull()
 OUTER_LOOP:
-	for {
-		matchBatch, more := <-readChan
-		if !more {
-			break
-		}
+	for matchBatch := range readChan {
 		for _, match := range matchBatch {
 			if writeLines {
-				fmt.Printf("%s %s: ", color.Wrap(color.BrightGreen, match.Source), color.Wrapi(color.BrightYellow, match.LineNumber))
+				stdout.WriteString(color.Wrap(color.BrightGreen, match.Source))
+				stdout.WriteString(" ")
+				stdout.WriteString(color.Wrapi(color.BrightYellow, match.LineNumber))
+				stdout.WriteString(": ")
 			}
 			if !customExtractor {
 				if len(match.Indices) == 2 {
 					// Single match, highlight entire phrase
-					fmt.Println(color.WrapIndices(match.Line, match.Indices))
+					stdout.WriteString(color.WrapIndices(match.Line, match.Indices))
 				} else {
 					// Multi-match groups, highlight individual groups
-					fmt.Println(color.WrapIndices(match.Line, match.Indices[2:]))
+					stdout.WriteString(color.WrapIndices(match.Line, match.Indices[2:]))
 				}
 			} else {
-				fmt.Println(match.Extracted)
+				stdout.WriteString(match.Extracted)
 			}
+			stdout.WriteString("\n")
 
 			readLines++
 			if numLineLimit > 0 && readLines >= numLineLimit {
@@ -50,6 +52,8 @@ OUTER_LOOP:
 			}
 		}
 	}
+
+	stdout.Flush()
 
 	if numLineLimit > 0 {
 		helpers.FWriteMatchSummary(os.Stderr, readLines, numLineLimit)
