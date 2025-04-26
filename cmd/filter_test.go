@@ -23,6 +23,13 @@ func TestFilterExtract(t *testing.T) {
 	assert.Equal(t, "Matched: 3 / 6\n", eout)
 }
 
+func TestFilterLine(t *testing.T) {
+	out, eout, err := testCommandCapture(filterCommand(), `-l -m (\d+) -e "{1}" testdata/log.txt`)
+	assert.NoError(t, err)
+	assert.Equal(t, "testdata/log.txt 1: 5\ntestdata/log.txt 2: 22\ntestdata/log.txt 3: 5\n", out)
+	assert.Equal(t, "Matched: 3 / 6\n", eout)
+}
+
 func TestFilterMultiExtract(t *testing.T) {
 	out, eout, err := testCommandCapture(filterCommand(), `-m (\d+) -e "{1}" -e "b-{1}" testdata/log.txt`)
 	assert.NoError(t, err)
