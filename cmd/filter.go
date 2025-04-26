@@ -51,8 +51,12 @@ OUTER_LOOP:
 				break OUTER_LOOP
 			}
 		}
+
+		// Flush after each batch to make file-following work as expected
+		stdout.Flush()
 	}
 
+	// Final flush
 	stdout.Flush()
 
 	if numLineLimit > 0 {
