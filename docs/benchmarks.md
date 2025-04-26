@@ -24,9 +24,9 @@ $ time rare filter -m '" (\d{3})' -e "{1}" -z testdata/*.gz | wc -l
 Matched: 8,373,328 / 8,373,328
 8373328
 
-real    0m12.550s
-user    0m17.833s
-sys     0m15.953s
+real    0m3.266s
+user    0m10.607s
+sys     0m0.769s
 ```
 
 When aggregating data, `rare` is significantly faster than alternatives.
