@@ -15,6 +15,11 @@ tasks:
     cmds:
       - go build .
 
+  build.lite:
+    desc: Build binary, stripping test features
+    cmds:
+      - go build -ldflags="-s -w" -tags=urfave_cli_no_docs,rare_no_pprof
+
   # Test
   test:
     desc: Run all tests
