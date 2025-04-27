@@ -9,6 +9,7 @@ import (
 	"rare/pkg/csv"
 	"rare/pkg/expressions/funclib"
 	"rare/pkg/logger"
+	"rare/pkg/multiterm/termformat"
 	"rare/pkg/multiterm/termrenderers"
 	"strings"
 
@@ -25,6 +26,7 @@ func reduceFunction(c *cli.Context) error {
 		sortReverse    = c.Bool("sort-reverse")
 		rowCount       = c.Int("rows")
 		colCount       = c.Int("cols")
+		formatNames    = c.StringSlice("format")
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
@@ -65,6 +67,32 @@ func reduceFunction(c *cli.Context) error {
 		}
 	}
 
+	// Set up formatters
+	formatters := make([]termformat.StringFormatter, aggr.DataColCount())
+	for i := range len(formatters) {
+		formatters[i] = termformat.PassthruString
+	}
+
+	for _, fmtExpr := range formatNames {
+		if strings.ContainsRune(fmtExpr, '=') {
+			// Specific set
+			name, val := parseKeyValue(fmtExpr)
+			dataIdx, _ := aggr.DataColIdx(name)
+			fmtExpr, _ := termformat.StringFromExpression(val)
+			formatters[dataIdx] = fmtExpr
+		} else {
+			// Global set
+			// TODO
+		}
+	}
+	// if formatName != "" {
+	// 	var err error
+	// 	formatter, err = termformat.StringFromExpression(formatName)
+	// 	if err != nil {
+	// 		logger.Fatalf(helpers.ExitCodeInvalidUsage, "Bad formatter: %v", err)
+	// 	}
+	// }
+
 	// run the aggregation
 	if aggr.GroupColCount() > 0 || table {
 		// Table output
@@ -89,6 +117,9 @@ func reduceFunction(c *cli.Context) error {
 				data := aggr.Data(group)
 				for idx, item := range group.Parts() {
 					rowBuf[idx] = color.Wrap(color.BrightWhite, item)
+				}
+				for idx, item := range data {
+					data[idx] = formatters[idx](item)
 				}
 				copy(rowBuf[aggr.GroupColCount():], data)
 				table.WriteRow(i+1, rowBuf...)
@@ -134,6 +165,10 @@ func parseKeyValInitial(s, defaultInitial string) (key, initial, val string) {
 		return k[:initialSep], k[initialSep+1:], v
 	}
 	return k, defaultInitial, v
+}
+
+func buildFormatterSetOrFail(formatters ...string) {
+
 }
 
 func reduceCommand() *cli.Command {
@@ -182,6 +217,11 @@ func reduceCommand() *cli.Command {
 			&cli.BoolFlag{
 				Name:  "sort-reverse",
 				Usage: "Reverses sort order",
+			},
+			&cli.StringSliceFlag{
+				Name:    "format",
+				Usage:   "Defines a format expression for displayed values. Syntax: `[name=]expr`",
+				Aliases: []string{"fmt"},
 			},
 			helpers.SnapshotFlag,
 			helpers.NoOutFlag,
