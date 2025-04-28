@@ -6,6 +6,7 @@ import (
 
 	"rare/cmd/helpers"
 	"rare/pkg/color"
+	"rare/pkg/logger"
 
 	"github.com/urfave/cli/v2"
 )
@@ -53,12 +54,17 @@ OUTER_LOOP:
 		}
 
 		// Flush after each batch to make file-following work as expected
-		stdout.Flush()
+		if err := stdout.Flush(); err != nil {
+			logger.Fatal(helpers.ExitCodeInvalidUsage, err)
+		}
 	}
 
 	// Final flush
-	stdout.Flush()
+	if err := stdout.Flush(); err != nil {
+		logger.Fatal(helpers.ExitCodeInvalidUsage, err)
+	}
 
+	// Summary
 	if numLineLimit > 0 {
 		helpers.FWriteMatchSummary(os.Stderr, readLines, numLineLimit)
 		os.Stderr.WriteString("\n")
