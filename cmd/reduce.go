@@ -68,30 +68,7 @@ func reduceFunction(c *cli.Context) error {
 	}
 
 	// Set up formatters
-	formatters := make([]termformat.StringFormatter, aggr.DataColCount())
-	for i := range len(formatters) {
-		formatters[i] = termformat.PassthruString
-	}
-
-	for _, fmtExpr := range formatNames {
-		if strings.ContainsRune(fmtExpr, '=') {
-			// Specific set
-			name, val := parseKeyValue(fmtExpr)
-			dataIdx, _ := aggr.DataColIdx(name)
-			fmtExpr, _ := termformat.StringFromExpression(val)
-			formatters[dataIdx] = fmtExpr
-		} else {
-			// Global set
-			// TODO
-		}
-	}
-	// if formatName != "" {
-	// 	var err error
-	// 	formatter, err = termformat.StringFromExpression(formatName)
-	// 	if err != nil {
-	// 		logger.Fatalf(helpers.ExitCodeInvalidUsage, "Bad formatter: %v", err)
-	// 	}
-	// }
+	formatters := buildFormatterSetOrFail(aggr, formatNames...)
 
 	// run the aggregation
 	if aggr.GroupColCount() > 0 || table {
@@ -136,7 +113,7 @@ func reduceFunction(c *cli.Context) error {
 			items := aggr.Data("")
 			colNames := aggr.DataCols()
 			for idx, expr := range items {
-				vt.WriteForLine(idx, colNames[idx]+strings.Repeat(" ", maxKeylen-len(colNames[idx]))+": "+expr)
+				vt.WriteForLine(idx, colNames[idx]+strings.Repeat(" ", maxKeylen-len(colNames[idx]))+": "+formatters[idx](expr))
 			}
 			vt.WriteForLine(len(items), helpers.FWriteExtractorSummary(extractor, aggr.ParseErrors()))
 			vt.WriteForLine(len(items)+1, batcher.StatusString())
@@ -167,8 +144,42 @@ func parseKeyValInitial(s, defaultInitial string) (key, initial, val string) {
 	return k, defaultInitial, v
 }
 
-func buildFormatterSetOrFail(formatters ...string) {
+// Return a set of formatters that map to the accumulating group's column set
+// Length of formatters will always match the DataColCount
+func buildFormatterSetOrFail(aggr *aggregation.AccumulatingGroup, formatterConfig ...string) []termformat.StringFormatter {
+	// Init
+	formatters := make([]termformat.StringFormatter, aggr.DataColCount())
+	for i := range len(formatters) {
+		formatters[i] = termformat.PassthruString
+	}
 
+	// Config
+	for _, fmtExpr := range formatterConfig {
+		if strings.ContainsRune(fmtExpr, '=') {
+			// Specific set
+			name, val := parseKeyValue(fmtExpr)
+			dataIdx, hasDataIdx := aggr.DataColIdx(name)
+			if !hasDataIdx {
+				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Unknown data column %s", name)
+			}
+			fmtExpr, err := termformat.StringFromExpression(val)
+			if err != nil {
+				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error creating formatter %s: %v", fmtExpr, err)
+			}
+			formatters[dataIdx] = fmtExpr
+		} else {
+			// Global set
+			fmtExpr, err := termformat.StringFromExpression(fmtExpr)
+			if err != nil {
+				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error creating formatter %s: %v", fmtExpr, err)
+			}
+			for i := range len(formatters) {
+				formatters[i] = fmtExpr
+			}
+		}
+	}
+
+	return formatters
 }
 
 func reduceCommand() *cli.Command {
