@@ -18,6 +18,8 @@ func TestReduceBasics(t *testing.T) {
 	testCommandSet(t, reduceCommand(),
 		`-m (\d+) -g {0} -a {0} testdata/log.txt`,
 		`-m (\d+) -g {0} -a a={0} --sort {a} --sort-reverse testdata/log.txt`,
+		`-m (\d+) -g {0} -a a={0} --sort {a} --fmt downscale --sort-reverse testdata/log.txt`,
+		`-m (\d+) -g {0} -a a={0} --sort {a} --fmt a=downscale --sort-reverse testdata/log.txt`,
 		`-o - -m (\d+) -g {0} -a a={0} --sort {a} --sort-reverse testdata/log.txt`)
 }
 
