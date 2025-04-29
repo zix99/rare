@@ -154,24 +154,24 @@ func buildFormatterSetOrFail(aggr *aggregation.AccumulatingGroup, formatterConfi
 	}
 
 	// Config
-	for _, fmtExpr := range formatterConfig {
-		if strings.ContainsRune(fmtExpr, '=') {
+	for _, exprVal := range formatterConfig {
+		if strings.ContainsRune(exprVal, '=') {
 			// Specific set
-			name, val := parseKeyValue(fmtExpr)
+			name, val := parseKeyValue(exprVal)
 			dataIdx, hasDataIdx := aggr.DataColIdx(name)
 			if !hasDataIdx {
 				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Unknown data column %s", name)
 			}
 			fmtExpr, err := termformat.StringFromExpression(val)
 			if err != nil {
-				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error creating formatter %s: %v", fmtExpr, err)
+				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error creating formatter %s: %v", val, err)
 			}
 			formatters[dataIdx] = fmtExpr
 		} else {
 			// Global set
-			fmtExpr, err := termformat.StringFromExpression(fmtExpr)
+			fmtExpr, err := termformat.StringFromExpression(exprVal)
 			if err != nil {
-				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error creating formatter %s: %v", fmtExpr, err)
+				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error creating formatter %s: %v", exprVal, err)
 			}
 			for i := range len(formatters) {
 				formatters[i] = fmtExpr
