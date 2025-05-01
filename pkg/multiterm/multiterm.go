@@ -2,10 +2,13 @@ package multiterm
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
 type TermWriter struct {
+	w termCursor
+
 	cursor       int
 	cursorHidden bool
 	maxLine      int
@@ -16,13 +19,18 @@ type TermWriter struct {
 
 var _ MultilineTerm = &TermWriter{}
 
-func New() *TermWriter {
+func NewEx(w io.StringWriter) *TermWriter {
 	return &TermWriter{
+		w:          termCursor{w},
 		cursor:     0,
 		maxLine:    0,
 		ClearLine:  true,
 		HideCursor: true,
 	}
+}
+
+func New() *TermWriter {
+	return NewEx(os.Stdout)
 }
 
 func (s *TermWriter) WriteForLinef(line int, format string, args ...interface{}) {
@@ -31,7 +39,7 @@ func (s *TermWriter) WriteForLinef(line int, format string, args ...interface{})
 
 func (s *TermWriter) WriteForLine(line int, text string) {
 	if s.HideCursor && !s.cursorHidden {
-		hideCursor()
+		s.w.hideCursor()
 		s.cursorHidden = true
 	}
 
@@ -41,9 +49,9 @@ func (s *TermWriter) WriteForLine(line int, text string) {
 
 func (s *TermWriter) Close() {
 	s.goTo(s.maxLine)
-	fmt.Println() // Put cursor after last line
+	s.w.WriteString("\n") // Put cursor after last line
 	if s.cursorHidden {
-		showCursor()
+		s.w.showCursor()
 	}
 }
 
@@ -52,20 +60,20 @@ func (s *TermWriter) goTo(line int) {
 		s.maxLine = line
 	}
 	for i := s.cursor; i < line; i++ {
-		fmt.Print("\n")
+		s.w.WriteString("\n")
 		s.cursor++
 	}
 	for i := s.cursor; i > line; i-- {
-		moveUp(1)
+		s.w.moveUp(1)
 		s.cursor--
 	}
 
-	fmt.Print("\r")
+	s.w.WriteString("\r")
 }
 
 func (s *TermWriter) writeAtCursor(text string) {
 	WriteLineNoWrap(os.Stdout, text)
 	if s.ClearLine {
-		eraseRemainingLine()
+		s.w.eraseRemainingLine()
 	}
 }

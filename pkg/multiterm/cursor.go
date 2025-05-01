@@ -1,38 +1,40 @@
 package multiterm
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+)
 
 //lint:file-ignore U1000 Retain useful functions
 
-func escape(format string, args ...interface{}) string {
+type termCursor struct {
+	io.StringWriter
+}
+
+func (s termCursor) moveCursor(line, col int) {
+	s.WriteString(termEscape("[%d;%dH", line, col))
+}
+
+func (s termCursor) moveUp(n int) {
+	s.WriteString(termEscape("[%dA", n))
+}
+
+func (s termCursor) hideCursor() {
+	s.WriteString(termEscape("[?25l"))
+}
+
+func (s termCursor) showCursor() {
+	s.WriteString(termEscape("[?25h"))
+}
+
+func (s termCursor) eraseRemainingLine() {
+	s.WriteString(termEscape("[0K"))
+}
+
+func termEscape(format string, args ...interface{}) string {
 	const ESCAPE = "\x1b"
+	if len(args) == 0 {
+		return ESCAPE + format
+	}
 	return ESCAPE + fmt.Sprintf(format, args...)
-}
-
-func moveCursorf(line, col int) string {
-	return escape("[%d;%dH", line, col)
-}
-
-func moveCursor(line, col int) {
-	fmt.Print(moveCursorf(line, col))
-}
-
-func moveUpf(n int) string {
-	return escape("[%dA", n)
-}
-
-func moveUp(n int) {
-	fmt.Print(moveUpf(n))
-}
-
-func hideCursor() {
-	fmt.Print(escape("[?25l"))
-}
-
-func showCursor() {
-	fmt.Print(escape("[?25h"))
-}
-
-func eraseRemainingLine() {
-	fmt.Print(escape("[0K"))
 }
