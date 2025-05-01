@@ -248,7 +248,7 @@ END
 ### Reduce with formatters fail
 NAME reduce failure
 RUN reduce -m "(\d{3}) (\d+)" -g "http={1}" -a "total={sumi {.} {2}}" -a "count={sumi {.} 1}" -a "avg={divi {total} {count}}" --sort "-{avg}" --fmt "{!" cmd/testdata/access.txt
-ERR exited
+ERR exited code 2
 END
 
 ################ Help and Docs ########################
