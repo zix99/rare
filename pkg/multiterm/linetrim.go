@@ -28,9 +28,9 @@ func TermCols() int {
 	return computedCols
 }
 
-func WriteLineNoWrap(out io.Writer, s string) {
+func WriteLineNoWrap(out io.StringWriter, s string) {
 	if !AutoTrim {
-		out.Write([]byte(s))
+		out.WriteString(s)
 		return
 	}
 	runes := []rune(s)
@@ -49,5 +49,5 @@ func WriteLineNoWrap(out io.Writer, s string) {
 		i++
 	}
 
-	out.Write([]byte(string(runes[:i])))
+	out.WriteString(string(runes[:i]))
 }
