@@ -36,7 +36,7 @@ func NewHistogram(term multiterm.MultilineTerm, maxLines int) *HistoWriter {
 		ShowPercentage: true,
 		Scaler:         termscaler.ScalerLinear,
 		Formatter:      termformat.Default,
-		textSpacing:    16,
+		textSpacing:    8,
 		items:          make([]histoPair, maxLines),
 	}
 }
