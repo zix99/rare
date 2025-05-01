@@ -42,8 +42,17 @@ func TestAccumGroups(t *testing.T) {
 
 	assert.Len(t, accum.GroupCols(), 1)
 	assert.Equal(t, 1, accum.GroupColCount())
+	assert.Equal(t, 2, accum.DataColCount())
 	assert.Equal(t, 2, len(accum.data))
 	assert.Equal(t, 2, accum.DataCount())
+
+	sumIdx, sumOk := accum.DataColIdx("sum")
+	assert.Equal(t, 0, sumIdx)
+	assert.True(t, sumOk)
+
+	blaIdx, blaOk := accum.DataColIdx("bla")
+	assert.Equal(t, 0, blaIdx)
+	assert.False(t, blaOk)
 }
 
 func TestMultiGroupCols(t *testing.T) {
