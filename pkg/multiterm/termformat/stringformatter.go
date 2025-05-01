@@ -19,38 +19,23 @@ func (s *stringExpressionContext) GetMatch(idx int) string {
 
 func (s *stringExpressionContext) GetKey(key string) string {
 	switch key {
-	case "val", "value":
+	case "val", "value", ".":
 		return s.s
 	}
 	return ""
 }
 
-type sep string
-
-func (s sep) GetMatch(idx int) string {
-	if idx == 0 {
-		return string(s)
-	}
-	return ""
-}
-
-func (s sep) GetKey(key string) string {
-	switch key {
-	case "val", "value":
-		return string(s)
-	}
-	return ""
-}
-
+// Create string->string expression
+// Single-thread use only
 func StringFromExpression(expr string) (StringFormatter, error) {
 	kb, err := expandCompileExpression(expr)
 	if err != nil {
 		return nil, err
 	}
 
-	// ctx := &stringExpressionContext{}
+	ctx := &stringExpressionContext{}
 	return func(s string) string {
-		// ctx.s = s
-		return kb.BuildKey(sep(s))
+		ctx.s = s
+		return kb.BuildKey(ctx)
 	}, nil
 }
