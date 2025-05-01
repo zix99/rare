@@ -15,36 +15,62 @@ tasks:
     cmds:
       - go build .
 
-  build.lite:
+  build:lite:
     desc: Build binary, stripping test features
     cmds:
-      - go build -ldflags="-s -w" -tags=urfave_cli_no_docs,rare_no_pprof
+      - go build -ldflags="-s -w" -tags=urfave_cli_no_docs,rare_no_pprof .
+
+  build:pcre2:
+    desc: Build PCRE binary
+    cmds:
+      - go build -tags=pcre2 .
+
+  build:pgo:
+    desc: Build the profile-guided-optimization file
+    sources: ["**/*.go"]
+    generates: [default.pgo]
+    cmds:
+      - rm default.pgo
+      - task: build
+      - ./rare --profile pgogen histo -m '(\d{3}) (\d+)' -e '{1}' -z testdata/*.gz
+      - defer: rm pgogen*.prof
+      - mv -f pgogen.cpu.prof default.pgo
+      - task: build
 
   # Test
-  test:
+  test:unit:
     desc: Run all tests
     cmds:
       - go test ./...
       - go test -tags=pcre2 rare/pkg/matchers/fastregex
 
-  test.acceptance:
+  test:acceptance:
     desc: Run acceptance tests
     cmds:
       - go test -timeout 30s -run ^TestRunAcceptance$ ./ -v
 
-  check:
+  test:check:
     desc: Run static checks
     cmds:
       - go vet $(go list ./... | grep -v /vendor/)
       - go run honnef.co/go/tools/cmd/staticcheck@2024.1.1 ./...
 
   # Docs
-  mkdocs.serve:
+  docs:
+    cmds:
+      - task: docs:mkdocs
+      - task: docs:cli
+
+  docs:mkdocs:
+    cmds:
+      - mkdocs build --strict
+
+  docs:serve:
     cmds:
       - mkdocs serve
   
-  clidocs:
-    desc: clidocs
+  docs:cli:
+    desc: Generate CLI docs to cli-help.md
     cmds:
      - go run . _gendoc > docs/cli-help.md
 

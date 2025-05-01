@@ -19,7 +19,7 @@ func TestBasicHisto(t *testing.T) {
 	termunicode.UnicodeEnabled = true
 
 	assert.Equal(t, "", vt.Get(0))
-	assert.Equal(t, "key                 1,000      [10.0%] ||||||||||||||||||||||||||||||||||||||||||||||||||", vt.Get(1))
+	assert.Equal(t, "key         1,000      [10.0%] ||||||||||||||||||||||||||||||||||||||||||||||||||", vt.Get(1))
 	assert.Equal(t, "", vt.Get(2))
 	assert.Equal(t, "", vt.Get(3))
 	assert.Equal(t, "", vt.Get(4))
@@ -36,8 +36,8 @@ func TestHistoWithValues(t *testing.T) {
 	mt.WriteForLine(0, "abc", 1234)
 	mt.WriteForLine(1, "q", 123)
 	mt.WriteForLine(3, "abn", 444)
-	assert.Equal(t, "abc                 1,234     ", vt.Get(0))
-	assert.Equal(t, "q                   123       ", vt.Get(1))
+	assert.Equal(t, "abc         1,234     ", vt.Get(0))
+	assert.Equal(t, "q           123       ", vt.Get(1))
 	assert.Equal(t, "", vt.Get(2))
 }
 

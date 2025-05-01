@@ -60,10 +60,9 @@ func (s *VirtualTerm) LineCount() int {
 }
 
 // WriteToOutput writes to a terminal, preventing any potential wrapping
-func (s *VirtualTerm) WriteToOutput(out io.Writer) {
-	newLineBytes := []byte{'\n'}
+func (s *VirtualTerm) WriteToOutput(out io.StringWriter) {
 	for _, line := range s.lines {
 		WriteLineNoWrap(out, line)
-		out.Write(newLineBytes)
+		out.WriteString("\n")
 	}
 }

@@ -117,8 +117,8 @@ END
 ############## Histogram tests #####################
 NAME histo basic
 RUN histo --snapshot -m "(\d+)" -e "{bucket {1} 10}" cmd/testdata/log.txt
-    0                   2         
-    20                  1         
+    0           2         
+    20          1         
 
 
 
@@ -127,8 +127,8 @@ END
 
 NAME histo extended
 RUN histo --snapshot -m "(\d+)" -e "{bucket {1} 10}" -x cmd/testdata/log.txt
-    0                   2          [66.7%] ██████████████████████████████████████████████████
-    20                  1          [33.3%] █████████████████████████
+    0           2          [66.7%] ██████████████████████████████████████████████████
+    20          1          [33.3%] █████████████████████████
 
 
 
@@ -137,20 +137,20 @@ END
 
 NAME histo percent
 RUN histo --percentage cmd/testdata/graph.txt
-    maria 19            1          [25.0%]
-    jill 3              1          [25.0%]
-    jack 93             1          [25.0%]
-    bob 22              1          [25.0%]
+    maria 19    1          [25.0%]
+    jill 3      1          [25.0%]
+    jack 93     1          [25.0%]
+    bob 22      1          [25.0%]
 
     Matched: 4 / 4 (Groups: 4)
 END
 
 NAME histo percent non-1
 RUN histo --percentage -m "(\w+) (\d+)" -e "{1}" -e "{2}" cmd/testdata/graph.txt
-    jack                93         [67.9%]
-    bob                 22         [16.1%]
-    maria               19         [13.9%]
-    jill                3          [ 2.2%]
+    jack        93         [67.9%]
+    bob         22         [16.1%]
+    maria       19         [13.9%]
+    jill        3          [ 2.2%]
 
     Matched: 4 / 4 (Groups: 4)
 END

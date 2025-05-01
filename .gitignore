@@ -1,4 +1,5 @@
 .vscode/
+.task/
 *.log
 *.ff
 main
