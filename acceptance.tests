@@ -197,7 +197,7 @@ RUN heatmap --snapshot -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{timeattr {time {1}} y
     Matched: 50 / 50 (R: 3; C: 1)
 END
 
-### Sparkline
+######################### Sparkline ###############################
 
 NAME spark test
 RUN spark -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{timeattr {time {1}} yearweek}" -e "{2}" cmd/testdata/access.txt
@@ -207,6 +207,8 @@ RUN spark -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{timeattr {time {1}} yearweek}" -e 
     301 1     _              1    
     Matched: 50 / 50 (R: 3; C: 1)
 END
+
+######################### Analyze #################################
 
 ### Analyze bytes sent, only looking at 200's
 
@@ -221,6 +223,8 @@ RUN analyze -m "(\d{3}) (\d+)" -e "{2}" -i "{neq {1} 200}" cmd/testdata/access.t
     Matched: 47 / 50 (Ignored: 3)
 END
 
+########################## REDUCE ###############################
+
 ### Reduce http data
 NAME reduce test
 RUN reduce --snapshot -m "(\d{3}) (\d+)" -g "http={1}" -a "total={sumi {.} {2}}" -a "count={sumi {.} 1}" -a "avg={divi {total} {count}}" --sort "-{avg}" cmd/testdata/access.txt
@@ -229,6 +233,22 @@ RUN reduce --snapshot -m "(\d{3}) (\d+)" -g "http={1}" -a "total={sumi {.} {2}}"
     404  398   2     199 
     301  185   1     185 
     Matched: 50 / 50 (R: 3; C: 4)
+END
+
+### Reduce with formatters
+NAME reduce formatters
+RUN reduce --snapshot -m "(\d{3}) (\d+)" -g "http={1}" -a "total={sumi {.} {2}}" -a "count={sumi {.} 1}" -a "avg={divi {total} {count}}" --sort "-{avg}" --fmt "{! [0]*10}" --fmt total=bytesize cmd/testdata/access.txt
+    http total count avg  
+    200  36 KB 470   7840 
+    404  398 B 20    1990 
+    301  185 B 10    1850 
+    Matched: 50 / 50 (R: 3; C: 4)
+END
+
+### Reduce with formatters fail
+NAME reduce failure
+RUN reduce -m "(\d{3}) (\d+)" -g "http={1}" -a "total={sumi {.} {2}}" -a "count={sumi {.} 1}" -a "avg={divi {total} {count}}" --sort "-{avg}" --fmt "{!" cmd/testdata/access.txt
+ERR exited
 END
 
 ################ Help and Docs ########################

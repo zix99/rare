@@ -1,6 +1,7 @@
 package acceptance
 
 import (
+	"errors"
 	"io"
 	"os"
 	"rare/pkg/testutil"
@@ -32,7 +33,7 @@ func runTestConfig(t *testing.T, cfg *testConfig, runner Runner) {
 	t.Logf("RUN: %s", cfg.cmd)
 
 	args := append([]string{"app"}, testutil.SplitQuotedString(cfg.cmd)...)
-	sout, serr, err := testutil.Capture(func(w *os.File) error {
+	sout, serr, err := testutil.Capture(func(w *os.File) (ret error) {
 		if cfg.stdin.Len() > 0 {
 			t.Logf("Copying %d bytes to stdin", cfg.stdin.Len())
 			go func() {
@@ -40,6 +41,15 @@ func runTestConfig(t *testing.T, cfg *testConfig, runner Runner) {
 				w.Close()
 			}()
 		}
+
+		// catch panics
+		defer func() {
+			if r := recover(); r != nil {
+				t.Logf("Recovered from panic: %v", r)
+				ret = errors.New(r.(string))
+			}
+		}()
+
 		return runner(args...)
 	})
 
