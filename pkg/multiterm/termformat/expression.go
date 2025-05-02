@@ -26,7 +26,7 @@ func (s *formatExpressionContext) GetMatch(idx int) string {
 
 func (s *formatExpressionContext) GetKey(key string) string {
 	switch key {
-	case "val", "value":
+	case "val", "value", ".":
 		return strconv.FormatInt(s.val, 10)
 	case "min":
 		return strconv.FormatInt(s.min, 10)

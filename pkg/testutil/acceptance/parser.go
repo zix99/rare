@@ -28,6 +28,7 @@ type testConfig struct {
 	outComp     stringComparer
 	errComp     stringComparer
 	expectError string
+	linenum     int
 }
 
 func iterateTestDefinitions(t *testing.T, r io.Reader) func(func(yield testConfig) bool) {
@@ -39,10 +40,12 @@ func iterateTestDefinitions(t *testing.T, r io.Reader) func(func(yield testConfi
 
 		trimString := ""
 		matcher := stringMatchers["prefix"]
+		linenum := 0
 
 	SCANNER:
 		for scanner.Scan() {
 			line := scanner.Text()
+			linenum++
 
 			switch {
 			// Global switches
@@ -63,6 +66,7 @@ func iterateTestDefinitions(t *testing.T, r io.Reader) func(func(yield testConfi
 				cfg.cmd = line[4:]
 				cfg.outComp = matcher
 				cfg.errComp = matcher
+				cfg.linenum = linenum
 				writeTarget = &cfg.stdout
 			case strings.HasPrefix(line, "STDOUT"):
 				writeTarget = &cfg.stdout

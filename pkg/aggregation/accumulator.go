@@ -259,8 +259,13 @@ func (s *AccumulatingGroup) GroupColCount() int {
 	return len(s.groupDef)
 }
 
+// Total columns (group + data)
 func (s *AccumulatingGroup) ColCount() int {
 	return len(s.groupDef) + len(s.colDef)
+}
+
+func (s *AccumulatingGroup) DataColCount() int {
+	return len(s.colDef)
 }
 
 // Returns a new slice of data-groups for key
@@ -268,6 +273,12 @@ func (s *AccumulatingGroup) Data(groupKey GroupKey) []string {
 	ret := make([]string, len(s.colDef))
 	copy(ret, s.data[groupKey])
 	return ret
+}
+
+// Gets index of a data column by name
+func (s *AccumulatingGroup) DataColIdx(name string) (idx int, ok bool) {
+	idx, ok = s.colIdxLookup[name]
+	return
 }
 
 func (s *AccumulatingGroup) DataNoCopy(groupKey GroupKey) []string {

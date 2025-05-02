@@ -1,6 +1,7 @@
 package acceptance
 
 import (
+	"errors"
 	"io"
 	"os"
 	"rare/pkg/testutil"
@@ -29,10 +30,10 @@ func RunTestSuiteFile(t *testing.T, filename string, runner Runner) {
 }
 
 func runTestConfig(t *testing.T, cfg *testConfig, runner Runner) {
-	t.Logf("RUN: %s", cfg.cmd)
+	t.Logf("RUN (line %d): %s", cfg.linenum, cfg.cmd)
 
 	args := append([]string{"app"}, testutil.SplitQuotedString(cfg.cmd)...)
-	sout, serr, err := testutil.Capture(func(w *os.File) error {
+	sout, serr, err := testutil.Capture(func(w *os.File) (ret error) {
 		if cfg.stdin.Len() > 0 {
 			t.Logf("Copying %d bytes to stdin", cfg.stdin.Len())
 			go func() {
@@ -40,19 +41,28 @@ func runTestConfig(t *testing.T, cfg *testConfig, runner Runner) {
 				w.Close()
 			}()
 		}
+
+		// catch panics
+		defer func() {
+			if r := recover(); r != nil {
+				t.Logf("Recovered from panic: %v", r)
+				ret = errors.New(r.(string))
+			}
+		}()
+
 		return runner(args...)
 	})
 
 	if (err != nil && err.Error() != cfg.expectError) || (err == nil && cfg.expectError != "") {
-		t.Errorf("ERROR: '%v', expected '%s'", err, cfg.expectError)
+		t.Errorf("ERROR (line %d): '%v', expected '%s'", cfg.linenum, err, cfg.expectError)
 	}
 
 	if !cfg.outComp(sout, cfg.stdout.String()) {
-		t.Errorf("STDOUT Expected:\n%s\nGot:\n%s\n", cfg.stdout.String(), sout)
+		t.Errorf("STDOUT (line %d) Expected:\n%s\nGot:\n%s\n", cfg.linenum, cfg.stdout.String(), sout)
 	}
 
 	if !cfg.errComp(serr, cfg.stderr.String()) || (len(serr) > 0 && cfg.stderr.Len() == 0) {
-		t.Errorf("STDERR Expected:\n%s\nGot:\n%s\n", cfg.stderr.String(), serr)
+		t.Errorf("STDERR (line %d) Expected:\n%s\nGot:\n%s\n", cfg.linenum, cfg.stderr.String(), serr)
 	}
 
 	t.Logf("DONE: err=%v; stderr=%s; len(stdout)=%d", err, serr, len(sout))

@@ -9,6 +9,7 @@ import (
 	"rare/pkg/csv"
 	"rare/pkg/expressions/funclib"
 	"rare/pkg/logger"
+	"rare/pkg/multiterm/termformat"
 	"rare/pkg/multiterm/termrenderers"
 	"strings"
 
@@ -25,6 +26,7 @@ func reduceFunction(c *cli.Context) error {
 		sortReverse    = c.Bool("sort-reverse")
 		rowCount       = c.Int("rows")
 		colCount       = c.Int("cols")
+		formatNames    = c.StringSlice("format")
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
@@ -65,6 +67,9 @@ func reduceFunction(c *cli.Context) error {
 		}
 	}
 
+	// Set up formatters
+	formatters := buildFormatterSetOrFail(aggr, formatNames...)
+
 	// run the aggregation
 	if aggr.GroupColCount() > 0 || table {
 		// Table output
@@ -90,6 +95,9 @@ func reduceFunction(c *cli.Context) error {
 				for idx, item := range group.Parts() {
 					rowBuf[idx] = color.Wrap(color.BrightWhite, item)
 				}
+				for idx, item := range data {
+					data[idx] = formatters[idx](item)
+				}
 				copy(rowBuf[aggr.GroupColCount():], data)
 				table.WriteRow(i+1, rowBuf...)
 			}
@@ -105,7 +113,7 @@ func reduceFunction(c *cli.Context) error {
 			items := aggr.Data("")
 			colNames := aggr.DataCols()
 			for idx, expr := range items {
-				vt.WriteForLine(idx, colNames[idx]+strings.Repeat(" ", maxKeylen-len(colNames[idx]))+": "+expr)
+				vt.WriteForLine(idx, colNames[idx]+strings.Repeat(" ", maxKeylen-len(colNames[idx]))+": "+formatters[idx](expr))
 			}
 			vt.WriteForLine(len(items), helpers.FWriteExtractorSummary(extractor, aggr.ParseErrors()))
 			vt.WriteForLine(len(items)+1, batcher.StatusString())
@@ -134,6 +142,44 @@ func parseKeyValInitial(s, defaultInitial string) (key, initial, val string) {
 		return k[:initialSep], k[initialSep+1:], v
 	}
 	return k, defaultInitial, v
+}
+
+// Return a set of formatters that map to the accumulating group's column set
+// Length of formatters will always match the DataColCount
+func buildFormatterSetOrFail(aggr *aggregation.AccumulatingGroup, formatterConfig ...string) []termformat.StringFormatter {
+	// Init
+	formatters := make([]termformat.StringFormatter, aggr.DataColCount())
+	for i := range len(formatters) {
+		formatters[i] = termformat.PassthruString
+	}
+
+	// Config
+	for _, exprVal := range formatterConfig {
+		if strings.ContainsRune(exprVal, '=') {
+			// Specific set
+			name, val := parseKeyValue(exprVal)
+			dataIdx, hasDataIdx := aggr.DataColIdx(name)
+			if !hasDataIdx {
+				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Unknown data column %s", name)
+			}
+			fmtExpr, err := termformat.StringFromExpression(val)
+			if err != nil {
+				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error creating formatter %s: %v", val, err)
+			}
+			formatters[dataIdx] = fmtExpr
+		} else {
+			// Global set
+			fmtExpr, err := termformat.StringFromExpression(exprVal)
+			if err != nil {
+				logger.Fatalf(helpers.ExitCodeInvalidUsage, "Error creating formatter %s: %v", exprVal, err)
+			}
+			for i := range len(formatters) {
+				formatters[i] = fmtExpr
+			}
+		}
+	}
+
+	return formatters
 }
 
 func reduceCommand() *cli.Command {
@@ -182,6 +228,11 @@ func reduceCommand() *cli.Command {
 			&cli.BoolFlag{
 				Name:  "sort-reverse",
 				Usage: "Reverses sort order",
+			},
+			&cli.StringSliceFlag{
+				Name:    "format",
+				Usage:   "Defines a format expression for displayed values. Syntax: `[name=]expr`",
+				Aliases: []string{"fmt"},
 			},
 			helpers.SnapshotFlag,
 			helpers.NoOutFlag,

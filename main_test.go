@@ -1,7 +1,10 @@
 package main
 
 import (
+	"rare/pkg/logger"
+	"rare/pkg/testutil"
 	"rare/pkg/testutil/acceptance"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -57,6 +60,11 @@ func TestRunAcceptance(t *testing.T) {
 	if testing.Short() {
 		t.SkipNow()
 	}
+
+	testutil.SwitchGlobal(&logger.OsExit, func(code int) {
+		panic("exited code " + strconv.Itoa(code))
+	})
+	defer testutil.RestoreGlobals()
 
 	acceptance.RunTestSuiteFile(t, "acceptance.tests", cliMain)
 }
