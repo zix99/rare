@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"rare/pkg/aggregation"
+	"rare/pkg/expressions/funclib"
+	"rare/pkg/logger"
+	"rare/pkg/testutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -60,4 +64,51 @@ func TestReduceFatals(t *testing.T) {
 	catchLogFatal(t, 2, func() {
 		testCommand(reduceCommand(), `-m (\d+) -g {0} -a {0} --sort {0 testdata/log.txt`)
 	})
+}
+
+func TestBuildFormatterSet(t *testing.T) {
+	accum := aggregation.NewAccumulatingGroup(funclib.NewKeyBuilder())
+
+	accum.AddGroupExpr("by0", "{0}")
+	accum.AddDataExpr("sum", "{sumi {.} {1}}", "0")
+	accum.AddDataExpr("mult", "{multi {.} {1}}", "1")
+
+	t.Run("default", func(t *testing.T) {
+		deflt := buildFormatterSetOrFail(accum)
+		assert.Len(t, deflt, 2)
+	})
+
+	t.Run("global", func(t *testing.T) {
+		f := buildFormatterSetOrFail(accum, "bytesize")
+		assert.Len(t, f, 2)
+	})
+
+	t.Run("byname", func(t *testing.T) {
+		f := buildFormatterSetOrFail(accum, "bytesize", "sum=hi", "mult=hi")
+		assert.Len(t, f, 2)
+	})
+
+	testutil.SwitchGlobal(&logger.OsExit, func(code int) {
+		panic("osexit")
+	})
+	defer testutil.RestoreGlobals()
+
+	t.Run("ErrColName", func(t *testing.T) {
+		assert.PanicsWithValue(t, "osexit", func() {
+			buildFormatterSetOrFail(accum, "bla=hi")
+		})
+	})
+
+	t.Run("ErrBadExprName", func(t *testing.T) {
+		assert.PanicsWithValue(t, "osexit", func() {
+			buildFormatterSetOrFail(accum, "sum={unclosed")
+		})
+	})
+
+	t.Run("ErrBadGlobalExpr", func(t *testing.T) {
+		assert.PanicsWithValue(t, "osexit", func() {
+			buildFormatterSetOrFail(accum, "{unclosed")
+		})
+	})
+
 }
