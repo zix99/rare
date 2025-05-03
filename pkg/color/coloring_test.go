@@ -1,7 +1,6 @@
 package color
 
 import (
-	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -18,24 +17,22 @@ func BenchmarkColorReplacer(b *testing.B) {
 	s := "This is a test"
 	groups := []int{5, 7, 8, 9}
 
-	var out string
+	var sb strings.Builder
 	for n := 0; n < b.N; n++ {
-		out = WrapIndices(s, groups)
+		WrapIndices(&sb, s, groups)
+		sb.Reset()
 	}
-
-	fmt.Println(out)
 }
 
 func BenchmarkColorReplacerOverlapping(b *testing.B) {
 	s := "This is a test"
 	groups := []int{4, 7, 5, 6, 8, 9}
 
-	var out string
+	var sb strings.Builder
 	for n := 0; n < b.N; n++ {
-		out = WrapIndices(s, groups)
+		WrapIndices(&sb, s, groups)
+		sb.Reset()
 	}
-
-	fmt.Println(out)
 }
 
 func TestWrap(t *testing.T) {
@@ -67,12 +64,18 @@ func TestWrapi(t *testing.T) {
 }
 
 func TestWrapIndicesNoGroups(t *testing.T) {
-	s := WrapIndices("Nothing", []int{})
+	var sb strings.Builder
+	WrapIndices(&sb, "Nothing", []int{})
+	s := sb.String()
+
 	assert.Equal(t, "Nothing", s)
 }
 
 func TestWrapIndices(t *testing.T) {
-	s := WrapIndices("abcdefg", []int{1, 2, 5, 6})
+	var sb strings.Builder
+	WrapIndices(&sb, "abcdefg", []int{1, 2, 5, 6})
+	s := sb.String()
+
 	assert.Contains(t, s, "cde")
 	assert.Contains(t, s, Red)
 	assert.Contains(t, s, Green)
@@ -80,8 +83,9 @@ func TestWrapIndices(t *testing.T) {
 }
 
 func TestWrapIndicesInnerGroups(t *testing.T) {
-	s := WrapIndices("abcdefg", []int{0, 2, 1, 2, 5, 6})
-	assert.Contains(t, s, "cde")
+	var sb strings.Builder
+	WrapIndices(&sb, "abcdefg", []int{0, 2, 1, 2, 5, 6})
+	assert.Contains(t, sb.String(), "cde")
 }
 
 func TestWriteColor(t *testing.T) {
