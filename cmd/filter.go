@@ -28,9 +28,9 @@ OUTER_LOOP:
 	for matchBatch := range extractor.ReadFull() {
 		for _, match := range matchBatch {
 			if writeLines {
-				stdout.WriteString(color.Wrap(color.BrightGreen, match.Source))
+				color.WriteString(stdout, color.BrightGreen, match.Source)
 				stdout.WriteString(" ")
-				stdout.WriteString(color.Wrapi(color.BrightYellow, match.LineNumber))
+				color.WriteUint64(stdout, color.BrightYellow, match.LineNumber)
 				stdout.WriteString(": ")
 			}
 			if !customExtractor {

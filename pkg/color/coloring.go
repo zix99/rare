@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"rare/pkg/multiterm/termstate"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 )
@@ -70,6 +71,30 @@ func Write(w io.StringWriter, color ColorCode, f func(w io.StringWriter)) {
 	w.WriteString(string(color))
 	f(w)
 	w.WriteString(string(Reset))
+}
+
+func WriteString(w io.StringWriter, color ColorCode, s string) {
+	if !Enabled {
+		w.WriteString(s)
+		return
+	}
+
+	w.WriteString(string(color))
+	w.WriteString(s)
+	w.WriteString(Reset)
+}
+
+func WriteUint64(w io.StringWriter, color ColorCode, v uint64) {
+	sv := strconv.FormatUint(v, 10)
+
+	if !Enabled {
+		w.WriteString(sv)
+		return
+	}
+
+	w.WriteString(string(color))
+	w.WriteString(sv)
+	w.WriteString(Reset)
 }
 
 // Wrap surroungs a string with a color (if enabled)

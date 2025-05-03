@@ -1,6 +1,7 @@
 package color
 
 import (
+	"bytes"
 	"io"
 	"strings"
 	"testing"
@@ -13,25 +14,38 @@ func init() {
 	Enabled = true
 }
 
+// BenchmarkColorReplacer-4   	10328904	       119.6 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkColorReplacer(b *testing.B) {
 	s := "This is a test"
 	groups := []int{5, 7, 8, 9}
 
-	var sb strings.Builder
+	var sb bytes.Buffer
 	for n := 0; n < b.N; n++ {
 		WrapIndices(&sb, s, groups)
 		sb.Reset()
 	}
 }
 
+// BenchmarkColorReplacerOverlapping-4   	 9452739	       125.0 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkColorReplacerOverlapping(b *testing.B) {
 	s := "This is a test"
 	groups := []int{4, 7, 5, 6, 8, 9}
 
-	var sb strings.Builder
+	var sb bytes.Buffer
 	for n := 0; n < b.N; n++ {
 		WrapIndices(&sb, s, groups)
 		sb.Reset()
+	}
+}
+
+// BenchmarkWriteUInt64-4   	10243333	       106.5 ns/op	       8 B/op	       1 allocs/op
+func BenchmarkWriteUInt64(b *testing.B) {
+	buf := &bytes.Buffer{}
+	buf.Grow(100)
+
+	for range b.N {
+		WriteUint64(buf, Red, 123)
+		buf.Reset()
 	}
 }
 
@@ -94,6 +108,32 @@ func TestWriteColor(t *testing.T) {
 		w.WriteString("hi")
 	})
 	assert.Contains(t, sb.String(), "hi")
+}
+
+func TestWriteString(t *testing.T) {
+	var sb strings.Builder
+	WriteString(&sb, Red, "bob")
+
+	assert.Equal(t, "\x1b[31mbob\x1b[0m", sb.String())
+
+	sb.Reset()
+	Enabled = false
+	WriteString(&sb, Red, "bob")
+	Enabled = true
+	assert.Equal(t, "bob", sb.String())
+}
+
+func TestWriteUint(t *testing.T) {
+	var sb strings.Builder
+	WriteUint64(&sb, Red, 123)
+
+	assert.Equal(t, "\x1b[31m123\x1b[0m", sb.String())
+
+	sb.Reset()
+	Enabled = false
+	WriteUint64(&sb, Red, 123)
+	Enabled = true
+	assert.Equal(t, "123", sb.String())
 }
 
 func TestLookupColor(t *testing.T) {
