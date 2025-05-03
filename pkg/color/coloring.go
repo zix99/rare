@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"rare/pkg/multiterm/termstate"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 )
@@ -72,6 +73,30 @@ func Write(w io.StringWriter, color ColorCode, f func(w io.StringWriter)) {
 	w.WriteString(string(Reset))
 }
 
+func WriteString(w io.StringWriter, color ColorCode, s string) {
+	if !Enabled {
+		w.WriteString(s)
+		return
+	}
+
+	w.WriteString(string(color))
+	w.WriteString(s)
+	w.WriteString(Reset)
+}
+
+func WriteUint64(w io.StringWriter, color ColorCode, v uint64) {
+	sv := strconv.FormatUint(v, 10)
+
+	if !Enabled {
+		w.WriteString(sv)
+		return
+	}
+
+	w.WriteString(string(color))
+	w.WriteString(sv)
+	w.WriteString(Reset)
+}
+
 // Wrap surroungs a string with a color (if enabled)
 func Wrap(color ColorCode, s string) string {
 	if !Enabled {
@@ -97,16 +122,17 @@ func Wrapi(color ColorCode, s interface{}) string {
 }
 
 // WrapIndices color-codes by group pairs (regex-style)
-//  [aStart, aEnd, bStart, bEnd...]
-func WrapIndices(s string, groups []int) string {
+//
+//	[aStart, aEnd, bStart, bEnd...]
+func WrapIndices(sw io.StringWriter, s string, groups []int) {
 	if !Enabled {
-		return s
+		sw.WriteString(s)
+		return
 	}
 	if len(groups) == 0 || len(groups)%2 != 0 {
-		return s
+		sw.WriteString(s)
+		return
 	}
-
-	var sb strings.Builder
 	lastIndex := 0
 
 	for i := 0; i < len(groups); i += 2 {
@@ -115,20 +141,18 @@ func WrapIndices(s string, groups []int) string {
 		if start >= 0 && end >= 0 && end > start && start >= lastIndex {
 			color := GroupColors[(i/2)%len(GroupColors)]
 
-			sb.WriteString(s[lastIndex:start])
-			sb.WriteString(string(color))
-			sb.WriteString(s[start:end])
-			sb.WriteString(string(Reset))
+			sw.WriteString(s[lastIndex:start])
+			sw.WriteString(string(color))
+			sw.WriteString(s[start:end])
+			sw.WriteString(string(Reset))
 
 			lastIndex = end
 		}
 	}
 
 	if lastIndex < len(s) {
-		sb.WriteString(s[lastIndex:])
+		sw.WriteString(s[lastIndex:])
 	}
-
-	return sb.String()
 }
 
 func LookupColorByName(s string) (ColorCode, bool) {

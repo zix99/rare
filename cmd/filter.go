@@ -24,23 +24,22 @@ func filterFunction(c *cli.Context) error {
 
 	stdout := bufio.NewWriter(os.Stdout)
 
-	readChan := extractor.ReadFull()
 OUTER_LOOP:
-	for matchBatch := range readChan {
+	for matchBatch := range extractor.ReadFull() {
 		for _, match := range matchBatch {
 			if writeLines {
-				stdout.WriteString(color.Wrap(color.BrightGreen, match.Source))
+				color.WriteString(stdout, color.BrightGreen, match.Source)
 				stdout.WriteString(" ")
-				stdout.WriteString(color.Wrapi(color.BrightYellow, match.LineNumber))
+				color.WriteUint64(stdout, color.BrightYellow, match.LineNumber)
 				stdout.WriteString(": ")
 			}
 			if !customExtractor {
 				if len(match.Indices) == 2 {
 					// Single match, highlight entire phrase
-					stdout.WriteString(color.WrapIndices(match.Line, match.Indices))
+					color.WrapIndices(stdout, match.Line, match.Indices)
 				} else {
 					// Multi-match groups, highlight individual groups
-					stdout.WriteString(color.WrapIndices(match.Line, match.Indices[2:]))
+					color.WrapIndices(stdout, match.Line, match.Indices[2:])
 				}
 			} else {
 				stdout.WriteString(match.Extracted)

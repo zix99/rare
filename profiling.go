@@ -80,8 +80,8 @@ func init() {
 			if c.Bool("metrics") {
 				var after runtime.MemStats
 				runtime.ReadMemStats(&after)
-				fmt.Printf("Runtime: %s\n", stop.Sub(start).String())
-				fmt.Printf("Memory : total=%d; malloc=%d; free=%d; numgc=%d; pausegc=%s\n",
+				fmt.Fprintf(os.Stderr, "Runtime: %s\n", stop.Sub(start).String())
+				fmt.Fprintf(os.Stderr, "Memory : total=%d; malloc=%d; free=%d; numgc=%d; pausegc=%s\n",
 					after.TotalAlloc-beforeMem.TotalAlloc,
 					after.Mallocs-beforeMem.Mallocs,
 					after.Frees-beforeMem.Frees,

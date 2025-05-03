@@ -1,7 +1,7 @@
 package color
 
 import (
-	"fmt"
+	"bytes"
 	"io"
 	"strings"
 	"testing"
@@ -14,28 +14,39 @@ func init() {
 	Enabled = true
 }
 
+// BenchmarkColorReplacer-4   	10328904	       119.6 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkColorReplacer(b *testing.B) {
 	s := "This is a test"
 	groups := []int{5, 7, 8, 9}
 
-	var out string
+	var sb bytes.Buffer
 	for n := 0; n < b.N; n++ {
-		out = WrapIndices(s, groups)
+		WrapIndices(&sb, s, groups)
+		sb.Reset()
 	}
-
-	fmt.Println(out)
 }
 
+// BenchmarkColorReplacerOverlapping-4   	 9452739	       125.0 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkColorReplacerOverlapping(b *testing.B) {
 	s := "This is a test"
 	groups := []int{4, 7, 5, 6, 8, 9}
 
-	var out string
+	var sb bytes.Buffer
 	for n := 0; n < b.N; n++ {
-		out = WrapIndices(s, groups)
+		WrapIndices(&sb, s, groups)
+		sb.Reset()
 	}
+}
 
-	fmt.Println(out)
+// BenchmarkWriteUInt64-4   	10243333	       106.5 ns/op	       8 B/op	       1 allocs/op
+func BenchmarkWriteUInt64(b *testing.B) {
+	buf := &bytes.Buffer{}
+	buf.Grow(100)
+
+	for range b.N {
+		WriteUint64(buf, Red, 123)
+		buf.Reset()
+	}
 }
 
 func TestWrap(t *testing.T) {
@@ -67,12 +78,18 @@ func TestWrapi(t *testing.T) {
 }
 
 func TestWrapIndicesNoGroups(t *testing.T) {
-	s := WrapIndices("Nothing", []int{})
+	var sb strings.Builder
+	WrapIndices(&sb, "Nothing", []int{})
+	s := sb.String()
+
 	assert.Equal(t, "Nothing", s)
 }
 
 func TestWrapIndices(t *testing.T) {
-	s := WrapIndices("abcdefg", []int{1, 2, 5, 6})
+	var sb strings.Builder
+	WrapIndices(&sb, "abcdefg", []int{1, 2, 5, 6})
+	s := sb.String()
+
 	assert.Contains(t, s, "cde")
 	assert.Contains(t, s, Red)
 	assert.Contains(t, s, Green)
@@ -80,8 +97,9 @@ func TestWrapIndices(t *testing.T) {
 }
 
 func TestWrapIndicesInnerGroups(t *testing.T) {
-	s := WrapIndices("abcdefg", []int{0, 2, 1, 2, 5, 6})
-	assert.Contains(t, s, "cde")
+	var sb strings.Builder
+	WrapIndices(&sb, "abcdefg", []int{0, 2, 1, 2, 5, 6})
+	assert.Contains(t, sb.String(), "cde")
 }
 
 func TestWriteColor(t *testing.T) {
@@ -90,6 +108,32 @@ func TestWriteColor(t *testing.T) {
 		w.WriteString("hi")
 	})
 	assert.Contains(t, sb.String(), "hi")
+}
+
+func TestWriteString(t *testing.T) {
+	var sb strings.Builder
+	WriteString(&sb, Red, "bob")
+
+	assert.Equal(t, "\x1b[31mbob\x1b[0m", sb.String())
+
+	sb.Reset()
+	Enabled = false
+	WriteString(&sb, Red, "bob")
+	Enabled = true
+	assert.Equal(t, "bob", sb.String())
+}
+
+func TestWriteUint(t *testing.T) {
+	var sb strings.Builder
+	WriteUint64(&sb, Red, 123)
+
+	assert.Equal(t, "\x1b[31m123\x1b[0m", sb.String())
+
+	sb.Reset()
+	Enabled = false
+	WriteUint64(&sb, Red, 123)
+	Enabled = true
+	assert.Equal(t, "123", sb.String())
 }
 
 func TestLookupColor(t *testing.T) {
