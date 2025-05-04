@@ -117,8 +117,8 @@ func Wrapf(color ColorCode, s string, args ...interface{}) string {
 	return Wrap(color, fmt.Sprintf(s, args...))
 }
 
-func Wrapi(color ColorCode, s interface{}) string {
-	return Wrap(color, fmt.Sprintf("%v", s))
+func Wrapi(color ColorCode, v int) string {
+	return Wrap(color, strconv.Itoa(v))
 }
 
 // WrapIndices color-codes by group pairs (regex-style)

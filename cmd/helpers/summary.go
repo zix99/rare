@@ -12,8 +12,8 @@ import (
 
 func FWriteMatchSummary(w io.Writer, matched, total uint64) {
 	fmt.Fprintf(w, "Matched: %s / %s",
-		color.Wrapi(color.BrightGreen, humanize.Hui(matched)),
-		color.Wrapi(color.BrightWhite, humanize.Hui(total)))
+		color.Wrap(color.BrightGreen, humanize.Hui(matched)),
+		color.Wrap(color.BrightWhite, humanize.Hui(total)))
 }
 
 func FWriteExtractorSummary(extractor *extractor.Extractor, errors uint64, additionalParts ...string) string {
@@ -24,7 +24,7 @@ func FWriteExtractorSummary(extractor *extractor.Extractor, errors uint64, addit
 		w.WriteString(p)
 	}
 	if extractor.IgnoredLines() > 0 {
-		fmt.Fprintf(&w, " (Ignored: %s)", color.Wrapi(color.Red, humanize.Hui(extractor.IgnoredLines())))
+		fmt.Fprintf(&w, " (Ignored: %s)", color.Wrap(color.Red, humanize.Hui(extractor.IgnoredLines())))
 	}
 	if errors > 0 {
 		fmt.Fprintf(&w, " %s", color.Wrapf(color.Red, "(Errors: %v)", humanize.Hui(errors)))

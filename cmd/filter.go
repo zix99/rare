@@ -29,7 +29,7 @@ OUTER_LOOP:
 		for _, match := range matchBatch {
 			if writeLines {
 				color.WriteString(stdout, color.BrightGreen, match.Source)
-				stdout.WriteString(" ")
+				stdout.WriteByte(' ')
 				color.WriteUint64(stdout, color.BrightYellow, match.LineNumber)
 				stdout.WriteString(": ")
 			}
@@ -44,7 +44,7 @@ OUTER_LOOP:
 			} else {
 				stdout.WriteString(match.Extracted)
 			}
-			stdout.WriteString("\n")
+			stdout.WriteByte('\n')
 
 			readLines++
 			if numLineLimit > 0 && readLines >= numLineLimit {
