@@ -26,7 +26,7 @@ func (s *Splitter) Next() (ret string) {
 	idx += s.next
 
 	ret = s.S[s.next:idx]
-	s.next = idx + 1
+	s.next = idx + len(s.Delim)
 	return
 }
 

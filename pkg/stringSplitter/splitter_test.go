@@ -39,6 +39,59 @@ func TestSplitterNextOk(t *testing.T) {
 	assert.False(t, ok2)
 }
 
+func TestEmpty(t *testing.T) {
+	s := Splitter{
+		S:     "",
+		Delim: ",",
+	}
+
+	part, ok := s.NextOk()
+	assert.Equal(t, "", part)
+	assert.True(t, ok)
+
+	part, ok = s.NextOk()
+	assert.Equal(t, "", part)
+	assert.False(t, ok)
+}
+
+func TestSingle(t *testing.T) {
+	s := Splitter{
+		S:     "a",
+		Delim: ",",
+	}
+
+	part, ok := s.NextOk()
+	assert.Equal(t, "a", part)
+	assert.True(t, ok)
+
+	part, ok = s.NextOk()
+	assert.Equal(t, "", part)
+	assert.False(t, ok)
+}
+
+func TestMultiRuneDelim(t *testing.T) {
+	s := Splitter{
+		S:     "abc--e--g-k",
+		Delim: "--",
+	}
+
+	part0, ok0 := s.NextOk()
+	assert.Equal(t, "abc", part0)
+	assert.True(t, ok0)
+
+	part1, ok1 := s.NextOk()
+	assert.Equal(t, "e", part1)
+	assert.True(t, ok1)
+
+	part2, ok2 := s.NextOk()
+	assert.Equal(t, "g-k", part2)
+	assert.True(t, ok2)
+
+	part3, ok3 := s.NextOk()
+	assert.Equal(t, "", part3)
+	assert.False(t, ok3)
+}
+
 // BenchmarkStringSplit-4   	 4282983	       281.6 ns/op	      64 B/op	       1 allocs/op
 func BenchmarkStringSplit(b *testing.B) {
 	total := 0
