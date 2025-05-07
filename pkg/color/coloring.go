@@ -163,33 +163,42 @@ func LookupColorByName(s string) (ColorCode, bool) {
 }
 
 // UnderlineSingleRune is a special-use-case colorer for headers with a single character called out
-func HighlightSingleRune(word string, runeIndex int, base, highlight ColorCode) string {
+func WriteHighlightSingleRune(w io.StringWriter, word string, runeIndex int, base, highlight ColorCode) {
 	if !Enabled {
-		return word
+		w.WriteString(word)
+		return
 	}
 
-	if runeIndex >= 0 && runeIndex < len(word) {
-		var sb strings.Builder
-		sb.Grow(len(word) * 2)
+	w.WriteString(string(base))
 
-		sb.WriteString(string(base))
-		idx := 0
-		for _, r := range word {
-			if idx == runeIndex {
-				sb.WriteString(string(highlight))
-				sb.WriteRune(r)
-				sb.WriteString(string(Reset + base))
-			} else {
-				sb.WriteRune(r)
-			}
-			idx++
+	offset, width := byteIndexOfRune(word, runeIndex)
+	if offset >= 0 {
+		w.WriteString(word[:offset])
+		w.WriteString(string(highlight))
+		w.WriteString(word[offset : offset+width])
+		w.WriteString(Reset)
+		w.WriteString(string(base))
+		w.WriteString(word[offset+width:])
+	} else {
+		w.WriteString(word)
+	}
+
+	w.WriteString(Reset)
+}
+
+// returns byte index of a rune index within a string
+//
+// this is an optimization to allow finding a position of a rune in a string
+// and then accessing it directly using string slices, preventing an alloc
+func byteIndexOfRune(s string, runeIndex int) (offset, width int) {
+	rIdx := 0
+	for bIdx, r := range s {
+		if rIdx == runeIndex {
+			return bIdx, utf8.RuneLen(r)
 		}
-		sb.WriteString(string(Reset))
-
-		return sb.String()
+		rIdx++
 	}
-
-	return Wrap(base, word)
+	return -1, -1
 }
 
 // StrLen ignoring any color codes. If color disabled, returns len(s)

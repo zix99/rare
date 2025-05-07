@@ -154,6 +154,12 @@ func TestLookupColor(t *testing.T) {
 }
 
 func TestHighlightSingleRune(t *testing.T) {
+	HighlightSingleRune := func(word string, runeIndex int, base, highlight ColorCode) string {
+		var sb strings.Builder
+		WriteHighlightSingleRune(&sb, word, runeIndex, base, highlight)
+		return sb.String()
+	}
+
 	assert.Equal(t, "\x1b[34;1m\x1b[0m", HighlightSingleRune("", 0, BrightBlue, Underline))
 	assert.Equal(t, "\x1b[34;1m\x1b[4m\x1b[36;1ma\x1b[0m\x1b[34;1mbc\x1b[0m", HighlightSingleRune("abc", 0, BrightBlue, Underline+BrightCyan))
 	assert.Equal(t, "\x1b[34;1ma\x1b[4m\x1b[36;1mb\x1b[0m\x1b[34;1mc\x1b[0m", HighlightSingleRune("abc", 1, BrightBlue, Underline+BrightCyan))
@@ -164,6 +170,16 @@ func TestHighlightSingleRune(t *testing.T) {
 	Enabled = false
 	assert.Equal(t, "test", HighlightSingleRune("test", 1, BrightBlue, BrightCyan))
 	Enabled = true
+}
+
+// BenchmarkSingleRune-4   	11593182	        96.75 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkSingleRune(b *testing.B) {
+	buf := &bytes.Buffer{}
+
+	for range b.N {
+		WriteHighlightSingleRune(buf, "cantalope", 1, Red, Green)
+		buf.Reset()
+	}
 }
 
 func TestStringLength(t *testing.T) {

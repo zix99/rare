@@ -1,6 +1,7 @@
 package termrenderers
 
 import (
+	"io"
 	"rare/pkg/aggregation"
 	"rare/pkg/aggregation/sorting"
 	"rare/pkg/color"
@@ -129,11 +130,11 @@ func (s *Heatmap) WriteHeader(colNames ...string) (colCount int) {
 				writeRepeat(&sb, delim, indent)
 				i += indent
 			}
-			sb.WriteString(underlineHeaderChar(name, colCount-i-1))
+			underlineHeaderChar(&sb, name, colCount-i-1)
 			break
 		}
 
-		sb.WriteString(underlineHeaderChar(name, 0))
+		underlineHeaderChar(&sb, name, 0)
 		i += nameLen
 	}
 
@@ -180,6 +181,6 @@ func writeRepeat(sb *strings.Builder, r rune, count int) {
 	}
 }
 
-func underlineHeaderChar(word string, letter int) string {
-	return color.HighlightSingleRune(word, letter, color.BrightBlue, color.Underline+color.BrightCyan)
+func underlineHeaderChar(w io.StringWriter, word string, letter int) {
+	color.WriteHighlightSingleRune(w, word, letter, color.BrightBlue, color.Underline+color.BrightCyan)
 }
