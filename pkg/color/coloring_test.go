@@ -172,7 +172,7 @@ func TestHighlightSingleRune(t *testing.T) {
 	Enabled = true
 }
 
-// BenchmarkSingleRune-4   	 3006231	       366.1 ns/op	      72 B/op	       2 allocs/op
+// BenchmarkSingleRune-4   	11593182	        96.75 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkSingleRune(b *testing.B) {
 	buf := &bytes.Buffer{}
 
