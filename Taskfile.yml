@@ -37,6 +37,11 @@ tasks:
       - mv -f pgogen.cpu.prof default.pgo
       - task: build
 
+  build:snapshot:
+    desc: Builds snapshots via goreleaser
+    cmds:
+      - goreleaser release --snapshot --clean
+
   # Test
   test:unit:
     desc: Run all tests

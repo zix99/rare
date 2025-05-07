@@ -19,6 +19,8 @@ builds:
     - -s -w
     - -X main.version={{.Version}}
     - -X main.buildSha={{.ShortCommit}}
+  gcflags:
+    - -B
   goarch:
     - amd64
   goos:
@@ -35,6 +37,8 @@ builds:
     - -s -w
     - -X main.version={{.Version}}
     - -X main.buildSha={{.ShortCommit}}
+  gcflags:
+    - -B
   goarch:
     - amd64
     - arm64
