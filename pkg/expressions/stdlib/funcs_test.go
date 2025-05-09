@@ -40,6 +40,12 @@ func TestAllFuncsNoPanic(t *testing.T) {
 
 						// if compiled, try to invoke
 						if err == nil {
+							assert.NotNil(t, compiledFunc)
+						}
+
+						if compiledFunc != nil {
+							// even if err isn't nil, if it exists
+							// it should also be runnable
 							compiledFunc(mockContext())
 						}
 					})
@@ -56,6 +62,12 @@ func TestAllFuncsNoPanic(t *testing.T) {
 
 						// if compiled, try to invoke
 						if err == nil {
+							assert.NotNil(t, compiledFunc)
+						}
+
+						if compiledFunc != nil {
+							// even if err isn't nil, if it exists
+							// it should also be runnable
 							compiledFunc(ctx)
 						}
 					})
