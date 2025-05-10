@@ -12,6 +12,7 @@ import (
 	"rare/pkg/matchers/dissect"
 	"rare/pkg/matchers/fastregex"
 	"runtime"
+	"slices"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -262,4 +263,14 @@ func AdaptCommandForExtractor(command cli.Command) *cli.Command {
 	}
 
 	return &command
+}
+
+func ModifyArgOrPanic[T cli.Flag](cmd *cli.Command, name string, modifier func(T)) {
+	for _, flag := range cmd.Flags {
+		if slices.Contains(flag.Names(), name) {
+			modifier(flag.(T))
+			return
+		}
+	}
+	panic("no flag change")
 }

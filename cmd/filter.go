@@ -3,7 +3,6 @@ package cmd
 import (
 	"bufio"
 	"os"
-	"slices"
 	"unicode/utf8"
 
 	"rare/cmd/helpers"
@@ -163,22 +162,12 @@ func searchCommand() *cli.Command {
 	command.ArgsUsage = "<regex> " + command.ArgsUsage
 
 	// modify some defaults
-	modifyArgOrPanic(command, "recursive", func(flag *cli.BoolFlag) {
+	helpers.ModifyArgOrPanic(command, "recursive", func(flag *cli.BoolFlag) {
 		flag.Value = true
 	})
-	modifyArgOrPanic(command, "ignore-case", func(flag *cli.BoolFlag) {
+	helpers.ModifyArgOrPanic(command, "ignore-case", func(flag *cli.BoolFlag) {
 		flag.Value = true
 	})
 
 	return command
-}
-
-func modifyArgOrPanic[T cli.Flag](cmd *cli.Command, name string, modifier func(T)) {
-	for _, flag := range cmd.Flags {
-		if slices.Contains(flag.Names(), name) {
-			modifier(flag.(T))
-			return
-		}
-	}
-	panic("no flag change")
 }
