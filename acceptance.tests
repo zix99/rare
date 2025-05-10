@@ -71,6 +71,17 @@ STDERR
     Matched: 5 / 5
 END
 
+NAME search for lines
+RUN search -n 5 -e "{1}" "(\d{3}) (\d+)" cmd/testdata/access.txt
+    cmd/testdata/access.txt 1: 200
+    cmd/testdata/access.txt 2: 200
+    cmd/testdata/access.txt 3: 404
+    cmd/testdata/access.txt 4: 301
+    cmd/testdata/access.txt 5: 200
+STDERR
+    Matched: 5 / 5
+END
+
 NAME filter error
 RUN filter notafile
 ERR Read errors

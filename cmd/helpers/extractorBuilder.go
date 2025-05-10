@@ -27,6 +27,10 @@ const (
 )
 
 func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
+	return BuildBatcherFromArgumentsEx(c, c.Args().Slice()...)
+}
+
+func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) *batchers.Batcher {
 	var (
 		follow            = c.Bool("follow") || c.Bool("reopen")
 		followTail        = c.Bool("tail")
@@ -51,8 +55,6 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 	if followTail && !follow {
 		logger.Fatalf(ExitCodeInvalidUsage, "Follow (-f) must be enabled for --tail")
 	}
-
-	fileglobs := c.Args().Slice()
 
 	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
 		if gunzip {

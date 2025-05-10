@@ -3,6 +3,8 @@ package cmd
 import (
 	"bufio"
 	"os"
+	"slices"
+	"unicode/utf8"
 
 	"rare/cmd/helpers"
 	"rare/pkg/color"
@@ -11,15 +13,16 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func filterFunction(c *cli.Context) error {
+func filterFunction(c *cli.Context, fileGlobs ...string) error {
 	var (
 		writeLines      = c.Bool("line")
 		customExtractor = c.IsSet("extract")
+		onlyText        = c.Bool("text")
 		numLineLimit    = uint64(c.Int64("num"))
 		readLines       = uint64(0)
 	)
 
-	batcher := helpers.BuildBatcherFromArguments(c)
+	batcher := helpers.BuildBatcherFromArgumentsEx(c, fileGlobs...)
 	extractor := helpers.BuildExtractorFromArgumentsEx(c, batcher, "\t")
 
 	stdout := bufio.NewWriter(os.Stdout)
@@ -33,7 +36,9 @@ OUTER_LOOP:
 				color.WriteUint64(stdout, color.BrightYellow, match.LineNumber)
 				stdout.WriteString(": ")
 			}
-			if !customExtractor {
+			if onlyText && !utf8.ValidString(match.Line) {
+				color.WriteString(stdout, color.BrightBlue, "Binary Match")
+			} else if !customExtractor {
 				if len(match.Indices) == 2 {
 					// Single match, highlight entire phrase
 					color.WrapIndices(stdout, match.Line, match.Indices)
@@ -81,8 +86,10 @@ func filterCommand() *cli.Command {
 		Usage: "Filter incoming results with search criteria, and output raw matches",
 		Description: `Filters incoming results by a regex, and output the match of a single line
 		or an extracted expression.`,
-		Aliases:  []string{"f"},
-		Action:   filterFunction,
+		Aliases: []string{"f"},
+		Action: func(ctx *cli.Context) error {
+			return filterFunction(ctx, ctx.Args().Slice()...)
+		},
 		Category: cmdCatAnalyze,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
@@ -95,6 +102,83 @@ func filterCommand() *cli.Command {
 				Aliases: []string{"n"},
 				Usage:   "Print the first NUM of lines seen (Not necessarily in-order)",
 			},
+			&cli.BoolFlag{
+				Name:    "text",
+				Aliases: []string{"a"},
+				Usage:   "Only output lines that contain valid text",
+			},
 		},
 	})
+}
+
+// Remap some arguments, and pass on to normal filter
+func searchFunction(c *cli.Context) error {
+	if c.NArg() == 0 {
+		logger.Fatal(helpers.ExitCodeInvalidUsage, "Missing required match argument")
+	}
+
+	fileGlobs := c.Args().Slice()
+
+	if !c.IsSet("match") && !c.IsSet("dissect") {
+		c.Set("match", c.Args().First())
+		fileGlobs = fileGlobs[1:]
+	}
+	if len(fileGlobs) == 0 {
+		fileGlobs = append(fileGlobs, ".")
+	}
+
+	return filterFunction(c, fileGlobs...)
+}
+
+// Search command is very similar to filter, but with syntactic sugar to make
+// it easier to discover things in a directory
+func searchCommand() *cli.Command {
+	command := helpers.AdaptCommandForExtractor(cli.Command{
+		Name:        "search",
+		Usage:       "Searches current directory recursively for a regex match",
+		Description: `Same as filter, but with some defaults to make it simpler to search for a regex`,
+		Action:      searchFunction,
+		Category:    cmdCatAnalyze,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "line",
+				Aliases: []string{"l"},
+				Usage:   "Output source file and line number",
+				Value:   true,
+			},
+			&cli.Int64Flag{
+				Name:    "num",
+				Aliases: []string{"n"},
+				Usage:   "Print the first NUM of lines seen (Not necessarily in-order)",
+			},
+			&cli.BoolFlag{
+				Name:    "text",
+				Aliases: []string{"a"},
+				Usage:   "Only output lines that contain valid text",
+				Value:   true,
+			},
+		},
+	})
+
+	command.ArgsUsage = "<regex> " + command.ArgsUsage
+
+	// modify some defaults
+	modifyArgOrPanic(command, "recursive", func(flag *cli.BoolFlag) {
+		flag.Value = true
+	})
+	modifyArgOrPanic(command, "ignore-case", func(flag *cli.BoolFlag) {
+		flag.Value = true
+	})
+
+	return command
+}
+
+func modifyArgOrPanic[T cli.Flag](cmd *cli.Command, name string, modifier func(T)) {
+	for _, flag := range cmd.Flags {
+		if slices.Contains(flag.Names(), name) {
+			modifier(flag.(T))
+			return
+		}
+	}
+	panic("no flag change")
 }
