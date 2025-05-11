@@ -12,11 +12,10 @@ func GlobExpand(paths []string, recursive bool) <-chan string {
 	go func() {
 		for _, p := range paths {
 			if recursive && isDir(p) {
-				filepath.Walk(p, func(walkPath string, info os.FileInfo, err error) error {
+				filepath.WalkDir(p, func(walkPath string, info os.DirEntry, err error) error {
 					if err != nil {
-						return err
-					}
-					if !info.IsDir() {
+						logger.Printf("Path error: %v", err)
+					} else if info.Type().IsRegular() {
 						c <- walkPath
 					}
 					return nil
