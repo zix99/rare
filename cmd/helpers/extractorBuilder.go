@@ -20,6 +20,7 @@ import (
 const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
 const (
+	cliCategoryPath     = "Path"
 	cliCategoryRead     = "Input"
 	cliCategoryOutput   = "Output"
 	cliCategoryMatching = "Matching"
@@ -36,7 +37,6 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 		gunzip            = c.Bool("gunzip")
 		batchSize         = c.Int("batch")
 		batchBuffer       = c.Int("batch-buffer")
-		recursive         = c.Bool("recursive")
 	)
 
 	if batchSize < 1 {
@@ -66,9 +66,20 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 		if gunzip {
 			logger.Println("Cannot combine -f and -z")
 		}
-		return batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, batchBuffer, followReopen, followPoll, followTail)
+		walker := BuildPathWalkerFromArguments(c)
+		return batchers.TailFilesToChan(walker.Walk(fileglobs...), batchSize, batchBuffer, followReopen, followPoll, followTail)
 	} else { // Read (no-follow) source file(s)
-		return batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize, batchBuffer)
+		walker := BuildPathWalkerFromArguments(c)
+		return batchers.OpenFilesToChan(walker.Walk(fileglobs...), gunzip, concurrentReaders, batchSize, batchBuffer)
+	}
+}
+
+func BuildPathWalkerFromArguments(c *cli.Context) *dirwalk.Walker {
+	return &dirwalk.Walker{
+		Include:    c.StringSlice("include"),
+		Exclude:    c.StringSlice("exclude"),
+		ExcludeDir: c.StringSlice("exclude-dir"),
+		Recursive:  c.Bool("recursive"),
 	}
 }
 
@@ -140,6 +151,21 @@ func getExtractorFlags() []cli.Flag {
 	workerCount := runtime.NumCPU()/2 + 1
 
 	return []cli.Flag{
+		&cli.StringSliceFlag{
+			Name:     "include",
+			Category: cliCategoryPath,
+			Usage:    "Glob file patterns to include (eg. *.txt)",
+		},
+		&cli.StringSliceFlag{
+			Name:     "exclude",
+			Category: cliCategoryPath,
+			Usage:    "Glob file patterns to exclude (eg. *.txt)",
+		},
+		&cli.StringSliceFlag{
+			Name:     "exclude-dir",
+			Category: cliCategoryPath,
+			Usage:    "Glob file patterns to exclude directories",
+		},
 		&cli.BoolFlag{
 			Name:     "follow",
 			Aliases:  []string{"f"},
