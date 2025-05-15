@@ -48,7 +48,8 @@ func TestGlobInclude(t *testing.T) {
 	p := "go.*"
 	files := collectChan(walk.Walk(p))
 
-	assert.ElementsMatch(t, []string{"go.sum"}, files)
+	assert.ElementsMatch(t, []string{"go.mod"}, files)
+	assert.Len(t, files, 1)
 }
 
 func TestGlobExclude(t *testing.T) {
@@ -59,11 +60,12 @@ func TestGlobExclude(t *testing.T) {
 	files := collectChan(walk.Walk(p))
 
 	assert.ElementsMatch(t, []string{"go.mod"}, files)
+	assert.Len(t, files, 1)
 }
 
 func TestGlobDirExclude(t *testing.T) {
 	walk := Walker{
-		ExcludeDir: []string{"cmd"},
+		ExcludeDir: []string{"cm?"},
 	}
 	p := "*/*.go"
 	files := collectChan(walk.Walk(p))

@@ -62,11 +62,11 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 			}
 
 		case info.Type()&os.ModeSymlink != 0: // sym link file
-			if s.ListSymLinks && s.shouldInclude(info.Name()) {
+			if s.ListSymLinks && s.shouldIncludeFilename(info.Name()) {
 				c <- walkPath
 			}
 
-		case info.Type().IsRegular() && s.shouldInclude(info.Name()): // regular file
+		case info.Type().IsRegular() && s.shouldIncludeFilename(info.Name()): // regular file
 			c <- walkPath
 		}
 		return nil
@@ -80,14 +80,49 @@ func (s *Walker) globExpand(c chan<- string, p string) {
 		logger.Printf("Path error: %v", err)
 	} else if len(expanded) > 0 {
 		for _, item := range expanded {
-			c <- item
+			if s.shouldIncludeFilename(filepath.Base(item)) && s.shouldIncludeDir(item) {
+				c <- item
+			}
 		}
 	} else {
 		c <- p
 	}
 }
 
-// If a given path is followable (dir or symlink to dir, as settings allow)
+// check path against includes/excludes
+func (s *Walker) shouldIncludeFilename(basename string) bool {
+	// Not in exclude list
+	if isInMatchSet(s.Exclude, basename) {
+		return false
+	}
+
+	// If include list, assure in include list
+	if len(s.Include) > 0 && !isInMatchSet(s.Include, basename) {
+		return false
+	}
+
+	return true
+}
+
+// Takes in a full path eg abc/efg/filename
+// Checks against ExcludeDir
+func (s *Walker) shouldIncludeDir(fullpath string) bool {
+	if len(s.ExcludeDir) == 0 { //shortcut
+		return true
+	}
+
+	cur := filepath.Dir(fullpath)
+	for cur != "." {
+		if isInMatchSet(s.ExcludeDir, filepath.Base(cur)) {
+			return false
+		}
+		cur = filepath.Dir(cur)
+	}
+
+	return true
+}
+
+// If a given path is followable (dir or symlink to dir)
 func isFollowableDir(p string) bool {
 	fi, err := os.Lstat(p)
 	if err != nil {
@@ -103,21 +138,6 @@ func isFollowableDir(p string) bool {
 	}
 
 	return false
-}
-
-// check path against includes/excludes
-func (s *Walker) shouldInclude(filename string) bool {
-	// Not in exclude list
-	if isInMatchSet(s.Exclude, filename) {
-		return false
-	}
-
-	// If include list, assure in include list
-	if len(s.Include) > 0 && !isInMatchSet(s.Include, filename) {
-		return false
-	}
-
-	return true
 }
 
 // Check if any of name match `filepath.Match` in matchSet
