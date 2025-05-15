@@ -6,6 +6,12 @@ import (
 	"rare/pkg/logger"
 )
 
+/*Feature todo
+-- Config to not traverse mount points
+-- Metrics (navigated, skipped, errors)
+-- Ignore support even on globs
+*/
+
 // Can be instantiated directly without newer and defaults will be
 // vanilla walker
 type Walker struct {
@@ -32,7 +38,7 @@ func (s *Walker) Walk(paths ...string) <-chan string {
 }
 
 func (s *Walker) walk(c chan<- string, p string) {
-	if s.Recursive && s.isFollowableDir(p) {
+	if s.Recursive && isFollowableDir(p) {
 		s.recurseWalk(c, p)
 	} else {
 		s.globExpand(c, p)
@@ -48,20 +54,26 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 		case info.IsDir() && isInMatchSet(s.ExcludeDir, info.Name()): // skipped dir
 			return filepath.SkipDir
 
-		case info.Type()&os.ModeSymlink != 0 && s.isFollowableDir(walkPath): // sym link dir
+		case info.Type()&os.ModeSymlink != 0 && isFollowableDir(walkPath): // sym link dir
+			// WalkDir won't navigate symlinks by default. This will traverse recursively
 			// TODO: Prevent infinite recursion case
-			s.recurseWalk(c, walkPath+string(filepath.Separator))
+			if s.FollowSymLinks && !isInMatchSet(s.ExcludeDir, info.Name()) {
+				s.recurseWalk(c, walkPath+string(filepath.Separator))
+			}
 
-		case s.ListSymLinks && info.Type()&os.ModeSymlink != 0 && s.doesPathQualify(info.Name()): // sym link file
-			c <- walkPath
+		case info.Type()&os.ModeSymlink != 0: // sym link file
+			if s.ListSymLinks && s.shouldInclude(info.Name()) {
+				c <- walkPath
+			}
 
-		case info.Type().IsRegular() && s.doesPathQualify(info.Name()): // regular file
+		case info.Type().IsRegular() && s.shouldInclude(info.Name()): // regular file
 			c <- walkPath
 		}
 		return nil
 	})
 }
 
+// Uses glob expand, eg '*.txt'
 func (s *Walker) globExpand(c chan<- string, p string) {
 	expanded, err := filepath.Glob(p)
 	if err != nil {
@@ -76,7 +88,7 @@ func (s *Walker) globExpand(c chan<- string, p string) {
 }
 
 // If a given path is followable (dir or symlink to dir, as settings allow)
-func (s *Walker) isFollowableDir(p string) bool {
+func isFollowableDir(p string) bool {
 	fi, err := os.Lstat(p)
 	if err != nil {
 		return false
@@ -86,22 +98,22 @@ func (s *Walker) isFollowableDir(p string) bool {
 		return true
 	}
 
-	if s.FollowSymLinks && fi.Mode()&os.ModeSymlink != 0 {
-		return s.isFollowableDir(p + string(filepath.Separator))
+	if fi.Mode()&os.ModeSymlink != 0 {
+		return isFollowableDir(p + string(filepath.Separator))
 	}
 
 	return false
 }
 
 // check path against includes/excludes
-func (s *Walker) doesPathQualify(base string) bool {
+func (s *Walker) shouldInclude(filename string) bool {
 	// Not in exclude list
-	if isInMatchSet(s.Exclude, base) {
+	if isInMatchSet(s.Exclude, filename) {
 		return false
 	}
 
 	// If include list, assure in include list
-	if len(s.Include) > 0 && !isInMatchSet(s.Include, base) {
+	if len(s.Include) > 0 && !isInMatchSet(s.Include, filename) {
 		return false
 	}
 
