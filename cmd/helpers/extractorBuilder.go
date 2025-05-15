@@ -85,7 +85,6 @@ func BuildPathWalkerFromArguments(c *cli.Context) *dirwalk.Walker {
 		NoMountTraverse: c.Bool("mount"),
 		OnTraverseError: func(err error) {
 			logger.Print(err)
-			panic(err)
 		},
 	}
 }
