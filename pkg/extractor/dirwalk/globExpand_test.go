@@ -152,6 +152,10 @@ func TestRecurseWithSymFile(t *testing.T) {
 }
 
 func TestRecurseWithSymDir(t *testing.T) {
+	if !fileExists("testwalk") {
+		t.Skip("Needs testwalk dir")
+	}
+
 	walk := Walker{
 		Recursive: true,
 	}
@@ -165,6 +169,10 @@ func TestRecurseWithSymDir(t *testing.T) {
 }
 
 func TestRecurseDoesntIdentifyDirAsFile(t *testing.T) {
+	if !fileExists("testwalk") {
+		t.Skip("Needs testwalk dir")
+	}
+
 	walk := Walker{
 		Recursive:      true,
 		FollowSymLinks: false,
