@@ -1,3 +1,7 @@
+//go:build unix
+
+// Unix build tag is weird https://github.com/golang/go/issues/51572
+
 package dirwalk
 
 import (
