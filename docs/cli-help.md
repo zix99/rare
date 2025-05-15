@@ -68,7 +68,7 @@ Filter incoming results with search criteria, and output raw matches
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 16)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
@@ -94,7 +94,7 @@ Filter incoming results with search criteria, and output raw matches
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
-**--mount**: Don't descend directories on other filesystems
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--num, -n**="": Print the first NUM of lines seen (Not necessarily in-order) (default: 0)
 
@@ -112,7 +112,7 @@ Filter incoming results with search criteria, and output raw matches
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 8)
+**--workers, -w**="": Set number of data processors (default: 3)
 
 ### histogram, histo, h
 
@@ -126,7 +126,7 @@ Summarize results by extracting them to a histogram
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 16)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
 
 **--csv, -o**="": Write final results to csv. Use - to output to stdout
 
@@ -156,7 +156,7 @@ Summarize results by extracting them to a histogram
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
-**--mount**: Don't descend directories on other filesystems
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -184,7 +184,7 @@ Summarize results by extracting them to a histogram
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 8)
+**--workers, -w**="": Set number of data processors (default: 3)
 
 ### heatmap, heat, hm
 
@@ -192,7 +192,7 @@ Create a 2D heatmap of extracted data
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 16)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
 
 **--cols**="": Number of columns to display (default: 65)
 
@@ -228,7 +228,7 @@ Create a 2D heatmap of extracted data
 
 **--min**="": Sets the lower bounds of the heatmap (default: auto) (default: 0)
 
-**--mount**: Don't descend directories on other filesystems
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -256,7 +256,7 @@ Create a 2D heatmap of extracted data
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 8)
+**--workers, -w**="": Set number of data processors (default: 3)
 
 ### spark, sparkline, s
 
@@ -264,7 +264,7 @@ Create rows of sparkline graphs
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 16)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
 
 **--cols**="": Number of columns to display (default: 65)
 
@@ -296,7 +296,7 @@ Create rows of sparkline graphs
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
-**--mount**: Don't descend directories on other filesystems
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -326,7 +326,7 @@ Create rows of sparkline graphs
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 8)
+**--workers, -w**="": Set number of data processors (default: 3)
 
 ### bargraph, bars, bar, b
 
@@ -334,7 +334,7 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 16)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
 
 **--csv, -o**="": Write final results to csv. Use - to output to stdout
 
@@ -362,7 +362,7 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
-**--mount**: Don't descend directories on other filesystems
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -388,7 +388,7 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 8)
+**--workers, -w**="": Set number of data processors (default: 3)
 
 ### analyze, a
 
@@ -396,7 +396,7 @@ Numerical analysis on a set of filtered data
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 16)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
@@ -422,7 +422,7 @@ Numerical analysis on a set of filtered data
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
-**--mount**: Don't descend directories on other filesystems
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--poll**: When following a file, poll for changes rather than using inotify
 
@@ -444,7 +444,7 @@ Numerical analysis on a set of filtered data
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 8)
+**--workers, -w**="": Set number of data processors (default: 3)
 
 ### tabulate, table, t
 
@@ -452,7 +452,7 @@ Create a 2D summarizing table of extracted data
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 16)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
 
 **--cols**="": Number of columns to display (default: 10)
 
@@ -488,7 +488,7 @@ Create a 2D summarizing table of extracted data
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
-**--mount**: Don't descend directories on other filesystems
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -516,7 +516,7 @@ Create a 2D summarizing table of extracted data
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 8)
+**--workers, -w**="": Set number of data processors (default: 3)
 
 ### reduce, r
 
@@ -526,7 +526,7 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 16)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
 
 **--cols**="": Number of columns to display (default: 10)
 
@@ -560,7 +560,7 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
-**--mount**: Don't descend directories on other filesystems
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -588,7 +588,7 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 8)
+**--workers, -w**="": Set number of data processors (default: 3)
 
 ### docs
 

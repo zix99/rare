@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"rare/pkg/logger"
-	"syscall"
 )
 
 /*Feature todo
@@ -143,31 +142,6 @@ func isFollowableDir(p string) bool {
 	}
 
 	return false
-}
-
-// return true if the dir is a different mount-point than its base
-func isDifferentMount(dir string) bool {
-	stat, err := os.Stat(dir)
-	if err != nil {
-		return false
-	}
-	statT, statOk := stat.Sys().(*syscall.Stat_t)
-	if !statOk {
-		return false
-	}
-
-	upDir := filepath.Dir(dir)
-	upStat, err := os.Stat(upDir)
-	if err != nil {
-		return false
-	}
-
-	upT, upOk := upStat.Sys().(*syscall.Stat_t)
-	if !upOk {
-		return false
-	}
-
-	return statT.Dev != upT.Dev
 }
 
 // Check if any of name match `filepath.Match` in matchSet

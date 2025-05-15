@@ -184,7 +184,7 @@ func getExtractorFlags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:     "mount",
 			Category: cliCategoryPath,
-			Usage:    "Don't descend directories on other filesystems",
+			Usage:    "Don't descend directories on other filesystems (unix only)",
 		},
 		&cli.BoolFlag{
 			Name:     "follow",
