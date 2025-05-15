@@ -83,6 +83,22 @@ func TestRecurse(t *testing.T) {
 	assert.Greater(t, len(files), 2)
 }
 
+func TestRecurseMissing(t *testing.T) {
+	walk := Walker{
+		Recursive: true,
+	}
+	files := collectChan(walk.Walk("missing/"))
+	assert.Equal(t, []string{"missing/"}, files)
+}
+
+func TestRecurseNotDir(t *testing.T) {
+	walk := Walker{
+		Recursive: true,
+	}
+	files := collectChan(walk.Walk("go.mod"))
+	assert.Equal(t, []string{"go.mod"}, files)
+}
+
 func TestRecurseExclude(t *testing.T) {
 	walk := Walker{
 		Recursive: true,
