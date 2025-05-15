@@ -76,10 +76,13 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 
 func BuildPathWalkerFromArguments(c *cli.Context) *dirwalk.Walker {
 	return &dirwalk.Walker{
-		Include:    c.StringSlice("include"),
-		Exclude:    c.StringSlice("exclude"),
-		ExcludeDir: c.StringSlice("exclude-dir"),
-		Recursive:  c.Bool("recursive"),
+		Include:         c.StringSlice("include"),
+		Exclude:         c.StringSlice("exclude"),
+		ExcludeDir:      c.StringSlice("exclude-dir"),
+		Recursive:       c.Bool("recursive"),
+		FollowSymLinks:  c.Bool("follow-symlinks"),
+		ListSymLinks:    c.Bool("read-symlinks"),
+		NoMountTraverse: c.Bool("mount"),
 	}
 }
 
@@ -165,6 +168,23 @@ func getExtractorFlags() []cli.Flag {
 			Name:     "exclude-dir",
 			Category: cliCategoryPath,
 			Usage:    "Glob file patterns to exclude directories",
+		},
+		&cli.BoolFlag{
+			Name:     "follow-symlinks",
+			Aliases:  []string{"L"},
+			Category: cliCategoryPath,
+			Usage:    "Follow symbolic directory links",
+		},
+		&cli.BoolFlag{
+			Name:     "read-symlinks",
+			Category: cliCategoryPath,
+			Usage:    "Read files that are symbolic links",
+			Value:    true,
+		},
+		&cli.BoolFlag{
+			Name:     "mount",
+			Category: cliCategoryPath,
+			Usage:    "Don't descend directories on other filesystems",
 		},
 		&cli.BoolFlag{
 			Name:     "follow",
