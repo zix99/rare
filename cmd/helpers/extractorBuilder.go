@@ -83,6 +83,10 @@ func BuildPathWalkerFromArguments(c *cli.Context) *dirwalk.Walker {
 		FollowSymLinks:  c.Bool("follow-symlinks"),
 		ListSymLinks:    c.Bool("read-symlinks"),
 		NoMountTraverse: c.Bool("mount"),
+		OnTraverseError: func(err error) {
+			logger.Print(err)
+			panic(err)
+		},
 	}
 }
 

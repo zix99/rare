@@ -1,9 +1,9 @@
 package dirwalk
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
-	"rare/pkg/logger"
 )
 
 /*Feature todo
@@ -23,6 +23,8 @@ type Walker struct {
 	FollowSymLinks  bool // Recursively walk symlinks
 	Recursive       bool // If asked to walk a path, will recurse
 	NoMountTraverse bool // If true, don't traverse into another mount
+
+	OnTraverseError func(error)
 }
 
 func (s *Walker) Walk(paths ...string) <-chan string {
@@ -50,7 +52,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 	filepath.WalkDir(p, func(walkPath string, info os.DirEntry, err error) error {
 		switch {
 		case err != nil: // error
-			logger.Printf("Path error: %v", err)
+			s.onError(fmt.Errorf("path error: %w", err))
 
 		case info.IsDir() && isInMatchSet(s.ExcludeDir, info.Name()): // skipped dir
 			return filepath.SkipDir
@@ -81,7 +83,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 func (s *Walker) globExpand(c chan<- string, p string) {
 	expanded, err := filepath.Glob(p)
 	if err != nil {
-		logger.Printf("Path error: %v", err)
+		s.onError(fmt.Errorf("path error: %w", err))
 	} else if len(expanded) > 0 {
 		for _, item := range expanded {
 			if s.shouldIncludeFilename(filepath.Base(item)) && s.shouldIncludeDir(item) {
@@ -124,6 +126,12 @@ func (s *Walker) shouldIncludeDir(fullpath string) bool {
 	}
 
 	return true
+}
+
+func (s *Walker) onError(err error) {
+	if s.OnTraverseError != nil {
+		s.OnTraverseError(err)
+	}
 }
 
 // If a given path is followable (dir or symlink to dir)
