@@ -39,6 +39,9 @@ There are several options to filter what files are included when navigating.
 - `--exclude <pattern>` One or more glob patterns of files to exclude (eg. `*.gz`)
 - `--exclude-dir <pattern>` One or more glob patterns of directors to exclude (eg. `.git`)
 
+Each option can take more than one pattern by specifying multiple times. File exclusions are
+tested before inclusions.
+
 Glob patterns follow this syntax:
 
 ```
@@ -66,11 +69,14 @@ rare filter --include '*.log' --exclude 'node_modules' -R ./
 
 #### Traversal
 
+!!! note
+	These only apply when traversing recursively (`-R`).
+
 These options control how the directory space is traversed:
 
 - `--follow-symlinks, -L` Follow symbolic link paths
 - `--read-symlinks` Read files that are symbolic links (default: true)
-- `--mount` Don't descend directories on other filesystems
+- `--mount` Don't descend directories on other filesystems (on filesystems that support this)
 
 ### Following File(s)
 
