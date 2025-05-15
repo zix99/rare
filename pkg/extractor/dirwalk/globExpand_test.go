@@ -184,6 +184,11 @@ func TestRecurseDoesntIdentifyDirAsFile(t *testing.T) {
 	assertNoneContains(t, files, "syminner")
 }
 
+func TestIsDifferentMount(t *testing.T) {
+	assert.False(t, isDifferentMount("/etc"))
+	assert.True(t, isDifferentMount("/proc"))
+}
+
 func assertNoneContains(t *testing.T, set []string, contains string) {
 	t.Helper()
 	for _, item := range set {
