@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 /*Feature todo
@@ -62,9 +63,14 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 
 		case info.Type()&os.ModeSymlink != 0 && isFollowableDir(walkPath): // sym link dir
 			// WalkDir won't navigate symlinks by default. This will traverse recursively
-			// TODO: Prevent infinite recursion case
 			if s.FollowSymLinks && !isInMatchSet(s.ExcludeDir, info.Name()) {
-				s.recurseWalk(c, walkPath+string(filepath.Separator))
+				real, _ := filepath.EvalSymlinks(walkPath)
+
+				if strings.HasPrefix(real, filepath.Clean(p)) {
+					s.onError(fmt.Errorf("already traversed symlink %s in %s", walkPath, p))
+				} else {
+					s.recurseWalk(c, walkPath+string(filepath.Separator))
+				}
 			}
 
 		case info.Type()&os.ModeSymlink != 0: // sym link file
