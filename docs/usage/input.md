@@ -31,6 +31,47 @@ as a raw file.
 
 `rare <aggregator> -z *.log.gz`
 
+#### Path Filters
+
+There are several options to filter what files are included when navigating.
+
+- `--include <pattern>` One or more glob patterns of files to exclusively include (eg. `*.log`)
+- `--exclude <pattern>` One or more glob patterns of files to exclude (eg. `*.gz`)
+- `--exclude-dir <pattern>` One or more glob patterns of directors to exclude (eg. `.git`)
+
+Glob patterns follow this syntax:
+
+```
+pattern:
+	{ term }
+term:
+	'*'         matches any sequence of non-Separator characters
+	'?'         matches any single non-Separator character
+	'[' [ '^' ] { character-range } ']'
+	            character class (must be non-empty)
+	c           matches character c (c != '*', '?', '\\', '[')
+	'\\' c      matches character c
+
+character-range:
+	c           matches character c (c != '\\', '-', ']')
+	'\\' c      matches character c
+	lo '-' hi   matches character c for lo <= c <= hi
+```
+
+For example:
+
+```sh
+rare filter --include '*.log' --exclude 'node_modules' -R ./
+```
+
+#### Traversal
+
+These options control how the directory space is traversed:
+
+- `--follow-symlinks, -L` Follow symbolic link paths
+- `--read-symlinks` Read files that are symbolic links (default: true)
+- `--mount` Don't descend directories on other filesystems
+
 ### Following File(s)
 
 Like `tail -f`, following files allows you to watch files actively being written to. This is
