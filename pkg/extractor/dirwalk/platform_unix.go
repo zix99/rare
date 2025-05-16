@@ -10,6 +10,8 @@ import (
 	"syscall"
 )
 
+const FeatureMountTraversal = true
+
 // return true if the dir is a different mount-point than its base
 func isDifferentMount(dir string) bool {
 	stat, err := os.Stat(dir)

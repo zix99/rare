@@ -75,10 +75,31 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 }
 
 func BuildPathWalkerFromArguments(c *cli.Context) *dirwalk.Walker {
+	var (
+		include    = c.StringSlice("include")
+		exclude    = c.StringSlice("exclude")
+		excludeDir = c.StringSlice("exclude-dir")
+	)
+
+	includeSet, err := dirwalk.NewMatchSet(include...)
+	if err != nil {
+		logger.Fatal(ExitCodeInvalidUsage, err)
+	}
+
+	excludeSet, err := dirwalk.NewMatchSet(exclude...)
+	if err != nil {
+		logger.Fatal(ExitCodeInvalidUsage, err)
+	}
+
+	excludeDirSet, err := dirwalk.NewMatchSet(excludeDir...)
+	if err != nil {
+		logger.Fatal(ExitCodeInvalidUsage, err)
+	}
+
 	return &dirwalk.Walker{
-		Include:         c.StringSlice("include"),
-		Exclude:         c.StringSlice("exclude"),
-		ExcludeDir:      c.StringSlice("exclude-dir"),
+		Include:         includeSet,
+		Exclude:         excludeSet,
+		ExcludeDir:      excludeDirSet,
 		Recursive:       c.Bool("recursive"),
 		FollowSymLinks:  c.Bool("follow-symlinks"),
 		ListSymLinks:    c.Bool("read-symlinks"),
@@ -188,6 +209,7 @@ func getExtractorFlags() []cli.Flag {
 			Name:     "mount",
 			Category: cliCategoryPath,
 			Usage:    "Don't descend directories on other filesystems (unix only)",
+			Hidden:   !dirwalk.FeatureMountTraversal,
 		},
 		&cli.BoolFlag{
 			Name:     "follow",

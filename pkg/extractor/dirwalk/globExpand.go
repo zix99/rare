@@ -7,18 +7,12 @@ import (
 	"strings"
 )
 
-/*Feature todo
--- Config to not traverse mount points
--- Metrics (navigated, skipped, errors)
--- Ignore support even on globs
-*/
-
 // Can be instantiated directly without newer and defaults will be
 // vanilla walker
 type Walker struct {
-	Include    []string
-	Exclude    []string
-	ExcludeDir []string
+	Include    MatchSet
+	Exclude    MatchSet
+	ExcludeDir MatchSet
 
 	ListSymLinks    bool // Emit symlinks for non-directories
 	FollowSymLinks  bool // Recursively walk symlinks
@@ -55,7 +49,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 		case err != nil: // error
 			s.onError(fmt.Errorf("path error: %w", err))
 
-		case info.IsDir() && isInMatchSet(s.ExcludeDir, info.Name()): // skipped dir
+		case info.IsDir() && s.ExcludeDir.Matches(info.Name()): // skipped dir
 			return filepath.SkipDir
 
 		case info.IsDir() && s.NoMountTraverse && isDifferentMount(walkPath):
@@ -63,7 +57,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 
 		case info.Type()&os.ModeSymlink != 0 && isFollowableDir(walkPath): // sym link dir
 			// WalkDir won't navigate symlinks by default. This will traverse recursively
-			if s.FollowSymLinks && !isInMatchSet(s.ExcludeDir, info.Name()) {
+			if s.FollowSymLinks && !s.ExcludeDir.Matches(info.Name()) {
 				real, _ := filepath.EvalSymlinks(walkPath)
 
 				if strings.HasPrefix(real, filepath.Clean(p)) {
@@ -104,12 +98,12 @@ func (s *Walker) globExpand(c chan<- string, p string) {
 // check path against includes/excludes
 func (s *Walker) shouldIncludeFilename(basename string) bool {
 	// Not in exclude list
-	if isInMatchSet(s.Exclude, basename) {
+	if s.Exclude.Matches(basename) {
 		return false
 	}
 
 	// If include list, assure in include list
-	if len(s.Include) > 0 && !isInMatchSet(s.Include, basename) {
+	if len(s.Include) > 0 && !s.Include.Matches(basename) {
 		return false
 	}
 
@@ -125,7 +119,7 @@ func (s *Walker) shouldIncludeDir(fullpath string) bool {
 
 	cur := filepath.Dir(fullpath)
 	for cur != "." {
-		if isInMatchSet(s.ExcludeDir, filepath.Base(cur)) {
+		if s.ExcludeDir.Matches(filepath.Base(cur)) {
 			return false
 		}
 		cur = filepath.Dir(cur)
@@ -153,18 +147,6 @@ func isFollowableDir(p string) bool {
 
 	if fi.Mode()&os.ModeSymlink != 0 {
 		return isFollowableDir(p + string(filepath.Separator))
-	}
-
-	return false
-}
-
-// Check if any of name match `filepath.Match` in matchSet
-// for include/exclude logic
-func isInMatchSet(matchSet []string, name string) bool {
-	for _, match := range matchSet {
-		if ok, _ := filepath.Match(match, name); ok {
-			return true
-		}
 	}
 
 	return false
