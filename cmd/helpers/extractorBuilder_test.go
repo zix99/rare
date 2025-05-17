@@ -29,6 +29,27 @@ func TestAdaptingCommandForExtractor(t *testing.T) {
 	assert.True(t, called)
 }
 
+func TestModifyArgument(t *testing.T) {
+	testFlag := &cli.BoolFlag{
+		Name: "cat",
+	}
+	cmd := AdaptCommandForExtractor(cli.Command{
+		Flags: []cli.Flag{
+			testFlag,
+		},
+	})
+
+	assert.False(t, testFlag.Value)
+	ModifyArgOrPanic(cmd, "cat", func(arg *cli.BoolFlag) {
+		arg.Value = true
+	})
+	assert.True(t, testFlag.Value)
+
+	assert.Panics(t, func() {
+		ModifyArgOrPanic(cmd, "dog", func(arg *cli.BoolFlag) {})
+	})
+}
+
 func TestBuildingExtractorFromContext(t *testing.T) {
 	actionCalled := 0
 	cmdAction := func(c *cli.Context) error {

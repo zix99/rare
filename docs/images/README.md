@@ -40,6 +40,10 @@ rare filter -n 5 --match "(\d{3}) (\d+)" -e "{1} {2}" access.log
 
 head -n 5 access.log | rare filter -m "(\d{3}) (\d+)"
 
+### Search
+
+rare search --include "*.go" test
+
 ### Output json for further analysis
 rare filter -n 5 --match "(?P<code>\d{3}) (?P<bytes>\d+)" -e '{.}' access.log
 

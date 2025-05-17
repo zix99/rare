@@ -16,6 +16,13 @@ func TestFilter(t *testing.T) {
 	)
 }
 
+func TestSarch(t *testing.T) {
+	testCommandSet(t, searchCommand(),
+		`the testdata/log.txt`,
+		`testtest`,
+	)
+}
+
 func TestFilterExtract(t *testing.T) {
 	out, eout, err := testCommandCapture(filterCommand(), `-m (\d+) -e "{1}" testdata/log.txt`)
 	assert.NoError(t, err)

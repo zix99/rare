@@ -12,6 +12,7 @@ import (
 	"rare/pkg/matchers/dissect"
 	"rare/pkg/matchers/fastregex"
 	"runtime"
+	"slices"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -28,6 +29,10 @@ const (
 )
 
 func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
+	return BuildBatcherFromArgumentsEx(c, c.Args().Slice()...)
+}
+
+func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) *batchers.Batcher {
 	var (
 		follow            = c.Bool("follow") || c.Bool("reopen")
 		followTail        = c.Bool("tail")
@@ -51,8 +56,6 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 	if followTail && !follow {
 		logger.Fatalf(ExitCodeInvalidUsage, "Follow (-f) must be enabled for --tail")
 	}
-
-	fileglobs := c.Args().Slice()
 
 	if len(fileglobs) == 0 || fileglobs[0] == "-" { // Read from stdin
 		if gunzip {
@@ -331,4 +334,14 @@ func AdaptCommandForExtractor(command cli.Command) *cli.Command {
 	}
 
 	return &command
+}
+
+func ModifyArgOrPanic[T cli.Flag](cmd *cli.Command, name string, modifier func(T)) {
+	for _, flag := range cmd.Flags {
+		if slices.Contains(flag.Names(), name) {
+			modifier(flag.(T))
+			return
+		}
+	}
+	panic("no flag change")
 }

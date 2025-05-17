@@ -240,21 +240,9 @@ func reduceCommand() *cli.Command {
 		},
 	})
 
-	// Rewrite the default extraction to output array rather than {0} match
-	{
-		didInject := false
-		for _, flag := range cmd.Flags {
-			if slice, ok := flag.(*cli.StringSliceFlag); ok && slice.Name == "extract" {
-				slice.Value = cli.NewStringSlice("{@}")
-				didInject = true
-				break
-			}
-		}
-
-		if !didInject { // To catch issues in tests
-			panic("Unable to inject extract change")
-		}
-	}
+	helpers.ModifyArgOrPanic(cmd, "extract", func(arg *cli.StringSliceFlag) {
+		arg.Value = cli.NewStringSlice("{@}")
+	})
 
 	return cmd
 }
