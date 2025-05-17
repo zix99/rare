@@ -23,7 +23,7 @@ and/or `sed`.
 
 Extract out two numbers from `access.log`
 
-```
+```sh
 $ rare filter -n 4 -m "(\d{3}) (\d+)" -e "{1} {2}" access.log
 404 169
 404 169
@@ -35,6 +35,38 @@ Matched: 4 / 4
 ![Gif of Filter](../images/rare-filter.gif)
 
 ![Gif of Filter with JSON](../images/rare-json.gif)
+
+## Search
+
+```sh
+rare help search
+```
+
+### Summary
+
+Search is an alias to `filter` which changes default settings to make it easier
+to find text. It is equivalent to `-IRla -m` (ignore-case, recursive, line-numbers, text-only).
+
+Unless a matcher is specified explicitly, the first argument will be assumed to be a regex.
+
+If a file path is not provided, it will search the current working directory.
+
+### Example
+
+```sh
+rare search test
+
+# Is equivalent to
+rare filter -IRla -m test .
+```
+
+And its output will look like:
+```
+access.log 181: x.x.x.x - - [20/Aug/2019:12:09:43 +0000] "GET /test.php HTTP/1.1" 404 571 "-" "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)"
+access.log 454: x.x.x.x - - [20/Aug/2019:12:11:23 +0000] "POST /test.php HTTP/1.1" 404 571 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"
+```
+
+![Gif of Search](../images/rare-search.gif)
 
 ## Histogram
 
