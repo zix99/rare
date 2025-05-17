@@ -44,6 +44,12 @@ func (s *Walker) walk(c chan<- string, p string) {
 }
 
 func (s *Walker) recurseWalk(c chan<- string, p string) {
+	var rootDevId DeviceId
+	if s.NoMountTraverse {
+		// getDeviceId (stat) is expensive
+		rootDevId = getDeviceId(p)
+	}
+
 	filepath.WalkDir(p, func(walkPath string, info os.DirEntry, err error) error {
 		switch {
 		case err != nil: // error
@@ -52,7 +58,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 		case info.IsDir() && s.ExcludeDir.Matches(info.Name()): // skipped dir
 			return filepath.SkipDir
 
-		case info.IsDir() && s.NoMountTraverse && isDifferentMount(walkPath):
+		case info.IsDir() && s.NoMountTraverse && getDeviceId(walkPath) != rootDevId:
 			return filepath.SkipDir
 
 		case info.Type()&os.ModeSymlink != 0 && isFollowableDir(walkPath): // sym link dir

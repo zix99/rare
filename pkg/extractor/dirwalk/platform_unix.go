@@ -6,33 +6,24 @@ package dirwalk
 
 import (
 	"os"
-	"path/filepath"
 	"syscall"
 )
 
 const FeatureMountTraversal = true
 
-// return true if the dir is a different mount-point than its base
-func isDifferentMount(dir string) bool {
-	stat, err := os.Stat(dir)
+type DeviceId uint64
+
+// Return the ID of the device the path is associated with
+func getDeviceId(path string) DeviceId {
+	stat, err := os.Lstat(path)
 	if err != nil {
-		return false
+		return 0
 	}
+
 	statT, statOk := stat.Sys().(*syscall.Stat_t)
 	if !statOk {
-		return false
+		return 0
 	}
 
-	upDir := filepath.Dir(dir)
-	upStat, err := os.Stat(upDir)
-	if err != nil {
-		return false
-	}
-
-	upT, upOk := upStat.Sys().(*syscall.Stat_t)
-	if !upOk {
-		return false
-	}
-
-	return statT.Dev != upT.Dev
+	return DeviceId(statT.Dev)
 }

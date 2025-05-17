@@ -9,6 +9,13 @@ import (
 )
 
 func TestIsDifferentMount(t *testing.T) {
-	assert.False(t, isDifferentMount("/etc"))
-	assert.True(t, isDifferentMount("/proc"))
+	rootDev := getDeviceId("/")
+	assert.Equal(t, rootDev, getDeviceId("/etc"))
+	assert.NotEqual(t, rootDev, getDeviceId("/proc"))
+}
+
+func BenchmarkGetDevId(b *testing.B) {
+	for range b.N {
+		getDeviceId("/proc")
+	}
 }
