@@ -21,6 +21,7 @@ import (
 const DefaultArgumentDescriptor = "<-|filename|glob...>"
 
 const (
+	cliCategoryPath     = "Path"
 	cliCategoryRead     = "Input"
 	cliCategoryOutput   = "Output"
 	cliCategoryMatching = "Matching"
@@ -41,7 +42,6 @@ func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) *batchers.
 		gunzip            = c.Bool("gunzip")
 		batchSize         = c.Int("batch")
 		batchBuffer       = c.Int("batch-buffer")
-		recursive         = c.Bool("recursive")
 	)
 
 	if batchSize < 1 {
@@ -69,9 +69,47 @@ func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) *batchers.
 		if gunzip {
 			logger.Println("Cannot combine -f and -z")
 		}
-		return batchers.TailFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), batchSize, batchBuffer, followReopen, followPoll, followTail)
+		walker := BuildPathWalkerFromArguments(c)
+		return batchers.TailFilesToChan(walker.Walk(fileglobs...), batchSize, batchBuffer, followReopen, followPoll, followTail)
 	} else { // Read (no-follow) source file(s)
-		return batchers.OpenFilesToChan(dirwalk.GlobExpand(fileglobs, recursive), gunzip, concurrentReaders, batchSize, batchBuffer)
+		walker := BuildPathWalkerFromArguments(c)
+		return batchers.OpenFilesToChan(walker.Walk(fileglobs...), gunzip, concurrentReaders, batchSize, batchBuffer)
+	}
+}
+
+func BuildPathWalkerFromArguments(c *cli.Context) *dirwalk.Walker {
+	var (
+		include    = c.StringSlice("include")
+		exclude    = c.StringSlice("exclude")
+		excludeDir = c.StringSlice("exclude-dir")
+	)
+
+	includeSet, err := dirwalk.NewMatchSet(include...)
+	if err != nil {
+		logger.Fatal(ExitCodeInvalidUsage, err)
+	}
+
+	excludeSet, err := dirwalk.NewMatchSet(exclude...)
+	if err != nil {
+		logger.Fatal(ExitCodeInvalidUsage, err)
+	}
+
+	excludeDirSet, err := dirwalk.NewMatchSet(excludeDir...)
+	if err != nil {
+		logger.Fatal(ExitCodeInvalidUsage, err)
+	}
+
+	return &dirwalk.Walker{
+		Include:         includeSet,
+		Exclude:         excludeSet,
+		ExcludeDir:      excludeDirSet,
+		Recursive:       c.Bool("recursive"),
+		FollowSymLinks:  c.Bool("follow-symlinks"),
+		ListSymLinks:    c.Bool("read-symlinks"),
+		NoMountTraverse: c.Bool("mount"),
+		OnTraverseError: func(err error) {
+			logger.Print(err)
+		},
 	}
 }
 
@@ -143,6 +181,39 @@ func getExtractorFlags() []cli.Flag {
 	workerCount := runtime.NumCPU()/2 + 1
 
 	return []cli.Flag{
+		&cli.StringSliceFlag{
+			Name:     "include",
+			Category: cliCategoryPath,
+			Usage:    "Glob file patterns to include (eg. *.txt)",
+		},
+		&cli.StringSliceFlag{
+			Name:     "exclude",
+			Category: cliCategoryPath,
+			Usage:    "Glob file patterns to exclude (eg. *.txt)",
+		},
+		&cli.StringSliceFlag{
+			Name:     "exclude-dir",
+			Category: cliCategoryPath,
+			Usage:    "Glob file patterns to exclude directories",
+		},
+		&cli.BoolFlag{
+			Name:     "follow-symlinks",
+			Aliases:  []string{"L"},
+			Category: cliCategoryPath,
+			Usage:    "Follow symbolic directory links",
+		},
+		&cli.BoolFlag{
+			Name:     "read-symlinks",
+			Category: cliCategoryPath,
+			Usage:    "Read files that are symbolic links",
+			Value:    true,
+		},
+		&cli.BoolFlag{
+			Name:     "mount",
+			Category: cliCategoryPath,
+			Usage:    "Don't descend directories on other filesystems (unix only)",
+			Hidden:   !dirwalk.FeatureMountTraversal,
+		},
 		&cli.BoolFlag{
 			Name:     "follow",
 			Aliases:  []string{"f"},

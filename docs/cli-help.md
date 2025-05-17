@@ -10,6 +10,7 @@ rare
 [--color]
 [--funcs]=[value]
 [--help|-h]
+[--metrics]
 [--nocolor|--nc]
 [--noformat|--nf]
 [--noload|--nl]
@@ -42,6 +43,8 @@ rare [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 
 **--help, -h**: show help
 
+**--metrics**: Outputs runtime memory metrics after a program runs
+
 **--nocolor, --nc**: Disables color output
 
 **--noformat, --nf**: Disable number formatting
@@ -69,9 +72,15 @@ Filter incoming results with search criteria, and output raw matches
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
+**--exclude**="": Glob file patterns to exclude (eg. *.txt)
+
+**--exclude-dir**="": Glob file patterns to exclude directories
+
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
+
+**--follow-symlinks, -L**: Follow symbolic directory links
 
 **--gunzip, -z**: Attempt to decompress file when reading
 
@@ -79,15 +88,21 @@ Filter incoming results with search criteria, and output raw matches
 
 **--ignore-case, -I**: Augment matcher to be case insensitive
 
+**--include**="": Glob file patterns to include (eg. *.txt)
+
 **--line, -l**: Output source file and line number
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
+
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--num, -n**="": Print the first NUM of lines seen (Not necessarily in-order) (default: 0)
 
 **--poll**: When following a file, poll for changes rather than using inotify
 
 **--posix, -p**: Compile regex as against posix standard
+
+**--read-symlinks**: Read files that are symbolic links
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
 
@@ -117,11 +132,17 @@ Summarize results by extracting them to a histogram
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
+**--exclude**="": Glob file patterns to exclude (eg. *.txt)
+
+**--exclude-dir**="": Glob file patterns to exclude directories
+
 **--extra, -x**: Alias for -b --percentage
 
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
+
+**--follow-symlinks, -L**: Follow symbolic directory links
 
 **--format, --fmt**="": Defines a format expression for displayed values
 
@@ -131,7 +152,11 @@ Summarize results by extracting them to a histogram
 
 **--ignore-case, -I**: Augment matcher to be case insensitive
 
+**--include**="": Glob file patterns to include (eg. *.txt)
+
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
+
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -142,6 +167,8 @@ Summarize results by extracting them to a histogram
 **--poll**: When following a file, poll for changes rather than using inotify
 
 **--posix, -p**: Compile regex as against posix standard
+
+**--read-symlinks**: Read files that are symbolic links
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
 
@@ -175,9 +202,15 @@ Create a 2D heatmap of extracted data
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
+**--exclude**="": Glob file patterns to exclude (eg. *.txt)
+
+**--exclude-dir**="": Glob file patterns to exclude directories
+
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
+
+**--follow-symlinks, -L**: Follow symbolic directory links
 
 **--format, --fmt**="": Defines a format expression for displayed values
 
@@ -187,11 +220,15 @@ Create a 2D heatmap of extracted data
 
 **--ignore-case, -I**: Augment matcher to be case insensitive
 
+**--include**="": Glob file patterns to include (eg. *.txt)
+
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
 **--max**="": Sets the upper bounds of the heatmap (default: auto) (default: 0)
 
 **--min**="": Sets the lower bounds of the heatmap (default: auto) (default: 0)
+
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -200,6 +237,8 @@ Create a 2D heatmap of extracted data
 **--poll**: When following a file, poll for changes rather than using inotify
 
 **--posix, -p**: Compile regex as against posix standard
+
+**--read-symlinks**: Read files that are symbolic links
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
 
@@ -235,9 +274,15 @@ Create rows of sparkline graphs
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
+**--exclude**="": Glob file patterns to exclude (eg. *.txt)
+
+**--exclude-dir**="": Glob file patterns to exclude directories
+
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
+
+**--follow-symlinks, -L**: Follow symbolic directory links
 
 **--format, --fmt**="": Defines a format expression for displayed values
 
@@ -247,7 +292,11 @@ Create rows of sparkline graphs
 
 **--ignore-case, -I**: Augment matcher to be case insensitive
 
+**--include**="": Glob file patterns to include (eg. *.txt)
+
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
+
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -258,6 +307,8 @@ Create rows of sparkline graphs
 **--poll**: When following a file, poll for changes rather than using inotify
 
 **--posix, -p**: Compile regex as against posix standard
+
+**--read-symlinks**: Read files that are symbolic links
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
 
@@ -289,9 +340,15 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
+**--exclude**="": Glob file patterns to exclude (eg. *.txt)
+
+**--exclude-dir**="": Glob file patterns to exclude directories
+
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
+
+**--follow-symlinks, -L**: Follow symbolic directory links
 
 **--format, --fmt**="": Defines a format expression for displayed values
 
@@ -301,13 +358,19 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--ignore-case, -I**: Augment matcher to be case insensitive
 
+**--include**="": Glob file patterns to include (eg. *.txt)
+
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
+
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
 **--poll**: When following a file, poll for changes rather than using inotify
 
 **--posix, -p**: Compile regex as against posix standard
+
+**--read-symlinks**: Read files that are symbolic links
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
 
@@ -337,11 +400,17 @@ Numerical analysis on a set of filtered data
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
+**--exclude**="": Glob file patterns to exclude (eg. *.txt)
+
+**--exclude-dir**="": Glob file patterns to exclude directories
+
 **--extra, -x**: Displays extra analysis on the data (Requires more memory and cpu)
 
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
+
+**--follow-symlinks, -L**: Follow symbolic directory links
 
 **--gunzip, -z**: Attempt to decompress file when reading
 
@@ -349,13 +418,19 @@ Numerical analysis on a set of filtered data
 
 **--ignore-case, -I**: Augment matcher to be case insensitive
 
+**--include**="": Glob file patterns to include (eg. *.txt)
+
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
+
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--poll**: When following a file, poll for changes rather than using inotify
 
 **--posix, -p**: Compile regex as against posix standard
 
 **--quantile, -q**="": Adds a quantile to the output set. Requires --extra (default: [90 99 99.9])
+
+**--read-symlinks**: Read files that are symbolic links
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
 
@@ -389,11 +464,19 @@ Create a 2D summarizing table of extracted data
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
+**--exclude**="": Glob file patterns to exclude (eg. *.txt)
+
+**--exclude-dir**="": Glob file patterns to exclude directories
+
 **--extra, -x**: Display row and column totals
 
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
 
 **--follow, -f**: Read appended data as file grows
+
+**--follow-symlinks, -L**: Follow symbolic directory links
+
+**--format, --fmt**="": Defines a format expression for displayed values
 
 **--gunzip, -z**: Attempt to decompress file when reading
 
@@ -401,7 +484,11 @@ Create a 2D summarizing table of extracted data
 
 **--ignore-case, -I**: Augment matcher to be case insensitive
 
+**--include**="": Glob file patterns to include (eg. *.txt)
+
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
+
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -410,6 +497,8 @@ Create a 2D summarizing table of extracted data
 **--poll**: When following a file, poll for changes rather than using inotify
 
 **--posix, -p**: Compile regex as against posix standard
+
+**--read-symlinks**: Read files that are symbolic links
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
 
@@ -445,9 +534,17 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
+**--exclude**="": Glob file patterns to exclude (eg. *.txt)
+
+**--exclude-dir**="": Glob file patterns to exclude directories
+
 **--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{@}])
 
 **--follow, -f**: Read appended data as file grows
+
+**--follow-symlinks, -L**: Follow symbolic directory links
+
+**--format, --fmt**="": Defines a format expression for displayed values. Syntax: `[name=]expr`
 
 **--group, -g**="": Specifies one or more expressions to group on. Syntax: `[name=]expr`
 
@@ -457,9 +554,13 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--ignore-case, -I**: Augment matcher to be case insensitive
 
+**--include**="": Glob file patterns to include (eg. *.txt)
+
 **--initial**="": Specify the default initial value for any accumulators that don't specify (default: 0)
 
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
+
+**--mount**: Don't descend directories on other filesystems (unix only)
 
 **--noout**: Don't output any aggregation to stdout
 
@@ -468,6 +569,8 @@ Aggregate the results of a query based on an expression, pulling customized summ
 **--poll**: When following a file, poll for changes rather than using inotify
 
 **--posix, -p**: Compile regex as against posix standard
+
+**--read-symlinks**: Read files that are symbolic links
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
 

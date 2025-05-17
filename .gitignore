@@ -7,6 +7,7 @@ rare
 rare.exe
 dist/
 /testdata/
+/testwalk/
 *.prof
 coverage.txt
 rare.1.gz
