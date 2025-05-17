@@ -78,6 +78,28 @@ OUTER_LOOP:
 	return helpers.DetermineErrorState(batcher, extractor, nil)
 }
 
+func getFilterArgs(isSearch bool) []cli.Flag {
+	return []cli.Flag{
+		&cli.BoolFlag{
+			Name:    "line",
+			Aliases: []string{"l"},
+			Usage:   "Output source file and line number",
+			Value:   isSearch,
+		},
+		&cli.Int64Flag{
+			Name:    "num",
+			Aliases: []string{"n"},
+			Usage:   "Print the first NUM of lines seen (Not necessarily in-order)",
+		},
+		&cli.BoolFlag{
+			Name:    "text",
+			Aliases: []string{"a"},
+			Usage:   "Only output lines that contain valid text",
+			Value:   isSearch,
+		},
+	}
+}
+
 // FilterCommand Exported command
 func filterCommand() *cli.Command {
 	return helpers.AdaptCommandForExtractor(cli.Command{
@@ -90,23 +112,7 @@ func filterCommand() *cli.Command {
 			return filterFunction(ctx, ctx.Args().Slice()...)
 		},
 		Category: cmdCatAnalyze,
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "line",
-				Aliases: []string{"l"},
-				Usage:   "Output source file and line number",
-			},
-			&cli.Int64Flag{
-				Name:    "num",
-				Aliases: []string{"n"},
-				Usage:   "Print the first NUM of lines seen (Not necessarily in-order)",
-			},
-			&cli.BoolFlag{
-				Name:    "text",
-				Aliases: []string{"a"},
-				Usage:   "Only output lines that contain valid text",
-			},
-		},
+		Flags:    getFilterArgs(false),
 	})
 }
 
@@ -135,28 +141,10 @@ func searchCommand() *cli.Command {
 	command := helpers.AdaptCommandForExtractor(cli.Command{
 		Name:        "search",
 		Usage:       "Searches current directory recursively for a regex match",
-		Description: `Same as filter, but with some defaults to make it simpler to search for a regex`,
+		Description: `Same as filter, but with some defaults to make it simpler to search for a regex. Alias for -IRla -m`,
 		Action:      searchFunction,
 		Category:    cmdCatAnalyze,
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "line",
-				Aliases: []string{"l"},
-				Usage:   "Output source file and line number",
-				Value:   true,
-			},
-			&cli.Int64Flag{
-				Name:    "num",
-				Aliases: []string{"n"},
-				Usage:   "Print the first NUM of lines seen (Not necessarily in-order)",
-			},
-			&cli.BoolFlag{
-				Name:    "text",
-				Aliases: []string{"a"},
-				Usage:   "Only output lines that contain valid text",
-				Value:   true,
-			},
-		},
+		Flags:       getFilterArgs(true),
 	})
 
 	command.ArgsUsage = "<regex> " + command.ArgsUsage
