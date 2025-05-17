@@ -41,6 +41,12 @@ func TestDefaultOnGlob(t *testing.T) {
 	assert.ElementsMatch(t, []string{"go.mod", "go.sum"}, files)
 }
 
+func TestGlobNoExist(t *testing.T) {
+	walk := Walker{}
+	files := collectChan(walk.Walk("no-exist*"))
+	assert.ElementsMatch(t, []string{"no-exist*"}, files)
+}
+
 func TestGlobInclude(t *testing.T) {
 	walk := Walker{
 		Include: []string{"*.mod"},

@@ -64,9 +64,11 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 		case info.Type()&os.ModeSymlink != 0 && isFollowableDir(walkPath): // sym link dir
 			// WalkDir won't navigate symlinks by default. This will traverse recursively
 			if s.FollowSymLinks && !s.ExcludeDir.Matches(info.Name()) {
-				real, _ := filepath.EvalSymlinks(walkPath)
+				real, err := filepath.EvalSymlinks(walkPath)
 
-				if strings.HasPrefix(real, filepath.Clean(p)) {
+				if err != nil {
+					s.onError(err)
+				} else if strings.HasPrefix(real, filepath.Clean(p)) {
 					s.onError(fmt.Errorf("already traversed symlink %s in %s", walkPath, p))
 				} else {
 					s.recurseWalk(c, walkPath+string(filepath.Separator))
