@@ -35,18 +35,18 @@ OUTER_LOOP:
 				color.WriteUint64(stdout, color.BrightYellow, match.LineNumber)
 				stdout.WriteString(": ")
 			}
-			if onlyText && !utf8.ValidString(match.Line) {
-				color.WriteString(stdout, color.BrightBlue, "Binary Match")
-			} else if !customExtractor {
-				if len(match.Indices) == 2 {
-					// Single match, highlight entire phrase
-					color.WrapIndices(stdout, match.Line, match.Indices)
-				} else {
-					// Multi-match groups, highlight individual groups
-					color.WrapIndices(stdout, match.Line, match.Indices[2:])
-				}
-			} else {
+
+			switch {
+			case customExtractor:
 				stdout.WriteString(match.Extracted)
+			case onlyText && !utf8.ValidString(match.Line):
+				color.WriteString(stdout, color.BrightBlue, "Binary Match")
+			case len(match.Indices) == 2:
+				// Single match, highlight entire phrase
+				color.WrapIndices(stdout, match.Line, match.Indices)
+			default:
+				// Multi-match groups, highlight individual groups
+				color.WrapIndices(stdout, match.Line, match.Indices[2:])
 			}
 			stdout.WriteByte('\n')
 
