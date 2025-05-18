@@ -118,16 +118,17 @@ func filterCommand() *cli.Command {
 
 // Remap some arguments, and pass on to normal filter
 func searchFunction(c *cli.Context) error {
-	if c.NArg() == 0 {
-		logger.Fatal(helpers.ExitCodeInvalidUsage, "Missing required match argument")
-	}
-
 	fileGlobs := c.Args().Slice()
 
+	if len(fileGlobs) == 0 {
+		logger.Fatal(helpers.ExitCodeInvalidUsage, "Missing match argument")
+	}
+
 	if !c.IsSet("match") && !c.IsSet("dissect") {
-		c.Set("match", c.Args().First())
+		c.Set("match", fileGlobs[0])
 		fileGlobs = fileGlobs[1:]
 	}
+
 	if len(fileGlobs) == 0 {
 		fileGlobs = append(fileGlobs, ".")
 	}
@@ -141,7 +142,7 @@ func searchCommand() *cli.Command {
 	command := helpers.AdaptCommandForExtractor(cli.Command{
 		Name:        "search",
 		Usage:       "Searches current directory recursively for a regex match",
-		Description: `Same as filter, but with some defaults to make it simpler to search for a regex. Alias for -IRla -m`,
+		Description: `Same as filter, with defaults to easily search with a regex. Alias for: filter -IRla -m`,
 		Action:      searchFunction,
 		Category:    cmdCatAnalyze,
 		Flags:       getFilterArgs(true),
