@@ -10,6 +10,7 @@ var (
 
 var commands []*cli.Command = []*cli.Command{
 	filterCommand(),
+	searchCommand(),
 	histogramCommand(),
 	heatmapCommand(),
 	sparkCommand(),
