@@ -29,10 +29,11 @@ const (
 )
 
 func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
-	return BuildBatcherFromArgumentsEx(c, c.Args().Slice()...)
+	batcher, _ := BuildBatcherFromArgumentsEx(c, c.Args().Slice()...)
+	return batcher
 }
 
-func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) *batchers.Batcher {
+func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) (*batchers.Batcher, *dirwalk.Walker) {
 	var (
 		follow            = c.Bool("follow") || c.Bool("reopen")
 		followTail        = c.Bool("tail")
@@ -64,16 +65,16 @@ func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) *batchers.
 		if follow {
 			logger.Println("Cannot follow a stdin stream, not a file")
 		}
-		return batchers.OpenReaderToChan("<stdin>", os.Stdin, batchSize, batchBuffer)
+		return batchers.OpenReaderToChan("<stdin>", os.Stdin, batchSize, batchBuffer), nil
 	} else if follow { // Read from source file
 		if gunzip {
 			logger.Println("Cannot combine -f and -z")
 		}
 		walker := BuildPathWalkerFromArguments(c)
-		return batchers.TailFilesToChan(walker.Walk(fileglobs...), batchSize, batchBuffer, followReopen, followPoll, followTail)
+		return batchers.TailFilesToChan(walker.Walk(fileglobs...), batchSize, batchBuffer, followReopen, followPoll, followTail), walker
 	} else { // Read (no-follow) source file(s)
 		walker := BuildPathWalkerFromArguments(c)
-		return batchers.OpenFilesToChan(walker.Walk(fileglobs...), gunzip, concurrentReaders, batchSize, batchBuffer)
+		return batchers.OpenFilesToChan(walker.Walk(fileglobs...), gunzip, concurrentReaders, batchSize, batchBuffer), walker
 	}
 }
 

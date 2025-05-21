@@ -7,6 +7,8 @@ import (
 	"os"
 	"rare/pkg/color"
 	"rare/pkg/extractor"
+	"rare/pkg/extractor/batchers"
+	"rare/pkg/extractor/dirwalk"
 	"rare/pkg/humanize"
 )
 
@@ -35,4 +37,21 @@ func FWriteExtractorSummary(extractor *extractor.Extractor, errors uint64, addit
 func WriteExtractorSummary(extractor *extractor.Extractor) {
 	os.Stderr.WriteString(FWriteExtractorSummary(extractor, 0))
 	os.Stderr.WriteString("\n")
+}
+
+func WriteBatcherSummary(w io.Writer, b *batchers.Batcher, walker *dirwalk.Walker) {
+	// TODO: Average speed (batcher can compute)
+	fmt.Fprintf(w, "Read   : %s in %s file(s)",
+		color.Wrap(color.BrightBlue, humanize.ByteSize(b.ReadBytes())),
+		color.Wrap(color.BrightWhite, humanize.Hi32(b.ReadFiles())))
+
+	if walker != nil {
+		if skipped := walker.ExcludedCount(); skipped > 0 {
+			fmt.Fprintf(w, ", %s excluded", color.Wrap(color.Yellow, humanize.Hui(skipped)))
+		}
+	}
+	if errCount := b.ReadErrors(); errCount > 0 {
+		fmt.Fprintf(w, ", %s error(s)", color.Wrap(color.Red, humanize.Hi32(errCount)))
+	}
+	fmt.Fprint(w, "\n")
 }
