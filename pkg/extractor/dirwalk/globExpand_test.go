@@ -3,6 +3,7 @@ package dirwalk
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -255,11 +256,41 @@ func TestExcludeSymDir(t *testing.T) {
 	assertNoneContains(t, files, "syminner")
 }
 
+func TestNoDoubleTraverseSymlink(t *testing.T) {
+	p := setupTestDir(t)
+	op := t.TempDir()
+	os.WriteFile(op+"/opfile", []byte("hello"), 0644)
+	os.Symlink(op, p+"/op1")
+	os.Symlink(op, p+"/op2")
+
+	hadError := false
+	walker := Walker{
+		Recursive:       true,
+		FollowSymLinks:  true,
+		OnTraverseError: captureError(&hadError),
+	}
+
+	files := collectChan(walker.Walk(p))
+	assert.Equal(t, 1, countContains(files, "op1"))
+	assert.Equal(t, 0, countContains(files, "op2"))
+	assert.True(t, hadError)
+}
+
 func assertNoneContains(t *testing.T, set []string, contains string) {
 	t.Helper()
 	for _, item := range set {
 		assert.NotContains(t, item, contains)
 	}
+}
+
+func countContains(set []string, contains string) int {
+	count := 0
+	for _, item := range set {
+		if strings.Contains(item, contains) {
+			count++
+		}
+	}
+	return count
 }
 
 func captureError(target *bool) func(err error) {
