@@ -1,7 +1,9 @@
 package dirwalk
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -163,9 +165,19 @@ func TestRecurseWithSymFile(t *testing.T) {
 	assert.NotContains(t, files, "docs/license.md")
 }
 
-func TestRecurseWithSymDir(t *testing.T) {
-	t.Skip("Known bug, will fix later")
+func TestRecursiveWithSymFileIgnore(t *testing.T) {
+	walk := Walker{
+		Recursive:    true,
+		ListSymLinks: true,
+		Exclude:      []string{"license*"},
+	}
 
+	files := collectChan(walk.Walk("docs/"))
+	assert.NotContains(t, files, "docs/license.md")
+	assert.Equal(t, uint64(1), walk.ExcludedCount())
+}
+
+func TestRecurseWithSymDir(t *testing.T) {
 	p := setupTestDir(t)
 
 	walk := Walker{
@@ -177,7 +189,7 @@ func TestRecurseWithSymDir(t *testing.T) {
 
 	walk.FollowSymLinks = true
 	files = collectChan(walk.Walk(p))
-	assert.Contains(t, files, p+"/syminner/b")
+	assert.Contains(t, files, p+"/other/syminner/b")
 }
 
 func TestRecurseDoesntIdentifyDirAsFile(t *testing.T) {
@@ -194,10 +206,101 @@ func TestRecurseDoesntIdentifyDirAsFile(t *testing.T) {
 	assertNoneContains(t, files, "syminner")
 }
 
+func TestNoInfiniteRecursion(t *testing.T) {
+	p := setupTestDir(t)
+	os.Symlink("./", p+"/recursive")
+	os.Symlink(p, p+"/recursive2")
+
+	hadError := false
+	walker := Walker{
+		Recursive:       true,
+		FollowSymLinks:  true,
+		OnTraverseError: captureError(&hadError),
+	}
+
+	files := collectChan(walker.Walk(p))
+	assert.True(t, hadError)
+	assertNoneContains(t, files, "recursive")
+	assertNoneContains(t, files, "recursive2")
+	assert.Equal(t, uint64(0), walker.ExcludedCount())
+}
+
+func TestNoMountTraverseWithSymlink(t *testing.T) {
+	p := setupTestDir(t)
+	os.Symlink("/dev", p+"/dev")
+
+	hadError := false
+	walker := Walker{
+		Recursive:       true,
+		FollowSymLinks:  true,
+		NoMountTraverse: true,
+		OnTraverseError: captureError(&hadError),
+	}
+
+	files := collectChan(walker.Walk(p))
+	assertNoneContains(t, files, "dev")
+	assert.False(t, hadError)
+}
+
+func TestExcludeSymDir(t *testing.T) {
+	p := setupTestDir(t)
+
+	hadError := false
+	walker := Walker{
+		Recursive:       true,
+		FollowSymLinks:  true,
+		ExcludeDir:      []string{"syminner"},
+		OnTraverseError: captureError(&hadError),
+	}
+
+	files := collectChan(walker.Walk(p))
+	assert.False(t, hadError)
+	assertNoneContains(t, files, "syminner")
+	assert.Equal(t, uint64(1), walker.ExcludedCount())
+}
+
+func TestNoDoubleTraverseSymlink(t *testing.T) {
+	p := setupTestDir(t)
+	op := t.TempDir()
+	os.WriteFile(op+"/opfile", []byte("hello"), 0644)
+	os.Symlink(op, p+"/op1")
+	os.Symlink(op, p+"/op2")
+
+	hadError := false
+	walker := Walker{
+		Recursive:       true,
+		FollowSymLinks:  true,
+		OnTraverseError: captureError(&hadError),
+	}
+
+	files := collectChan(walker.Walk(p))
+	assert.Equal(t, 1, countContains(files, "op1"))
+	assert.Equal(t, 0, countContains(files, "op2"))
+	assert.True(t, hadError)
+	assert.Equal(t, uint64(0), walker.ExcludedCount())
+}
+
 func assertNoneContains(t *testing.T, set []string, contains string) {
 	t.Helper()
 	for _, item := range set {
 		assert.NotContains(t, item, contains)
+	}
+}
+
+func countContains(set []string, contains string) int {
+	count := 0
+	for _, item := range set {
+		if strings.Contains(item, contains) {
+			count++
+		}
+	}
+	return count
+}
+
+func captureError(target *bool) func(err error) {
+	return func(err error) {
+		fmt.Println(err)
+		*target = true
 	}
 }
 
@@ -221,8 +324,6 @@ func setupTestDir(t *testing.T) string {
 	os.Mkdir(p+"/other", 0755)
 	os.Symlink(p+"/inner", p+"/other/syminner")
 	os.Symlink(p+"/inner/b", p+"/other/symfile")
-
-	// os.Symlink("/proc", p+"/proc")
 
 	return p
 }
