@@ -79,6 +79,7 @@ RUN search -n 5 -e "{1}" "(\d{3}) (\d+)" cmd/testdata/access.txt
     cmd/testdata/access.txt 4: 301
     cmd/testdata/access.txt 5: 200
 STDERR
+    Read   : 1 file(s) (9.22 KB)
     Matched: 5 / 5
 END
 

@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"io"
+	"os"
 	"rare/pkg/extractor"
 	"rare/pkg/extractor/batchers"
 	"rare/pkg/matchers"
@@ -53,4 +54,6 @@ func TestAggregationLoop(t *testing.T) {
 
 	// Also validate summary building since we have all the correct context
 	WriteExtractorSummary(ex)
+	FWriteExtractorSummary(ex, 1, "abc")
+	WriteBatcherSummary(os.Stderr, batcher, nil)
 }

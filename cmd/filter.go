@@ -71,12 +71,13 @@ OUTER_LOOP:
 	// Summary
 	if summarize {
 		helpers.WriteBatcherSummary(os.Stderr, batcher, walker)
-		if numLineLimit > 0 {
-			helpers.FWriteMatchSummary(os.Stderr, readLines, numLineLimit)
-			os.Stderr.WriteString("\n")
-		} else {
-			helpers.WriteExtractorSummary(extractor)
-		}
+	}
+
+	if numLineLimit > 0 {
+		helpers.FWriteMatchSummary(os.Stderr, readLines, numLineLimit)
+		os.Stderr.WriteString("\n")
+	} else {
+		helpers.WriteExtractorSummary(extractor)
 	}
 
 	return helpers.DetermineErrorState(batcher, extractor, nil)
