@@ -67,6 +67,7 @@ func TestGlobExclude(t *testing.T) {
 
 	assert.ElementsMatch(t, []string{"go.mod"}, files)
 	assert.Len(t, files, 1)
+	assert.Equal(t, uint64(1), walk.ExcludedCount())
 }
 
 func TestGlobDirExclude(t *testing.T) {
@@ -77,6 +78,7 @@ func TestGlobDirExclude(t *testing.T) {
 	files := collectChan(walk.Walk(p))
 
 	assertNoneContains(t, files, "cmd")
+	assert.Greater(t, walk.ExcludedCount(), uint64(1))
 }
 
 func TestRecurse(t *testing.T) {
@@ -116,6 +118,7 @@ func TestRecurseExclude(t *testing.T) {
 	assert.Greater(t, len(files), 2)
 	assertNoneContains(t, files, ".go")
 	assertNoneContains(t, files, ".sh")
+	assert.Greater(t, walk.ExcludedCount(), uint64(1))
 }
 
 func TestRecurseInclude(t *testing.T) {
@@ -128,6 +131,7 @@ func TestRecurseInclude(t *testing.T) {
 
 	assert.Greater(t, len(files), 1)
 	assertNoneContains(t, files, ".md")
+	assert.Greater(t, walk.ExcludedCount(), uint64(1))
 }
 
 func TestRecurseExcludeDir(t *testing.T) {
@@ -141,6 +145,7 @@ func TestRecurseExcludeDir(t *testing.T) {
 	assert.Greater(t, len(files), 1)
 	assertNoneContains(t, files, "images")
 	assertNoneContains(t, files, "usage")
+	assert.Greater(t, walk.ExcludedCount(), uint64(1))
 }
 
 func TestRecurseWithSymFile(t *testing.T) {
