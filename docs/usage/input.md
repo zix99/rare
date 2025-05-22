@@ -35,9 +35,9 @@ as a raw file.
 
 There are several options to filter what files are included when navigating.
 
-- `--include <pattern>` One or more glob patterns of files to exclusively include (eg. `*.log`)
-- `--exclude <pattern>` One or more glob patterns of files to exclude (eg. `*.gz`)
-- `--exclude-dir <pattern>` One or more glob patterns of directories to exclude (eg. `.git`)
+- `--include <pattern>` (`$RARE_INCLUDE`) One or more glob patterns of files to exclusively include (eg. `*.log`)
+- `--exclude <pattern>` (`$RARE_EXCLUDE`) One or more glob patterns of files to exclude (eg. `*.gz`)
+- `--exclude-dir <pattern>` (`$RARE_EXCLUDE_DIR`) One or more glob patterns of directories to exclude (eg. `.git`)
 
 Each option can take more than one pattern by specifying multiple times. File exclusions are
 tested before inclusions.
