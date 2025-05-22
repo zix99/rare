@@ -174,6 +174,7 @@ func TestRecursiveWithSymFileIgnore(t *testing.T) {
 
 	files := collectChan(walk.Walk("docs/"))
 	assert.NotContains(t, files, "docs/license.md")
+	assert.Equal(t, uint64(1), walk.ExcludedCount())
 }
 
 func TestRecurseWithSymDir(t *testing.T) {
@@ -221,6 +222,7 @@ func TestNoInfiniteRecursion(t *testing.T) {
 	assert.True(t, hadError)
 	assertNoneContains(t, files, "recursive")
 	assertNoneContains(t, files, "recursive2")
+	assert.Equal(t, uint64(0), walker.ExcludedCount())
 }
 
 func TestNoMountTraverseWithSymlink(t *testing.T) {
@@ -254,6 +256,7 @@ func TestExcludeSymDir(t *testing.T) {
 	files := collectChan(walker.Walk(p))
 	assert.False(t, hadError)
 	assertNoneContains(t, files, "syminner")
+	assert.Equal(t, uint64(1), walker.ExcludedCount())
 }
 
 func TestNoDoubleTraverseSymlink(t *testing.T) {
@@ -274,6 +277,7 @@ func TestNoDoubleTraverseSymlink(t *testing.T) {
 	assert.Equal(t, 1, countContains(files, "op1"))
 	assert.Equal(t, 0, countContains(files, "op2"))
 	assert.True(t, hadError)
+	assert.Equal(t, uint64(0), walker.ExcludedCount())
 }
 
 func assertNoneContains(t *testing.T, set []string, contains string) {

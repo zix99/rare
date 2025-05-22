@@ -88,7 +88,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string, visited map[string]strin
 			if err != nil {
 				s.onError(err)
 			} else if s.NoMountTraverse && getDeviceId(real) != rootDevId {
-				s.excluded.Add(1)
+				// skip
 			} else if with, ok := visited[real]; ok {
 				s.onError(fmt.Errorf("already traversed symlink %s in %s", walkPath, with))
 			} else {
