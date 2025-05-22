@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync/atomic"
 )
 
@@ -49,13 +48,13 @@ func (s *Walker) Walk(paths ...string) <-chan string {
 
 func (s *Walker) walk(c chan<- string, p string) {
 	if s.Recursive && isFollowableDir(p) {
-		s.recurseWalk(c, p)
+		s.recurseWalk(c, p, map[string]string{p: p})
 	} else {
 		s.globExpand(c, p)
 	}
 }
 
-func (s *Walker) recurseWalk(c chan<- string, p string) {
+func (s *Walker) recurseWalk(c chan<- string, p string, visited map[string]string) {
 	var rootDevId DeviceId
 	if s.NoMountTraverse {
 		// getDeviceId (stat) is expensive
@@ -88,10 +87,13 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 			real, err := filepath.EvalSymlinks(walkPath)
 			if err != nil {
 				s.onError(err)
-			} else if strings.HasPrefix(real, filepath.Clean(p)) {
-				s.onError(fmt.Errorf("already traversed symlink %s in %s", walkPath, p))
+			} else if s.NoMountTraverse && getDeviceId(real) != rootDevId {
+				s.excluded.Add(1)
+			} else if with, ok := visited[real]; ok {
+				s.onError(fmt.Errorf("already traversed symlink %s in %s", walkPath, with))
 			} else {
-				s.recurseWalk(c, walkPath+string(filepath.Separator))
+				visited[real] = walkPath
+				s.recurseWalk(c, walkPath+string(filepath.Separator), visited)
 			}
 
 		case info.Type()&os.ModeSymlink != 0: // sym link file
