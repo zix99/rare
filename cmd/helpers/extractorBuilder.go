@@ -186,22 +186,26 @@ func getExtractorFlags() []cli.Flag {
 			Name:     "include",
 			Category: cliCategoryPath,
 			Usage:    "Glob file patterns to include (eg. *.txt)",
+			EnvVars:  []string{"RARE_INCLUDE"},
 		},
 		&cli.StringSliceFlag{
 			Name:     "exclude",
 			Category: cliCategoryPath,
 			Usage:    "Glob file patterns to exclude (eg. *.txt)",
+			EnvVars:  []string{"RARE_EXCLUDE"},
 		},
 		&cli.StringSliceFlag{
 			Name:     "exclude-dir",
 			Category: cliCategoryPath,
 			Usage:    "Glob file patterns to exclude directories",
+			EnvVars:  []string{"RARE_EXCLUDE_DIR"},
 		},
 		&cli.BoolFlag{
 			Name:     "follow-symlinks",
 			Aliases:  []string{"L"},
 			Category: cliCategoryPath,
 			Usage:    "Follow symbolic directory links",
+			EnvVars:  []string{"RARE_FOLLOW_SYMLINKS"},
 		},
 		&cli.BoolFlag{
 			Name:     "read-symlinks",
