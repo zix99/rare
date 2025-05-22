@@ -40,9 +40,10 @@ func WriteExtractorSummary(extractor *extractor.Extractor) {
 }
 
 func WriteBatcherSummary(w io.Writer, b *batchers.Batcher, walker dirwalk.Metrics) {
-	fmt.Fprintf(w, "Read   : %s in %s file(s)",
+	fmt.Fprintf(w, "Read   : %s file(s) (%s)",
+		color.Wrap(color.BrightWhite, humanize.Hi32(b.ReadFiles())),
 		color.Wrap(color.BrightBlue, humanize.ByteSize(b.ReadBytes())),
-		color.Wrap(color.BrightWhite, humanize.Hi32(b.ReadFiles())))
+	)
 
 	if walker != nil {
 		if skipped := walker.ExcludedCount(); skipped > 0 {
