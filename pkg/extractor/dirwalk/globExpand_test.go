@@ -1,6 +1,7 @@
 package dirwalk
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -163,22 +164,24 @@ func TestRecurseWithSymFile(t *testing.T) {
 }
 
 func TestRecurseWithSymDir(t *testing.T) {
-	t.Skip("Needs special setup")
+	t.Skip("Known bug, will fix later")
+
+	p := setupTestDir(t)
 
 	walk := Walker{
 		Recursive: true,
 	}
 
-	files := collectChan(walk.Walk("testwalk/"))
+	files := collectChan(walk.Walk(p))
 	assertNoneContains(t, files, "syminner")
 
 	walk.FollowSymLinks = true
-	files = collectChan(walk.Walk("testwalk/"))
-	assert.Contains(t, files, "testwalk/syminner/infile")
+	files = collectChan(walk.Walk(p))
+	assert.Contains(t, files, p+"/syminner/b")
 }
 
 func TestRecurseDoesntIdentifyDirAsFile(t *testing.T) {
-	t.Skip("Needs special setup")
+	p := setupTestDir(t)
 
 	walk := Walker{
 		Recursive:      true,
@@ -186,7 +189,7 @@ func TestRecurseDoesntIdentifyDirAsFile(t *testing.T) {
 		ListSymLinks:   true,
 	}
 
-	files := collectChan(walk.Walk("testwalk/"))
+	files := collectChan(walk.Walk(p))
 
 	assertNoneContains(t, files, "syminner")
 }
@@ -196,4 +199,30 @@ func assertNoneContains(t *testing.T, set []string, contains string) {
 	for _, item := range set {
 		assert.NotContains(t, item, contains)
 	}
+}
+
+/*
+	 Sets up the following files in a temp dir to test more complex scenarios
+		/a - "hello"
+		/inner/b - "hello"
+		/other/syminner -> /inner
+		/other/symfile -> /inner/b
+*/
+func setupTestDir(t *testing.T) string {
+	t.Helper()
+
+	p := t.TempDir()
+
+	os.WriteFile(p+"/a", []byte("hello"), 0644)
+
+	os.Mkdir(p+"/inner", 0755)
+	os.WriteFile(p+"/inner/b", []byte("hello"), 0644)
+
+	os.Mkdir(p+"/other", 0755)
+	os.Symlink(p+"/inner", p+"/other/syminner")
+	os.Symlink(p+"/inner/b", p+"/other/symfile")
+
+	// os.Symlink("/proc", p+"/proc")
+
+	return p
 }
