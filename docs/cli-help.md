@@ -110,7 +110,67 @@ Filter incoming results with search criteria, and output raw matches
 
 **--reopen, -F**: Same as -f, but will reopen recreated files
 
+**--summary, -s**: Output a summary to stderr when done
+
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
+
+**--text, -a**: Only output lines that contain valid text
+
+**--workers, -w**="": Set number of data processors (default: 3)
+
+### search
+
+Searches current directory recursively for a regex match
+
+**--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
+
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+
+**--dissect, -d**="": Dissect expression create match groups to summarize on
+
+**--exclude**="": Glob file patterns to exclude (eg. *.txt)
+
+**--exclude-dir**="": Glob file patterns to exclude directories
+
+**--extract, -e**="": Expression that will generate the key to group by. Specify multiple times for multi-dimensions or use {$} helper (default: [{0}])
+
+**--follow, -f**: Read appended data as file grows
+
+**--follow-symlinks, -L**: Follow symbolic directory links
+
+**--gunzip, -z**: Attempt to decompress file when reading
+
+**--ignore, -i**="": Ignore a match given a truthy expression (Can have multiple)
+
+**--ignore-case, -I**: Augment matcher to be case insensitive
+
+**--include**="": Glob file patterns to include (eg. *.txt)
+
+**--line, -l**: Output source file and line number
+
+**--match, -m**="": Regex to create match groups to summarize on (default: .*)
+
+**--mount**: Don't descend directories on other filesystems (unix only)
+
+**--num, -n**="": Print the first NUM of lines seen (Not necessarily in-order) (default: 0)
+
+**--poll**: When following a file, poll for changes rather than using inotify
+
+**--posix, -p**: Compile regex as against posix standard
+
+**--read-symlinks**: Read files that are symbolic links
+
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+
+**--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
+
+**--reopen, -F**: Same as -f, but will reopen recreated files
+
+**--summary, -s**: Output a summary to stderr when done
+
+**--tail, -t**: When following a file, navigate to the end of the file to skip existing content
+
+**--text, -a**: Only output lines that contain valid text
 
 **--workers, -w**="": Set number of data processors (default: 3)
 
