@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 )
 
 // Can be instantiated directly without newer and defaults will be
@@ -20,6 +21,17 @@ type Walker struct {
 	NoMountTraverse bool // If true, don't traverse into another mount
 
 	OnTraverseError func(error)
+
+	excluded atomic.Uint64 // Files excluded due to include/exclude rules (not sym or mount rules)
+}
+
+type Metrics interface {
+	ExcludedCount() uint64
+}
+
+// Number of paths skipped because of rules (include, exclude, exludedir; NOT skip sym, mounts, etc)
+func (s *Walker) ExcludedCount() uint64 {
+	return s.excluded.Load()
 }
 
 func (s *Walker) Walk(paths ...string) <-chan string {
@@ -56,31 +68,49 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 			s.onError(fmt.Errorf("path error: %w", err))
 
 		case info.IsDir() && s.ExcludeDir.Matches(info.Name()): // skipped dir
+			s.excluded.Add(1)
 			return filepath.SkipDir
 
-		case info.IsDir() && s.NoMountTraverse && getDeviceId(walkPath) != rootDevId:
+		case info.IsDir() && s.NoMountTraverse && getDeviceId(walkPath) != rootDevId: // skipped mount
 			return filepath.SkipDir
 
 		case info.Type()&os.ModeSymlink != 0 && isFollowableDir(walkPath): // sym link dir
 			// WalkDir won't navigate symlinks by default. This will traverse recursively
-			if s.FollowSymLinks && !s.ExcludeDir.Matches(info.Name()) {
-				real, err := filepath.EvalSymlinks(walkPath)
+			if !s.FollowSymLinks {
+				break
+			}
 
-				if err != nil {
-					s.onError(err)
-				} else if strings.HasPrefix(real, filepath.Clean(p)) {
-					s.onError(fmt.Errorf("already traversed symlink %s in %s", walkPath, p))
-				} else {
-					s.recurseWalk(c, walkPath+string(filepath.Separator))
-				}
+			if s.ExcludeDir.Matches(info.Name()) {
+				s.excluded.Add(1)
+				break
+			}
+
+			real, err := filepath.EvalSymlinks(walkPath)
+			if err != nil {
+				s.onError(err)
+			} else if strings.HasPrefix(real, filepath.Clean(p)) {
+				s.onError(fmt.Errorf("already traversed symlink %s in %s", walkPath, p))
+			} else {
+				s.recurseWalk(c, walkPath+string(filepath.Separator))
 			}
 
 		case info.Type()&os.ModeSymlink != 0: // sym link file
-			if s.ListSymLinks && s.shouldIncludeFilename(info.Name()) {
-				c <- walkPath
+			if !s.ListSymLinks {
+				break
 			}
 
-		case info.Type().IsRegular() && s.shouldIncludeFilename(info.Name()): // regular file
+			if !s.shouldIncludeFilename(info.Name()) {
+				s.excluded.Add(1)
+				break
+			}
+
+			c <- walkPath
+
+		case info.Type().IsRegular(): // regular file
+			if !s.shouldIncludeFilename(info.Name()) {
+				s.excluded.Add(1)
+				break
+			}
 			c <- walkPath
 		}
 		return nil
@@ -96,6 +126,8 @@ func (s *Walker) globExpand(c chan<- string, p string) {
 		for _, item := range expanded {
 			if s.shouldIncludeFilename(filepath.Base(item)) && s.shouldIncludeDir(item) {
 				c <- item
+			} else {
+				s.excluded.Add(1)
 			}
 		}
 	} else {

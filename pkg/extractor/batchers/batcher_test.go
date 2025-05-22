@@ -21,7 +21,7 @@ func TestBatcherTracking(t *testing.T) {
 
 	s.stopFileReading("abc")
 	assert.Equal(t, 5, s.sourceCount)
-	assert.Equal(t, 1, s.readCount)
+	assert.Equal(t, 1, s.ReadFiles())
 	assert.Equal(t, 0, s.ReadErrors())
 	assert.Contains(t, s.StatusString(), "1/5")
 	assert.Equal(t, s.ActiveFileCount(), 0)

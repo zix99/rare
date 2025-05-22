@@ -22,12 +22,14 @@ const AutoFlushTimeout = 250 * time.Millisecond
 type Batcher struct {
 	c chan extractor.InputBatch
 
+	// All mutex protected fields
 	mux         sync.Mutex
 	sourceCount int
 	readCount   int
 	errorCount  int
 	activeFiles []string
 
+	// Atomic fields (only used to compute performance metrics)
 	readBytes               uint64
 	lastRateUpdate          time.Time
 	lastRate, lastRateBytes uint64
@@ -87,6 +89,12 @@ func (s *Batcher) ReadBytes() uint64 {
 	return atomic.LoadUint64(&s.readBytes)
 }
 
+func (s *Batcher) ReadFiles() int {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+	return s.readCount
+}
+
 func (s *Batcher) ReadErrors() int {
 	s.mux.Lock()
 	defer s.mux.Unlock()
@@ -141,7 +149,8 @@ func (s *Batcher) StatusString() string {
 }
 
 // syncReaderToBatcher reads a reader buffer and breaks up its scans to `batchSize`
-//  and writes the batch-sized results to a channel
+//
+//	and writes the batch-sized results to a channel
 func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batchSize int) {
 	readerMetrics := newReaderMetrics(reader)
 	readahead := readahead.NewImmediate(readerMetrics, ReadAheadBufferSize)

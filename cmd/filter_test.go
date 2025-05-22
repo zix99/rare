@@ -23,6 +23,13 @@ func TestSarch(t *testing.T) {
 	)
 }
 
+func TestSearchOutput(t *testing.T) {
+	out, eout, err := testCommandCapture(searchCommand(), `last testdata/*.txt`)
+	assert.NoError(t, err)
+	assert.Equal(t, "testdata/log.txt 3: 5 is the last\n", out)
+	assert.Equal(t, "Read   : 5 file(s) (9.41 KB)\nMatched: 1 / 76\n", eout)
+}
+
 func TestFilterExtract(t *testing.T) {
 	out, eout, err := testCommandCapture(filterCommand(), `-m (\d+) -e "{1}" testdata/log.txt`)
 	assert.NoError(t, err)

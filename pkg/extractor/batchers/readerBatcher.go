@@ -12,6 +12,7 @@ func OpenReaderToChan(sourceName string, reader io.ReadCloser, batchSize, batchB
 		defer out.close()
 		out.startFileReading(sourceName)
 		out.syncReaderToBatcherWithTimeFlush(sourceName, reader, batchSize, AutoFlushTimeout)
+		out.stopFileReading(sourceName)
 	}()
 
 	return out

@@ -17,11 +17,12 @@ func filterFunction(c *cli.Context, fileGlobs ...string) error {
 		writeLines      = c.Bool("line")
 		customExtractor = c.IsSet("extract")
 		onlyText        = c.Bool("text")
+		summarize       = c.Bool("summary")
 		numLineLimit    = uint64(c.Int64("num"))
 		readLines       = uint64(0)
 	)
 
-	batcher := helpers.BuildBatcherFromArgumentsEx(c, fileGlobs...)
+	batcher, walker := helpers.BuildBatcherFromArgumentsEx(c, fileGlobs...)
 	extractor := helpers.BuildExtractorFromArgumentsEx(c, batcher, "\t")
 
 	stdout := bufio.NewWriter(os.Stdout)
@@ -68,6 +69,10 @@ OUTER_LOOP:
 	}
 
 	// Summary
+	if summarize {
+		helpers.WriteBatcherSummary(os.Stderr, batcher, walker)
+	}
+
 	if numLineLimit > 0 {
 		helpers.FWriteMatchSummary(os.Stderr, readLines, numLineLimit)
 		os.Stderr.WriteString("\n")
@@ -95,6 +100,12 @@ func getFilterArgs(isSearch bool) []cli.Flag {
 			Name:    "text",
 			Aliases: []string{"a"},
 			Usage:   "Only output lines that contain valid text",
+			Value:   isSearch,
+		},
+		&cli.BoolFlag{
+			Name:    "summary",
+			Aliases: []string{"s"},
+			Usage:   "Output a summary to stderr when done",
 			Value:   isSearch,
 		},
 	}
