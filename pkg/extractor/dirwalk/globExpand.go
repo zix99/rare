@@ -22,7 +22,7 @@ type Walker struct {
 
 	OnTraverseError func(error)
 
-	excluded uint64 // Files excluded due to include/exclude rules (not sym or mount rules)
+	excluded atomic.Uint64 // Files excluded due to include/exclude rules (not sym or mount rules)
 }
 
 type Metrics interface {
@@ -31,7 +31,7 @@ type Metrics interface {
 
 // Number of paths skipped because of rules (include, exclude, exludedir; NOT skip sym, mounts, etc)
 func (s *Walker) ExcludedCount() uint64 {
-	return atomic.LoadUint64(&s.excluded)
+	return s.excluded.Load()
 }
 
 func (s *Walker) Walk(paths ...string) <-chan string {
@@ -68,7 +68,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 			s.onError(fmt.Errorf("path error: %w", err))
 
 		case info.IsDir() && s.ExcludeDir.Matches(info.Name()): // skipped dir
-			atomic.AddUint64(&s.excluded, 1)
+			s.excluded.Add(1)
 			return filepath.SkipDir
 
 		case info.IsDir() && s.NoMountTraverse && getDeviceId(walkPath) != rootDevId: // skipped mount
@@ -81,7 +81,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 			}
 
 			if s.ExcludeDir.Matches(info.Name()) {
-				atomic.AddUint64(&s.excluded, 1)
+				s.excluded.Add(1)
 				break
 			}
 
@@ -100,7 +100,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 			}
 
 			if !s.shouldIncludeFilename(info.Name()) {
-				atomic.AddUint64(&s.excluded, 1)
+				s.excluded.Add(1)
 				break
 			}
 
@@ -108,7 +108,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string) {
 
 		case info.Type().IsRegular(): // regular file
 			if !s.shouldIncludeFilename(info.Name()) {
-				atomic.AddUint64(&s.excluded, 1)
+				s.excluded.Add(1)
 				break
 			}
 			c <- walkPath
@@ -127,7 +127,7 @@ func (s *Walker) globExpand(c chan<- string, p string) {
 			if s.shouldIncludeFilename(filepath.Base(item)) && s.shouldIncludeDir(item) {
 				c <- item
 			} else {
-				atomic.AddUint64(&s.excluded, 1)
+				s.excluded.Add(1)
 			}
 		}
 	} else {
