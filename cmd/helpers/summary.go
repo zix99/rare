@@ -39,8 +39,7 @@ func WriteExtractorSummary(extractor *extractor.Extractor) {
 	os.Stderr.WriteString("\n")
 }
 
-func WriteBatcherSummary(w io.Writer, b *batchers.Batcher, walker *dirwalk.Walker) {
-	// TODO: Average speed (batcher can compute)
+func WriteBatcherSummary(w io.Writer, b *batchers.Batcher, walker dirwalk.Metrics) {
 	fmt.Fprintf(w, "Read   : %s in %s file(s)",
 		color.Wrap(color.BrightBlue, humanize.ByteSize(b.ReadBytes())),
 		color.Wrap(color.BrightWhite, humanize.Hi32(b.ReadFiles())))

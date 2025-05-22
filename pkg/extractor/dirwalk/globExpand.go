@@ -25,6 +25,10 @@ type Walker struct {
 	excluded uint64 // Files excluded due to include/exclude rules (not sym or mount rules)
 }
 
+type Metrics interface {
+	ExcludedCount() uint64
+}
+
 // Number of paths skipped because of rules (include, exclude, exludedir; NOT skip sym, mounts, etc)
 func (s *Walker) ExcludedCount() uint64 {
 	return atomic.LoadUint64(&s.excluded)

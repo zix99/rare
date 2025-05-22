@@ -22,12 +22,14 @@ const AutoFlushTimeout = 250 * time.Millisecond
 type Batcher struct {
 	c chan extractor.InputBatch
 
+	// All mutex protected fields
 	mux         sync.Mutex
 	sourceCount int
 	readCount   int
 	errorCount  int
 	activeFiles []string
 
+	// Atomic fields (only used to compute performance metrics)
 	readBytes               uint64
 	lastRateUpdate          time.Time
 	lastRate, lastRateBytes uint64

@@ -33,7 +33,7 @@ func BuildBatcherFromArguments(c *cli.Context) *batchers.Batcher {
 	return batcher
 }
 
-func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) (*batchers.Batcher, *dirwalk.Walker) {
+func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) (*batchers.Batcher, dirwalk.Metrics) {
 	var (
 		follow            = c.Bool("follow") || c.Bool("reopen")
 		followTail        = c.Bool("tail")
