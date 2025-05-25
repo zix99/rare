@@ -7,6 +7,8 @@ import (
 const (
 	ExitCodeNoData       = 1
 	ExitCodeInvalidUsage = 2
+	ExitCodeReadError    = 3
+	ExitCodeOutputError  = 4
 )
 
 type (
@@ -23,7 +25,7 @@ type (
 
 func DetermineErrorState(b BatcherErrors, e ExtractorSummary, agg AggregationErrors) error {
 	if b.ReadErrors() > 0 {
-		return cli.Exit("Read errors", ExitCodeInvalidUsage)
+		return cli.Exit("Read errors", ExitCodeReadError)
 	}
 	if agg != nil && agg.ParseErrors() > 0 {
 		return cli.Exit("Parse errors", ExitCodeInvalidUsage)
