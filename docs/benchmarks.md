@@ -39,11 +39,28 @@ $ time rare histo -m '" (\d{3})' -e "{1}" -z testdata/*.gz
 405                 5,708     
 408                 1,397     
 Matched: 8,373,328 / 8,373,328 (Groups: 8)
-[9/9] 1.41 GB (326.98 MB/s)
+[9/9] 1.41 GB (514.25 MB/s)
 
-real    0m3.724s
-user    0m11.539s
-sys     0m0.824s
+real    0m2.870s
+user    0m9.606s
+sys     0m0.393s
+```
+
+And, as an alternative, using *dissect* matcher instead of regex is even slightly faster:
+
+```bash
+$ time rare histo -d '" %{CODE} ' -e '{CODE}' -z testdata/*.gz
+404         5,557,374 
+200         2,564,984 
+400         243,282   
+405         5,708     
+408         1,397     
+Matched: 8,373,328 / 8,373,328 (Groups: 8)
+[9/9] 1.41 GB (531.11 MB/s)
+
+real    0m2.533s
+user    0m7.976s
+sys     0m0.350s
 ```
 
 ### pcre2
