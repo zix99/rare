@@ -76,7 +76,7 @@ These options control how the directory space is traversed:
 
 - `--follow-symlinks, -L` Follow symbolic link paths
 - `--read-symlinks` Read files that are symbolic links (default: true)
-- `--mount` Don't descend directories on other filesystems (on filesystems that support this)
+- `--mount` Don't descend directories on other filesystems (unix only)
 
 ### Following File(s)
 

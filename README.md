@@ -21,7 +21,7 @@ See [rare.zdyn.net](https://rare.zdyn.net) or the [docs/ folder](docs/) for the 
 
  * Multiple summary formats including: filter (like grep), histogram, bar graphs, tables, heatmaps, reduce, and numerical analysis
  * Parse using regex (`-m`) or dissect tokenizer (`-d`)
- * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
+ * File glob expansions (eg `/var/log/*` or `/var/log/*/*.log`) and recursion `-R` with path filters (include/exclude patterns)
  * Optional gzip decompression (with `-z`)
  * Following `-f` or re-open following `-F` (use `--poll` to poll, and `--tail` to tail)
  * Ignoring lines that match an expression (with `-i`)

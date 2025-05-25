@@ -19,7 +19,7 @@ Supports various CLI-based graphing and metric formats (filter (grep-like), hist
 
  * Multiple [summary formats](usage/aggregators.md) including: filter (like grep), histogram, bar graphs, tables, heatmaps, sparklines, reduce, and numerical analysis
  * Parse using [regex](usage/regexp.md) (`-m`) or [dissect tokenizer](usage/dissect.md) (`-d`)
- * File [glob expansions](usage/input.md#read-files) (eg `/var/log/*` or `/var/log/*/*.log`) and `-R`
+ * File [glob expansions](usage/input.md#read-files) (eg `/var/log/*` or `/var/log/*/*.log`) and recursion `-R` with [path filters](usage/input.md#path-filters) (include/exclude patterns)
  * Optional [gzip decompression](usage/input.md#gzip) (with `-z`)
  * [Following](usage/input.md#following-files) `-f` or re-open following `-F` (use `--poll` to poll, and `--tail` to tail)
  * [Ignoring](usage/extractor.md#ignore) lines that match an expression (with `-i`)
