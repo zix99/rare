@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"rare/cmd/helpers"
 	"rare/pkg/testutil"
 	"testing"
 
@@ -91,7 +92,7 @@ func TestFilterFromStdin(t *testing.T) {
 func TestFilterFileNotExist(t *testing.T) {
 	out, eout, err := testCommandCapture(filterCommand(), `-m (\d+) -e "{1}" testdata/no-exist.txt`)
 	assert.Error(t, err)
-	assert.Equal(t, 2, err.(cli.ExitCoder).ExitCode())
+	assert.Equal(t, helpers.ExitCodeReadError, err.(cli.ExitCoder).ExitCode())
 	assert.Equal(t, "", out)
 	assert.Equal(t, "Matched: 0 / 0\nRead errors", eout)
 }

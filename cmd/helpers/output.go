@@ -46,10 +46,12 @@ func BuildVTermFromArguments(c *cli.Context) multiterm.MultilineTerm {
 func TryWriteCSV[T any](c *cli.Context, agg T, writer func(w csv.CSV, agg T) error) error {
 	if filename := c.String(CSVFlag.Name); filename != "" {
 		if w, err := csv.OpenCSV(filename); err != nil {
-			return err
+			return cli.Exit(err, ExitCodeOutputError)
 		} else {
 			defer w.Close()
-			return writer(w, agg)
+			if err := writer(w, agg); err != nil {
+				return cli.Exit(err, ExitCodeOutputError)
+			}
 		}
 	}
 	return nil

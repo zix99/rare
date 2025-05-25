@@ -37,6 +37,7 @@ func TestTryWriteCSV(t *testing.T) {
 		agg := aggregation.NewCounter()
 		return TryWriteCSV(ctx, agg, csv.WriteCounter)
 	}
+	app.ExitErrHandler = func(cCtx *cli.Context, err error) {}
 	assert.NoError(t, app.Run([]string{""}))
 	assert.NoError(t, app.Run([]string{"", "--csv", "-"}))
 	assert.Error(t, app.Run([]string{"", "--csv", "/!@#bad-filename"}))

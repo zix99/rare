@@ -59,13 +59,13 @@ OUTER_LOOP:
 
 		// Flush after each batch to make file-following work as expected
 		if err := stdout.Flush(); err != nil {
-			logger.Fatal(helpers.ExitCodeInvalidUsage, err)
+			logger.Fatal(helpers.ExitCodeOutputError, err)
 		}
 	}
 
 	// Final flush
 	if err := stdout.Flush(); err != nil {
-		logger.Fatal(helpers.ExitCodeInvalidUsage, err)
+		logger.Fatal(helpers.ExitCodeOutputError, err)
 	}
 
 	// Summary
