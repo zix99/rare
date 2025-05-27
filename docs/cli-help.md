@@ -676,6 +676,24 @@ Evaluate and benchmark expressions
 
 **--stats, -s**: Display stats about the expression
 
+### walk
+
+Output paths discovered via traverse rules
+
+**--exclude**="": Glob file patterns to exclude (eg. *.txt)
+
+**--exclude-dir**="": Glob file patterns to exclude directories
+
+**--follow-symlinks, -L**: Follow symbolic directory links
+
+**--include**="": Glob file patterns to include (eg. *.txt)
+
+**--mount**: Don't descend directories on other filesystems (unix only)
+
+**--read-symlinks**: Read files that are symbolic links
+
+**--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
+
 ### help, h
 
 Shows a list of commands or help for one command

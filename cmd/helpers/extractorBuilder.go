@@ -283,7 +283,7 @@ func GetWalkerFlags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:     "recursive",
 			Aliases:  []string{"R"},
-			Category: cliCategoryRead,
+			Category: cliCategoryPath,
 			Usage:    "Recursively walk a non-globbing path and search for plain-files",
 		},
 		&cli.StringSliceFlag{
