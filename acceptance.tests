@@ -291,3 +291,10 @@ NAME rare version
 RUN -v
 # any output is okay
 END
+
+NAME walk
+RUN walk -R --include *.sh docs/
+    docs/install.sh
+STDERR
+    Found 1 path(s)
+END

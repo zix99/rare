@@ -182,43 +182,6 @@ func getExtractorFlags() []cli.Flag {
 	workerCount := runtime.NumCPU()/2 + 1
 
 	return []cli.Flag{
-		&cli.StringSliceFlag{
-			Name:     "include",
-			Category: cliCategoryPath,
-			Usage:    "Glob file patterns to include (eg. *.txt)",
-			EnvVars:  []string{"RARE_INCLUDE"},
-		},
-		&cli.StringSliceFlag{
-			Name:     "exclude",
-			Category: cliCategoryPath,
-			Usage:    "Glob file patterns to exclude (eg. *.txt)",
-			EnvVars:  []string{"RARE_EXCLUDE"},
-		},
-		&cli.StringSliceFlag{
-			Name:     "exclude-dir",
-			Category: cliCategoryPath,
-			Usage:    "Glob file patterns to exclude directories",
-			EnvVars:  []string{"RARE_EXCLUDE_DIR"},
-		},
-		&cli.BoolFlag{
-			Name:     "follow-symlinks",
-			Aliases:  []string{"L"},
-			Category: cliCategoryPath,
-			Usage:    "Follow symbolic directory links",
-			EnvVars:  []string{"RARE_FOLLOW_SYMLINKS"},
-		},
-		&cli.BoolFlag{
-			Name:     "read-symlinks",
-			Category: cliCategoryPath,
-			Usage:    "Read files that are symbolic links",
-			Value:    true,
-		},
-		&cli.BoolFlag{
-			Name:     "mount",
-			Category: cliCategoryPath,
-			Usage:    "Don't descend directories on other filesystems (unix only)",
-			Hidden:   !dirwalk.FeatureMountTraversal,
-		},
 		&cli.BoolFlag{
 			Name:     "follow",
 			Aliases:  []string{"f"},
@@ -247,12 +210,6 @@ func getExtractorFlags() []cli.Flag {
 			Aliases:  []string{"z"},
 			Category: cliCategoryRead,
 			Usage:    "Attempt to decompress file when reading",
-		},
-		&cli.BoolFlag{
-			Name:     "recursive",
-			Aliases:  []string{"R"},
-			Category: cliCategoryRead,
-			Usage:    "Recursively walk a non-globbing path and search for plain-files",
 		},
 		&cli.BoolFlag{
 			Name:     "posix",
@@ -321,8 +278,57 @@ func getExtractorFlags() []cli.Flag {
 	}
 }
 
+func GetWalkerFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.BoolFlag{
+			Name:     "recursive",
+			Aliases:  []string{"R"},
+			Category: cliCategoryRead,
+			Usage:    "Recursively walk a non-globbing path and search for plain-files",
+		},
+		&cli.StringSliceFlag{
+			Name:     "include",
+			Category: cliCategoryPath,
+			Usage:    "Glob file patterns to include (eg. *.txt)",
+			EnvVars:  []string{"RARE_INCLUDE"},
+		},
+		&cli.StringSliceFlag{
+			Name:     "exclude",
+			Category: cliCategoryPath,
+			Usage:    "Glob file patterns to exclude (eg. *.txt)",
+			EnvVars:  []string{"RARE_EXCLUDE"},
+		},
+		&cli.StringSliceFlag{
+			Name:     "exclude-dir",
+			Category: cliCategoryPath,
+			Usage:    "Glob file patterns to exclude directories",
+			EnvVars:  []string{"RARE_EXCLUDE_DIR"},
+		},
+		&cli.BoolFlag{
+			Name:     "follow-symlinks",
+			Aliases:  []string{"L"},
+			Category: cliCategoryPath,
+			Usage:    "Follow symbolic directory links",
+			EnvVars:  []string{"RARE_FOLLOW_SYMLINKS"},
+		},
+		&cli.BoolFlag{
+			Name:     "read-symlinks",
+			Category: cliCategoryPath,
+			Usage:    "Read files that are symbolic links",
+			Value:    true,
+		},
+		&cli.BoolFlag{
+			Name:     "mount",
+			Category: cliCategoryPath,
+			Usage:    "Don't descend directories on other filesystems (unix only)",
+			Hidden:   !dirwalk.FeatureMountTraversal,
+		},
+	}
+}
+
 func AdaptCommandForExtractor(command cli.Command) *cli.Command {
 	command.Flags = append(getExtractorFlags(), command.Flags...)
+	command.Flags = append(GetWalkerFlags(), command.Flags...)
 	if command.ArgsUsage == "" {
 		command.ArgsUsage = DefaultArgumentDescriptor
 	}
