@@ -78,6 +78,18 @@ These options control how the directory space is traversed:
 - `--read-symlinks` Read files that are symbolic links (default: true)
 - `--mount` Don't descend directories on other filesystems (unix only)
 
+#### Testing
+
+You can test path and traversal filters using the `walk` command.
+
+For example:
+
+```sh
+rare walk -R --include '*txt' ./
+```
+
+Which will output matching paths.
+
 ### Following File(s)
 
 Like `tail -f`, following files allows you to watch files actively being written to. This is
