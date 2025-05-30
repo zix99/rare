@@ -90,6 +90,9 @@ rare walk -R --include '*txt' ./
 
 Which will output matching paths.
 
+Note that this command will output paths that match, regardless of whether
+they can be read, have proper permissions, or even exist.
+
 ### Following File(s)
 
 Like `tail -f`, following files allows you to watch files actively being written to. This is
