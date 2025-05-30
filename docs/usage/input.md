@@ -90,7 +90,7 @@ rare walk -R --include '*txt' ./
 
 Which will output matching paths.
 
-Note that this command will output paths that match, regardless of whether
+This command will output paths that match, regardless of whether
 they can be read, have proper permissions, or even exist.
 
 ### Following File(s)
