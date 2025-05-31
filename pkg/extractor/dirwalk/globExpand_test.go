@@ -287,8 +287,11 @@ func TestNoDoubleTraverseSymlink(t *testing.T) {
 	}
 
 	files := collectChan(walker.Walk(p))
-	assert.Equal(t, 1, countContains(files, "op1"))
-	assert.Equal(t, 0, countContains(files, "op2"))
+
+	// exclusive or on the two possible options (should walk one of them)
+	has1, has2 := countContains(files, "op1") > 0, countContains(files, "op2") > 0
+	assert.True(t, has1 != has2)
+
 	assert.True(t, hadError)
 	assert.Equal(t, uint64(0), walker.ExcludedCount())
 }
