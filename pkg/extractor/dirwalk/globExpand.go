@@ -19,18 +19,30 @@ type Walker struct {
 	Recursive       bool // If asked to walk a path, will recurse
 	NoMountTraverse bool // If true, don't traverse into another mount
 
-	OnTraverseError func(error)
+	OnTraverseError func(error) // Called in separate goroutine
 
+	total    atomic.Uint64
 	excluded atomic.Uint64 // Files excluded due to include/exclude rules (not sym or mount rules)
+	error    atomic.Uint64
 }
 
 type Metrics interface {
+	TotalCount() uint64
 	ExcludedCount() uint64
+	ErrorCount() uint64
 }
 
 // Number of paths skipped because of rules (include, exclude, exludedir; NOT skip sym, mounts, etc)
 func (s *Walker) ExcludedCount() uint64 {
 	return s.excluded.Load()
+}
+
+func (s *Walker) TotalCount() uint64 {
+	return s.total.Load()
+}
+
+func (s *Walker) ErrorCount() uint64 {
+	return s.error.Load()
 }
 
 func (s *Walker) Walk(paths ...string) <-chan string {
@@ -107,6 +119,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string, visited map[string]strin
 			}
 
 			c <- walkPath
+			s.total.Add(1)
 
 		case info.Type().IsRegular(): // regular file
 			if !s.shouldIncludeFilename(info.Name()) {
@@ -114,6 +127,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string, visited map[string]strin
 				break
 			}
 			c <- walkPath
+			s.total.Add(1)
 		}
 		return nil
 	})
@@ -128,12 +142,14 @@ func (s *Walker) globExpand(c chan<- string, p string) {
 		for _, item := range expanded {
 			if s.shouldIncludeFilename(filepath.Base(item)) && s.shouldIncludeDir(item) {
 				c <- item
+				s.total.Add(1)
 			} else {
 				s.excluded.Add(1)
 			}
 		}
 	} else {
 		c <- p
+		s.total.Add(1)
 	}
 }
 
@@ -171,6 +187,7 @@ func (s *Walker) shouldIncludeDir(fullpath string) bool {
 }
 
 func (s *Walker) onError(err error) {
+	s.error.Add(1)
 	if s.OnTraverseError != nil {
 		s.OnTraverseError(err)
 	}

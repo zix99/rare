@@ -20,6 +20,7 @@ var commands []*cli.Command = []*cli.Command{
 	reduceCommand(),
 	docsCommand(),
 	expressionCommand(),
+	walkCommand(),
 }
 
 func GetSupportedCommands() []*cli.Command {
