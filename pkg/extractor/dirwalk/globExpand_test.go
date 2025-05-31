@@ -235,6 +235,7 @@ func TestNoInfiniteRecursion(t *testing.T) {
 	assertNoneContains(t, files, "recursive")
 	assertNoneContains(t, files, "recursive2")
 	assert.Equal(t, uint64(0), walker.ExcludedCount())
+	assert.Equal(t, uint64(2), walker.ErrorCount())
 }
 
 func TestNoMountTraverseWithSymlink(t *testing.T) {
