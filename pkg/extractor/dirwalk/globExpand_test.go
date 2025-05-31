@@ -25,6 +25,9 @@ func TestDefaultOnDir(t *testing.T) {
 
 	// Returns dir even though not file
 	assert.ElementsMatch(t, []string{"./"}, files)
+	assert.Equal(t, uint64(1), walk.TotalCount())
+	assert.Equal(t, uint64(0), walk.ErrorCount())
+	assert.Equal(t, uint64(0), walk.ExcludedCount())
 }
 
 func TestDefaultOnMissing(t *testing.T) {
@@ -34,6 +37,9 @@ func TestDefaultOnMissing(t *testing.T) {
 
 	// Returns dir even though not file
 	assert.ElementsMatch(t, []string{p}, files)
+	assert.Equal(t, uint64(1), walk.TotalCount())
+	assert.Equal(t, uint64(0), walk.ErrorCount())
+	assert.Equal(t, uint64(0), walk.ExcludedCount())
 }
 
 func TestDefaultOnGlob(t *testing.T) {
@@ -42,6 +48,9 @@ func TestDefaultOnGlob(t *testing.T) {
 	files := collectChan(walk.Walk(p))
 
 	assert.ElementsMatch(t, []string{"go.mod", "go.sum"}, files)
+	assert.Equal(t, uint64(2), walk.TotalCount())
+	assert.Equal(t, uint64(0), walk.ErrorCount())
+	assert.Equal(t, uint64(0), walk.ExcludedCount())
 }
 
 func TestGlobNoExist(t *testing.T) {
@@ -59,6 +68,9 @@ func TestGlobInclude(t *testing.T) {
 
 	assert.ElementsMatch(t, []string{"go.mod"}, files)
 	assert.Len(t, files, 1)
+	assert.Equal(t, uint64(1), walk.TotalCount())
+	assert.Equal(t, uint64(0), walk.ErrorCount())
+	assert.Equal(t, uint64(1), walk.ExcludedCount())
 }
 
 func TestGlobExclude(t *testing.T) {

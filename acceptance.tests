@@ -296,5 +296,5 @@ NAME walk
 RUN walk -R --include *.sh docs/
     docs/install.sh
 STDERR
-    Found 1 path(s)
+    Found 1 path(s), 30 excluded
 END

@@ -10,7 +10,7 @@ func TestEmptyWalkCommand(t *testing.T) {
 	o, e, err := testCommandCapture(walkCommand(), "")
 	assert.Error(t, err)
 	assert.Equal(t, "", o)
-	assert.Equal(t, "Found 0 path(s)\nNo paths found", e)
+	assert.Equal(t, "No paths found", e)
 }
 
 func TestWalkTestDataGlob(t *testing.T) {

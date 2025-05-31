@@ -17,17 +17,22 @@ func walkFunction(c *cli.Context) error {
 
 	stdout := bufio.NewWriter(os.Stdout)
 
-	var count uint64
 	for path := range walk.Walk(paths...) {
 		stdout.WriteString(path)
 		stdout.WriteRune('\n')
-		count++
 	}
 	stdout.Flush()
 
-	fmt.Fprintf(os.Stderr, "Found %s path(s)\n", color.Wrap(color.BrightGreen, humanize.Hui(count)))
-
-	if count == 0 {
+	if count := walk.TotalCount(); count > 0 {
+		fmt.Fprintf(os.Stderr, "Found %s path(s)", color.Wrap(color.BrightGreen, humanize.Hui(count)))
+		if excluded := walk.ExcludedCount(); excluded > 0 {
+			fmt.Fprintf(os.Stderr, ", %s excluded", color.Wrap(color.Yellow, humanize.Hui(excluded)))
+		}
+		if errors := walk.ErrorCount(); errors > 0 {
+			fmt.Fprintf(os.Stderr, ", %s error(s)", color.Wrap(color.Red, humanize.Hui(errors)))
+		}
+		fmt.Fprint(os.Stderr, "\n")
+	} else {
 		return cli.Exit("No paths found", helpers.ExitCodeNoData)
 	}
 
