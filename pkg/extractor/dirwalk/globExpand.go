@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"rare/pkg/extractor/dirwalk/iterwalk"
 	"sync/atomic"
 )
 
@@ -73,7 +74,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string, visited map[string]strin
 		rootDevId = getDeviceId(p)
 	}
 
-	filepath.WalkDir(p, func(walkPath string, info os.DirEntry, err error) error {
+	iterwalk.WalkDir(p, func(walkPath string, info os.DirEntry, err error) error {
 		switch {
 		case err != nil: // error
 			s.onError(fmt.Errorf("path error: %w", err))
