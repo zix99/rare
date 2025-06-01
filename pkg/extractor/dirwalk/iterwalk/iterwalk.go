@@ -55,6 +55,7 @@ func walkDir(path string, d fs.DirEntry, walkDirFn fs.WalkDirFunc) error {
 	}
 	defer f.Close()
 
+OUTER:
 	for {
 		dirs, err := f.ReadDir(readBatchSize)
 		if err != nil && err != io.EOF {
@@ -75,7 +76,7 @@ func walkDir(path string, d fs.DirEntry, walkDirFn fs.WalkDirFunc) error {
 			path1 := filepath.Join(path, d1.Name())
 			if err := walkDir(path1, d1, walkDirFn); err != nil {
 				if err == filepath.SkipDir {
-					break
+					break OUTER
 				}
 				return err
 			}
