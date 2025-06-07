@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"rare/docs"
-	"rare/pkg/markdowncli"
 	"strings"
 	"testing"
+
+	"github.com/zix99/rare/docs"
+	"github.com/zix99/rare/pkg/markdowncli"
 
 	"github.com/stretchr/testify/assert"
 )

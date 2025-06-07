@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"rare/pkg/expressions"
-	"rare/pkg/logger"
 	"strings"
+
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/logger"
 )
 
 func LoadDefinitionsFile(compiler *expressions.KeyBuilder, filename string) (map[string]expressions.KeyBuilderFunction, error) {

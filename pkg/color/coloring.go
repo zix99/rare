@@ -3,10 +3,11 @@ package color
 import (
 	"fmt"
 	"io"
-	"rare/pkg/multiterm/termstate"
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/zix99/rare/pkg/multiterm/termstate"
 )
 
 const (

@@ -1,8 +1,9 @@
 package termformat
 
 import (
-	"rare/pkg/humanize"
 	"strconv"
+
+	"github.com/zix99/rare/pkg/humanize"
 )
 
 type Formatter func(val, min, max int64) string

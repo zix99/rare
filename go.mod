@@ -1,4 +1,4 @@
-module rare
+module github.com/zix99/rare
 
 go 1.23
 

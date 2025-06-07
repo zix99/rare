@@ -2,10 +2,11 @@ package readahead
 
 import (
 	"bufio"
-	"rare/pkg/testutil"
 	"strings"
 	"testing"
 	"testing/iotest"
+
+	"github.com/zix99/rare/pkg/testutil"
 
 	"github.com/stretchr/testify/assert"
 )

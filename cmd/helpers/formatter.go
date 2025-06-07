@@ -1,8 +1,8 @@
 package helpers
 
 import (
-	"rare/pkg/logger"
-	"rare/pkg/multiterm/termformat"
+	"github.com/zix99/rare/pkg/logger"
+	"github.com/zix99/rare/pkg/multiterm/termformat"
 
 	"github.com/urfave/cli/v2"
 )

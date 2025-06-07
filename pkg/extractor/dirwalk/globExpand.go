@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"rare/pkg/extractor/dirwalk/iterwalk"
 	"sync/atomic"
+
+	"github.com/zix99/rare/pkg/extractor/dirwalk/iterwalk"
 )
 
 // Can be instantiated directly without newer and defaults will be

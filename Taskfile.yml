@@ -42,7 +42,7 @@ tasks:
     desc: Run all tests
     cmds:
       - go test ./...
-      - go test -tags=pcre2 rare/pkg/matchers/fastregex
+      - go test -tags=pcre2 github.com/zix99/rare/pkg/matchers/fastregex
 
   test:acceptance:
     desc: Run acceptance tests

@@ -3,10 +3,11 @@ package expressions
 import (
 	"bytes"
 	"errors"
-	"rare/pkg/testutil"
 	"strconv"
 	"testing"
 	"text/template"
+
+	"github.com/zix99/rare/pkg/testutil"
 
 	"github.com/stretchr/testify/assert"
 )

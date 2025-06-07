@@ -1,7 +1,7 @@
 package stdlib
 
 import (
-	"rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/expressions"
 )
 
 // Checks if word starts with s

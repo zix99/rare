@@ -1,6 +1,6 @@
 package exprofiler
 
-import "rare/pkg/expressions"
+import "github.com/zix99/rare/pkg/expressions"
 
 type ExpressionMetrics struct {
 	MatchLookups, KeyLookups int

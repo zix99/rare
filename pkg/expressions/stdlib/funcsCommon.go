@@ -4,7 +4,7 @@ import (
 	"math"
 	"strconv"
 
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 func kfCoalesce(args []KeyBuilderStage) (KeyBuilderStage, error) {

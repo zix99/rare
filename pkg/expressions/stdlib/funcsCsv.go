@@ -1,8 +1,9 @@
 package stdlib
 
 import (
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 	"strings"
+
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 func csvItemEncode(s string) string {

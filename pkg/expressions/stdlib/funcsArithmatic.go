@@ -1,8 +1,9 @@
 package stdlib
 
 import (
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
 	"strconv"
+
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 // Simple helper that will take 2 or more integers, and apply an operation

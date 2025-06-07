@@ -3,11 +3,12 @@ package helpers
 import (
 	"os"
 	"os/signal"
-	"rare/pkg/aggregation"
-	"rare/pkg/extractor"
-	"rare/pkg/logger"
 	"sync"
 	"time"
+
+	"github.com/zix99/rare/pkg/aggregation"
+	"github.com/zix99/rare/pkg/extractor"
+	"github.com/zix99/rare/pkg/logger"
 )
 
 // RunAggregationLoop is a helper that takes care of output sync

@@ -2,7 +2,8 @@ package stdlib
 
 import (
 	"path/filepath"
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 func kfPathManip(manipulator func(string) string) KeyBuilderFunction {

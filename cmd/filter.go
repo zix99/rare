@@ -5,9 +5,9 @@ import (
 	"os"
 	"unicode/utf8"
 
-	"rare/cmd/helpers"
-	"rare/pkg/color"
-	"rare/pkg/logger"
+	"github.com/zix99/rare/cmd/helpers"
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/logger"
 
 	"github.com/urfave/cli/v2"
 )

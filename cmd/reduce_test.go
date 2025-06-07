@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"rare/pkg/aggregation"
-	"rare/pkg/expressions/funclib"
-	"rare/pkg/logger"
-	"rare/pkg/testutil"
 	"testing"
+
+	"github.com/zix99/rare/pkg/aggregation"
+	"github.com/zix99/rare/pkg/expressions/funclib"
+	"github.com/zix99/rare/pkg/logger"
+	"github.com/zix99/rare/pkg/testutil"
 
 	"github.com/stretchr/testify/assert"
 )

@@ -1,11 +1,12 @@
 package stdlib
 
 import (
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
-	"rare/pkg/slicepool"
-	"rare/pkg/stringSplitter"
 	"strconv"
 	"strings"
+
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	"github.com/zix99/rare/pkg/slicepool"
+	"github.com/zix99/rare/pkg/stringSplitter"
 )
 
 // helper context to allow evaluating a sub-expression within a new context

@@ -2,16 +2,17 @@ package cmd
 
 import (
 	"fmt"
-	"rare/cmd/helpers"
-	"rare/pkg/aggregation"
-	"rare/pkg/aggregation/sorting"
-	"rare/pkg/color"
-	"rare/pkg/csv"
-	"rare/pkg/expressions/funclib"
-	"rare/pkg/logger"
-	"rare/pkg/multiterm/termformat"
-	"rare/pkg/multiterm/termrenderers"
 	"strings"
+
+	"github.com/zix99/rare/cmd/helpers"
+	"github.com/zix99/rare/pkg/aggregation"
+	"github.com/zix99/rare/pkg/aggregation/sorting"
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/csv"
+	"github.com/zix99/rare/pkg/expressions/funclib"
+	"github.com/zix99/rare/pkg/logger"
+	"github.com/zix99/rare/pkg/multiterm/termformat"
+	"github.com/zix99/rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli/v2"
 )

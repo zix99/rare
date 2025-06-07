@@ -2,11 +2,12 @@ package stdlib
 
 import (
 	"fmt"
-	"rare/pkg/humanize"
 	"strconv"
 	"strings"
 
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	"github.com/zix99/rare/pkg/humanize"
+
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 // {len string}

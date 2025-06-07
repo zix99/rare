@@ -1,8 +1,9 @@
 package exprofiler
 
 import (
-	"rare/pkg/expressions"
 	"time"
+
+	"github.com/zix99/rare/pkg/expressions"
 )
 
 func Benchmark(kb *expressions.CompiledKeyBuilder, ctx expressions.KeyBuilderContext) (duration time.Duration, iterations int) {

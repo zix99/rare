@@ -2,7 +2,8 @@ package extractor
 
 import (
 	"io"
-	"rare/pkg/readahead"
+
+	"github.com/zix99/rare/pkg/readahead"
 )
 
 func unbatchMatches[T any](c <-chan []T) []T {

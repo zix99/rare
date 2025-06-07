@@ -1,8 +1,9 @@
 package aggregation
 
 import (
-	"rare/pkg/aggregation/sorting"
 	"testing"
+
+	"github.com/zix99/rare/pkg/aggregation/sorting"
 
 	"github.com/stretchr/testify/assert"
 )

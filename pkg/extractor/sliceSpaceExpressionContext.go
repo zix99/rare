@@ -1,11 +1,12 @@
 package extractor
 
 import (
-	"rare/pkg/expressions"
-	"rare/pkg/expressions/stdlib"
-	"rare/pkg/minijson"
 	"strconv"
 	"strings"
+
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/expressions/stdlib"
+	"github.com/zix99/rare/pkg/minijson"
 )
 
 type SliceSpaceExpressionContext struct {

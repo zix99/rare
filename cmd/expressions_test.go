@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"os"
-	"rare/pkg/expressions"
-	"rare/pkg/expressions/funclib"
-	"rare/pkg/testutil"
 	"testing"
+
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/expressions/funclib"
+	"github.com/zix99/rare/pkg/testutil"
 
 	"github.com/stretchr/testify/assert"
 )

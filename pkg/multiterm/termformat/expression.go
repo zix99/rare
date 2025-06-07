@@ -1,9 +1,10 @@
 package termformat
 
 import (
-	"rare/pkg/expressions"
-	"rare/pkg/expressions/funclib"
 	"strconv"
+
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/expressions/funclib"
 )
 
 type formatExpressionContext struct {

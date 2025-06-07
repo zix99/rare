@@ -1,12 +1,13 @@
 package stdlib
 
 import (
-	"rare/pkg/color"
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
-	"rare/pkg/multiterm/termscaler"
-	"rare/pkg/multiterm/termunicode"
 	"strconv"
 	"strings"
+
+	"github.com/zix99/rare/pkg/color"
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	"github.com/zix99/rare/pkg/multiterm/termscaler"
+	"github.com/zix99/rare/pkg/multiterm/termunicode"
 )
 
 // {color "color" content}

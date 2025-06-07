@@ -3,17 +3,18 @@ package helpers
 import (
 	"errors"
 	"os"
-	"rare/pkg/expressions"
-	"rare/pkg/extractor"
-	"rare/pkg/extractor/batchers"
-	"rare/pkg/extractor/dirwalk"
-	"rare/pkg/logger"
-	"rare/pkg/matchers"
-	"rare/pkg/matchers/dissect"
-	"rare/pkg/matchers/fastregex"
 	"runtime"
 	"slices"
 	"strings"
+
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/extractor"
+	"github.com/zix99/rare/pkg/extractor/batchers"
+	"github.com/zix99/rare/pkg/extractor/dirwalk"
+	"github.com/zix99/rare/pkg/logger"
+	"github.com/zix99/rare/pkg/matchers"
+	"github.com/zix99/rare/pkg/matchers/dissect"
+	"github.com/zix99/rare/pkg/matchers/fastregex"
 
 	"github.com/urfave/cli/v2"
 )

@@ -1,8 +1,9 @@
 package markdowncli
 
 import (
-	"rare/pkg/color"
 	"regexp"
+
+	"github.com/zix99/rare/pkg/color"
 )
 
 type regexReplacerFunc func(string) string

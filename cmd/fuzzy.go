@@ -5,11 +5,12 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"rare/cmd/helpers"
-	"rare/pkg/aggregation"
-	"rare/pkg/color"
-	"rare/pkg/multiterm"
-	"rare/pkg/multiterm/termrenderers"
+
+	"github.com/zix99/rare/cmd/helpers"
+	"github.com/zix99/rare/pkg/aggregation"
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/multiterm"
+	"github.com/zix99/rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli/v2"
 )

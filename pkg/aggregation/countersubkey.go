@@ -1,10 +1,11 @@
 package aggregation
 
 import (
-	"rare/pkg/aggregation/sorting"
-	"rare/pkg/expressions"
-	"rare/pkg/stringSplitter"
 	"strconv"
+
+	"github.com/zix99/rare/pkg/aggregation/sorting"
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/stringSplitter"
 )
 
 // SubKeyNamedItem is a returnable key-pair for data aggregation
@@ -96,7 +97,8 @@ func (s *SubKeyCounter) getOrCreateSubkeyIndex(subkey string) int {
 }
 
 // insertAlphanumeric assumes slice is already in-order, and inserts a new element
-//  and returns the index it was inserted at
+//
+//	and returns the index it was inserted at
 func insertAlphanumeric(slice []string, ele string) (ret []string, idx int) {
 	for i, val := range slice {
 		if ele < val {

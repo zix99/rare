@@ -1,9 +1,9 @@
 package funclib
 
 import (
-	"rare/pkg/expressions"
-	"rare/pkg/expressions/stdlib"
-	"rare/pkg/logger"
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/expressions/stdlib"
+	"github.com/zix99/rare/pkg/logger"
 )
 
 type FunctionSet map[string]expressions.KeyBuilderFunction

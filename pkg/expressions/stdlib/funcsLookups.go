@@ -4,8 +4,9 @@ import (
 	"bufio"
 	"io"
 	"os"
-	"rare/pkg/expressions"
 	"strings"
+
+	"github.com/zix99/rare/pkg/expressions"
 )
 
 var DisableLoad = false

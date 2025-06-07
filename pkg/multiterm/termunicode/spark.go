@@ -2,7 +2,8 @@ package termunicode
 
 import (
 	"io"
-	"rare/pkg/multiterm/termscaler"
+
+	"github.com/zix99/rare/pkg/multiterm/termscaler"
 )
 
 var sparkBlocks = [...]rune{

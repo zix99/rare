@@ -3,12 +3,13 @@ package helpers
 import (
 	"io"
 	"os"
-	"rare/pkg/extractor"
-	"rare/pkg/extractor/batchers"
-	"rare/pkg/matchers"
-	"rare/pkg/matchers/fastregex"
 	"strings"
 	"testing"
+
+	"github.com/zix99/rare/pkg/extractor"
+	"github.com/zix99/rare/pkg/extractor/batchers"
+	"github.com/zix99/rare/pkg/matchers"
+	"github.com/zix99/rare/pkg/matchers/fastregex"
 
 	"github.com/stretchr/testify/assert"
 )

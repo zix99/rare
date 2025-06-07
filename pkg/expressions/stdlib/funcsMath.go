@@ -1,11 +1,12 @@
 package stdlib
 
 import (
-	"rare/pkg/expressions"
-	"rare/pkg/expressions/stdmath"
-	"rare/pkg/slicepool"
 	"strconv"
 	"strings"
+
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/expressions/stdmath"
+	"github.com/zix99/rare/pkg/slicepool"
 )
 
 type keyBuilderContextWrapper struct {

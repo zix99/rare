@@ -4,9 +4,10 @@ import (
 	"errors"
 	"io"
 	"os"
-	"rare/pkg/testutil"
 	"strings"
 	"testing"
+
+	"github.com/zix99/rare/pkg/testutil"
 )
 
 type Runner func(args ...string) error

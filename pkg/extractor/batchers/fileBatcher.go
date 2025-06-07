@@ -4,12 +4,14 @@ import (
 	"compress/gzip"
 	"io"
 	"os"
-	"rare/pkg/logger"
 	"sync"
+
+	"github.com/zix99/rare/pkg/logger"
 )
 
 // openFilesToChan takes an iterated channel of filenames, options, and loads them all with
-//  a max concurrency.  Returns a channel that will populate with input batches
+//
+//	a max concurrency.  Returns a channel that will populate with input batches
 func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize, batchBuffer int) *Batcher {
 	out := newBatcher(batchBuffer)
 	sema := make(chan struct{}, concurrency)

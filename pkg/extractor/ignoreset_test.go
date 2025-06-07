@@ -1,8 +1,9 @@
 package extractor
 
 import (
-	"rare/pkg/expressions"
 	"testing"
+
+	"github.com/zix99/rare/pkg/expressions"
 
 	"github.com/stretchr/testify/assert"
 )

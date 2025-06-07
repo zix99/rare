@@ -1,11 +1,12 @@
 package termunicode
 
 import (
-	"rare/pkg/color"
-	"rare/pkg/multiterm/termscaler"
-	"rare/pkg/testutil"
 	"strings"
 	"testing"
+
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/multiterm/termscaler"
+	"github.com/zix99/rare/pkg/testutil"
 
 	"github.com/stretchr/testify/assert"
 )

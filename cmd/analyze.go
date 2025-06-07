@@ -1,13 +1,14 @@
 package cmd
 
 import (
-	"rare/cmd/helpers"
-	"rare/pkg/aggregation"
-	"rare/pkg/color"
-	"rare/pkg/humanize"
-	"rare/pkg/logger"
-	"rare/pkg/multiterm"
 	"strconv"
+
+	"github.com/zix99/rare/cmd/helpers"
+	"github.com/zix99/rare/pkg/aggregation"
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/humanize"
+	"github.com/zix99/rare/pkg/logger"
+	"github.com/zix99/rare/pkg/multiterm"
 
 	"github.com/urfave/cli/v2"
 )

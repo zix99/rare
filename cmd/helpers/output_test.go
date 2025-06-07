@@ -1,9 +1,10 @@
 package helpers
 
 import (
-	"rare/pkg/aggregation"
-	"rare/pkg/csv"
 	"testing"
+
+	"github.com/zix99/rare/pkg/aggregation"
+	"github.com/zix99/rare/pkg/csv"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"

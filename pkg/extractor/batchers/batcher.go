@@ -3,14 +3,15 @@ package batchers
 import (
 	"fmt"
 	"io"
-	"rare/pkg/extractor"
-	"rare/pkg/humanize"
-	"rare/pkg/logger"
-	"rare/pkg/readahead"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/zix99/rare/pkg/extractor"
+	"github.com/zix99/rare/pkg/humanize"
+	"github.com/zix99/rare/pkg/logger"
+	"github.com/zix99/rare/pkg/readahead"
 )
 
 // ReadAheadBufferSize is the default size of the read-ahead buffer

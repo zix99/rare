@@ -1,10 +1,11 @@
 package aggregation
 
 import (
-	"rare/pkg/aggregation/sorting"
-	"rare/pkg/expressions"
-	"rare/pkg/stringSplitter"
 	"strconv"
+
+	"github.com/zix99/rare/pkg/aggregation/sorting"
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/stringSplitter"
 )
 
 type MatchItem struct {

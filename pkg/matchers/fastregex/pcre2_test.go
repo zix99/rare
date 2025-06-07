@@ -3,8 +3,9 @@
 package fastregex
 
 import (
-	"rare/pkg/testutil"
 	"testing"
+
+	"github.com/zix99/rare/pkg/testutil"
 
 	"github.com/stretchr/testify/assert"
 )

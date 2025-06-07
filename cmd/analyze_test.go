@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"rare/cmd/helpers"
 	"testing"
+
+	"github.com/zix99/rare/cmd/helpers"
 )
 
 func TestAnalyze(t *testing.T) {
