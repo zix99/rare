@@ -1,13 +1,15 @@
 package batchers
 
 import (
-	"rare/pkg/followreader"
-	"rare/pkg/logger"
 	"sync"
+
+	"github.com/zix99/rare/pkg/followreader"
+	"github.com/zix99/rare/pkg/logger"
 )
 
 // TailFilesToChan tails a set of files to an input batcher that can be consumed by extractor
-//  unlike a normal file batcher, this will attempt to tail all files at once
+//
+//	unlike a normal file batcher, this will attempt to tail all files at once
 func TailFilesToChan(filenames <-chan string, batchSize, batchBuffer int, reopen, poll, tail bool) *Batcher {
 	out := newBatcher(batchBuffer)
 

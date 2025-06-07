@@ -1,8 +1,8 @@
 package extractor
 
 import (
-	"rare/pkg/expressions"
-	"rare/pkg/expressions/funclib"
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/expressions/funclib"
 )
 
 type IgnoreSet interface {

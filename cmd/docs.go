@@ -7,10 +7,11 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"rare/cmd/helpers"
-	"rare/docs"
-	"rare/pkg/markdowncli"
 	"strings"
+
+	"github.com/zix99/rare/cmd/helpers"
+	"github.com/zix99/rare/docs"
+	"github.com/zix99/rare/pkg/markdowncli"
 
 	"github.com/urfave/cli/v2"
 )

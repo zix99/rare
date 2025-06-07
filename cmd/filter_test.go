@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"os"
-	"rare/cmd/helpers"
-	"rare/pkg/testutil"
 	"testing"
+
+	"github.com/zix99/rare/cmd/helpers"
+	"github.com/zix99/rare/pkg/testutil"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"

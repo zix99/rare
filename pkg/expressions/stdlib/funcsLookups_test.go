@@ -1,8 +1,9 @@
 package stdlib
 
 import (
-	"rare/pkg/testutil"
 	"testing"
+
+	"github.com/zix99/rare/pkg/testutil"
 )
 
 func TestLoadFile(t *testing.T) {

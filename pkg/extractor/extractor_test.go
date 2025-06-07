@@ -1,10 +1,11 @@
 package extractor
 
 import (
-	"rare/pkg/matchers"
-	"rare/pkg/matchers/fastregex"
 	"strings"
 	"testing"
+
+	"github.com/zix99/rare/pkg/matchers"
+	"github.com/zix99/rare/pkg/matchers/fastregex"
 
 	"github.com/stretchr/testify/assert"
 )

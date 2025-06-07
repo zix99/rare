@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"rare/cmd/helpers"
-	"rare/pkg/color"
-	"rare/pkg/humanize"
+
+	"github.com/zix99/rare/cmd/helpers"
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/humanize"
 
 	"github.com/urfave/cli/v2"
 )

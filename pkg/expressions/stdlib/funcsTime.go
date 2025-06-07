@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 
 	"github.com/araddon/dateparse"
 )

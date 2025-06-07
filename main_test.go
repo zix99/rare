@@ -1,11 +1,12 @@
 package main
 
 import (
-	"rare/pkg/logger"
-	"rare/pkg/testutil"
-	"rare/pkg/testutil/acceptance"
 	"strconv"
 	"testing"
+
+	"github.com/zix99/rare/pkg/logger"
+	"github.com/zix99/rare/pkg/testutil"
+	"github.com/zix99/rare/pkg/testutil/acceptance"
 
 	"github.com/stretchr/testify/assert"
 

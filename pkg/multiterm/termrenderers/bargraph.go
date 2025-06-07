@@ -2,12 +2,13 @@ package termrenderers
 
 import (
 	"io"
-	"rare/pkg/color"
-	"rare/pkg/multiterm"
-	"rare/pkg/multiterm/termformat"
-	"rare/pkg/multiterm/termscaler"
-	"rare/pkg/multiterm/termunicode"
 	"strings"
+
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/multiterm"
+	"github.com/zix99/rare/pkg/multiterm/termformat"
+	"github.com/zix99/rare/pkg/multiterm/termscaler"
+	"github.com/zix99/rare/pkg/multiterm/termunicode"
 )
 
 type barGraphPair struct {

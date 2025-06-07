@@ -3,10 +3,11 @@ package helpers
 import (
 	"errors"
 	"fmt"
-	"rare/pkg/aggregation/sorting"
-	"rare/pkg/logger"
-	"rare/pkg/stringSplitter"
 	"strings"
+
+	"github.com/zix99/rare/pkg/aggregation/sorting"
+	"github.com/zix99/rare/pkg/logger"
+	"github.com/zix99/rare/pkg/stringSplitter"
 
 	"github.com/urfave/cli/v2"
 )

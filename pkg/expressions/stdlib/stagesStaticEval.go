@@ -1,8 +1,9 @@
 package stdlib
 
 import (
-	"rare/pkg/expressions"
 	"strconv"
+
+	"github.com/zix99/rare/pkg/expressions"
 )
 
 // Eval a stage, but upon any error, returns default instead

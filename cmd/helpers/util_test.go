@@ -1,8 +1,9 @@
 package helpers
 
 import (
-	"rare/pkg/logger"
 	"testing"
+
+	"github.com/zix99/rare/pkg/logger"
 
 	"github.com/stretchr/testify/assert"
 )

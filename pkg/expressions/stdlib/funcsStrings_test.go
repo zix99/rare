@@ -1,9 +1,10 @@
 package stdlib
 
 import (
-	"rare/pkg/expressions"
 	"strings"
 	"testing"
+
+	"github.com/zix99/rare/pkg/expressions"
 
 	"github.com/stretchr/testify/assert"
 )

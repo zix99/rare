@@ -1,8 +1,9 @@
 package stdlib
 
 import (
-	"rare/pkg/expressions"
 	"testing"
+
+	"github.com/zix99/rare/pkg/expressions"
 )
 
 func TestArray(t *testing.T) {

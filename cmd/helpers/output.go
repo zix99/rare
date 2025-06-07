@@ -1,9 +1,9 @@
 package helpers
 
 import (
-	"rare/pkg/csv"
-	"rare/pkg/multiterm"
-	"rare/pkg/multiterm/termstate"
+	"github.com/zix99/rare/pkg/csv"
+	"github.com/zix99/rare/pkg/multiterm"
+	"github.com/zix99/rare/pkg/multiterm/termstate"
 
 	"github.com/urfave/cli/v2"
 )

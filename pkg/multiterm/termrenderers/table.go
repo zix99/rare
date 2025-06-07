@@ -1,9 +1,10 @@
 package termrenderers
 
 import (
-	"rare/pkg/color"
-	"rare/pkg/multiterm"
 	"strings"
+
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/multiterm"
 )
 
 // A formatted column-row based output with color-coding

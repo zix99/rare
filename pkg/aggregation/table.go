@@ -2,9 +2,10 @@ package aggregation
 
 import (
 	"math"
-	"rare/pkg/aggregation/sorting"
-	"rare/pkg/stringSplitter"
 	"strconv"
+
+	"github.com/zix99/rare/pkg/aggregation/sorting"
+	"github.com/zix99/rare/pkg/stringSplitter"
 )
 
 type TableRow struct {

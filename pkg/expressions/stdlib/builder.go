@@ -1,6 +1,6 @@
 package stdlib
 
-import "rare/pkg/expressions"
+import "github.com/zix99/rare/pkg/expressions"
 
 func NewStdKeyBuilderEx(autoOptimize bool) *expressions.KeyBuilder {
 	kb := expressions.NewKeyBuilderEx(autoOptimize)

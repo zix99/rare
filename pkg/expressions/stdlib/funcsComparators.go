@@ -3,7 +3,7 @@ package stdlib
 import (
 	"strings"
 
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 func stringComparator(equation func(string, string) string) KeyBuilderFunction {

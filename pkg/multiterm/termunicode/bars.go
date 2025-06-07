@@ -2,8 +2,9 @@ package termunicode
 
 import (
 	"io"
-	"rare/pkg/color"
-	"rare/pkg/multiterm/termscaler"
+
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/multiterm/termscaler"
 )
 
 const nonUnicodeBlock rune = '|'

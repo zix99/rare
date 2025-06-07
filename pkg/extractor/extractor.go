@@ -1,13 +1,14 @@
 package extractor
 
 import (
-	"rare/pkg/expressions"
-	"rare/pkg/expressions/funclib"
-	"rare/pkg/matchers"
-	"rare/pkg/slicepool"
 	"sync"
 	"sync/atomic"
 	"unsafe"
+
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/expressions/funclib"
+	"github.com/zix99/rare/pkg/matchers"
+	"github.com/zix99/rare/pkg/slicepool"
 )
 
 /*
