@@ -1,8 +1,9 @@
 package stdlib
 
 import (
-	"rare/pkg/expressions"
 	"strconv"
+
+	"github.com/zix99/rare/pkg/expressions"
 )
 
 type typedStage[T any] func(context expressions.KeyBuilderContext) (val T, ok bool)

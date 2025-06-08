@@ -3,7 +3,7 @@ package stdlib
 import (
 	"github.com/tidwall/gjson"
 
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 func kfJsonQuery(args []KeyBuilderStage) (KeyBuilderStage, error) {

@@ -1,8 +1,9 @@
 package fuzzy
 
 import (
-	"rare/pkg/fuzzy/sift4"
 	"sort"
+
+	"github.com/zix99/rare/pkg/fuzzy/sift4"
 )
 
 type fuzzyItem struct {

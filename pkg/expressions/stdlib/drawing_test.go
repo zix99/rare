@@ -1,9 +1,10 @@
 package stdlib
 
 import (
-	"rare/pkg/multiterm/termunicode"
-	"rare/pkg/testutil"
 	"testing"
+
+	"github.com/zix99/rare/pkg/multiterm/termunicode"
+	"github.com/zix99/rare/pkg/testutil"
 )
 
 func TestRepeatCharacter(t *testing.T) {

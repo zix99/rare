@@ -2,7 +2,8 @@ package multiterm
 
 import (
 	"io"
-	"rare/pkg/multiterm/termstate"
+
+	"github.com/zix99/rare/pkg/multiterm/termstate"
 )
 
 var AutoTrim = true

@@ -3,9 +3,10 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"rare/pkg/logger"
-	"rare/pkg/testutil"
 	"testing"
+
+	"github.com/zix99/rare/pkg/logger"
+	"github.com/zix99/rare/pkg/testutil"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"

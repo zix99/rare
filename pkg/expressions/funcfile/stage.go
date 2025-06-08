@@ -1,8 +1,8 @@
 package funcfile
 
 import (
-	"rare/pkg/expressions"
-	"rare/pkg/slicepool"
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/slicepool"
 )
 
 type lazySubContext struct {

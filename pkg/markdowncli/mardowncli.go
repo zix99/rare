@@ -4,8 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"rare/pkg/color"
 	"strings"
+
+	"github.com/zix99/rare/pkg/color"
 )
 
 var headerColors = []color.ColorCode{color.Green, color.BrightBlue, color.Yellow, color.BrightMagenta}
@@ -17,7 +18,8 @@ const (
 )
 
 // WriteMarkdownToTerm does pseudo-markdown formatting
-//   it doesn't follow correctly to the spec, but is close enough for our docs
+//
+//	it doesn't follow correctly to the spec, but is close enough for our docs
 func WriteMarkdownToBuf(out io.Writer, reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 

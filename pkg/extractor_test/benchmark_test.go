@@ -1,10 +1,11 @@
 package benchmark_test
 
 import (
-	"rare/pkg/extractor"
-	"rare/pkg/matchers"
-	"rare/pkg/matchers/fastregex"
 	"testing"
+
+	"github.com/zix99/rare/pkg/extractor"
+	"github.com/zix99/rare/pkg/matchers"
+	"github.com/zix99/rare/pkg/matchers/fastregex"
 )
 
 func batchInputGenerator(batches int, batchSize int) <-chan extractor.InputBatch {

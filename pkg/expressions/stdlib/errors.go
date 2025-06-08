@@ -3,7 +3,8 @@ package stdlib
 import (
 	"errors"
 	"fmt"
-	. "rare/pkg/expressions" //lint:ignore ST1001 Legacy
+
+	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
 
 type funcError struct {

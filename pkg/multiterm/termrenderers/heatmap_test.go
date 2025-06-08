@@ -1,11 +1,12 @@
 package termrenderers
 
 import (
-	"rare/pkg/aggregation"
-	"rare/pkg/aggregation/sorting"
-	"rare/pkg/multiterm"
-	"rare/pkg/multiterm/termscaler"
 	"testing"
+
+	"github.com/zix99/rare/pkg/aggregation"
+	"github.com/zix99/rare/pkg/aggregation/sorting"
+	"github.com/zix99/rare/pkg/multiterm"
+	"github.com/zix99/rare/pkg/multiterm/termscaler"
 
 	"github.com/stretchr/testify/assert"
 )

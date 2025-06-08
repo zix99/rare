@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"rare/cmd/helpers"
-	"rare/pkg/aggregation"
-	"rare/pkg/csv"
-	"rare/pkg/multiterm/termrenderers"
+	"github.com/zix99/rare/cmd/helpers"
+	"github.com/zix99/rare/pkg/aggregation"
+	"github.com/zix99/rare/pkg/csv"
+	"github.com/zix99/rare/pkg/multiterm/termrenderers"
 
 	"github.com/urfave/cli/v2"
 )

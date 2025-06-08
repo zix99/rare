@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"rare/pkg/color"
-	"rare/pkg/expressions"
-	"rare/pkg/expressions/exprofiler"
-	"rare/pkg/expressions/funclib"
-	"rare/pkg/humanize"
-	"rare/pkg/minijson"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/expressions/exprofiler"
+	"github.com/zix99/rare/pkg/expressions/funclib"
+	"github.com/zix99/rare/pkg/humanize"
+	"github.com/zix99/rare/pkg/minijson"
 
 	"github.com/urfave/cli/v2"
 )

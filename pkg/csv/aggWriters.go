@@ -1,9 +1,10 @@
 package csv
 
 import (
-	"rare/pkg/aggregation"
-	"rare/pkg/aggregation/sorting"
 	"strconv"
+
+	"github.com/zix99/rare/pkg/aggregation"
+	"github.com/zix99/rare/pkg/aggregation/sorting"
 )
 
 func WriteTable(w CSV, agg *aggregation.TableAggregator) error {

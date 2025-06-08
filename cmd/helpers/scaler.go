@@ -2,8 +2,9 @@ package helpers
 
 import (
 	"errors"
-	"rare/pkg/logger"
-	"rare/pkg/multiterm/termscaler"
+
+	"github.com/zix99/rare/pkg/logger"
+	"github.com/zix99/rare/pkg/multiterm/termscaler"
 
 	"github.com/urfave/cli/v2"
 )

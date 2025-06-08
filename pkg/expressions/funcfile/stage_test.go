@@ -1,9 +1,10 @@
 package funcfile
 
 import (
-	"rare/pkg/expressions"
-	"rare/pkg/expressions/stdlib"
 	"testing"
+
+	"github.com/zix99/rare/pkg/expressions"
+	"github.com/zix99/rare/pkg/expressions/stdlib"
 
 	"github.com/stretchr/testify/assert"
 )

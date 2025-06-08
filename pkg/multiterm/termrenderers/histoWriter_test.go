@@ -1,9 +1,10 @@
 package termrenderers
 
 import (
-	"rare/pkg/multiterm"
-	"rare/pkg/multiterm/termunicode"
 	"testing"
+
+	"github.com/zix99/rare/pkg/multiterm"
+	"github.com/zix99/rare/pkg/multiterm/termunicode"
 
 	"github.com/stretchr/testify/assert"
 )

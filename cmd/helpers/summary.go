@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"rare/pkg/color"
-	"rare/pkg/extractor"
-	"rare/pkg/extractor/batchers"
-	"rare/pkg/extractor/dirwalk"
-	"rare/pkg/humanize"
+
+	"github.com/zix99/rare/pkg/color"
+	"github.com/zix99/rare/pkg/extractor"
+	"github.com/zix99/rare/pkg/extractor/batchers"
+	"github.com/zix99/rare/pkg/extractor/dirwalk"
+	"github.com/zix99/rare/pkg/humanize"
 )
 
 func FWriteMatchSummary(w io.Writer, matched, total uint64) {

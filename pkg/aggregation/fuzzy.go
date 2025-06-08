@@ -3,7 +3,7 @@
 package aggregation
 
 import (
-	"rare/pkg/fuzzy"
+	"github.com/zix99/rare/pkg/fuzzy"
 )
 
 type FuzzyAggregator struct {
