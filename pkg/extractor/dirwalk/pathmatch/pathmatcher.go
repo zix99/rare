@@ -29,12 +29,17 @@ func (s *PathMatcher) IncludeDirPath(fullpath string) bool {
 		return true
 	}
 
-	cur := filepath.Dir(fullpath)
-	for cur != "." && cur != string(filepath.Separator) {
+	cur := fullpath
+	for {
+		sub := filepath.Dir(cur)
+		if sub == cur {
+			break
+		}
+		cur = sub
+
 		if s.ExcludeDir.Matches(filepath.Base(cur)) {
 			return false
 		}
-		cur = filepath.Dir(cur)
 	}
 
 	return true

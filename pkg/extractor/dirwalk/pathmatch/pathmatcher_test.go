@@ -27,7 +27,11 @@ func TestIncludeDirPath(t *testing.T) {
 	}
 	path := filepath.Join("/tmp", "skip", "file.txt")
 	assert.False(t, pm.IncludeDirPath(path))
+	assert.False(t, pm.IncludeDirPath("/skip/ok/file.txt"))
+	assert.False(t, pm.IncludeDirPath("skip/ok/file.txt"))
 	assert.True(t, pm.IncludeDirPath("/tmp/ok/file.txt"))
+	assert.True(t, pm.IncludeDirPath("./tmp/ok/file.txt"))
+	assert.True(t, pm.IncludeDirPath("/tmp/ok/skip"))
 
 	pm.ExcludeDir = MatchSet{}
 	assert.True(t, pm.IncludeDirPath(path))
