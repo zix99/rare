@@ -7,14 +7,13 @@ import (
 	"sync/atomic"
 
 	"github.com/zix99/rare/pkg/extractor/dirwalk/iterwalk"
+	"github.com/zix99/rare/pkg/extractor/dirwalk/pathmatch"
 )
 
 // Can be instantiated directly without newer and defaults will be
 // vanilla walker
 type Walker struct {
-	Include    MatchSet
-	Exclude    MatchSet
-	ExcludeDir MatchSet
+	Filters pathmatch.PathMatcher
 
 	ListSymLinks    bool // Emit symlinks for non-directories
 	FollowSymLinks  bool // Recursively walk symlinks
@@ -80,7 +79,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string, visited map[string]strin
 		case err != nil: // error
 			s.onError(fmt.Errorf("path error: %w", err))
 
-		case info.IsDir() && s.ExcludeDir.Matches(info.Name()): // skipped dir
+		case info.IsDir() && s.Filters.ExcludeDirName(info.Name()): // skipped dir
 			s.excluded.Add(1)
 			return filepath.SkipDir
 
@@ -93,7 +92,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string, visited map[string]strin
 				break
 			}
 
-			if s.ExcludeDir.Matches(info.Name()) {
+			if s.Filters.ExcludeDirName(info.Name()) {
 				s.excluded.Add(1)
 				break
 			}
@@ -115,7 +114,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string, visited map[string]strin
 				break
 			}
 
-			if !s.shouldIncludeFilename(info.Name()) {
+			if !s.Filters.IncludeFilename(info.Name()) {
 				s.excluded.Add(1)
 				break
 			}
@@ -124,7 +123,7 @@ func (s *Walker) recurseWalk(c chan<- string, p string, visited map[string]strin
 			s.total.Add(1)
 
 		case info.Type().IsRegular(): // regular file
-			if !s.shouldIncludeFilename(info.Name()) {
+			if !s.Filters.IncludeFilename(info.Name()) {
 				s.excluded.Add(1)
 				break
 			}
@@ -142,7 +141,7 @@ func (s *Walker) globExpand(c chan<- string, p string) {
 		s.onError(fmt.Errorf("path error: %w", err))
 	} else if len(expanded) > 0 {
 		for _, item := range expanded {
-			if s.shouldIncludeFilename(filepath.Base(item)) && s.shouldIncludeDir(item) {
+			if s.Filters.IncludeFullPath(item) {
 				c <- item
 				s.total.Add(1)
 			} else {
@@ -153,39 +152,6 @@ func (s *Walker) globExpand(c chan<- string, p string) {
 		c <- p
 		s.total.Add(1)
 	}
-}
-
-// check path against includes/excludes
-func (s *Walker) shouldIncludeFilename(basename string) bool {
-	// Not in exclude list
-	if s.Exclude.Matches(basename) {
-		return false
-	}
-
-	// If include list, assure in include list
-	if len(s.Include) > 0 && !s.Include.Matches(basename) {
-		return false
-	}
-
-	return true
-}
-
-// Takes in a full path eg abc/efg/filename
-// Checks against ExcludeDir
-func (s *Walker) shouldIncludeDir(fullpath string) bool {
-	if len(s.ExcludeDir) == 0 { //shortcut
-		return true
-	}
-
-	cur := filepath.Dir(fullpath)
-	for cur != "." {
-		if s.ExcludeDir.Matches(filepath.Base(cur)) {
-			return false
-		}
-		cur = filepath.Dir(cur)
-	}
-
-	return true
 }
 
 func (s *Walker) onError(err error) {

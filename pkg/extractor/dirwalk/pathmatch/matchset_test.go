@@ -1,4 +1,4 @@
-package dirwalk
+package pathmatch
 
 import (
 	"testing"
