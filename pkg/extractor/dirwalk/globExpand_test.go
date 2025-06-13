@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/zix99/rare/pkg/extractor/dirwalk/pathmatch"
 )
 
 /*
@@ -61,7 +62,7 @@ func TestGlobNoExist(t *testing.T) {
 
 func TestGlobInclude(t *testing.T) {
 	walk := Walker{
-		Include: []string{"*.mod"},
+		Filters: pathmatch.PathMatcher{Include: []string{"*.mod"}},
 	}
 	p := "go.*"
 	files := collectChan(walk.Walk(p))
@@ -75,7 +76,7 @@ func TestGlobInclude(t *testing.T) {
 
 func TestGlobExclude(t *testing.T) {
 	walk := Walker{
-		Exclude: []string{"*.sum"},
+		Filters: pathmatch.PathMatcher{Exclude: []string{"*.sum"}},
 	}
 	p := "go.*"
 	files := collectChan(walk.Walk(p))
@@ -87,7 +88,7 @@ func TestGlobExclude(t *testing.T) {
 
 func TestGlobDirExclude(t *testing.T) {
 	walk := Walker{
-		ExcludeDir: []string{"cm?"},
+		Filters: pathmatch.PathMatcher{ExcludeDir: []string{"cm?"}},
 	}
 	p := "*/*.go"
 	files := collectChan(walk.Walk(p))
@@ -125,7 +126,7 @@ func TestRecurseNotDir(t *testing.T) {
 func TestRecurseExclude(t *testing.T) {
 	walk := Walker{
 		Recursive: true,
-		Exclude:   []string{"*.sh", "*.go"},
+		Filters:   pathmatch.PathMatcher{Exclude: []string{"*.sh", "*.go"}},
 	}
 
 	files := collectChan(walk.Walk("docs/"))
@@ -139,7 +140,7 @@ func TestRecurseExclude(t *testing.T) {
 func TestRecurseInclude(t *testing.T) {
 	walk := Walker{
 		Recursive: true,
-		Include:   []string{"*.sh", "*.go"},
+		Filters:   pathmatch.PathMatcher{Include: []string{"*.sh", "*.go"}},
 	}
 
 	files := collectChan(walk.Walk("docs/"))
@@ -151,8 +152,8 @@ func TestRecurseInclude(t *testing.T) {
 
 func TestRecurseExcludeDir(t *testing.T) {
 	walk := Walker{
-		Recursive:  true,
-		ExcludeDir: []string{"imag*", "usage"},
+		Recursive: true,
+		Filters:   pathmatch.PathMatcher{ExcludeDir: []string{"imag*", "usage"}},
 	}
 
 	files := collectChan(walk.Walk("docs/"))
@@ -181,7 +182,7 @@ func TestRecursiveWithSymFileIgnore(t *testing.T) {
 	walk := Walker{
 		Recursive:    true,
 		ListSymLinks: true,
-		Exclude:      []string{"license*"},
+		Filters:      pathmatch.PathMatcher{Exclude: []string{"license*"}},
 	}
 
 	files := collectChan(walk.Walk("docs/"))
@@ -262,7 +263,7 @@ func TestExcludeSymDir(t *testing.T) {
 	walker := Walker{
 		Recursive:       true,
 		FollowSymLinks:  true,
-		ExcludeDir:      []string{"syminner"},
+		Filters:         pathmatch.PathMatcher{ExcludeDir: []string{"syminner"}},
 		OnTraverseError: captureError(&hadError),
 	}
 

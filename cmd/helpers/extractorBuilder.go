@@ -11,6 +11,7 @@ import (
 	"github.com/zix99/rare/pkg/extractor"
 	"github.com/zix99/rare/pkg/extractor/batchers"
 	"github.com/zix99/rare/pkg/extractor/dirwalk"
+	"github.com/zix99/rare/pkg/extractor/dirwalk/pathmatch"
 	"github.com/zix99/rare/pkg/logger"
 	"github.com/zix99/rare/pkg/matchers"
 	"github.com/zix99/rare/pkg/matchers/dissect"
@@ -86,25 +87,27 @@ func BuildPathWalkerFromArguments(c *cli.Context) *dirwalk.Walker {
 		excludeDir = c.StringSlice("exclude-dir")
 	)
 
-	includeSet, err := dirwalk.NewMatchSet(include...)
+	includeSet, err := pathmatch.NewMatchSet(include...)
 	if err != nil {
 		logger.Fatal(ExitCodeInvalidUsage, err)
 	}
 
-	excludeSet, err := dirwalk.NewMatchSet(exclude...)
+	excludeSet, err := pathmatch.NewMatchSet(exclude...)
 	if err != nil {
 		logger.Fatal(ExitCodeInvalidUsage, err)
 	}
 
-	excludeDirSet, err := dirwalk.NewMatchSet(excludeDir...)
+	excludeDirSet, err := pathmatch.NewMatchSet(excludeDir...)
 	if err != nil {
 		logger.Fatal(ExitCodeInvalidUsage, err)
 	}
 
 	return &dirwalk.Walker{
-		Include:         includeSet,
-		Exclude:         excludeSet,
-		ExcludeDir:      excludeDirSet,
+		Filters: pathmatch.PathMatcher{
+			Include:    includeSet,
+			Exclude:    excludeSet,
+			ExcludeDir: excludeDirSet,
+		},
 		Recursive:       c.Bool("recursive"),
 		FollowSymLinks:  c.Bool("follow-symlinks"),
 		ListSymLinks:    c.Bool("read-symlinks"),

@@ -1,4 +1,4 @@
-package dirwalk
+package pathmatch
 
 import (
 	"fmt"
@@ -18,6 +18,7 @@ func NewMatchSet(patterns ...string) (MatchSet, error) {
 	return ms, nil
 }
 
+// Validate and add a pattern
 func (s *MatchSet) Add(pattern string) error {
 	_, err := filepath.Match(pattern, "")
 	if err != nil {
@@ -27,6 +28,7 @@ func (s *MatchSet) Add(pattern string) error {
 	return nil
 }
 
+// Check if the name matches any of the patterns
 func (s MatchSet) Matches(name string) bool {
 	for _, pattern := range s {
 		if ok, _ := filepath.Match(pattern, name); ok {
