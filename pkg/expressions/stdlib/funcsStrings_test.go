@@ -21,6 +21,12 @@ func TestUpperLower(t *testing.T) {
 	testExpressionErr(t, mockContext("aBc"), "{lower {0}} {lower a b}", "abc <ARGN>", ErrArgCount)
 }
 
+func TestReplace(t *testing.T) {
+	testExpression(t, mockContext(), "{replace abc b q}", "aqc")
+	testExpression(t, mockContext("abc\r\nefg"), "{replace {0} \"\\r\\n\" \"\\n\"}", "abc\nefg")
+	testExpressionErr(t, mockContext(), "{replace a} {replace a b} {replace a b c d}", "<ARGN> <ARGN> <ARGN>", ErrArgCount)
+}
+
 func TestSubstring(t *testing.T) {
 	testExpression(t,
 		mockContext("abcd"),

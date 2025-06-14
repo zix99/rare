@@ -267,6 +267,12 @@ Syntax: `{repeat "string" {numtimes}}`
 
 Repeats the "string" the specified number of times
 
+#### Replace
+
+Syntax: `{replace {0} old new}`
+
+Replaces each occurrence of `old` string with `new` in the first argument.
+
 #### Humanize Number (Add Commas)
 
 Syntax: `{hf val}`, `{hi val}`

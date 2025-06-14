@@ -86,15 +86,16 @@ var StandardFunctions = map[string]KeyBuilderFunction{
 	"or":  KeyBuilderFunction(kfOr),
 
 	// Strings
-	"len":    KeyBuilderFunction(kfLen),
-	"like":   KeyBuilderFunction(kfLike),
-	"prefix": KeyBuilderFunction(kfPrefix),
-	"suffix": KeyBuilderFunction(kfSuffix),
-	"format": KeyBuilderFunction(kfFormat),
-	"substr": KeyBuilderFunction(kfSubstr),
-	"select": KeyBuilderFunction(kfSelect),
-	"upper":  KeyBuilderFunction(kfUpper),
-	"lower":  KeyBuilderFunction(kfLower),
+	"len":     KeyBuilderFunction(kfLen),
+	"like":    KeyBuilderFunction(kfLike),
+	"prefix":  KeyBuilderFunction(kfPrefix),
+	"suffix":  KeyBuilderFunction(kfSuffix),
+	"format":  KeyBuilderFunction(kfFormat),
+	"substr":  KeyBuilderFunction(kfSubstr),
+	"select":  KeyBuilderFunction(kfSelect),
+	"upper":   KeyBuilderFunction(kfUpper),
+	"lower":   KeyBuilderFunction(kfLower),
+	"replace": KeyBuilderFunction(kfReplace),
 
 	// Separation (Join)
 	"tab": kfJoin('\t'),

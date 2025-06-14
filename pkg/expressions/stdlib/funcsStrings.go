@@ -331,3 +331,16 @@ func kfJoin(delim rune) KeyBuilderFunction {
 		}), nil
 	}
 }
+
+func kfReplace(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 3 {
+		return stageErrArgCount(args, 3)
+	}
+
+	return func(context KeyBuilderContext) string {
+		s := args[0](context)
+		old := args[1](context)
+		new := args[2](context)
+		return strings.ReplaceAll(s, old, new)
+	}, nil
+}
