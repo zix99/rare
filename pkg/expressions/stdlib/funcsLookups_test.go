@@ -7,7 +7,7 @@ import (
 )
 
 func TestLoadFile(t *testing.T) {
-	testExpression(t, mockContext(), "{load ../../../cmd/testdata/graph.txt}", "bob 22\njack 93\njill 3\nmaria 19")
+	testExpression(t, mockContext(), "{replace {load ../../../cmd/testdata/graph.txt} \"\\r\\n\" \"\\n\"}", "bob 22\njack 93\njill 3\nmaria 19")
 	testExpressionErr(t, mockContext(), "{load {0}}", "<CONST>", ErrConst)
 	testExpressionErr(t, mockContext(), "{load a b}", "<ARGN>", ErrArgCount)
 	testExpressionErr(t, mockContext(), "{load notarealfile.txt}", "<FILE>", ErrFile)
