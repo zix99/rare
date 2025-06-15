@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -31,6 +32,11 @@ func RunTestSuiteFile(t *testing.T, filename string, runner Runner) {
 }
 
 func runTestConfig(t *testing.T, cfg *testConfig, runner Runner) {
+	if cfg.goos != "" && cfg.goos != runtime.GOOS {
+		t.Logf("SKIP (line %d): %s", cfg.linenum, cfg.name)
+		t.Skipf("goos %s != %s", cfg.goos, runtime.GOOS)
+	}
+
 	t.Logf("RUN (line %d): %s", cfg.linenum, cfg.cmd)
 
 	args := append([]string{"app"}, testutil.SplitQuotedString(cfg.cmd)...)

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/zix99/rare/pkg/testutil"
 )
 
 // reads data and asserts all reads successful
@@ -102,6 +103,8 @@ func (s *testAppendingFile) Close() {
 }
 
 func TestFollowReaderNew(t *testing.T) {
+	testutil.SkipWindows(t)
+
 	af := CreateAppendingTempFile()
 	defer af.Close()
 

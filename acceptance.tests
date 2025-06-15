@@ -293,8 +293,17 @@ RUN -v
 END
 
 NAME walk
+GOOS linux
 RUN walk -R --include *.sh docs/
     docs/install.sh
+STDERR
+    Found 1 path(s), 30 excluded
+END
+
+NAME walk windows
+GOOS windows
+RUN walk -R --include *.sh docs/
+    docs\install.sh
 STDERR
     Found 1 path(s), 30 excluded
 END

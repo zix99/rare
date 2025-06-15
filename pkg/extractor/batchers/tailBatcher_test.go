@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/zix99/rare/pkg/testutil"
 )
 
 func TestBatchFollowFile(t *testing.T) {
@@ -21,6 +22,8 @@ func TestBatchFollowFile(t *testing.T) {
 }
 
 func TestBatchFollowTailFile(t *testing.T) {
+	testutil.SkipWindows(t) // Not working right now
+
 	tmp, err := os.CreateTemp("", "followtest-")
 	if err != nil {
 		panic(err)
