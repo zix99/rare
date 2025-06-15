@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/zix99/rare/pkg/extractor/dirwalk/pathmatch"
+	"github.com/zix99/rare/pkg/testutil"
 )
 
 /*
@@ -165,6 +166,8 @@ func TestRecurseExcludeDir(t *testing.T) {
 }
 
 func TestRecurseWithSymFile(t *testing.T) {
+	testutil.SkipWindows(t) // git symlinks don't work quite right on windows
+
 	walk := Walker{
 		Recursive:    true,
 		ListSymLinks: true,
@@ -191,6 +194,8 @@ func TestRecursiveWithSymFileIgnore(t *testing.T) {
 }
 
 func TestRecurseWithSymDir(t *testing.T) {
+	testutil.SkipWindows(t) // git symlinks don't work quite right on windows
+
 	p := setupTestDir(t)
 
 	walk := Walker{
@@ -220,6 +225,8 @@ func TestRecurseDoesntIdentifyDirAsFile(t *testing.T) {
 }
 
 func TestNoInfiniteRecursion(t *testing.T) {
+	testutil.SkipWindows(t)
+
 	p := setupTestDir(t)
 	os.Symlink("./", p+"/recursive")
 	os.Symlink(p, p+"/recursive2")
@@ -257,6 +264,8 @@ func TestNoMountTraverseWithSymlink(t *testing.T) {
 }
 
 func TestExcludeSymDir(t *testing.T) {
+	testutil.SkipWindows(t)
+
 	p := setupTestDir(t)
 
 	hadError := false
@@ -274,6 +283,8 @@ func TestExcludeSymDir(t *testing.T) {
 }
 
 func TestNoDoubleTraverseSymlink(t *testing.T) {
+	testutil.SkipWindows(t)
+
 	p := setupTestDir(t)
 	op := t.TempDir()
 	os.WriteFile(op+"/opfile", []byte("hello"), 0644)

@@ -22,6 +22,7 @@ var stringMatchers = map[string]stringComparer{
 type testConfig struct {
 	name        string
 	cmd         string
+	goos        string
 	stdout      strings.Builder
 	stderr      strings.Builder
 	stdin       strings.Builder
@@ -68,6 +69,8 @@ func iterateTestDefinitions(t *testing.T, r io.Reader) func(func(yield testConfi
 				cfg.errComp = matcher
 				cfg.linenum = linenum
 				writeTarget = &cfg.stdout
+			case strings.HasPrefix(line, "GOOS "):
+				cfg.goos = line[5:]
 			case strings.HasPrefix(line, "STDOUT"):
 				writeTarget = &cfg.stdout
 				cfg.outComp = matcher
