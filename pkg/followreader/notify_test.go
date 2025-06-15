@@ -1,5 +1,3 @@
-//go:build !windows
-
 package followreader
 
 import (
@@ -11,9 +9,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/zix99/rare/pkg/testutil"
 )
 
 func TestSimpleFileNotifyTail(t *testing.T) {
+	testutil.SkipWindows(t) // fsnotify not working, separate issue
+
 	af := CreateAppendingTempFile()
 	defer af.Close()
 
@@ -27,6 +28,8 @@ func TestSimpleFileNotifyTail(t *testing.T) {
 }
 
 func TestTailNotifyFileAppendingExisting(t *testing.T) {
+	testutil.SkipWindows(t) // fsnotify not working, separate issue
+
 	af := CreateAppendingTempFile()
 
 	tail, err := NewNotify(af.Name(), false)
@@ -46,6 +49,8 @@ func TestTailNotifyFileAppendingExisting(t *testing.T) {
 }
 
 func TestTailNotifyFileRecreatedReopen(t *testing.T) {
+	testutil.SkipWindows(t) // fsnotify not working, separate issue
+
 	af := CreateAppendingTempFile()
 
 	tail, err := NewNotify(af.Name(), true)
@@ -68,6 +73,8 @@ func TestTailNotifyFileRecreatedReopen(t *testing.T) {
 }
 
 func TestTailNotifyFileDeletedCloses(t *testing.T) {
+	testutil.SkipWindows(t) // fsnotify not working, separate issue
+
 	af := CreateAppendingTempFile()
 
 	tail, err := NewNotify(af.Name(), false)
@@ -98,6 +105,8 @@ func TestTailNotifyFileDeletedCloses(t *testing.T) {
 }
 
 func TestWatchingNonExistantFile(t *testing.T) {
+	testutil.SkipWindows(t) // fsnotify not working, separate issue
+
 	tp := path.Join(os.TempDir(), fmt.Sprintf("go-test-%d", rand.Int()))
 
 	tail, err := NewNotify(tp, true)
@@ -112,6 +121,8 @@ func TestWatchingNonExistantFile(t *testing.T) {
 }
 
 func TestWatchingNonExistingFileFails(t *testing.T) {
+	testutil.SkipWindows(t) // fsnotify not working, separate issue
+
 	tp := path.Join(os.TempDir(), fmt.Sprintf("go-test-%d", rand.Int()))
 	tail, err := NewNotify(tp, false)
 
@@ -129,6 +140,8 @@ func TestNonBlockingSignal(t *testing.T) {
 }
 
 func TestNotifyClosedReaderReturnsEOF(t *testing.T) {
+	testutil.SkipWindows(t) // fsnotify not working, separate issue
+
 	af := CreateAppendingTempFile()
 	defer af.Close()
 

@@ -1,5 +1,3 @@
-//go:build !windows
-
 package followreader
 
 import (
@@ -7,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/zix99/rare/pkg/testutil"
 )
 
 func TestSimpleFilePollingTail(t *testing.T) {
@@ -37,16 +36,17 @@ func TestTailFileAppendingExisting(t *testing.T) {
 	assertSequentialReads(t, tail, 10)
 
 	// Re-open process
-	af.Stop()
+	af.CloseFile()
 	af = CreateAppendingFromFile(af.Name())
 
 	assertSequentialReads(t, tail, 10)
 
-	af.Close()
 	assert.NoError(t, tail.Close())
+	af.Close()
 }
 
 func TestTailFileRecreatedReopen(t *testing.T) {
+	testutil.SkipWindows(t) // Not able to delete-while-open, so not a use-case
 	if testing.Short() {
 		t.SkipNow()
 	}
@@ -73,6 +73,7 @@ func TestTailFileRecreatedReopen(t *testing.T) {
 }
 
 func TestTailFileDeletedCloses(t *testing.T) {
+	testutil.SkipWindows(t) // Not able to delete-while-open, so not a use-case
 	if testing.Short() {
 		t.SkipNow()
 	}
