@@ -45,6 +45,13 @@ Take a look at [examples](usage/examples.md) to see more of what *rare* does.
 
 ### Bash Script
 
+??? danger "Warning: Verify the script before piping to bash"
+    Always verify any [script](https://github.com/zix99/rare/blob/master/docs/install.sh) before piping into bash.
+
+    ```sh title="install.sh"
+    --8<-- "docs/install.sh"
+    ```
+
 This script downloads the latest version from github, and installs it to `~/.local/bin` (`/usr/bin` if *root*).
 
 ```sh
