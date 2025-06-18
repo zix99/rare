@@ -27,15 +27,18 @@ ARCH="$(uname -m)"
 TAR_SUFFIX="tar.gz"
 INSTALL_DIR="$HOME/.local/bin"
 case $OS in
-    aarch64)
-        OS=arm64
-        ;;
     MSYS_NT*)
         OS=Windows
         TAR_SUFFIX="zip"
         ;;
     Darwin)
         INSTALL_DIR="$HOME/bin"
+        ;;
+esac
+
+case $ARCH in
+    aarch64)
+        ARCH=arm64
         ;;
 esac
 
