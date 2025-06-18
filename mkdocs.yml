@@ -58,8 +58,6 @@ markdown_extensions:
       baselevel: 1
   - admonition
   - pymdownx.superfences
-  - pymdownx.snippets
-  - pymdownx.details
 
 extra:
   social:
