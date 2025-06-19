@@ -54,6 +54,8 @@ More details on various output formats and aggregators (including examples) can 
 
 This script downloads the latest version from github, and installs it to `~/.local/bin` (`/usr/bin` if *root*).
 
+**Warning:** You should always verify the [script](docs/install.sh) before running it locally.
+
 ```sh
 curl -sfL https://rare.zdyn.net/install.sh | bash
 ```

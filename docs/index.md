@@ -45,6 +45,9 @@ Take a look at [examples](usage/examples.md) to see more of what *rare* does.
 
 ### Bash Script
 
+!!! warning "Warning: Verify Script"
+    As a best practice, you should always verify any [script](https://github.com/zix99/rare/blob/master/docs/install.sh) before piping to bash.
+
 This script downloads the latest version from github, and installs it to `~/.local/bin` (`/usr/bin` if *root*).
 
 ```sh

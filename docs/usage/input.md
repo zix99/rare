@@ -64,7 +64,7 @@ character-range:
 For example:
 
 ```sh
-rare filter --include '*.log' --exclude 'node_modules' -R ./
+rare filter --include '*.log' --exclude-dir 'node_modules' -R ./
 ```
 
 #### Traversal
