@@ -3,7 +3,7 @@
 Rare is a fast, realtime regex-extraction, and aggregation into common formats
 such as histograms, numerical summaries, tables, and more!
 
-Rare is composed of four parts in the pipeline:
+Rare is composed of four stages in the pipeline:
 
 1. Batching (Loading)
 2. Extraction (Matching)
@@ -27,7 +27,10 @@ Extraction is denoted with `-m` (regex) or `-d` (dissect) and is the process of 
 a line in a file or set of files and parsing it with a regular expression into the
 match-groups denoted by the matcher.
 
-If the expression doesn't match, the line is discarded (a non-match)
+If the expression doesn't match, the line is discarded (a non-match).
+
+Optional *ignore* expression(s) can be supplied with `-i` which will
+cause the match to be ignored if the expression evaluates to be truthy.
 
 These match groups are then fed into the next stage, the expression.
 
@@ -42,9 +45,6 @@ a string-based key.  The match groups can be operated on by helpers to build
 the string-key (eg arithmetic, json parsing, simple logic).
 
 The result of this key will act as the key for the aggregation stage.
-
-Optional ignore expression(s) can be supplied with `-i` which will
-cause the match to be ignored if the expression evaluates to be truthy.
 
 Read more at:
 
