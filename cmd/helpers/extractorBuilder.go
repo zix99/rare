@@ -43,6 +43,7 @@ func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) (*batchers
 		followReopen      = c.Bool("reopen")
 		followPoll        = c.Bool("poll")
 		concurrentReaders = c.Int("readers")
+		readersBuffer     = c.Int("readers-buffer")
 		gunzip            = c.Bool("gunzip")
 		batchSize         = c.Int("batch")
 		batchBuffer       = c.Int("batch-buffer")
@@ -53,6 +54,9 @@ func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) (*batchers
 	}
 	if concurrentReaders < 1 {
 		logger.Fatalf(ExitCodeInvalidUsage, "Must have at least 1 reader")
+	}
+	if readersBuffer < 1 {
+		logger.Fatalf(ExitCodeInvalidUsage, "Reader buffer must be at least 1 byte")
 	}
 	if followPoll && !follow {
 		logger.Fatalf(ExitCodeInvalidUsage, "Follow (-f) must be enabled for --poll")
@@ -68,16 +72,16 @@ func BuildBatcherFromArgumentsEx(c *cli.Context, fileglobs ...string) (*batchers
 		if follow {
 			logger.Println("Cannot follow a stdin stream, not a file")
 		}
-		return batchers.OpenReaderToChan("<stdin>", os.Stdin, batchSize, batchBuffer), nil
+		return batchers.OpenReaderToChan("<stdin>", os.Stdin, batchSize, batchBuffer, readersBuffer), nil
 	} else if follow { // Read from source file
 		if gunzip {
 			logger.Println("Cannot combine -f and -z")
 		}
 		walker := BuildPathWalkerFromArguments(c)
-		return batchers.TailFilesToChan(walker.Walk(fileglobs...), batchSize, batchBuffer, followReopen, followPoll, followTail), walker
+		return batchers.TailFilesToChan(walker.Walk(fileglobs...), batchSize, batchBuffer, readersBuffer, followReopen, followPoll, followTail), walker
 	} else { // Read (no-follow) source file(s)
 		walker := BuildPathWalkerFromArguments(c)
-		return batchers.OpenFilesToChan(walker.Walk(fileglobs...), gunzip, concurrentReaders, batchSize, batchBuffer), walker
+		return batchers.OpenFilesToChan(walker.Walk(fileglobs...), gunzip, concurrentReaders, batchSize, batchBuffer, readersBuffer), walker
 	}
 }
 
@@ -285,6 +289,14 @@ func getExtractorFlags() []cli.Flag {
 			Usage:    "Sets the number of concurrent readers (Infinite when -f)",
 			Value:    workerCount,
 			EnvVars:  []string{"RARE_READERS"},
+		},
+		&cli.IntFlag{
+			Name:     "readers-buffer",
+			Aliases:  []string{"wrb"},
+			Category: cliCategoryTweaking,
+			Usage:    "How many bytes will be buffered per reader",
+			Value:    1024 * 1024,
+			EnvVars:  []string{"RARE_READERS_BUFFER"},
 		},
 	}
 }

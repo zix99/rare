@@ -13,7 +13,7 @@ func TestBatchFollowFile(t *testing.T) {
 	filenames := make(chan string, 1)
 	filenames <- "tailBatcher_test.go" // me
 
-	batcher := TailFilesToChan(filenames, 5, 1, false, false, false)
+	batcher := TailFilesToChan(filenames, 5, 1, 1024, false, false, false)
 
 	batch := <-batcher.BatchChan()
 	assert.Equal(t, "tailBatcher_test.go", batch.Source)
@@ -40,7 +40,7 @@ func TestBatchFollowTailFile(t *testing.T) {
 	filenames := make(chan string, 1)
 	filenames <- tmp.Name()
 
-	batcher := TailFilesToChan(filenames, 1, 1, false, false, true)
+	batcher := TailFilesToChan(filenames, 1, 1, 1024, false, false, true)
 
 	for batcher.ActiveFileCount() == 0 {
 		time.Sleep(time.Millisecond) // Semi-hack: Wait for the go-routine reader to start and the source to be drained

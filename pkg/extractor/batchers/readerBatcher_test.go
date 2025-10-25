@@ -10,7 +10,7 @@ import (
 
 func TestOpenReaderToChan(t *testing.T) {
 	r := io.NopCloser(strings.NewReader("Hello\nthere\nbob"))
-	b := OpenReaderToChan("src", r, 1, 1)
+	b := OpenReaderToChan("src", r, 1, 1, 1024)
 
 	b1 := <-b.BatchChan()
 	assert.Equal(t, "src", b1.Source)
