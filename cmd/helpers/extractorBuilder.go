@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"runtime"
 	"slices"
@@ -258,26 +259,32 @@ func getExtractorFlags() []cli.Flag {
 			Category: cliCategoryTweaking,
 			Usage:    "Specifies io batching size. Set to 1 for immediate input",
 			Value:    1000,
+			EnvVars:  []string{"RARE_BATCH"},
 		},
 		&cli.IntFlag{
-			Name:     "batch-buffer",
-			Category: cliCategoryTweaking,
-			Usage:    "Specifies how many batches to read-ahead. Impacts memory usage, can improve performance",
-			Value:    workerCount * 2, // Keep 2 batches ready for each worker
+			Name:        "batch-buffer",
+			Category:    cliCategoryTweaking,
+			Usage:       "Specifies how many batches to read-ahead. Impacts memory usage, can improve performance",
+			Value:       workerCount * 2, // Keep 2 batches ready for each worker
+			DefaultText: fmt.Sprintf("workers*2 = %d", workerCount*2),
+			EnvVars:     []string{"RARE_BATCH_BUFFER"},
 		},
 		&cli.IntFlag{
-			Name:     "workers",
-			Aliases:  []string{"w"},
-			Category: cliCategoryTweaking,
-			Usage:    "Set number of data processors",
-			Value:    workerCount,
+			Name:        "workers",
+			Aliases:     []string{"w"},
+			Category:    cliCategoryTweaking,
+			Usage:       "Set number of data processors",
+			Value:       workerCount,
+			DefaultText: fmt.Sprintf("NumCPU/2+1 = %d", workerCount),
+			EnvVars:     []string{"RARE_WORKERS"},
 		},
 		&cli.IntFlag{
 			Name:     "readers",
 			Aliases:  []string{"wr"},
 			Category: cliCategoryTweaking,
 			Usage:    "Sets the number of concurrent readers (Infinite when -f)",
-			Value:    3,
+			Value:    workerCount,
+			EnvVars:  []string{"RARE_READERS"},
 		},
 	}
 }
