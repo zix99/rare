@@ -135,29 +135,48 @@ There are already some heuristics that optimize how files are read which
 should work for most cases. If you do find you need to modify how *rare*
 is reading, you can tweak two things:
 
-* concurrency -- How many files are read at once
+* workers -- How many threads are processing the data
+* reader concurrency -- How many files are read at once
 * batch size -- How many lines read from a given file are "batched" to send to the expression stage
 
-### Concurrency
+### Workers
+
+Workers specify how many threads are processing the data (running regex/dissect and expressions).  By
+default it's `NumCPU/2+1` to leave room for readers and other processes.
+
+Specify with:
+
+`rare <aggregator> --workers=5 ...`
+
+### Reader Concurrency
 
 Concurrency specifies how many files are opened at once (in a normal case). It
-defaults to `3`, but is ignored if following files.
+defaults to the same as `workers`, but is ignored if following files.
 
 Specify with:
 
 `rare <aggregator> --readers=1 file1 file2 file3...`
 
+Additionally, you can specify how large the reader's buffer is. This determines
+how many bytes can be read, at maximum, before passing on the data to the batcher.
+
+It defaults to `1 MB`.
+
+Specify with:
+
+`rare <aggregator> --readers-buffer=1024 ...`
+
 ### Batch Sizes
 
 Rare reads (by default) 1000 lines in a file, for a batch, before providing it
-to the extractor stage.  This significantly speeds up processing, but comes
+to the extractor/worker stage.  This significantly speeds up processing, but comes
 at the cost of being less real-time if input generation is slow.
 
 To counteract this, in the *follow* or *stdin* cases, there's also a flush timeout of
 250ms. This means if a new line has been received, and the duration has passed,
 that the batch will be processed regardless of its current size.
 
-You can tweak this value with `--batch`
+You can tweak the max batch size with `--batch`
 
 `rare <aggreagator> --batch=10 ...`
 
