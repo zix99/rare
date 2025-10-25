@@ -14,9 +14,6 @@ import (
 	"github.com/zix99/rare/pkg/readahead"
 )
 
-// ReadAheadBufferSize is the default size of the read-ahead buffer
-// const ReadAheadBufferSize = 128 * 1024
-
 // AutoFlushTimeout sets time before an auto-flushing reader will write a batch
 const AutoFlushTimeout = 250 * time.Millisecond
 
