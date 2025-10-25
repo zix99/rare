@@ -68,7 +68,7 @@ Filter incoming results with search criteria, and output raw matches
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 18)
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
@@ -104,7 +104,9 @@ Filter incoming results with search criteria, and output raw matches
 
 **--read-symlinks**: Read files that are symbolic links
 
-**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
+
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -116,7 +118,7 @@ Filter incoming results with search criteria, and output raw matches
 
 **--text, -a**: Only output lines that contain valid text
 
-**--workers, -w**="": Set number of data processors (default: 3)
+**--workers, -w**="": Set number of data processors (default: 9)
 
 ### search
 
@@ -124,7 +126,7 @@ Searches current directory recursively for a regex match
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 18)
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
@@ -160,7 +162,9 @@ Searches current directory recursively for a regex match
 
 **--read-symlinks**: Read files that are symbolic links
 
-**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
+
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -172,7 +176,7 @@ Searches current directory recursively for a regex match
 
 **--text, -a**: Only output lines that contain valid text
 
-**--workers, -w**="": Set number of data processors (default: 3)
+**--workers, -w**="": Set number of data processors (default: 9)
 
 ### histogram, histo, h
 
@@ -186,7 +190,7 @@ Summarize results by extracting them to a histogram
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 18)
 
 **--csv, -o**="": Write final results to csv. Use - to output to stdout
 
@@ -230,7 +234,9 @@ Summarize results by extracting them to a histogram
 
 **--read-symlinks**: Read files that are symbolic links
 
-**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
+
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -244,7 +250,7 @@ Summarize results by extracting them to a histogram
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 3)
+**--workers, -w**="": Set number of data processors (default: 9)
 
 ### heatmap, heat, hm
 
@@ -252,7 +258,7 @@ Create a 2D heatmap of extracted data
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 18)
 
 **--cols**="": Number of columns to display (default: 65)
 
@@ -300,7 +306,9 @@ Create a 2D heatmap of extracted data
 
 **--read-symlinks**: Read files that are symbolic links
 
-**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
+
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -316,7 +324,7 @@ Create a 2D heatmap of extracted data
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 3)
+**--workers, -w**="": Set number of data processors (default: 9)
 
 ### spark, sparkline, s
 
@@ -324,7 +332,7 @@ Create rows of sparkline graphs
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 18)
 
 **--cols**="": Number of columns to display (default: 65)
 
@@ -370,7 +378,9 @@ Create rows of sparkline graphs
 
 **--read-symlinks**: Read files that are symbolic links
 
-**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
+
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -386,7 +396,7 @@ Create rows of sparkline graphs
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 3)
+**--workers, -w**="": Set number of data processors (default: 9)
 
 ### bargraph, bars, bar, b
 
@@ -394,7 +404,7 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 18)
 
 **--csv, -o**="": Write final results to csv. Use - to output to stdout
 
@@ -432,7 +442,9 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--read-symlinks**: Read files that are symbolic links
 
-**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
+
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -448,7 +460,7 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 3)
+**--workers, -w**="": Set number of data processors (default: 9)
 
 ### analyze, a
 
@@ -456,7 +468,7 @@ Numerical analysis on a set of filtered data
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 18)
 
 **--dissect, -d**="": Dissect expression create match groups to summarize on
 
@@ -492,7 +504,9 @@ Numerical analysis on a set of filtered data
 
 **--read-symlinks**: Read files that are symbolic links
 
-**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
+
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -504,7 +518,7 @@ Numerical analysis on a set of filtered data
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 3)
+**--workers, -w**="": Set number of data processors (default: 9)
 
 ### tabulate, table, t
 
@@ -512,7 +526,7 @@ Create a 2D summarizing table of extracted data
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 18)
 
 **--cols**="": Number of columns to display (default: 10)
 
@@ -560,7 +574,9 @@ Create a 2D summarizing table of extracted data
 
 **--read-symlinks**: Read files that are symbolic links
 
-**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
+
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -576,7 +592,7 @@ Create a 2D summarizing table of extracted data
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 3)
+**--workers, -w**="": Set number of data processors (default: 9)
 
 ### reduce, r
 
@@ -586,7 +602,7 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--batch**="": Specifies io batching size. Set to 1 for immediate input (default: 1000)
 
-**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 6)
+**--batch-buffer**="": Specifies how many batches to read-ahead. Impacts memory usage, can improve performance (default: 18)
 
 **--cols**="": Number of columns to display (default: 10)
 
@@ -632,7 +648,9 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--read-symlinks**: Read files that are symbolic links
 
-**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 3)
+**--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
+
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -648,7 +666,7 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
-**--workers, -w**="": Set number of data processors (default: 3)
+**--workers, -w**="": Set number of data processors (default: 9)
 
 ### docs
 
