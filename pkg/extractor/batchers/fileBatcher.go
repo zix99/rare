@@ -12,7 +12,7 @@ import (
 // openFilesToChan takes an iterated channel of filenames, options, and loads them all with
 //
 //	a max concurrency.  Returns a channel that will populate with input batches
-func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize, batchBuffer int) *Batcher {
+func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batchSize, batchBuffer, readBufSize int) *Batcher {
 	out := newBatcher(batchBuffer)
 	sema := make(chan struct{}, concurrency)
 
@@ -46,7 +46,7 @@ func OpenFilesToChan(filenames <-chan string, gunzip bool, concurrency int, batc
 				defer file.Close()
 
 				out.startFileReading(goFilename)
-				out.syncReaderToBatcher(goFilename, file, batchSize)
+				out.syncReaderToBatcher(goFilename, file, batchSize, readBufSize)
 			}(filename)
 		}
 

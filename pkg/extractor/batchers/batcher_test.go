@@ -34,7 +34,7 @@ func TestReaderToBatcher(t *testing.T) {
 line2
 line3`
 
-	s.syncReaderToBatcher("string", strings.NewReader(testData), 2)
+	s.syncReaderToBatcher("string", strings.NewReader(testData), 2, 1024)
 
 	b1 := <-s.BatchChan()
 	b2 := <-s.BatchChan()
@@ -53,7 +53,7 @@ func TestBatcherWithAutoFlush(t *testing.T) {
 line2
 line3`
 
-	s.syncReaderToBatcherWithTimeFlush("string", strings.NewReader(testData), 2, 1*time.Second)
+	s.syncReaderToBatcherWithTimeFlush("string", strings.NewReader(testData), 2, 1024, 1*time.Second)
 
 	b1 := <-s.BatchChan()
 	b2 := <-s.BatchChan()

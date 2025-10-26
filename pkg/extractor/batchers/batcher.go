@@ -14,9 +14,6 @@ import (
 	"github.com/zix99/rare/pkg/readahead"
 )
 
-// ReadAheadBufferSize is the default size of the read-ahead buffer
-const ReadAheadBufferSize = 128 * 1024
-
 // AutoFlushTimeout sets time before an auto-flushing reader will write a batch
 const AutoFlushTimeout = 250 * time.Millisecond
 
@@ -152,9 +149,9 @@ func (s *Batcher) StatusString() string {
 // syncReaderToBatcher reads a reader buffer and breaks up its scans to `batchSize`
 //
 //	and writes the batch-sized results to a channel
-func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batchSize int) {
+func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batchSize, bufSize int) {
 	readerMetrics := newReaderMetrics(reader)
-	readahead := readahead.NewImmediate(readerMetrics, ReadAheadBufferSize)
+	readahead := readahead.NewImmediate(readerMetrics, bufSize)
 	readahead.OnError(func(e error) {
 		s.incErrors()
 		logger.Printf("Error reading %s: %v", sourceName, e)
@@ -189,9 +186,9 @@ func (s *Batcher) syncReaderToBatcher(sourceName string, reader io.Reader, batch
 // syncReaderToBatcherWithTimeFlush is similar to `syncReaderToBatcher`, except if it gets a new line
 // it will flush the batch if n time has elapsed since the last flush, regardless of how many items are in the current batch
 // Good for potentially slow or more interactive workloads (tail, stdin, etc)
-func (s *Batcher) syncReaderToBatcherWithTimeFlush(sourceName string, reader io.Reader, batchSize int, autoFlush time.Duration) {
+func (s *Batcher) syncReaderToBatcherWithTimeFlush(sourceName string, reader io.Reader, batchSize, bufSize int, autoFlush time.Duration) {
 	readerMetrics := newReaderMetrics(reader)
-	readahead := readahead.NewImmediate(readerMetrics, ReadAheadBufferSize)
+	readahead := readahead.NewImmediate(readerMetrics, bufSize)
 	readahead.OnError(func(e error) {
 		s.incErrors()
 		logger.Printf("Error reading %s: %v", sourceName, e)
