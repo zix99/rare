@@ -10,6 +10,7 @@ rare
 [--color]
 [--funcs]=[value]
 [--help|-h]
+[--metrics-memory]
 [--metrics]
 [--nocolor|--nc]
 [--noformat|--nf]
@@ -44,6 +45,8 @@ rare [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 **--help, -h**: show help
 
 **--metrics**: Outputs runtime memory metrics after a program runs
+
+**--metrics-memory**: Records memory metrics every 100ms to get peaks/averages
 
 **--nocolor, --nc**: Disables color output
 
@@ -106,7 +109,7 @@ Filter incoming results with search criteria, and output raw matches
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
 
-**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 524288)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -164,7 +167,7 @@ Searches current directory recursively for a regex match
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
 
-**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 524288)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -236,7 +239,7 @@ Summarize results by extracting them to a histogram
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
 
-**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 524288)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -308,7 +311,7 @@ Create a 2D heatmap of extracted data
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
 
-**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 524288)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -380,7 +383,7 @@ Create rows of sparkline graphs
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
 
-**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 524288)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -444,7 +447,7 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
 
-**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 524288)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -506,7 +509,7 @@ Numerical analysis on a set of filtered data
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
 
-**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 524288)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -576,7 +579,7 @@ Create a 2D summarizing table of extracted data
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
 
-**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 524288)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 
@@ -650,7 +653,7 @@ Aggregate the results of a query based on an expression, pulling customized summ
 
 **--readers, --wr**="": Sets the number of concurrent readers (Infinite when -f) (default: 9)
 
-**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 1048576)
+**--readers-buffer, --wrb**="": How many bytes will be buffered per reader (default: 524288)
 
 **--recursive, -R**: Recursively walk a non-globbing path and search for plain-files
 

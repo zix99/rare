@@ -295,7 +295,7 @@ func getExtractorFlags() []cli.Flag {
 			Aliases:  []string{"wrb"},
 			Category: cliCategoryTweaking,
 			Usage:    "How many bytes will be buffered per reader",
-			Value:    1024 * 1024,
+			Value:    512 * 1024,
 			EnvVars:  []string{"RARE_READERS_BUFFER"},
 		},
 	}

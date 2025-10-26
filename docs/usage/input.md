@@ -160,7 +160,7 @@ Specify with:
 Additionally, you can specify how large the reader's buffer is. This determines
 how many bytes can be read, at maximum, before passing on the data to the batcher.
 
-It defaults to `1 MB`.
+It defaults to `512 KB`.
 
 Specify with:
 
