@@ -89,6 +89,9 @@ func TestBuildingExtractorFromContext(t *testing.T) {
 		runApp("--readers 0 ../testdata/log.txt")
 	})
 	testLogFatal(t, 2, func() {
+		runApp("--readers-buffer 0 ../testdata/log.txt")
+	})
+	testLogFatal(t, 2, func() {
 		runApp("--poll ../testdata/log.txt")
 	})
 	testLogFatal(t, 2, func() {
