@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/pprof"
+	"sync"
 	"time"
 
 	"github.com/urfave/cli/v2"
@@ -42,6 +43,48 @@ func stopProfile() {
 	profilerDone <- true
 }
 
+func startMemoryRecorder() (stop func()) {
+	var samples int64
+	var peakHeap, peakAlloc, peakStack uint64
+	var avgHeap, avgAlloc, avgStack int64
+
+	var wg sync.WaitGroup
+	doneSignal := make(chan struct{})
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		var stats runtime.MemStats
+	OUTER_LOOP:
+		for {
+			select {
+			case <-time.After(100 * time.Millisecond):
+				runtime.ReadMemStats(&stats)
+
+				samples++
+				peakHeap = max(peakHeap, stats.HeapInuse)
+				avgHeap += (int64(stats.HeapInuse) - avgHeap) / samples
+
+				peakAlloc = max(peakAlloc, stats.HeapAlloc)
+				avgAlloc = max(int64(stats.HeapAlloc)-avgAlloc) / samples
+
+				peakStack = max(peakStack, stats.StackInuse)
+				avgStack += (int64(stats.StackInuse) - avgStack) / samples
+			case <-doneSignal:
+				break OUTER_LOOP
+			}
+		}
+
+		fmt.Fprintf(os.Stderr, "MemStat: samples=%d, peakHeap=%d, avgHeap=%d, peakAlloc=%d, avgAlloc=%d, peakStack=%d, avgStack=%d\n", samples, peakHeap, avgHeap, peakAlloc, avgAlloc, peakStack, avgStack)
+	}()
+
+	return func() {
+		doneSignal <- struct{}{}
+		wg.Wait()
+	}
+}
+
 func init() {
 	appModifiers = append(appModifiers, func(app *cli.App) {
 		app.Flags = append(app.Flags, &cli.StringFlag{
@@ -50,10 +93,14 @@ func init() {
 		}, &cli.BoolFlag{
 			Name:  "metrics",
 			Usage: "Outputs runtime memory metrics after a program runs",
+		}, &cli.BoolFlag{
+			Name:  "metrics-memory",
+			Usage: "Records memory metrics every 100ms to get peaks/averages",
 		})
 
-		var beforeMem runtime.MemStats
+		var startMem runtime.MemStats
 		var start time.Time
+		var memRecordStop func()
 
 		oldBefore := app.Before
 		app.Before = func(c *cli.Context) error {
@@ -62,7 +109,10 @@ func init() {
 				startProfiler(basename)
 			}
 			if c.Bool("metrics") {
-				runtime.ReadMemStats(&beforeMem)
+				runtime.ReadMemStats(&startMem)
+			}
+			if c.Bool("metrics-memory") {
+				memRecordStop = startMemoryRecorder()
 			}
 
 			start = time.Now()
@@ -82,11 +132,14 @@ func init() {
 				runtime.ReadMemStats(&after)
 				fmt.Fprintf(os.Stderr, "Runtime: %s\n", stop.Sub(start).String())
 				fmt.Fprintf(os.Stderr, "Memory : total=%d; malloc=%d; free=%d; numgc=%d; pausegc=%s\n",
-					after.TotalAlloc-beforeMem.TotalAlloc,
-					after.Mallocs-beforeMem.Mallocs,
-					after.Frees-beforeMem.Frees,
-					after.NumGC-beforeMem.NumGC,
-					time.Duration(after.PauseTotalNs-beforeMem.PauseTotalNs).String())
+					after.TotalAlloc-startMem.TotalAlloc,
+					after.Mallocs-startMem.Mallocs,
+					after.Frees-startMem.Frees,
+					after.NumGC-startMem.NumGC,
+					time.Duration(after.PauseTotalNs-startMem.PauseTotalNs).String())
+			}
+			if memRecordStop != nil {
+				memRecordStop()
 			}
 			if c.IsSet("profile") {
 				stopProfile()
