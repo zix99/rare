@@ -7,7 +7,6 @@ import (
 	"os"
 	"runtime"
 	"runtime/pprof"
-	"sync"
 	"time"
 
 	"github.com/urfave/cli/v2"
@@ -48,15 +47,10 @@ func startMemoryRecorder() (stop func()) {
 	var peakHeap, peakAlloc, peakStack uint64
 	var avgHeap, avgAlloc, avgStack int64
 
-	var wg sync.WaitGroup
 	doneSignal := make(chan struct{})
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
-
 		var stats runtime.MemStats
-	OUTER_LOOP:
 		for {
 			select {
 			case <-time.After(100 * time.Millisecond):
@@ -72,16 +66,14 @@ func startMemoryRecorder() (stop func()) {
 				peakStack = max(peakStack, stats.StackInuse)
 				avgStack += (int64(stats.StackInuse) - avgStack) / samples
 			case <-doneSignal:
-				break OUTER_LOOP
+				return
 			}
 		}
-
-		fmt.Fprintf(os.Stderr, "MemStat: samples=%d, peakHeap=%d, avgHeap=%d, peakAlloc=%d, avgAlloc=%d, peakStack=%d, avgStack=%d\n", samples, peakHeap, avgHeap, peakAlloc, avgAlloc, peakStack, avgStack)
 	}()
 
 	return func() {
 		doneSignal <- struct{}{}
-		wg.Wait()
+		fmt.Fprintf(os.Stderr, "MemStat: samples=%d, peakHeap=%d, avgHeap=%d, peakAlloc=%d, avgAlloc=%d, peakStack=%d, avgStack=%d\n", samples, peakHeap, avgHeap, peakAlloc, avgAlloc, peakStack, avgStack)
 	}
 }
 
