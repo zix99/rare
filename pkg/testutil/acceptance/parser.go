@@ -2,7 +2,9 @@ package acceptance
 
 import (
 	"bufio"
+	"fmt"
 	"io"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -17,7 +19,15 @@ var stringMatchers = map[string]stringComparer{
 	"contains":   strings.Contains,
 	"exact":      func(s1, s2 string) bool { return s1 == s2 },
 	"ignorecase": strings.EqualFold,
+	"regex": func(s1, r string) bool {
+		match, err := regexp.MatchString(r, s1)
+		if err != nil {
+			panic(fmt.Sprintf("Invalid regex '%s': %v", r, err))
+		}
+		return match
+	},
 }
+var defaultMatcher = stringMatchers["default"]
 
 type testConfig struct {
 	name        string
@@ -40,7 +50,7 @@ func iterateTestDefinitions(t *testing.T, r io.Reader) func(func(yield testConfi
 		var writeTarget *strings.Builder
 
 		trimString := ""
-		matcher := stringMatchers["prefix"]
+		matcher := defaultMatcher
 		linenum := 0
 
 	SCANNER:
@@ -88,6 +98,7 @@ func iterateTestDefinitions(t *testing.T, r io.Reader) func(func(yield testConfi
 					break SCANNER
 				}
 
+				matcher = defaultMatcher
 				cfg = testConfig{} // reset
 			case writeTarget != nil:
 				writeTarget.WriteString(strings.TrimPrefix(line, trimString))

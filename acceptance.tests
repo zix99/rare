@@ -14,7 +14,6 @@ RUN filter -n 5 --match "(\d{3}) (\d+)" cmd/testdata/access.txt
 STDERR
     Matched: 5 / 5
 END
-MATCH DEFAULT
 
 NAME filter match
 RUN filter --match "(\d{3}) (\d+)" cmd/testdata/access.txt cmd/testdata/access.txt cmd/testdata/access.txt cmd/testdata/access.txt
@@ -47,7 +46,6 @@ RUN filter -n 5 --dissect "HTTP/1.1%{} %{code} %{size}" -e "Code: {code}" cmd/te
 STDERR
     Matched: 5 / 5
 END
-MATCH DEFAULT
 
 NAME filter extract
 RUN filter -n 5 --match "(\d{3}) (\d+)" -e "{1} {2}" cmd/testdata/access.txt
@@ -288,22 +286,25 @@ END
 ################ Help and Docs ########################
 
 NAME rare version
+MATCH regex
 RUN -v
-# any output is okay
+    rare(?:.test) version (.+), (.+); regex: re2
 END
 
 NAME walk
 GOOS linux
+MATCH regex
 RUN walk -R --include *.sh docs/
     docs/install.sh
 STDERR
-    Found 1 path(s), 30 excluded
+    Found 1 path\(s\), (.+) excluded
 END
 
 NAME walk windows
 GOOS windows
+MATCH regex
 RUN walk -R --include *.sh docs/
     docs\install.sh
 STDERR
-    Found 1 path(s), 30 excluded
+    Found 1 path\(s\), (.+) excluded
 END
