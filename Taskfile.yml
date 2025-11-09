@@ -79,6 +79,11 @@ tasks:
     cmds:
      - go run . _gendoc > docs/cli-help.md
 
+  docs:vhs:
+    desc: Generate VHS gif for readme
+    cmds:
+      - vhs docs/images/rare.tape
+
   # clean
   clean:
     ignore_error: true
