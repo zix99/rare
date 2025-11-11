@@ -118,15 +118,18 @@ func (s *Batcher) StatusString() string {
 	const maxFilesToWrite = 2
 
 	s.mux.Lock()
+	defer s.mux.Unlock()
+
 	// Total files read
 	if s.sourceCount > 1 {
 		sb.WriteString(fmt.Sprintf("[%d/%d] ", s.readCount, s.sourceCount))
 	}
 
-	// Rate / bytes
+	// Total read bytes
 	readBytes := atomic.LoadUint64(&s.readBytes)
-	sb.WriteString(humanize.ByteSize(readBytes) + " ")
+	sb.WriteString(humanize.ByteSize(readBytes))
 
+	// Read rate
 	elapsedTime := time.Since(s.lastRateUpdate).Seconds()
 	if elapsedTime >= 0.5 {
 		s.lastRate = uint64(float64(s.readBytes-s.lastRateBytes) / elapsedTime)
@@ -134,20 +137,18 @@ func (s *Batcher) StatusString() string {
 		s.lastRateUpdate = time.Now()
 	}
 
-	sb.WriteString("(" + humanize.ByteSize(s.lastRate) + "/s) ")
+	sb.WriteString(" (" + humanize.ByteSize(s.lastRate) + "/s)")
 
 	// Current actively read files
 	writeFiles := min(len(s.activeFiles), maxFilesToWrite)
 	if writeFiles > 0 {
-		sb.WriteString("| ")
+		sb.WriteString(" | ")
 		sb.WriteString(strings.Join(s.activeFiles[:writeFiles], ", "))
 
 		if len(s.activeFiles) > maxFilesToWrite {
 			sb.WriteString(fmt.Sprintf(" (and %d more...)", len(s.activeFiles)-maxFilesToWrite))
 		}
 	}
-
-	s.mux.Unlock()
 
 	return sb.String()
 }
