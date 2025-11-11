@@ -20,6 +20,8 @@ const AutoFlushTimeout = 250 * time.Millisecond
 type Batcher struct {
 	c chan extractor.InputBatch
 
+	startTime, stopTime time.Time
+
 	// All mutex protected fields
 	mux         sync.Mutex
 	sourceCount int
@@ -28,7 +30,9 @@ type Batcher struct {
 	activeFiles []string
 
 	// Atomic fields (only used to compute performance metrics)
-	readBytes               uint64
+	readBytes uint64
+
+	// Used only in StatusString to compute read rate
 	lastRateUpdate          time.Time
 	lastRate, lastRateBytes uint64
 }
@@ -37,11 +41,13 @@ func newBatcher(bufferSize int) *Batcher {
 	return &Batcher{
 		c:              make(chan extractor.InputBatch, bufferSize),
 		lastRateUpdate: time.Now(),
+		startTime:      time.Now(),
 	}
 }
 
 func (s *Batcher) close() {
 	close(s.c)
+	s.stopTime = time.Now()
 }
 
 func (s *Batcher) BatchChan() <-chan extractor.InputBatch {
