@@ -67,5 +67,10 @@ line3`
 func TestDurationFormat(t *testing.T) {
 	assert.Equal(t, "020ms", durationToString(20*time.Millisecond))
 	assert.Equal(t, "1.12s", durationToString(1120*time.Millisecond))
-	assert.Equal(t, "35m2.0s", durationToString(35*time.Minute+2*time.Second))
+	assert.Equal(t, "1.10s", durationToString(1100*time.Millisecond))
+	assert.Equal(t, "12.10s", durationToString(12100*time.Millisecond))
+	assert.Equal(t, "35m2.2s", durationToString(35*time.Minute+2222*time.Millisecond))
+	assert.Equal(t, "2h5m2s", durationToString(125*time.Minute+2*time.Second))
+	assert.Equal(t, "2h5m2s", durationToString(125*time.Minute+2222*time.Millisecond))
+	assert.Equal(t, "30h0m2s", durationToString(60*30*time.Minute+2222*time.Millisecond))
 }

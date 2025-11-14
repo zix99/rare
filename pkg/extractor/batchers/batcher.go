@@ -140,7 +140,7 @@ func (s *Batcher) StatusString() string {
 
 	// Elapsed time
 	elapsed := s.elapsedTimeNoLock()
-	sb.WriteString(" in " + elapsed.Truncate(time.Millisecond).String())
+	sb.WriteString(" in " + durationToString(elapsed))
 
 	// Read rate
 	if s.stopTime.IsZero() {
@@ -180,6 +180,8 @@ func (s *Batcher) elapsedTimeNoLock() time.Duration {
 	return s.stopTime.Sub(s.startTime)
 }
 
+// Variable duration pretty-printing
+// Optimize to prevent terminal stutter/length changes (eg 2.1 2.11...)
 func durationToString(d time.Duration) string {
 	switch {
 	case d < time.Second:
@@ -187,8 +189,7 @@ func durationToString(d time.Duration) string {
 	case d < time.Minute:
 		return fmt.Sprintf("%.02fs", d.Truncate(10*time.Millisecond).Seconds())
 	case d < time.Hour:
-		return fmt.Sprintf("%dm%02.1fs", int(d.Truncate(time.Minute).Minutes()), (d % time.Minute).Seconds())
-	// case d < 24*time.Hour:
+		return fmt.Sprintf("%dm%.1fs", int(d.Truncate(time.Minute).Minutes()), (d % time.Minute).Seconds())
 	default:
 		return d.Truncate(time.Second).String()
 	}
