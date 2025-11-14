@@ -20,14 +20,14 @@ const AutoFlushTimeout = 250 * time.Millisecond
 type Batcher struct {
 	c chan extractor.InputBatch
 
-	startTime, stopTime time.Time
-
 	// All mutex protected fields
 	mux         sync.Mutex
 	sourceCount int
 	readCount   int
 	errorCount  int
 	activeFiles []string
+
+	startTime, stopTime time.Time
 
 	// Atomic fields (only used to compute performance metrics)
 	readBytes uint64
@@ -47,7 +47,10 @@ func newBatcher(bufferSize int) *Batcher {
 
 func (s *Batcher) close() {
 	close(s.c)
+
+	s.mux.Lock()
 	s.stopTime = time.Now()
+	s.mux.Unlock()
 }
 
 func (s *Batcher) BatchChan() <-chan extractor.InputBatch {
