@@ -112,6 +112,7 @@ func (s *Batcher) ActiveFileCount() int {
 }
 
 // StatusString gets a formatted version of the current reader-set
+// [9/10 !1] 1.41 GB in 2.7s (~526.71 MB/s) | a b c (and 2 more...)
 func (s *Batcher) StatusString() string {
 	var sb strings.Builder
 	sb.Grow(100)
@@ -122,22 +123,38 @@ func (s *Batcher) StatusString() string {
 
 	// Total files read
 	if s.sourceCount > 1 {
-		sb.WriteString(fmt.Sprintf("[%d/%d] ", s.readCount, s.sourceCount))
+		sb.WriteString(fmt.Sprintf("[%d/%d", s.readCount, s.sourceCount))
+		// Errors
+		if s.errorCount > 0 {
+			sb.WriteString(fmt.Sprintf(" !%d", s.errorCount))
+		}
+		sb.WriteString("] ")
 	}
 
 	// Total read bytes
 	readBytes := atomic.LoadUint64(&s.readBytes)
 	sb.WriteString(humanize.ByteSize(readBytes))
 
-	// Read rate
-	elapsedTime := time.Since(s.lastRateUpdate).Seconds()
-	if elapsedTime >= 0.5 {
-		s.lastRate = uint64(float64(s.readBytes-s.lastRateBytes) / elapsedTime)
-		s.lastRateBytes = s.readBytes
-		s.lastRateUpdate = time.Now()
-	}
+	// Elapsed time
+	elapsed := s.elapsedTimeNoLock()
+	sb.WriteString(" in " + elapsed.Truncate(time.Millisecond).String())
 
-	sb.WriteString(" (" + humanize.ByteSize(s.lastRate) + "/s)")
+	// Read rate
+	if s.stopTime.IsZero() {
+		// Progress
+		elapsedTime := time.Since(s.lastRateUpdate).Seconds()
+		if elapsedTime >= 0.5 {
+			s.lastRate = uint64(float64(s.readBytes-s.lastRateBytes) / elapsedTime)
+			s.lastRateBytes = s.readBytes
+			s.lastRateUpdate = time.Now()
+		}
+
+		sb.WriteString(" (" + humanize.ByteSize(s.lastRate) + "/s)")
+	} else {
+		// Final
+		rate := uint64(float64(readBytes) / elapsed.Seconds())
+		sb.WriteString(" (~" + humanize.ByteSize(rate) + "/s)")
+	}
 
 	// Current actively read files
 	writeFiles := min(len(s.activeFiles), maxFilesToWrite)
@@ -151,6 +168,27 @@ func (s *Batcher) StatusString() string {
 	}
 
 	return sb.String()
+}
+
+func (s *Batcher) elapsedTimeNoLock() time.Duration {
+	if s.stopTime.IsZero() {
+		return time.Since(s.startTime)
+	}
+	return s.stopTime.Sub(s.startTime)
+}
+
+func durationToString(d time.Duration) string {
+	switch {
+	case d < time.Second:
+		return fmt.Sprintf("%03dms", d.Milliseconds())
+	case d < time.Minute:
+		return fmt.Sprintf("%.02fs", d.Truncate(10*time.Millisecond).Seconds())
+	case d < time.Hour:
+		return fmt.Sprintf("%dm%02.1fs", int(d.Truncate(time.Minute).Minutes()), (d % time.Minute).Seconds())
+	// case d < 24*time.Hour:
+	default:
+		return d.Truncate(time.Second).String()
+	}
 }
 
 // syncReaderToBatcher reads a reader buffer and breaks up its scans to `batchSize`

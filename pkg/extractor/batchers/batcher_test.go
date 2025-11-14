@@ -63,3 +63,9 @@ line3`
 	assert.Equal(t, s.errorCount, 0)
 	assert.Equal(t, s.ReadBytes(), uint64(17))
 }
+
+func TestDurationFormat(t *testing.T) {
+	assert.Equal(t, "020ms", durationToString(20*time.Millisecond))
+	assert.Equal(t, "1.12s", durationToString(1120*time.Millisecond))
+	assert.Equal(t, "35m2.0s", durationToString(35*time.Minute+2*time.Second))
+}
