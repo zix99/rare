@@ -30,7 +30,7 @@ type Batcher struct {
 	startTime, stopTime time.Time
 
 	// Atomic fields (only used to compute performance metrics)
-	readBytes uint64
+	readBytes atomic.Uint64
 
 	// Used only in StatusString to compute read rate
 	lastRateUpdate          time.Time
@@ -89,11 +89,11 @@ func (s *Batcher) incErrors() {
 }
 
 func (s *Batcher) incReadBytes(n uint64) {
-	atomic.AddUint64(&s.readBytes, n)
+	s.readBytes.Add(n)
 }
 
 func (s *Batcher) ReadBytes() uint64 {
-	return atomic.LoadUint64(&s.readBytes)
+	return s.readBytes.Load()
 }
 
 func (s *Batcher) ReadFiles() int {
@@ -135,7 +135,7 @@ func (s *Batcher) StatusString() string {
 	}
 
 	// Total read bytes
-	readBytes := atomic.LoadUint64(&s.readBytes)
+	readBytes := s.readBytes.Load()
 	sb.WriteString(humanize.ByteSize(readBytes))
 
 	// Elapsed time
@@ -147,8 +147,8 @@ func (s *Batcher) StatusString() string {
 		// Progress
 		elapsedTime := time.Since(s.lastRateUpdate).Seconds()
 		if elapsedTime >= 0.5 {
-			s.lastRate = uint64(float64(s.readBytes-s.lastRateBytes) / elapsedTime)
-			s.lastRateBytes = s.readBytes
+			s.lastRate = uint64(float64(readBytes-s.lastRateBytes) / elapsedTime)
+			s.lastRateBytes = readBytes
 			s.lastRateUpdate = time.Now()
 		}
 
