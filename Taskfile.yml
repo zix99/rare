@@ -43,11 +43,22 @@ tasks:
       - goreleaser release --snapshot --clean
 
   # Test
+  test:
+    desc: Run full coverage
+    cmds:
+      - task: test:race
+      - task: test:check
+
   test:unit:
-    desc: Run all tests
+    desc: Run all unit tests
     cmds:
       - go test ./...
       - go test -tags=pcre2 github.com/zix99/rare/pkg/matchers/fastregex
+
+  test:race:
+    desc: Run tests with race
+    cmds:
+      - go test -race ./...
 
   test:acceptance:
     desc: Run acceptance tests

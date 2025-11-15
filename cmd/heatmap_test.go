@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/zix99/rare/pkg/testutil"
 )
 
 func TestHeatmap(t *testing.T) {
@@ -17,12 +18,12 @@ func TestHeatmapLinear(t *testing.T) {
 	out, eout, err := testCommandCapture(heatmapCommand(), `--snapshot -m "(.+) (.+)" -e "{$ {1} {2}}" testdata/heat.txt`)
 	assert.NoError(t, err)
 	assert.Empty(t, eout)
-	assert.Contains(t, out, " - 0    2 1    4 2    6 3    9 4\n a..\nx -22\ny 224\nz 9--\nMatched: 10 / 10 (R: 3; C: 3)\n39 B (0 B/s)")
+	testutil.AssertPattern(t, out, " - 0    2 1    4 2    6 3    9 4\n a..\nx -22\ny 224\nz 9--\nMatched: 10 / 10 (R: 3; C: 3)\n39 B in * (*)\n")
 }
 
 func TestHeatmapLog2(t *testing.T) {
 	out, eout, err := testCommandCapture(heatmapCommand(), `--snapshot -m "(.+) (.+)" -e "{$ {1} {2}}" --scale log2 testdata/heat.txt`)
 	assert.NoError(t, err)
 	assert.Empty(t, eout)
-	assert.Contains(t, out, " - 1    4 2    7 3    9 4\n a..\nx ---\ny --4\nz 9--\nMatched: 10 / 10 (R: 3; C: 3)\n39 B (0 B/s)")
+	testutil.AssertPattern(t, out, " - 1    4 2    7 3    9 4\n a..\nx ---\ny --4\nz 9--\nMatched: 10 / 10 (R: 3; C: 3)\n39 B in * (*)\n")
 }

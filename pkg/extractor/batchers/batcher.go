@@ -27,8 +27,12 @@ type Batcher struct {
 	errorCount  int
 	activeFiles []string
 
+	startTime, stopTime time.Time
+
 	// Atomic fields (only used to compute performance metrics)
-	readBytes               uint64
+	readBytes atomic.Uint64
+
+	// Used only in StatusString to compute read rate
 	lastRateUpdate          time.Time
 	lastRate, lastRateBytes uint64
 }
@@ -37,11 +41,16 @@ func newBatcher(bufferSize int) *Batcher {
 	return &Batcher{
 		c:              make(chan extractor.InputBatch, bufferSize),
 		lastRateUpdate: time.Now(),
+		startTime:      time.Now(),
 	}
 }
 
 func (s *Batcher) close() {
 	close(s.c)
+
+	s.mux.Lock()
+	s.stopTime = time.Now()
+	s.mux.Unlock()
 }
 
 func (s *Batcher) BatchChan() <-chan extractor.InputBatch {
@@ -80,11 +89,11 @@ func (s *Batcher) incErrors() {
 }
 
 func (s *Batcher) incReadBytes(n uint64) {
-	atomic.AddUint64(&s.readBytes, n)
+	s.readBytes.Add(n)
 }
 
 func (s *Batcher) ReadBytes() uint64 {
-	return atomic.LoadUint64(&s.readBytes)
+	return s.readBytes.Load()
 }
 
 func (s *Batcher) ReadFiles() int {
@@ -106,34 +115,54 @@ func (s *Batcher) ActiveFileCount() int {
 }
 
 // StatusString gets a formatted version of the current reader-set
+// [9/10 !1] 1.41 GB in 2.7s (~526.71 MB/s) | a b c (and 2 more...)
 func (s *Batcher) StatusString() string {
 	var sb strings.Builder
 	sb.Grow(100)
 	const maxFilesToWrite = 2
 
 	s.mux.Lock()
+	defer s.mux.Unlock()
+
 	// Total files read
 	if s.sourceCount > 1 {
-		sb.WriteString(fmt.Sprintf("[%d/%d] ", s.readCount, s.sourceCount))
+		sb.WriteString(fmt.Sprintf("[%d/%d", s.readCount, s.sourceCount))
+		// Errors
+		if s.errorCount > 0 {
+			sb.WriteString(fmt.Sprintf(" !%d", s.errorCount))
+		}
+		sb.WriteString("] ")
 	}
 
-	// Rate / bytes
-	readBytes := atomic.LoadUint64(&s.readBytes)
-	sb.WriteString(humanize.ByteSize(readBytes) + " ")
+	// Total read bytes
+	readBytes := s.readBytes.Load()
+	sb.WriteString(humanize.ByteSize(readBytes))
 
-	elapsedTime := time.Since(s.lastRateUpdate).Seconds()
-	if elapsedTime >= 0.5 {
-		s.lastRate = uint64(float64(s.readBytes-s.lastRateBytes) / elapsedTime)
-		s.lastRateBytes = s.readBytes
-		s.lastRateUpdate = time.Now()
+	// Elapsed time
+	elapsed := s.elapsedTimeNoLock()
+	sb.WriteString(" in " + durationToString(elapsed))
+
+	// Read rate
+	if s.stopTime.IsZero() {
+		// Progress
+		elapsedTime := time.Since(s.lastRateUpdate).Seconds()
+		if elapsedTime >= 0.5 {
+			s.lastRate = uint64(float64(readBytes-s.lastRateBytes) / elapsedTime)
+			s.lastRateBytes = readBytes
+			s.lastRateUpdate = time.Now()
+		}
+
+		sb.WriteString(" (" + humanize.ByteSize(s.lastRate) + "/s)")
+	} else {
+		// Final
+		rate := uint64(float64(readBytes) / elapsed.Seconds())
+		sb.WriteString(" (~" + humanize.ByteSize(rate) + "/s)")
 	}
-
-	sb.WriteString("(" + humanize.ByteSize(s.lastRate) + "/s) ")
 
 	// Current actively read files
 	writeFiles := min(len(s.activeFiles), maxFilesToWrite)
 	if writeFiles > 0 {
-		sb.WriteString("| ")
+		sb.WriteString(" | ")
 		sb.WriteString(strings.Join(s.activeFiles[:writeFiles], ", "))
 
 		if len(s.activeFiles) > maxFilesToWrite {
@@ -141,9 +170,29 @@ func (s *Batcher) StatusString() string {
 		}
 	}
 
-	s.mux.Unlock()
-
 	return sb.String()
+}
+
+func (s *Batcher) elapsedTimeNoLock() time.Duration {
+	if s.stopTime.IsZero() {
+		return time.Since(s.startTime)
+	}
+	return s.stopTime.Sub(s.startTime)
+}
+
+// Variable duration pretty-printing
+// Optimize to prevent terminal stutter/length changes (eg 2.1 2.11...)
+func durationToString(d time.Duration) string {
+	switch {
+	case d < time.Second:
+		return fmt.Sprintf("%03dms", d.Milliseconds())
+	case d < time.Minute:
+		return fmt.Sprintf("%.02fs", d.Truncate(10*time.Millisecond).Seconds())
+	case d < time.Hour:
+		return fmt.Sprintf("%dm%.1fs", int(d.Truncate(time.Minute).Minutes()), (d % time.Minute).Seconds())
+	default:
+		return d.Truncate(time.Second).String()
+	}
 }
 
 // syncReaderToBatcher reads a reader buffer and breaks up its scans to `batchSize`
