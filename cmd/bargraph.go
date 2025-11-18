@@ -34,6 +34,9 @@ func bargraphFunction(c *cli.Context) error {
 		}
 		writer.Scaler = helpers.BuildScalerOrFail(scaleName)
 	}
+	if stacked && inlineSubkey {
+		return cli.Exit("Unable to use inline-key on stacked graphs", helpers.ExitCodeInvalidUsage)
+	}
 	writer.Formatter = helpers.BuildFormatterOrFail(formatName)
 
 	batcher := helpers.BuildBatcherFromArguments(c)
