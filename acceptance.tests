@@ -183,6 +183,11 @@ RUN bars -k -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{buckettime {1} year}" -e "{2}" c
     Matched: 50 / 50
 END
 
+NAME bars inline key no sub
+RUN bars -k -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{buckettime {1} year}" cmd/testdata/access.txt
+    2019  ██████████████████████████████████████████████████ 50
+    Matched: 50 / 50
+END
 
 NAME bars stacked
 RUN bars -s -m "\[(.+?)\].* (\d{3}) (\d+)" -e "{buckettime {1} year}" -e '{2}' cmd/testdata/access.txt

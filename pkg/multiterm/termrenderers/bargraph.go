@@ -159,7 +159,7 @@ func (s *BarGraph) writeBarGrouped(idx int, key string, vals ...int64) {
 		}
 
 		// Write subkey
-		if s.InlineSubkey && len(s.subKeys) >= len(vals) {
+		if s.InlineSubkey && s.maxSubkeyLen > 0 && len(s.subKeys) >= len(vals) {
 			color.Write(&sb, color.BrightBlue, func(w io.StringWriter) {
 				w.WriteString(s.subKeys[i])
 			})
