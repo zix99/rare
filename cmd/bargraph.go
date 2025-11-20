@@ -16,21 +16,26 @@ go run . bars -sz -m "\[(.+?)\].*\" (\d+)" -e "{$ {buckettime {1} year nginx} {2
 
 func bargraphFunction(c *cli.Context) error {
 	var (
-		stacked    = c.Bool("stacked")
-		sortName   = c.String(helpers.DefaultSortFlag.Name)
-		scaleName  = c.String(helpers.ScaleFlag.Name)
-		formatName = c.String(helpers.FormatFlag.Name)
+		stacked      = c.Bool("stacked")
+		inlineSubkey = c.Bool("inline-key")
+		sortName     = c.String(helpers.DefaultSortFlag.Name)
+		scaleName    = c.String(helpers.ScaleFlag.Name)
+		formatName   = c.String(helpers.FormatFlag.Name)
 	)
 
 	vt := helpers.BuildVTermFromArguments(c)
 	counter := aggregation.NewSubKeyCounter()
 	writer := termrenderers.NewBarGraph(vt)
 	writer.Stacked = stacked
+	writer.InlineSubkey = inlineSubkey
 	if c.IsSet(helpers.ScaleFlag.Name) {
 		if stacked {
 			return cli.Exit("Unable to set graph scale on stacked graphs", helpers.ExitCodeInvalidUsage)
 		}
 		writer.Scaler = helpers.BuildScalerOrFail(scaleName)
+	}
+	if stacked && inlineSubkey {
+		return cli.Exit("Unable to use inline-key on stacked graphs", helpers.ExitCodeInvalidUsage)
 	}
 	writer.Formatter = helpers.BuildFormatterOrFail(formatName)
 
@@ -76,6 +81,11 @@ func bargraphCommand() *cli.Command {
 				Name:    "stacked",
 				Aliases: []string{"s"},
 				Usage:   "Display bargraph as stacked",
+			},
+			&cli.BoolFlag{
+				Name:    "inline-key",
+				Aliases: []string{"k"},
+				Usage:   "For unstacked graph, display subkey on each bar",
 			},
 			helpers.DefaultSortFlag,
 			helpers.SnapshotFlag,

@@ -21,15 +21,17 @@ type BarGraph struct {
 
 	maxKeyLength int
 	subKeys      []string
+	maxSubkeyLen int
 	rows         []barGraphPair
 	maxLineVal   int64
 	maxRows      int
 	prefixLines  int
 
-	BarSize   int
-	Stacked   bool
-	Scaler    termscaler.Scaler
-	Formatter termformat.Formatter
+	BarSize      int
+	Stacked      bool
+	InlineSubkey bool // Inline subkey (only when unstacked)
+	Scaler       termscaler.Scaler
+	Formatter    termformat.Formatter
 }
 
 func NewBarGraph(term multiterm.MultilineTerm) *BarGraph {
@@ -37,6 +39,7 @@ func NewBarGraph(term multiterm.MultilineTerm) *BarGraph {
 		writer:       term,
 		maxKeyLength: 4,
 		Stacked:      false,
+		InlineSubkey: false,
 		BarSize:      50,
 		Scaler:       termscaler.ScalerLinear,
 		Formatter:    termformat.Default,
@@ -46,9 +49,14 @@ func NewBarGraph(term multiterm.MultilineTerm) *BarGraph {
 func (s *BarGraph) SetKeys(keyItems ...string) {
 	s.subKeys = keyItems
 
-	if len(keyItems) > 1 || (len(keyItems) == 1 && keyItems[0] != "") {
+	for _, item := range keyItems {
+		s.maxSubkeyLen = max(s.maxSubkeyLen, len(item))
+	}
+
+	if !s.InlineSubkey && (len(keyItems) > 1 || (len(keyItems) == 1 && keyItems[0] != "")) {
 		s.prefixLines = 1
 
+		// draw key
 		var sb strings.Builder
 		sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
 		for idx, item := range keyItems {
@@ -145,16 +153,30 @@ func (s *BarGraph) writeBarGrouped(idx int, key string, vals ...int64) {
 	}
 
 	for i := 0; i < len(vals); i++ {
+		// Offset top-level group
 		if i > 0 {
 			sb.WriteString(strings.Repeat(" ", s.maxKeyLength+2))
 		}
+
+		// Write subkey
+		if s.InlineSubkey && s.maxSubkeyLen > 0 && len(s.subKeys) >= len(vals) {
+			color.Write(&sb, color.BrightBlue, func(w io.StringWriter) {
+				w.WriteString(s.subKeys[i])
+			})
+			writeRepeat(&sb, ' ', s.maxSubkeyLen-len(s.subKeys[i])+2)
+		}
+
+		// Write bar
 		color.Write(&sb, color.GroupColors[i%len(color.GroupColors)], func(w io.StringWriter) {
 			termunicode.BarWrite(w, s.Scaler.Scale(vals[i], 0, s.maxLineVal), s.BarSize)
 		})
 		sb.WriteString(" ")
-		sb.WriteString(s.Formatter(vals[i], 0, s.maxLineVal))
-		s.writer.WriteForLine(line+i, sb.String())
 
+		// Write value
+		sb.WriteString(s.Formatter(vals[i], 0, s.maxLineVal))
+
+		// Output
+		s.writer.WriteForLine(line+i, sb.String())
 		sb.Reset()
 	}
 }

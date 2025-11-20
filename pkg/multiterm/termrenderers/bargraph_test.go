@@ -18,6 +18,7 @@ func TestBargraphRendering(t *testing.T) {
 	bg.WriteBar(0, "test", 1, 2)
 	bg.WriteBar(1, "tes2", 1, 3)
 	bg.WriteFooter(0, "abc")
+	bg.Close()
 
 	assert.Equal(t, "        0 a  1 b", v.Get(0))
 	assert.Equal(t, "test  ████████████████▊ 1", v.Get(1))
@@ -25,6 +26,40 @@ func TestBargraphRendering(t *testing.T) {
 	assert.Equal(t, "tes2  ████████████████▊ 1", v.Get(3))
 	assert.Equal(t, "      ██████████████████████████████████████████████████ 3", v.Get(4))
 	assert.Equal(t, "abc", v.Get(5))
+}
+
+func TestBargraphInlineKeyRendering(t *testing.T) {
+	v := multiterm.NewVirtualTerm()
+	bg := NewBarGraph(v)
+	bg.Stacked = false
+	bg.InlineSubkey = true
+
+	bg.SetKeys("a", "bb")
+	bg.WriteBar(0, "test", 1, 2)
+	bg.WriteBar(1, "tes2", 1, 3)
+	bg.WriteFooter(0, "abc")
+
+	assert.Equal(t, "test  a   ████████████████▊ 1", v.Get(0))
+	assert.Equal(t, "      bb  █████████████████████████████████▍ 2", v.Get(1))
+	assert.Equal(t, "tes2  a   ████████████████▊ 1", v.Get(2))
+	assert.Equal(t, "      bb  ██████████████████████████████████████████████████ 3", v.Get(3))
+	assert.Equal(t, "abc", v.Get(4))
+}
+
+func TestBargraphInlineKeyRenderingSingleKey(t *testing.T) {
+	v := multiterm.NewVirtualTerm()
+	bg := NewBarGraph(v)
+	bg.Stacked = false
+	bg.InlineSubkey = true
+
+	bg.SetKeys("")
+	bg.WriteBar(0, "test", 1)
+	bg.WriteBar(1, "tes2", 1)
+	bg.WriteFooter(0, "abc")
+
+	assert.Equal(t, "test  ██████████████████████████████████████████████████ 1", v.Get(0))
+	assert.Equal(t, "tes2  ██████████████████████████████████████████████████ 1", v.Get(1))
+	assert.Equal(t, "abc", v.Get(2))
 }
 
 func TestBargraphRenderingLog10(t *testing.T) {
