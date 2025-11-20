@@ -67,7 +67,7 @@ func analyzeFunction(c *cli.Context) error {
 
 	helpers.RunAggregationLoop(ext, aggr, func() {
 		line := writeAggrOutput(writer, aggr, extra, quantiles)
-		writer.WriteForLine(line+1, helpers.FWriteExtractorSummary(ext, aggr.ParseErrors()))
+		writer.WriteForLine(line+1, helpers.BuildExtractorSummary(ext, aggr.ParseErrors()))
 		writer.WriteForLine(line+2, batcher.StatusString())
 	})
 

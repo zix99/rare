@@ -104,7 +104,7 @@ func reduceFunction(c *cli.Context) error {
 			}
 
 			// write footer
-			table.WriteFooter(0, helpers.FWriteExtractorSummary(extractor, aggr.ParseErrors(),
+			table.WriteFooter(0, helpers.BuildExtractorSummary(extractor, aggr.ParseErrors(),
 				fmt.Sprintf("(R: %d; C: %d)", aggr.DataCount(), aggr.ColCount())))
 			table.WriteFooter(1, batcher.StatusString())
 		})
@@ -116,7 +116,7 @@ func reduceFunction(c *cli.Context) error {
 			for idx, expr := range items {
 				vt.WriteForLine(idx, colNames[idx]+strings.Repeat(" ", maxKeylen-len(colNames[idx]))+": "+formatters[idx](expr))
 			}
-			vt.WriteForLine(len(items), helpers.FWriteExtractorSummary(extractor, aggr.ParseErrors()))
+			vt.WriteForLine(len(items), helpers.BuildExtractorSummary(extractor, aggr.ParseErrors()))
 			vt.WriteForLine(len(items)+1, batcher.StatusString())
 		})
 	}

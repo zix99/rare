@@ -54,7 +54,6 @@ func TestAggregationLoop(t *testing.T) {
 	assert.Equal(t, 3, len(agg.items))
 
 	// Also validate summary building since we have all the correct context
-	WriteExtractorSummary(ex)
-	FWriteExtractorSummary(ex, 1, "abc")
+	BuildExtractorSummary(ex, 1, "abc")
 	WriteBatcherSummary(os.Stderr, batcher, nil)
 }

@@ -52,7 +52,7 @@ func histoFunction(c *cli.Context) error {
 	sorter := helpers.BuildSorterOrFail(sortName)
 
 	progressString := func() string {
-		return helpers.FWriteExtractorSummary(ext,
+		return helpers.BuildExtractorSummary(ext,
 			counter.ParseErrors(),
 			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount())))
 	}

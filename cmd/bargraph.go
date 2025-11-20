@@ -52,7 +52,7 @@ func bargraphFunction(c *cli.Context) error {
 			line++
 		}
 
-		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors()))
+		writer.WriteFooter(0, helpers.BuildExtractorSummary(ext, counter.ParseErrors()))
 		writer.WriteFooter(1, batcher.StatusString())
 	})
 

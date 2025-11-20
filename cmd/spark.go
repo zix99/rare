@@ -57,7 +57,7 @@ func sparkFunction(c *cli.Context) error {
 
 		// Write spark
 		writer.WriteTable(counter, rowSorter, colSorter)
-		writer.WriteFooter(0, helpers.FWriteExtractorSummary(ext, counter.ParseErrors(),
+		writer.WriteFooter(0, helpers.BuildExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
 		writer.WriteFooter(1, batcher.StatusString())
 	})

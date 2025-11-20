@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/zix99/rare/pkg/color"
 	"github.com/zix99/rare/pkg/extractor"
@@ -13,15 +12,15 @@ import (
 	"github.com/zix99/rare/pkg/humanize"
 )
 
-func FWriteMatchSummary(w io.Writer, matched, total uint64) {
+func WriteMatchSummary(w io.Writer, matched, total uint64) {
 	fmt.Fprintf(w, "Matched: %s / %s",
 		color.Wrap(color.BrightGreen, humanize.Hui(matched)),
 		color.Wrap(color.BrightWhite, humanize.Hui(total)))
 }
 
-func FWriteExtractorSummary(extractor *extractor.Extractor, errors uint64, additionalParts ...string) string {
+func BuildExtractorSummary(extractor *extractor.Extractor, errors uint64, additionalParts ...string) string {
 	var w bytes.Buffer
-	FWriteMatchSummary(&w, extractor.MatchedLines(), extractor.ReadLines())
+	WriteMatchSummary(&w, extractor.MatchedLines(), extractor.ReadLines())
 	for _, p := range additionalParts {
 		w.WriteRune(' ')
 		w.WriteString(p)
@@ -33,11 +32,6 @@ func FWriteExtractorSummary(extractor *extractor.Extractor, errors uint64, addit
 		fmt.Fprintf(&w, " %s", color.Wrapf(color.Red, "(Errors: %v)", humanize.Hui(errors)))
 	}
 	return w.String()
-}
-
-func WriteExtractorSummary(extractor *extractor.Extractor) {
-	os.Stderr.WriteString(FWriteExtractorSummary(extractor, 0))
-	os.Stderr.WriteString("\n")
 }
 
 func WriteBatcherSummary(w io.Writer, b *batchers.Batcher, walker dirwalk.Metrics) {

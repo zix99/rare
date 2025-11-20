@@ -74,11 +74,11 @@ OUTER_LOOP:
 	}
 
 	if numLineLimit > 0 {
-		helpers.FWriteMatchSummary(os.Stderr, readLines, numLineLimit)
-		os.Stderr.WriteString("\n")
+		helpers.WriteMatchSummary(os.Stderr, readLines, numLineLimit)
 	} else {
-		helpers.WriteExtractorSummary(extractor)
+		os.Stderr.WriteString(helpers.BuildExtractorSummary(extractor, 0))
 	}
+	os.Stderr.WriteString("\n")
 
 	return helpers.DetermineErrorState(batcher, extractor, nil)
 }
