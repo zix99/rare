@@ -34,6 +34,12 @@ func TestOrderResults(t *testing.T) {
 	assertSortEquals(t, "value:desc", 3, 2, 1, 0, 4)
 	assertSortEquals(t, "value:reverse", 4, 0, 1, 2, 3)
 	assertSortEquals(t, "value:asc", 4, 0, 1, 2, 3)
+
+	// Shorthands
+	assertSortEquals(t, "v", 3, 2, 1, 0, 4)
+	assertSortEquals(t, "val", 3, 2, 1, 0, 4)
+	assertSortEquals(t, "n:r", 3, 0, 2, 4, 1)
+	assertSortEquals(t, "t:d", 3, 0, 2, 4, 1)
 }
 
 func TestInvalidSortNames(t *testing.T) {

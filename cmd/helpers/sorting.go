@@ -14,7 +14,7 @@ import (
 
 var DefaultSortFlag = &cli.StringFlag{
 	Name:  "sort",
-	Usage: "Sorting method for display (value, text, numeric, contextual, date)",
+	Usage: "Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse",
 	Value: "numeric",
 }
 
@@ -60,15 +60,15 @@ func parseSort(name string) (realname string, reverse bool, err error) {
 	}
 
 	realname = strings.ToLower(splitter.Next())
-	reverse = (realname == "value") // Value defaults descending
+	reverse = (realname == "value" || realname == "val" || realname == "v") // Value defaults descending
 
 	if modifier, hasModifier := splitter.NextOk(); hasModifier {
 		switch strings.ToLower(modifier) {
-		case "rev", "reverse":
+		case "rev", "reverse", "r":
 			reverse = !reverse
-		case "desc":
+		case "desc", "descending", "d":
 			reverse = true
-		case "asc":
+		case "asc", "ascending", "a":
 			reverse = false
 		default:
 			return "", false, errors.New("invalid sort modifier")
@@ -81,15 +81,15 @@ func parseSort(name string) (realname string, reverse bool, err error) {
 func lookupSorter(name string) (sorting.NameValueSorter, error) {
 	name = strings.ToLower(name)
 	switch name {
-	case "text", "":
+	case "text", "t", "":
 		return sorting.ValueNilSorter(sorting.ByName), nil
-	case "numeric":
+	case "numeric", "n":
 		return sorting.ValueNilSorter(sorting.ByNameSmart), nil
-	case "contextual", "context":
+	case "contextual", "context", "c":
 		return sorting.ValueNilSorter(sorting.ByContextual()), nil
-	case "date":
+	case "date", "d":
 		return sorting.ValueNilSorter(sorting.ByDateWithContextual()), nil
-	case "value":
+	case "value", "val", "v":
 		return sorting.ValueSorterEx(sorting.ByName), nil
 	}
 	return nil, errors.New("unknown sort")
