@@ -337,7 +337,7 @@ Many of the aggregators support changing the order in which the data is displaye
 can change this from default either by setting the `--sort` flag or `--sort-rows` and `--sort-cols`
 flags for tables.
 
-These are the supported sorters:
+These are the supported sorters. You can shorthand to the first letter.
 
 * `text` -- Pure alphanumeric sort.  Fastest, but can sort numbers oddly (eg. would sort 1, 11, 2, ...)
 * `numeric` -- Attempts to parse the value as numeric.  If unable to parse, falls
@@ -352,7 +352,7 @@ These are the supported sorters:
 
 In addition to the sorting method, you can also modify the sort by adding a colon and the modifier, eg: `numeric:desc`
 
-These are the supported modifiers:
+These are the supported modifiers. You can shorthand to the first letter.
 
 * `:reverse` -- Reverse of the "default"
 * `:asc` -- Ascending order
