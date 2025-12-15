@@ -57,6 +57,11 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 	case "auto": // Auto will attempt to parse every time
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			strTime := dateStage(context)
+
+			if v, ok := simpleParseNumeric(strTime); ok {
+				return f(time.Unix(v, 0).In(tz))
+			}
+
 			val, err := dateparse.ParseIn(strTime, tz)
 			if err != nil {
 				return ErrorParsing
@@ -64,9 +69,19 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 			return f(val)
 		}), nil
 
+	case "epoch", "unix": // Epoch/Unix time
+		return KeyBuilderStage(func(context KeyBuilderContext) string {
+			strTime := dateStage(context)
+			if unixSecs, ok := simpleParseNumeric(strTime); ok {
+				return f(time.Unix(unixSecs, 0).In(tz))
+			}
+			return ErrorParsing
+		}), nil
+
 	case "", "cache": // Empty format will auto-detect on first successful entry
 		var atomicFormat atomic.Value
 		atomicFormat.Store("")
+		const FORMAT_UNIX = "UNIX"
 
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			strTime := dateStage(context)
@@ -79,11 +94,23 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 				// This may end up run by a few different threads, but it comes at the benefit
 				// of not needing a mutex
 				var err error
-				liveFormat, err = dateparse.ParseFormat(strTime)
-				if err != nil {
+
+				// check if unix time
+				if _, ok := simpleParseNumeric(strTime); ok {
+					liveFormat = FORMAT_UNIX
+				} else if liveFormat, err = dateparse.ParseFormat(strTime); err != nil {
 					return ErrorParsing
 				}
+
 				atomicFormat.Store(liveFormat)
+			}
+
+			if liveFormat == FORMAT_UNIX {
+				if unixSecs, ok := simpleParseNumeric(strTime); ok {
+					return f(time.Unix(unixSecs, 0).In(tz))
+				} else {
+					return ErrorParsing
+				}
 			}
 
 			val, err := time.ParseInLocation(liveFormat, strTime, tz)
@@ -160,17 +187,9 @@ func kfTimeFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageArgError(ErrParsing, 2)
 	}
 
-	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		strUnixTime := args[0](context)
-		unixTime, err := strconv.ParseInt(strUnixTime, 10, 64)
-		if err != nil {
-			return ErrorNum
-		}
-
-		t := time.Unix(unixTime, 0).In(tz)
-
+	return smartDateParseWrapper("", tz, args[0], func(t time.Time) string {
 		return t.Format(format)
-	}), nil
+	})
 }
 
 // {func <duration_string>}
@@ -272,17 +291,17 @@ var attrType = map[string](func(t time.Time) string){
 	},
 }
 
-// {func <time> <attr> [tz:utc]}
+// {timeattr <time> <attr> [format:auto] [tz:utc]}
 func kfTimeAttr(args []KeyBuilderStage) (KeyBuilderStage, error) {
-	if len(args) < 2 || len(args) > 3 {
-		return stageErrArgRange(args, "2-3")
+	if !isArgCountBetween(args, 2, 4) {
+		return stageErrArgRange(args, "2-4")
 	}
 
 	attrName, hasAttrName := EvalStaticStage(args[1])
 	if !hasAttrName {
 		return stageArgError(ErrConst, 1)
 	}
-	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 2, ""))
+	tz, tzOk := parseTimezoneLocation(EvalStageIndexOrDefault(args, 3, ""))
 	if !tzOk {
 		return stageArgError(ErrParsing, 2)
 	}
@@ -292,16 +311,9 @@ func kfTimeAttr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageArgError(ErrEnum, 1)
 	}
 
-	return KeyBuilderStage(func(context KeyBuilderContext) string {
-		unixTime, err := strconv.ParseInt(args[0](context), 10, 64)
-		if err != nil {
-			return ErrorNum
-		}
+	timeFormat := EvalStageIndexOrDefault(args, 2, "")
 
-		t := time.Unix(unixTime, 0).In(tz)
-
-		return attrFunc(t)
-	}), nil
+	return smartDateParseWrapper(timeFormat, tz, args[0], attrFunc)
 }
 
 // Pass in "", "local", "utc" or a valid unix timezone
