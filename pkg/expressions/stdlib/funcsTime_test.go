@@ -16,8 +16,50 @@ func TestTimeExpressionErr(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{time {0} NGINX}",
 		"1460653945")
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0} auto}",
+		"1460653945")
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0} cache}",
+		"1460653945")
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0}}",
+		"1460653945")
+
+	// epoch/unix
+	testExpression(t, mockContext(), "{time 1460653945}", "1460653945")
+	testExpression(t, mockContext(), "{time 1460653945 auto}", "1460653945")
+	testExpression(t, mockContext(), "{time 1460653945 unix}", "1460653945")
+	testExpression(t, mockContext(), "{time 1460653945 cache}", "1460653945")
+
+	// Error states
 	testExpression(t, mockContext(""), "{time a}", "<PARSE-ERROR>")
+	testExpression(t, mockContext(""), "{time a auto}", "<PARSE-ERROR>")
+	testExpression(t, mockContext(""), "{time a cache}", "<PARSE-ERROR>")
+	testExpression(t, mockContext(""), "{time a epoch}", "<PARSE-ERROR>")
 	testExpressionErr(t, mockContext(""), "{time a b c d e}", "<ARGN>", ErrArgCount)
+}
+
+func TestCachedParsingTimestamp(t *testing.T) {
+	kb, err := NewStdKeyBuilder().Compile("{time {0} cache}")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "1460653945", kb.BuildKey(mockContext("14/Apr/2016:19:12:25 +0200")))
+	assert.Equal(t, "1460653945", kb.BuildKey(mockContext("14/Apr/2016:19:12:25 +0200")))
+	assert.Equal(t, "<PARSE-ERROR>", kb.BuildKey(mockContext("1460653945"))) // Can't parse epoch, locked into real
+	assert.Equal(t, "<PARSE-ERROR>", kb.BuildKey(mockContext("not a time")))
+}
+
+func TestCachedParsingEpoch(t *testing.T) {
+	kb, err := NewStdKeyBuilder().Compile("{time {0} cache}")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "1460653945", kb.BuildKey(mockContext("1460653945")))
+	assert.Equal(t, "<PARSE-ERROR>", kb.BuildKey(mockContext("14/Apr/2016:19:12:25 +0200"))) // Can't parse real time, locked into epoch
+	assert.Equal(t, "<PARSE-ERROR>", kb.BuildKey(mockContext("not a time")))
 }
 
 func TestFormatExpression(t *testing.T) {
