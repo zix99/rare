@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/zix99/rare/pkg/expressions"
-
 	"github.com/araddon/dateparse"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,8 +16,50 @@ func TestTimeExpressionErr(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{time {0} NGINX}",
 		"1460653945")
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0} auto}",
+		"1460653945")
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0} cache}",
+		"1460653945")
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25 +0200"),
+		"{time {0}}",
+		"1460653945")
+
+	// epoch/unix
+	testExpression(t, mockContext(), "{time 1460653945}", "1460653945")
+	testExpression(t, mockContext(), "{time 1460653945 auto}", "1460653945")
+	testExpression(t, mockContext(), "{time 1460653945 unix}", "1460653945")
+	testExpression(t, mockContext(), "{time 1460653945 cache}", "1460653945")
+
+	// Error states
 	testExpression(t, mockContext(""), "{time a}", "<PARSE-ERROR>")
+	testExpression(t, mockContext(""), "{time a auto}", "<PARSE-ERROR>")
+	testExpression(t, mockContext(""), "{time a cache}", "<PARSE-ERROR>")
+	testExpression(t, mockContext(""), "{time a epoch}", "<PARSE-ERROR>")
 	testExpressionErr(t, mockContext(""), "{time a b c d e}", "<ARGN>", ErrArgCount)
+}
+
+func TestCachedParsingTimestamp(t *testing.T) {
+	kb, err := NewStdKeyBuilder().Compile("{time {0} cache}")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "1460653945", kb.BuildKey(mockContext("14/Apr/2016:19:12:25 +0200")))
+	assert.Equal(t, "1460653945", kb.BuildKey(mockContext("14/Apr/2016:19:12:25 +0200")))
+	assert.Equal(t, "<PARSE-ERROR>", kb.BuildKey(mockContext("1460653945"))) // Can't parse epoch, locked into real
+	assert.Equal(t, "<PARSE-ERROR>", kb.BuildKey(mockContext("not a time")))
+}
+
+func TestCachedParsingEpoch(t *testing.T) {
+	kb, err := NewStdKeyBuilder().Compile("{time {0} cache}")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "1460653945", kb.BuildKey(mockContext("1460653945")))
+	assert.Equal(t, "<PARSE-ERROR>", kb.BuildKey(mockContext("14/Apr/2016:19:12:25 +0200"))) // Can't parse real time, locked into epoch
+	assert.Equal(t, "<PARSE-ERROR>", kb.BuildKey(mockContext("not a time")))
 }
 
 func TestFormatExpression(t *testing.T) {
@@ -28,6 +68,11 @@ func TestFormatExpression(t *testing.T) {
 		mockContext("14/Apr/2016:19:12:25 +0200"),
 		"{timeformat {time {0} NGINX} RFC3339 utc}",
 		"2016-04-14T17:12:25Z")
+	// Implicit parse
+	testExpression(t,
+		mockContext("14/Apr/2016:19:12:25"),
+		"{timeformat {0} RFC3339}",
+		"2016-04-14T19:12:25Z")
 	// Explicit
 	testExpression(t,
 		mockContext("14/Apr/2016:19:12:25 +0200"),
@@ -186,6 +231,32 @@ func TestTimeAttr(t *testing.T) {
 		"{timeattr {time {0}} quarter}",
 		"2")
 
+	// Test with implicit time parsing
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {0} weekday}",
+		"4")
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {0} week}",
+		"15")
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {0} Yearweek}",
+		"2016-15")
+	testExpression(t,
+		mockContext("14/Apr/2016 01:00:00"),
+		"{timeattr {0} quarter}",
+		"2")
+	testExpression(t,
+		mockContext("1460595600"),
+		"{timeattr {0} weekday}",
+		"4")
+	testExpression(t,
+		mockContext("1460595600"),
+		"{timeattr {0} weekday epoch utc}",
+		"4")
+
 	testExpressionErr(t, mockContext("a"), "{timeattr {time now} {0}}", "<CONST>")
 	testExpressionErr(t, mockContext("a"), "{timeattr {time now} bad-value}", "<ENUM>")
 }
@@ -200,7 +271,7 @@ func TestTimeAttrToLocal(t *testing.T) {
 func TestTimeAttrToBadTZ(t *testing.T) {
 	testExpressionErr(t,
 		mockContext("14/Apr/2016 01:00:00"),
-		"{timeattr {time {0}} weekday asdf}",
+		"{timeattr {time {0}} weekday auto asdf}",
 		"<PARSE-ERROR>", ErrParsing)
 }
 
@@ -214,7 +285,7 @@ func TestTimeAttrArgError(t *testing.T) {
 func TestTimeAttrArgErrorExtra(t *testing.T) {
 	testExpressionErr(t,
 		mockContext("14/Apr/2016 01:00:00"),
-		"{timeattr {time {0}} a b c}",
+		"{timeattr {time {0}} a b c e}",
 		"<ARGN>", ErrArgCount)
 }
 
@@ -237,21 +308,9 @@ func TestLoadingTimezone(t *testing.T) {
 	assert.False(t, ok)
 }
 
-// BenchmarkTimeParseExpression-4   	  537970	      2133 ns/op	     536 B/op	       9 allocs/op
+// BenchmarkTimeParseExpression/{time_"14/Apr/2016:19:12:25_+0200"_auto}-4         	  761017	      1645 ns/op	     336 B/op	       4 allocs/op
 func BenchmarkTimeParseExpression(b *testing.B) {
-	stage, _ := kfTimeParse([]expressions.KeyBuilderStage{
-		func(kbc expressions.KeyBuilderContext) string {
-			return kbc.GetMatch(0)
-		},
-		literal("auto"),
-	})
-	for i := 0; i < b.N; i++ {
-		stage(&expressions.KeyBuilderContextArray{
-			Elements: []string{
-				"14/Apr/2016:19:12:25 +0200",
-			},
-		})
-	}
+	benchmarkExpression(b, mockContext(), `{time "14/Apr/2016:19:12:25 +0200" auto}`, "1460653945")
 }
 
 // BenchmarkTimeParse-4   	 1686390	       654.7 ns/op	     120 B/op	       4 allocs/op

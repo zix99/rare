@@ -550,15 +550,16 @@ Syntax: `{time str "[format:cache]" "[tz:utc]"}`
 
 Parse a given time-string into a unix second time (default format: `cache`)
 
-##### Format Auto-Detection
+##### Format
 
-If the format argument is omitted or set to "auto", it will attempt to resolve the format of the time.
+There are several ways to define time formats, with varying ability. Usually `cache` is good enough, and is the default.
 
-If the format is unable to be resolved, it must be specified manually with a format below, or a custom format.
-
-If omitted or "cache": The first seen date will determine the format for all dates going forward (faster)
-
-If "auto": The date format will be auto-detected with each parse. This can be used if the date could be in different formats (slower)
+| Format            | Description                                                                                            |
+|-------------------|--------------------------------------------------------------------------------------------------------|
+| `cache` (default) | Same as `auto`, but caches the first detected format (faster). If format changes, will generate errors |
+| `auto`            | For each evaluation, parse the date. Checks for unix time, and all known timestamp formats             |
+| `epoch`, `unix`   | Parses unix timestamp (seconds since epoch)                                                            |
+| All else          | Use this as the go-style date format, described below                                                  |
 
 ##### Timezones
 
@@ -580,9 +581,9 @@ These are special values to output:
 
 #### Time Format
 
-Syntax: `{timeformat unixtime "[format:RFC3339]" "[tz:utc]"}`
+Syntax: `{timeformat time "[format:RFC3339]" "[tz:utc]"}`
 
-Takes a unix time, and formats it (default: `RFC3339`)
+Takes a time, and formats it (default: `RFC3339`)
 
 To reformat a time, you need to parse it first, eg: `{timeformat {time {0}} RFC3339}`
 
@@ -593,17 +594,16 @@ ANSIC, UNIX, RUBY, RFC822, RFC822Z, RFC1123, RFC1123Z, RFC3339, RFC3339, RFC3339
 MONTH, MONTHNAME, MNTH, DAY, WEEKDAY, WDAY, YEAR, HOUR, MINUTE, SECOND, TIMEZONE, NTIMEZONE
 
 **Custom formats:**
-You can provide a custom format using go's well-known date. Here's an exercept from the docs:
+You can provide a custom format using go's well-known date. Here's an exercept from the [docs](https://pkg.go.dev/time#Layout):
 
-To define your own format, write down what the reference time would look like formatted your way; see the values of constants
-like ANSIC, StampMicro or Kitchen for examples. The model is to demonstrate what the reference time looks like so that the Format
-and Parse methods can apply the same transformation to a general time value.
-
-The reference time used in the layouts is the specific time: `Mon Jan 2 15:04:05 MST 2006`
+> To define your own format, write down what the reference time would look like formatted your way; see the values of constants
+  like ANSIC, StampMicro or Kitchen for examples. The model is to demonstrate what the reference time looks like so that the Format
+  and Parse methods can apply the same transformation to a general time value.
+  The reference time used in the layouts is the specific time: `Mon Jan 2 15:04:05 MST 2006`
 
 #### Time Attribute
 
-Syntax: `{timeattr unixtime attr [tz:utc]"}`
+Syntax: `{timeattr time attr [tz:utc]"}`
 
 Extracts an attribute about a given datetime
 
@@ -625,7 +625,7 @@ Formats a duration (in seconds) to a human-readable time, (eg. 4h0m0s)
 
 #### Time Bucket
 
-Syntax: `{buckettime str bucket "[format]" "[tz:utc]"}`
+Syntax: `{buckettime time bucket "[format:RFC3339]" "[tz:utc]"}`
 
 Truncate the time to a given bucket (*n*ano, *s*econd, *m*inute, *h*our, *d*ay, *mo*nth, *y*ear)
 
