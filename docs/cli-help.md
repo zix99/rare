@@ -249,7 +249,7 @@ Summarize results by extracting them to a histogram
 
 **--snapshot**: In aggregators that support it, only output final results, and not progressive updates. Will enable automatically when piping output
 
-**--sort**="": Sorting method for display (value, text, numeric, contextual, date) (default: value)
+**--sort**="": Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse (default: value)
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
@@ -321,9 +321,9 @@ Create a 2D heatmap of extracted data
 
 **--snapshot**: In aggregators that support it, only output final results, and not progressive updates. Will enable automatically when piping output
 
-**--sort-cols**="": Sorting method for display (value, text, numeric, contextual, date) (default: numeric)
+**--sort-cols**="": Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse (default: numeric)
 
-**--sort-rows**="": Sorting method for display (value, text, numeric, contextual, date) (default: numeric)
+**--sort-rows**="": Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse (default: numeric)
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
@@ -393,9 +393,9 @@ Create rows of sparkline graphs
 
 **--snapshot**: In aggregators that support it, only output final results, and not progressive updates. Will enable automatically when piping output
 
-**--sort-cols**="": Sorting method for display (value, text, numeric, contextual, date) (default: numeric)
+**--sort-cols**="": Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse (default: numeric)
 
-**--sort-rows**="": Sorting method for display (value, text, numeric, contextual, date) (default: value)
+**--sort-rows**="": Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse (default: value)
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
@@ -433,6 +433,8 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--include**="": Glob file patterns to include (eg. *.txt)
 
+**--inline-key, -k**: For unstacked graph, display subkey on each bar
+
 **--match, -m**="": Regex to create match groups to summarize on (default: .*)
 
 **--mount**: Don't descend directories on other filesystems (unix only)
@@ -457,7 +459,7 @@ Create a bargraph of the given 1 or 2 dimension data
 
 **--snapshot**: In aggregators that support it, only output final results, and not progressive updates. Will enable automatically when piping output
 
-**--sort**="": Sorting method for display (value, text, numeric, contextual, date) (default: numeric)
+**--sort**="": Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse (default: numeric)
 
 **--stacked, -s**: Display bargraph as stacked
 
@@ -589,9 +591,9 @@ Create a 2D summarizing table of extracted data
 
 **--snapshot**: In aggregators that support it, only output final results, and not progressive updates. Will enable automatically when piping output
 
-**--sort-cols**="": Sorting method for display (value, text, numeric, contextual, date) (default: value)
+**--sort-cols**="": Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse (default: value)
 
-**--sort-rows**="": Sorting method for display (value, text, numeric, contextual, date) (default: value)
+**--sort-rows**="": Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse (default: value)
 
 **--tail, -t**: When following a file, navigate to the end of the file to skip existing content
 
