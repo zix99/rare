@@ -24,7 +24,7 @@ func BuildFormatter(expr string) (termformat.Formatter, error) {
 func BuildFormatterOrFail(expr string) termformat.Formatter {
 	f, err := BuildFormatter(expr)
 	if err != nil {
-		logger.Fatal(ExitCodeInvalidUsage, err)
+		logger.Fatal(ExitCodeInvalidUsage, "formatter: ", err)
 	}
 	return f
 }

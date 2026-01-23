@@ -111,8 +111,8 @@ func TestLog2KeySet(t *testing.T) {
 }
 
 func TestInvalidScalerByName(t *testing.T) {
-	s, ok := ScalerByName("fake-name")
-	assert.False(t, ok)
+	s, err := ScalerByName("fake-name")
+	assert.NotNil(t, err)
 	assert.NotNil(t, s.mapVal)
 	assert.NotNil(t, s.unmapVal)
 	assert.Equal(t, 0.0, s.Scale(0, 0, 0))

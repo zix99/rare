@@ -32,9 +32,9 @@ const (
 // Compilation errors
 var (
 	ErrNum     = newFuncErr(ErrorNum, "invalid arg type, expected int") // always numeric
-	ErrParsing = newFuncErr(ErrorParsing, "unable to parse")            // always non-numeric
+	ErrParsing = newFuncErr(ErrorParsing, "unable to parse")            // always non-numeric (eg expression or time)
 	ErrConst   = newFuncErr(ErrorConst, "expected const")
-	ErrEnum    = newFuncErr(ErrorEnum, "unable to find value in set")
+	ErrEnum    = newFuncErr(ErrorEnum, "value not in set")
 	ErrEmpty   = newFuncErr(ErrorEmpty, "invalid empty value")
 	ErrFile    = newFuncErr(ErrorFile, "unable to read file")
 	ErrValue   = newFuncErr(ErrorValue, "value out of range")
@@ -60,6 +60,12 @@ func stageArgError(err funcError, argIndex int) (KeyBuilderStage, error) {
 	return func(ctx KeyBuilderContext) string {
 		return err.expr
 	}, fmt.Errorf("argument %d, %w", argIndex+1, err.err)
+}
+
+func stageArgErrorf(err funcError, argIndex int, sub interface{}) (KeyBuilderStage, error) {
+	return func(ctx KeyBuilderContext) string {
+		return err.expr
+	}, fmt.Errorf("argument %d, %w: %v", argIndex+1, err.err, sub)
 }
 
 func stageErrArgCount(got []KeyBuilderStage, expected int) (KeyBuilderStage, error) {

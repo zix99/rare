@@ -45,7 +45,7 @@ func BuildSorter(fullName string) (sorting.NameValueSorter, error) {
 
 	sorter, err := lookupSorter(name)
 	if err != nil {
-		return nil, fmt.Errorf("unknown sort: %s", name)
+		return nil, fmt.Errorf("unknown sort %s: %w", name, err)
 	}
 	if reverse {
 		sorter = sorting.Reverse(sorter)
@@ -71,7 +71,7 @@ func parseSort(name string) (realname string, reverse bool, err error) {
 		case "asc", "ascending", "a":
 			reverse = false
 		default:
-			return "", false, errors.New("invalid sort modifier")
+			return "", false, errors.New("invalid sort modifier, options: reverse, descending, ascending")
 		}
 	}
 
@@ -92,5 +92,5 @@ func lookupSorter(name string) (sorting.NameValueSorter, error) {
 	case "value", "val", "v":
 		return sorting.ValueSorterEx(sorting.ByName), nil
 	}
-	return nil, errors.New("unknown sort")
+	return nil, errors.New("unknown sort, options: text, numeric, contextual, date, value")
 }

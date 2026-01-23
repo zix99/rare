@@ -1,6 +1,7 @@
 package termscaler
 
 import (
+	"errors"
 	"math"
 	"strings"
 )
@@ -101,14 +102,14 @@ func (s Scaler) ScaleKeys(buckets, min, max int64) []int64 {
 	return ret
 }
 
-func ScalerByName(name string) (Scaler, bool) {
+func ScalerByName(name string) (Scaler, error) {
 	switch strings.ToLower(name) {
 	case "linear", "lin", "":
-		return ScalerLinear, true
+		return ScalerLinear, nil
 	case "log10", "log":
-		return ScalerLog10, true
+		return ScalerLog10, nil
 	case "log2":
-		return ScalerLog2, true
+		return ScalerLog2, nil
 	}
-	return ScalerNull, false
+	return ScalerNull, errors.New("unknown scaler, options: linear, log10, log2")
 }

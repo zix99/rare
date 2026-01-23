@@ -68,9 +68,9 @@ func kfBar(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	scaler := termscaler.ScalerLinear
 	if len(args) >= 4 {
 		if name, ok := EvalStaticStage(args[3]); ok {
-			var scalerOk bool
-			if scaler, scalerOk = termscaler.ScalerByName(name); !scalerOk {
-				return stageArgError(ErrEnum, 3)
+			var scalerErr error
+			if scaler, scalerErr = termscaler.ScalerByName(name); scalerErr != nil {
+				return stageArgErrorf(ErrEnum, 3, scalerErr)
 			}
 		} else {
 			return stageArgError(ErrConst, 3)
