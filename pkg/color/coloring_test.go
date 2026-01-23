@@ -153,6 +153,14 @@ func TestLookupColor(t *testing.T) {
 	assert.False(t, ok)
 }
 
+func TestAvailableColorNames(t *testing.T) {
+	names := AvailableColorNames()
+	assert.Equal(t, len(names), len(colorMap))
+	assert.Contains(t, names, "red")
+	assert.Contains(t, names, "green")
+	assert.Contains(t, names, "blue")
+}
+
 func TestHighlightSingleRune(t *testing.T) {
 	HighlightSingleRune := func(word string, runeIndex int, base, highlight ColorCode) string {
 		var sb strings.Builder

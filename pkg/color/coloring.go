@@ -163,6 +163,14 @@ func LookupColorByName(s string) (ColorCode, bool) {
 	return BrightRed, false
 }
 
+func AvailableColorNames() []string {
+	names := make([]string, 0, len(colorMap))
+	for name := range colorMap {
+		names = append(names, name)
+	}
+	return names
+}
+
 // UnderlineSingleRune is a special-use-case colorer for headers with a single character called out
 func WriteHighlightSingleRune(w io.StringWriter, word string, runeIndex int, base, highlight ColorCode) {
 	if !Enabled {
