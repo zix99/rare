@@ -2,6 +2,8 @@ package stdlib
 
 import (
 	"errors"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -311,7 +313,7 @@ func kfTimeAttr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 	attrFunc, hasAttrFunc := attrType[strings.ToUpper(attrName)]
 	if !hasAttrFunc {
-		return stageArgError(ErrEnum, 1)
+		return stageArgErrorf(ErrEnum, 1, strings.Join(slices.Collect(maps.Keys(attrType)), ", "))
 	}
 
 	timeFormat := EvalStageIndexOrDefault(args, 2, "")

@@ -85,6 +85,8 @@ func lookupSorter(name string) (sorting.NameValueSorter, error) {
 		return sorting.ValueNilSorter(sorting.ByName), nil
 	case "numeric", "n":
 		return sorting.ValueNilSorter(sorting.ByNameSmart), nil
+	case "firstnumber", "firstnum", "fn":
+		return sorting.ValueNilSorter(sorting.ByFirstNumber), nil
 	case "contextual", "context", "c":
 		return sorting.ValueNilSorter(sorting.ByContextual()), nil
 	case "date", "d":
@@ -92,5 +94,5 @@ func lookupSorter(name string) (sorting.NameValueSorter, error) {
 	case "value", "val", "v":
 		return sorting.ValueSorterEx(sorting.ByName), nil
 	}
-	return nil, errors.New("unknown sort, options: text, numeric, contextual, date, value")
+	return nil, errors.New("unknown sort, options: text, numeric, firstnumber, contextual, date, value")
 }
