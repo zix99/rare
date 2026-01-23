@@ -1,7 +1,6 @@
 package stdlib
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 
@@ -23,7 +22,7 @@ func kfColor(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 	colorCode, hasColor := color.LookupColorByName(colorName)
 	if !hasColor {
-		return stageArgErrorf(ErrEnum, 0, errors.New("invalid color, options: "+strings.Join(color.AvailableColorNames(), ", ")))
+		return stageArgErrorf(ErrEnum, 0, "invalid color, options: "+strings.Join(color.AvailableColorNames(), ", "))
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
