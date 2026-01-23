@@ -43,6 +43,10 @@ func TestTimeExpressionErr(t *testing.T) {
 	testExpressionErr(t, mockContext(""), "{time a b c d e}", "<ARGN>", ErrArgCount)
 }
 
+func TestTimeExpressionDetectionWithConcat(t *testing.T) {
+	testExpression(t, mockContext("12:19:22"), `{time "2026-01-02 {0}"}`, "1767356362")
+}
+
 func TestCachedParsingTimestamp(t *testing.T) {
 	kb, err := NewStdKeyBuilder().Compile("{time {0} cache}")
 	assert.Nil(t, err)
@@ -311,6 +315,7 @@ func TestLoadingTimezone(t *testing.T) {
 // BenchmarkTimeParseExpression/{time_"14/Apr/2016:19:12:25_+0200"_auto}-4         	  761017	      1645 ns/op	     336 B/op	       4 allocs/op
 func BenchmarkTimeParseExpression(b *testing.B) {
 	benchmarkExpression(b, mockContext(), `{time "14/Apr/2016:19:12:25 +0200" auto}`, "1460653945")
+	benchmarkExpression(b, mockContext(), `{time "14/Apr/2016:19:12:25 +0200"}`, "1460653945")
 }
 
 // BenchmarkTimeParse-4   	 1686390	       654.7 ns/op	     120 B/op	       4 allocs/op

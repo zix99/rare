@@ -83,6 +83,8 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 		atomicFormat.Store("")
 		const FORMAT_UNIX = "UNIX"
 
+		staticResult, isStaticResult := EvalStaticStage(dateStage)
+
 		return KeyBuilderStage(func(context KeyBuilderContext) string {
 			strTime := dateStage(context)
 			if strTime == "" { // This is important for future optimization efforts (so an empty string won't be remembered as a valid format)
@@ -102,7 +104,10 @@ func smartDateParseWrapper(format string, tz *time.Location, dateStage KeyBuilde
 					return ErrorParsing
 				}
 
-				atomicFormat.Store(liveFormat)
+				// HACK: Check if this looks like a cache-check, and if so, don't update the cached format
+				if strTime != staticResult || isStaticResult {
+					atomicFormat.Store(liveFormat)
+				}
 			}
 
 			if liveFormat == FORMAT_UNIX {
