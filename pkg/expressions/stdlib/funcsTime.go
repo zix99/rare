@@ -1,6 +1,9 @@
 package stdlib
 
 import (
+	"errors"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -231,25 +234,27 @@ func kfDurationFormat(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}), nil
 }
 
-func timeBucketToFormat(name string) string {
+func timeBucketToFormat(name string) (string, error) {
 	name = strings.ToLower(name)
 
-	if isPartialString(name, "nanos") {
-		return "2006-01-02 15:04:05.999999999"
-	} else if isPartialString(name, "seconds") {
-		return "2006-01-02 15:04:05"
-	} else if isPartialString(name, "minutes") {
-		return "2006-01-02 15:04"
-	} else if isPartialString(name, "hours") {
-		return "2006-01-02 15"
-	} else if isPartialString(name, "days") {
-		return "2006-01-02"
-	} else if isPartialString(name, "months") {
-		return "2006-01"
-	} else if isPartialString(name, "years") {
-		return "2006"
+	switch {
+	case isPartialString(name, "nanos"):
+		return "2006-01-02 15:04:05.999999999", nil
+	case isPartialString(name, "seconds"):
+		return "2006-01-02 15:04:05", nil
+	case isPartialString(name, "minutes"):
+		return "2006-01-02 15:04", nil
+	case isPartialString(name, "hours"):
+		return "2006-01-02 15", nil
+	case isPartialString(name, "days"):
+		return "2006-01-02", nil
+	case isPartialString(name, "months"):
+		return "2006-01", nil
+	case isPartialString(name, "years"):
+		return "2006", nil
+	default:
+		return "", errors.New("invalid bucket, expected: nanos, seconds, minutes, hours, days, months, years")
 	}
-	return ""
 }
 
 // {func <time> <bucket> [format:auto] [tz:utc]}
@@ -263,9 +268,9 @@ func kfBucketTime(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		return stageArgError(ErrConst, 1)
 	}
 
-	bucketFormat := timeBucketToFormat(bucketName)
-	if bucketFormat == "" {
-		return stageArgError(ErrEnum, 1)
+	bucketFormat, err := timeBucketToFormat(bucketName)
+	if err != nil {
+		return stageArgErrorf(ErrEnum, 1, err)
 	}
 
 	parseFormat := EvalStageIndexOrDefault(args, 2, "")
@@ -313,7 +318,7 @@ func kfTimeAttr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 
 	attrFunc, hasAttrFunc := attrType[strings.ToUpper(attrName)]
 	if !hasAttrFunc {
-		return stageArgError(ErrEnum, 1)
+		return stageArgErrorf(ErrEnum, 1, strings.Join(slices.Collect(maps.Keys(attrType)), ", "))
 	}
 
 	timeFormat := EvalStageIndexOrDefault(args, 2, "")

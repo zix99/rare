@@ -1,8 +1,6 @@
 package helpers
 
 import (
-	"errors"
-
 	"github.com/zix99/rare/pkg/logger"
 	"github.com/zix99/rare/pkg/multiterm/termscaler"
 
@@ -19,10 +17,7 @@ func BuildScaler(scalerName string) (termscaler.Scaler, error) {
 	if scalerName == "" {
 		return termscaler.ScalerLinear, nil
 	}
-	if scaler, ok := termscaler.ScalerByName(scalerName); ok {
-		return scaler, nil
-	}
-	return termscaler.ScalerNull, errors.New("invalid scaler")
+	return termscaler.ScalerByName(scalerName)
 }
 
 func BuildScalerOrFail(scalerName string) termscaler.Scaler {

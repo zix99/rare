@@ -8,10 +8,12 @@ type NameSorter Sorter[string]
 
 // Sorters
 
+// String compare
 func ByName(a, b string) bool {
 	return a < b
 }
 
+// Check if numeric, otherwise string compare
 func ByNameSmart(a, b string) bool {
 	v0, err0 := strconv.ParseFloat(a, 64)
 	v1, err1 := strconv.ParseFloat(b, 64)
