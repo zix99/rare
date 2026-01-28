@@ -29,7 +29,9 @@ func TestStrictNumSort(t *testing.T) {
 }
 
 func TestStrictNumSortSet(t *testing.T) {
-
+	arr := []string{"b", "a", "5", "41", "7", "q"}
+	Sort(arr, ByNumberStrict)
+	assert.Equal(t, []string{"5", "7", "41", "a", "b", "q"}, arr)
 }
 
 func TestSortStrings(t *testing.T) {
