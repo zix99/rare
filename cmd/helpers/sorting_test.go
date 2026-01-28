@@ -11,6 +11,7 @@ import (
 func TestBuildSorter(t *testing.T) {
 	assert.NotNil(t, BuildSorterOrFail("text"))
 	assert.NotNil(t, BuildSorterOrFail("numeric"))
+	assert.NotNil(t, BuildSorterOrFail("smart"))
 	assert.NotNil(t, BuildSorterOrFail("contextual"))
 	assert.NotNil(t, BuildSorterOrFail("value"))
 	assert.NotNil(t, BuildSorterOrFail("value:reverse"))
@@ -29,6 +30,11 @@ func TestOrderResults(t *testing.T) {
 	assertSortEquals(t, "numeric:asc", 1, 4, 2, 0, 3)
 	assertSortEquals(t, "numeric:reverse", 3, 0, 2, 4, 1)
 	assertSortEquals(t, "numeric:desc", 3, 0, 2, 4, 1)
+
+	assertSortEquals(t, "smart", 1, 4, 2, 0, 3)
+	assertSortEquals(t, "smart:asc", 1, 4, 2, 0, 3)
+	assertSortEquals(t, "smart:reverse", 3, 0, 2, 4, 1)
+	assertSortEquals(t, "smart:desc", 3, 0, 2, 4, 1)
 
 	assertSortEquals(t, "value", 3, 2, 1, 0, 4)
 	assertSortEquals(t, "value:desc", 3, 2, 1, 0, 4)

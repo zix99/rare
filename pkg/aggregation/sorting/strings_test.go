@@ -13,7 +13,23 @@ func TestNameSort(t *testing.T) {
 func TestNameSmartSort(t *testing.T) {
 	assert.True(t, ByNameSmart("a", "b"))
 	assert.True(t, ByNameSmart("0.0", "1.0"))
+	assert.True(t, ByNameSmart("1", "02"))
 	assert.True(t, ByNameSmart("1", "b"))
+}
+
+func TestStrictNumSort(t *testing.T) {
+	assert.True(t, ByNumberStrict("1", "2"))
+	assert.True(t, ByNumberStrict("01", "2"))
+	assert.True(t, ByNumberStrict("1", "a"))
+
+	assert.False(t, ByNumberStrict("a", "2"))
+
+	assert.True(t, ByNumberStrict("a", "b"))
+	assert.False(t, ByNumberStrict("b", "a"))
+}
+
+func TestStrictNumSortSet(t *testing.T) {
+
 }
 
 func TestSortStrings(t *testing.T) {
@@ -36,6 +52,40 @@ func TestSortStringsBy(t *testing.T) {
 	assert.Equal(t, "a", arr[0].s)
 	assert.Equal(t, "b", arr[1].s)
 	assert.Equal(t, "c", arr[2].s)
+}
+
+func TestExtractNumber(t *testing.T) {
+	v, ok := extractNumber("nonum")
+	assert.Equal(t, int64(0), v)
+	assert.False(t, ok)
+
+	v, ok = extractNumber("")
+	assert.Equal(t, int64(0), v)
+	assert.False(t, ok)
+
+	v, ok = extractNumber("123")
+	assert.Equal(t, int64(123), v)
+	assert.True(t, ok)
+
+	v, ok = extractNumber("its 123")
+	assert.Equal(t, int64(123), v)
+	assert.True(t, ok)
+
+	v, ok = extractNumber("its -123")
+	assert.Equal(t, int64(-123), v)
+	assert.True(t, ok)
+
+	v, ok = extractNumber("abc is 123 but another is 456")
+	assert.Equal(t, int64(123), v)
+	assert.True(t, ok)
+
+	v, ok = extractNumber("abc -is 123 but another is 456")
+	assert.Equal(t, int64(123), v)
+	assert.True(t, ok)
+
+	v, ok = extractNumber("abc is -123 but another is 456")
+	assert.Equal(t, int64(-123), v)
+	assert.True(t, ok)
 }
 
 // wrapped BenchmarkStringSort-4   	 6859735	       177.0 ns/op	      32 B/op	       1 allocs/op

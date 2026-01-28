@@ -340,8 +340,8 @@ flags for tables.
 These are the supported sorters. You can shorthand to the first letter.
 
 * `text` -- Pure alphanumeric sort.  Fastest, but can sort numbers oddly (eg. would sort 1, 11, 2, ...)
-* `numeric` -- Attempts to parse the value as numeric.  If unable to parse, falls
-    back to alphanumeric (Default)
+* `numeric` -- Attempts to parse the value as numeric.  Falls back to alphanumeric
+* `smart` -- Sorts by the first found number in the string. Falls back to alphanumeric (default)
 * `contextual` -- Tries to use context to be smart about sorting, eg if it sees a month or weekday name,
     will sort by that. Falls back to numeric
 * `date` -- Parses the value as if it were a date. Falls back to contextual
