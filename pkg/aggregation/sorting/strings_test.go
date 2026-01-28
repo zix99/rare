@@ -15,6 +15,8 @@ func TestNameSmartSort(t *testing.T) {
 	assert.True(t, ByNameSmart("0.0", "1.0"))
 	assert.True(t, ByNameSmart("1", "02"))
 	assert.True(t, ByNameSmart("1", "b"))
+
+	assert.True(t, ByNameSmart("a 123 a", "a 123 b"))
 }
 
 func TestStrictNumSort(t *testing.T) {
@@ -75,6 +77,14 @@ func TestExtractNumber(t *testing.T) {
 
 	v, ok = extractNumber("its -123")
 	assert.Equal(t, int64(-123), v)
+	assert.True(t, ok)
+
+	v, ok = extractNumber("its 0 or 123")
+	assert.Equal(t, int64(0), v)
+	assert.True(t, ok)
+
+	v, ok = extractNumber("its 123-")
+	assert.Equal(t, int64(123), v)
 	assert.True(t, ok)
 
 	v, ok = extractNumber("abc is 123 but another is 456")

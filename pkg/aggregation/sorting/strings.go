@@ -15,7 +15,7 @@ func ByName(a, b string) bool {
 func ByNameSmart(a, b string) bool {
 	v0, ok0 := extractNumber(a)
 	v1, ok1 := extractNumber(b)
-	if ok0 && ok1 {
+	if ok0 && ok1 && v0 != v1 {
 		return v0 < v1
 	}
 	return a < b
@@ -49,10 +49,10 @@ func extractNumber(s string) (int64, bool) {
 		if r >= '0' && r <= '9' {
 			total = total*10 + int64(r-'0')
 			found = true
+		} else if found {
+			break
 		} else if r == '-' {
 			negate = true
-		} else if total > 0 {
-			break
 		} else {
 			negate = false
 		}
