@@ -14,7 +14,7 @@ import (
 
 var DefaultSortFlag = &cli.StringFlag{
 	Name:  "sort",
-	Usage: "Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse",
+	Usage: "Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (s)mart, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse",
 	Value: "smart",
 }
 
