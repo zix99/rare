@@ -14,8 +14,8 @@ import (
 
 var DefaultSortFlag = &cli.StringFlag{
 	Name:  "sort",
-	Usage: "Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse",
-	Value: "numeric",
+	Usage: "Sorting method for display in format `key:order`. Keys: (v)alue, (t)ext, (s)mart, (n)umeric, (c)ontextual, (d)ate; Orders: (a)scending, (d)escending, (r)everse",
+	Value: "smart",
 }
 
 // Create a sort flag with a different default value
@@ -84,6 +84,8 @@ func lookupSorter(name string) (sorting.NameValueSorter, error) {
 	case "text", "t", "":
 		return sorting.ValueNilSorter(sorting.ByName), nil
 	case "numeric", "n":
+		return sorting.ValueNilSorter(sorting.ByNumberStrict), nil
+	case "smart", "s":
 		return sorting.ValueNilSorter(sorting.ByNameSmart), nil
 	case "contextual", "context", "c":
 		return sorting.ValueNilSorter(sorting.ByContextual()), nil
@@ -92,5 +94,5 @@ func lookupSorter(name string) (sorting.NameValueSorter, error) {
 	case "value", "val", "v":
 		return sorting.ValueSorterEx(sorting.ByName), nil
 	}
-	return nil, errors.New("unknown sort, options: text, numeric, contextual, date, value")
+	return nil, errors.New("unknown sort, options: text, numeric, smart, contextual, date, value")
 }
