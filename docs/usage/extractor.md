@@ -1,5 +1,5 @@
 ---
-description: Data extraction overview
+description: Input data parsing overview (matcher)
 order: 5
 ---
 # Extractor (Matcher)

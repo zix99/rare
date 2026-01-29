@@ -1,5 +1,5 @@
 ---
-description: Expressing mathematical expressions
+description: Mathematical formulas in expressions
 order: 1
 depth: 1
 ---
