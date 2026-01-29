@@ -58,8 +58,9 @@ func listDocFiles() {
 
 		r, err := docs.DocFS.Open(docs.BasePath + "/" + entry.Name())
 		if err == nil {
-			defer r.Close()
 			frontmatter := markdowncli.ExtractFrontmatter(r)
+			r.Close()
+
 			info.summary = frontmatter.Description()
 			info.order = frontmatter.Order()
 			info.depth = frontmatter.Depth()
