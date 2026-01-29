@@ -1,3 +1,7 @@
+---
+description: Available display aggregators, arguments and examples
+order: -1
+---
 # Aggregators
 
 *Aggregators* represent different ways to count and output data as it is processed

@@ -1,3 +1,7 @@
+---
+description: Input data parsing overview (matcher)
+order: 5
+---
 # Extractor (Matcher)
 
 The main component of *rare* is the extractor (or matcher).  There are

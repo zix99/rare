@@ -1,3 +1,8 @@
+---
+description: Mathematical formulas in expressions
+order: 1
+depth: 1
+---
 # Math
 
 Math expressions are evaluated using the `{! expr}` helper. They

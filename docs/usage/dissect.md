@@ -1,3 +1,8 @@
+---
+description: Dissect expression syntax
+order: 6
+depth: 1
+---
 # Dissect Syntax
 
 *Dissect* is a simple token-based search algorithm, and can

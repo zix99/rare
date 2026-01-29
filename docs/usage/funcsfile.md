@@ -1,3 +1,8 @@
+---
+description: Adding custom functions for expressions
+order: 1
+depth: 1
+---
 # Expression Functions File
 
 A *functions file* allows you to specify additional expression

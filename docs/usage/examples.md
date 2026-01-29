@@ -1,3 +1,6 @@
+---
+description: Simple examples of using rare
+---
 # Examples
 
 !!! note
