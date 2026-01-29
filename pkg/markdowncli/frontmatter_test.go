@@ -9,7 +9,7 @@ import (
 
 func TestFrontmatterParse(t *testing.T) {
 	r := strings.NewReader(`---
-summary: hi
+description: hi
 order: 1
 depth: 2
 ---
