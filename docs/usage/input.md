@@ -1,3 +1,7 @@
+---
+description: Input methods and arguments
+order: 0
+---
 # Input
 
 *rare* reads the supplied inputs in massive parallelization, rather

@@ -1,3 +1,8 @@
+---
+description: Regular expression syntax
+order: 5
+depth: 1
+---
 # Regexp Syntax
 
 Source: https://golang.org/pkg/regexp/syntax/

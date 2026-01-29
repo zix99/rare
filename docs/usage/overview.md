@@ -1,3 +1,7 @@
+---
+description: Top-level concepts, and data pipeline
+order: -99
+---
 # rare
 
 Rare is a fast, realtime regex-extraction, and aggregation into common formats

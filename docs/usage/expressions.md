@@ -1,3 +1,7 @@
+---
+description: Expression syntax and functions
+order: 1
+---
 # Expressions
 
 *rare* expressions are handlebars-like in their ability to process data with 

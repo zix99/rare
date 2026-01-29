@@ -25,3 +25,11 @@ func TestNoteBlock(t *testing.T) {
 
 	assert.Equal(t, "# Title\n !!! note\n     this is a note block\n\n", w.String())
 }
+
+func TestSkipFrontmatter(t *testing.T) {
+	r := strings.NewReader("---\nsummary: hello\n---\n# Title\n!!! note\n    this is a note block\n\n")
+	w := &bytes.Buffer{}
+	WriteMarkdownToBuf(w, r)
+
+	assert.Equal(t, "# Title\n !!! note\n     this is a note block\n\n", w.String())
+}

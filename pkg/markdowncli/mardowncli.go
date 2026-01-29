@@ -26,10 +26,15 @@ func WriteMarkdownToBuf(out io.Writer, reader io.Reader) {
 	headerDepth := 0
 	isCodeBlock := false
 	inNoteBlock := false
+	isFrontmatter := false
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, tokenHeader) && !isCodeBlock && !inNoteBlock { // header
+		if line == "---" && headerDepth == 0 { // skip frontmatter
+			isFrontmatter = !isFrontmatter
+		} else if isFrontmatter {
+			continue
+		} else if strings.HasPrefix(line, tokenHeader) && !isCodeBlock && !inNoteBlock { // header
 			headerDepth = strings.Count(line, tokenHeader) - 1
 			headerColor := headerColors[headerDepth%len(headerColors)]
 			fmt.Fprintf(out, "%s%s\n", strings.Repeat(" ", headerDepth), color.Wrap(color.Bold, color.Wrap(headerColor, line)))
