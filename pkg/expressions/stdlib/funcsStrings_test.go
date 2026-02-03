@@ -27,6 +27,28 @@ func TestReplace(t *testing.T) {
 	testExpressionErr(t, mockContext(), "{replace a} {replace a b} {replace a b c d}", "<ARGN> <ARGN> <ARGN>", ErrArgCount)
 }
 
+func TestIndexOf(t *testing.T) {
+	testExpression(t, mockContext(), "{index abcdeaba b} {index abc x}", "1 -1")
+	testExpressionErr(t, mockContext(), "{index a} {index a b c}", "<ARGN> <ARGN>", ErrArgCount)
+}
+
+func TestLastIndexOf(t *testing.T) {
+	testExpression(t, mockContext(), "{lastindex abcdeaba b} {lastindex abc x}", "6 -1")
+	testExpressionErr(t, mockContext(), "{lastindex a} {lastindex a b c}", "<ARGN> <ARGN>", ErrArgCount)
+}
+
+func TestPick(t *testing.T) {
+	testExpression(t,
+		mockContext("apple,banana,cherry", "one|two|three|four"),
+		"{pick {0} , 0} {pick {0} , 1} {pick {0} , 2} {pick {1} | 2} {pick {1} | 10}",
+		"apple banana cherry three ")
+	testExpressionErr(t, mockContext(), "{pick a}", "<ARGN>", ErrArgCount)
+	testExpressionErr(t, mockContext(","), "{pick {0} , a}", "<BAD-TYPE>", ErrNum)
+	testExpressionErr(t, mockContext("abc", ","), "{pick {0} {1} 0}", "<CONST>", ErrConst)
+
+	testExpression(t, mockContext("abc", ","), "{pick {0} , {0}}", "<BAD-TYPE>")
+}
+
 func TestSubstring(t *testing.T) {
 	testExpression(t,
 		mockContext("abcd"),

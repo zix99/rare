@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/zix99/rare/pkg/humanize"
+	"github.com/zix99/rare/pkg/stringSplitter"
 
 	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
@@ -108,6 +109,73 @@ func kfSubstr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		}
 		return s[left:right]
 	}), nil
+}
+
+// {index {0} {search}}
+func kfIndexOf(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 2 {
+		return stageErrArgCount(args, 2)
+	}
+
+	return func(context KeyBuilderContext) string {
+		s := args[0](context)
+		search := args[1](context)
+
+		idx := strings.Index(s, search)
+
+		return strconv.Itoa(idx)
+	}, nil
+}
+
+// {lastindex {0} {search}}
+func kfLastIndexOf(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 2 {
+		return stageErrArgCount(args, 2)
+	}
+
+	return func(context KeyBuilderContext) string {
+		s := args[0](context)
+		search := args[1](context)
+
+		idx := strings.LastIndex(s, search)
+
+		return strconv.Itoa(idx)
+	}, nil
+}
+
+// {pick {0} "delim" idx}
+func kfPick(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 3 {
+		return stageErrArgCount(args, 3)
+	}
+
+	delim, delimOk := EvalStaticStage(args[1])
+	if !delimOk {
+		return stageArgError(ErrConst, 1)
+	}
+
+	idx, idxOk := evalTypedStage(args[2], typedParserInt)
+	if !idxOk {
+		return stageArgError(ErrNum, 2)
+	}
+
+	return func(context KeyBuilderContext) string {
+		splitter := stringSplitter.Splitter{
+			S:     args[0](context),
+			Delim: delim,
+		}
+
+		offset, offsetOk := idx(context)
+		if !offsetOk {
+			return ErrorNum
+		}
+
+		item := splitter.Next()
+		for range offset {
+			item = splitter.Next()
+		}
+		return item
+	}, nil
 }
 
 // {select {0} 1}

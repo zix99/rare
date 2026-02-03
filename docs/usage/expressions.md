@@ -100,9 +100,18 @@ Evaluates arguments in-order, choosing the first non-empty result.
 
 Syntax: `{select {0} 1}`
 
-Assuming that `{0}` is a whitespace-separated value, split the values and select the item at index `1`
+Assuming that `{0}` is a whitespace-separated value, split the values and select the item at index `1`,
+respecting quotes.
 
 Eg. `{select "ab cd ef" 1}` will result in `cd`
+
+#### Pick
+
+Syntax: `{pick {0} "delim" {index}}`
+
+Given a string, and a delimiter, select the string at a given index.
+
+Eg. `{pick "a,b,c" , 1}` will return `b`
 
 #### Bucket
 
@@ -258,6 +267,16 @@ Formats a string based on `fmt.Sprintf`: [Go Docs](https://pkg.go.dev/fmt)
 Syntax: `{substr {0} pos length}`
 
 Takes the substring of the first argument starting at `pos` for `length`
+
+#### Index, LastIndex
+
+Syntax: `{index {0} {of}}`, `{lastindex {0} {of}}`
+
+Returns the numeric index of a substring within a string.
+
+*lastindex* returns the index of the last occurrence of a substring.
+
+Example: `{index abcdef c}` returns `2`
 
 #### Upper, Lower
 
