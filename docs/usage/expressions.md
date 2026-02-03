@@ -264,9 +264,13 @@ Formats a string based on `fmt.Sprintf`: [Go Docs](https://pkg.go.dev/fmt)
 
 #### Substring
 
-Syntax: `{substr {0} pos length}`
+Syntax: `{substr {0} pos [length]}`
 
 Takes the substring of the first argument starting at `pos` for `length`
+
+If `pos` is `< 0`, will wrap-around at the length of the string.
+
+If `length` is omitted or `< 0`, will return up to the end of the string.
 
 #### Index, LastIndex
 
