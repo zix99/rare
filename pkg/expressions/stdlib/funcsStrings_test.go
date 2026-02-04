@@ -27,14 +27,36 @@ func TestReplace(t *testing.T) {
 	testExpressionErr(t, mockContext(), "{replace a} {replace a b} {replace a b c d}", "<ARGN> <ARGN> <ARGN>", ErrArgCount)
 }
 
+func TestIndexOf(t *testing.T) {
+	testExpression(t, mockContext(), "{index abcdeaba b} {index abc x}", "1 -1")
+	testExpressionErr(t, mockContext(), "{index a} {index a b c}", "<ARGN> <ARGN>", ErrArgCount)
+}
+
+func TestLastIndexOf(t *testing.T) {
+	testExpression(t, mockContext(), "{lastindex abcdeaba b} {lastindex abc x}", "6 -1")
+	testExpressionErr(t, mockContext(), "{lastindex a} {lastindex a b c}", "<ARGN> <ARGN>", ErrArgCount)
+}
+
+func TestPick(t *testing.T) {
+	testExpression(t,
+		mockContext("apple,banana,cherry", "one|two|three|four"),
+		"{pick {0} , 0} {pick {0} , 1} {pick {0} , 2} {pick {1} | 2} {pick {1} | 10}",
+		"apple banana cherry three ")
+	testExpressionErr(t, mockContext(), "{pick a}", "<ARGN>", ErrArgCount)
+	testExpressionErr(t, mockContext(","), "{pick {0} , a}", "<BAD-TYPE>", ErrNum)
+	testExpressionErr(t, mockContext("abc", ","), "{pick {0} {1} 0}", "<CONST>", ErrConst)
+
+	testExpression(t, mockContext("abc", ","), "{pick {0} , {0}}", "<BAD-TYPE>")
+}
+
 func TestSubstring(t *testing.T) {
 	testExpression(t,
 		mockContext("abcd"),
 		"{substr {0} 0 2} {substr {0} 0 10} {substr {0} 3 2} {substr {0} 3 1}",
 		"ab abcd d d")
-	testExpressionErr(t,
-		mockContext("abcd"),
-		"{substr 0}", "<ARGN>", ErrArgCount)
+	testExpression(t, mockContext("abcd"), "{substr {0} 1} {substr {0} 3} {substr {0} 4} {substr {0} 10} {substr {0} 1 -1}", "bcd d   bcd")
+	testExpressionErr(t, mockContext("abcd"), "{substr 0}", "<ARGN>", ErrArgCount)
+	testExpressionErr(t, mockContext(), "{substr abc 0 a}", "<BAD-TYPE>", ErrNum)
 }
 
 func TestSubstringOutOfBounds(t *testing.T) {
@@ -142,4 +164,10 @@ func BenchmarkSelectItem(b *testing.B) {
 // BenchmarkPercent/{percent_50_1_0_100}-4         	 3397647	       341.3 ns/op	       5 B/op	       1 allocs/op
 func BenchmarkPercent(b *testing.B) {
 	benchmarkExpression(b, mockContext(), "{percent 50 1 0 100}", "50.0%")
+}
+
+// BenchmarkSubstring/{substr_{0}_6_2}-4         	30473634	        36.31 ns/op	       0 B/op	       0 allocs/op
+// BenchmarkSubstring/{substr_{0}_6_2}-4         	45346548	        22.51 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkSubstring(b *testing.B) {
+	benchmarkExpression(b, mockContext("hello to you"), "{substr {0} 6 2}", "to")
 }

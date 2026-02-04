@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/zix99/rare/pkg/humanize"
+	"github.com/zix99/rare/pkg/stringSplitter"
 
 	. "github.com/zix99/rare/pkg/expressions" //lint:ignore ST1001 Legacy
 )
@@ -70,10 +71,26 @@ func kfLower(args []KeyBuilderStage) (KeyBuilderStage, error) {
 	}, nil
 }
 
-// {substr {0} left len}
+// {substr {0} left [len]}
 func kfSubstr(args []KeyBuilderStage) (KeyBuilderStage, error) {
-	if len(args) != 3 {
-		return stageErrArgCount(args, 3)
+	if !isArgCountBetween(args, 2, 3) {
+		return stageErrArgRange(args, "2-3")
+	}
+
+	leftArg, leftOk := evalTypedStage(args[1], typedParserInt)
+	if !leftOk {
+		return stageArgError(ErrNum, 1)
+	}
+
+	var lengthArg typedStage[int]
+	if len(args) >= 3 {
+		var lengthOk bool
+		lengthArg, lengthOk = evalTypedStage(args[2], typedParserInt)
+		if !lengthOk {
+			return stageArgError(ErrNum, 2)
+		}
+	} else {
+		lengthArg = typedLiteral(-1)
 	}
 
 	return KeyBuilderStage(func(context KeyBuilderContext) string {
@@ -83,15 +100,12 @@ func kfSubstr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 			return ""
 		}
 
-		left, err1 := strconv.Atoi(args[1](context))
-		length, err2 := strconv.Atoi(args[2](context))
-		if err1 != nil || err2 != nil {
+		left, leftOk := leftArg(context)
+		length, lengthOk := lengthArg(context)
+		if !leftOk || !lengthOk {
 			return ErrorNum
 		}
 
-		if length < 0 {
-			length = 0
-		}
 		if left < 0 { // negative number wrap-around
 			left += lenS
 			if left < 0 {
@@ -101,6 +115,11 @@ func kfSubstr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 			left = lenS
 		}
 
+		// length wrap-around
+		if length < 0 {
+			length = lenS - left
+		}
+
 		right := left + length
 
 		if right > lenS {
@@ -108,6 +127,73 @@ func kfSubstr(args []KeyBuilderStage) (KeyBuilderStage, error) {
 		}
 		return s[left:right]
 	}), nil
+}
+
+// {index {0} {search}}
+func kfIndexOf(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 2 {
+		return stageErrArgCount(args, 2)
+	}
+
+	return func(context KeyBuilderContext) string {
+		s := args[0](context)
+		search := args[1](context)
+
+		idx := strings.Index(s, search)
+
+		return strconv.Itoa(idx)
+	}, nil
+}
+
+// {lastindex {0} {search}}
+func kfLastIndexOf(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 2 {
+		return stageErrArgCount(args, 2)
+	}
+
+	return func(context KeyBuilderContext) string {
+		s := args[0](context)
+		search := args[1](context)
+
+		idx := strings.LastIndex(s, search)
+
+		return strconv.Itoa(idx)
+	}, nil
+}
+
+// {pick {0} "delim" idx}
+func kfPick(args []KeyBuilderStage) (KeyBuilderStage, error) {
+	if len(args) != 3 {
+		return stageErrArgCount(args, 3)
+	}
+
+	delim, delimOk := EvalStaticStage(args[1])
+	if !delimOk {
+		return stageArgError(ErrConst, 1)
+	}
+
+	idx, idxOk := evalTypedStage(args[2], typedParserInt)
+	if !idxOk {
+		return stageArgError(ErrNum, 2)
+	}
+
+	return func(context KeyBuilderContext) string {
+		splitter := stringSplitter.Splitter{
+			S:     args[0](context),
+			Delim: delim,
+		}
+
+		offset, offsetOk := idx(context)
+		if !offsetOk {
+			return ErrorNum
+		}
+
+		item := splitter.Next()
+		for range offset {
+			item = splitter.Next()
+		}
+		return item
+	}, nil
 }
 
 // {select {0} 1}
