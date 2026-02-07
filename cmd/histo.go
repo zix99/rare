@@ -57,7 +57,7 @@ func histoFunction(c *cli.Context) error {
 			fmt.Sprintf("(Groups: %s)", color.Wrapi(color.BrightBlue, counter.GroupCount())))
 	}
 
-	helpers.RunAggregationLoop(ext, counter, func() {
+	interrupt := helpers.RunAggregationLoop(ext, counter, func() {
 		writeHistoOutput(writer, counter, topItems, sorter, atLeast)
 		writer.WriteFooter(0, progressString())
 		writer.WriteFooter(1, batcher.StatusString())
@@ -81,7 +81,7 @@ func histoFunction(c *cli.Context) error {
 		return err
 	}
 
-	return helpers.DetermineErrorState(batcher, ext, counter)
+	return helpers.DetermineErrorState2(interrupt, batcher, ext, counter)
 }
 
 // HistogramCommand Exported command

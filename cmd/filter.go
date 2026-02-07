@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"os"
+	"os/signal"
 	"unicode/utf8"
 
 	"github.com/zix99/rare/cmd/helpers"
@@ -27,39 +28,55 @@ func filterFunction(c *cli.Context, fileGlobs ...string) error {
 
 	stdout := bufio.NewWriter(os.Stdout)
 
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, os.Interrupt)
+	interrupted := false
+
+	readChan := extractor.ReadFull()
+
 OUTER_LOOP:
-	for matchBatch := range extractor.ReadFull() {
-		for _, match := range matchBatch {
-			if writeLines {
-				color.WriteString(stdout, color.BrightGreen, match.Source)
-				stdout.WriteByte(' ')
-				color.WriteUint64(stdout, color.BrightYellow, match.LineNumber)
-				stdout.WriteString(": ")
-			}
-
-			switch {
-			case customExtractor:
-				stdout.WriteString(match.Extracted)
-			case onlyText && !utf8.ValidString(match.Line):
-				color.WriteString(stdout, color.BrightBlue, "Binary Match")
-			case len(match.Indices) == 2:
-				// Single match, highlight entire phrase
-				color.WrapIndices(stdout, match.Line, match.Indices)
-			default:
-				// Multi-match groups, highlight individual groups
-				color.WrapIndices(stdout, match.Line, match.Indices[2:])
-			}
-			stdout.WriteByte('\n')
-
-			readLines++
-			if numLineLimit > 0 && readLines >= numLineLimit {
+	for {
+		select {
+		case <-exitSignal:
+			interrupted = true
+			break OUTER_LOOP
+		case matchBatch, more := <-readChan:
+			if !more {
 				break OUTER_LOOP
 			}
-		}
 
-		// Flush after each batch to make file-following work as expected
-		if err := stdout.Flush(); err != nil {
-			logger.Fatal(helpers.ExitCodeOutputError, err)
+			for _, match := range matchBatch {
+				if writeLines {
+					color.WriteString(stdout, color.BrightGreen, match.Source)
+					stdout.WriteByte(' ')
+					color.WriteUint64(stdout, color.BrightYellow, match.LineNumber)
+					stdout.WriteString(": ")
+				}
+
+				switch {
+				case customExtractor:
+					stdout.WriteString(match.Extracted)
+				case onlyText && !utf8.ValidString(match.Line):
+					color.WriteString(stdout, color.BrightBlue, "Binary Match")
+				case len(match.Indices) == 2:
+					// Single match, highlight entire phrase
+					color.WrapIndices(stdout, match.Line, match.Indices)
+				default:
+					// Multi-match groups, highlight individual groups
+					color.WrapIndices(stdout, match.Line, match.Indices[2:])
+				}
+				stdout.WriteByte('\n')
+
+				readLines++
+				if numLineLimit > 0 && readLines >= numLineLimit {
+					break OUTER_LOOP
+				}
+			}
+
+			// Flush after each batch to make file-following work as expected
+			if err := stdout.Flush(); err != nil {
+				logger.Fatal(helpers.ExitCodeOutputError, err)
+			}
 		}
 	}
 
@@ -80,7 +97,7 @@ OUTER_LOOP:
 	}
 	os.Stderr.WriteString("\n")
 
-	return helpers.DetermineErrorState(batcher, extractor, nil)
+	return helpers.DetermineErrorState2(interrupted, batcher, extractor, nil)
 }
 
 func getFilterArgs(isSearch bool) []cli.Flag {

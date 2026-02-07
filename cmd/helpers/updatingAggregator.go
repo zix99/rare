@@ -18,7 +18,7 @@ import (
 //	writeOutput - triggered after a delay, only if there's an update
 //
 // The two functions are guaranteed to never happen at the same time
-func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggregator, writeOutput func()) {
+func RunAggregationLoop(ext *extractor.Extractor, aggregator aggregation.Aggregator, writeOutput func()) (interrupt bool) {
 	logger.DeferLogs()
 
 	// Updater sync variables
@@ -47,6 +47,7 @@ PROCESSING_LOOP:
 	for {
 		select {
 		case <-exitSignal:
+			interrupt = true
 			break PROCESSING_LOOP
 		case matchBatch, more := <-reader:
 			if !more {
@@ -62,4 +63,6 @@ PROCESSING_LOOP:
 	outputDone <- true
 
 	writeOutput()
+
+	return
 }
