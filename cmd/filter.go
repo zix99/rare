@@ -97,7 +97,7 @@ OUTER_LOOP:
 	}
 	os.Stderr.WriteString("\n")
 
-	return helpers.DetermineErrorState2(interrupted, batcher, extractor, nil)
+	return helpers.DetermineErrorState(interrupted, batcher, extractor, nil)
 }
 
 func getFilterArgs(isSearch bool) []cli.Flag {

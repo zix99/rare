@@ -47,7 +47,7 @@ func heatmapFunction(c *cli.Context) error {
 	writer.Scaler = helpers.BuildScalerOrFail(scalerName)
 	writer.Formatter = helpers.BuildFormatterOrFail(formatName)
 
-	helpers.RunAggregationLoop(ext, counter, func() {
+	interrupt := helpers.RunAggregationLoop(ext, counter, func() {
 		writer.WriteTable(counter, rowSorter, colSorter)
 		writer.WriteFooter(0, helpers.BuildExtractorSummary(ext, counter.ParseErrors(),
 			fmt.Sprintf("(R: %v; C: %v)", color.Wrapi(color.Yellow, counter.RowCount()), color.Wrapi(color.BrightBlue, counter.ColumnCount()))))
@@ -60,7 +60,7 @@ func heatmapFunction(c *cli.Context) error {
 		return err
 	}
 
-	return helpers.DetermineErrorState(batcher, ext, counter)
+	return helpers.DetermineErrorState(interrupt, batcher, ext, counter)
 }
 
 func heatmapCommand() *cli.Command {

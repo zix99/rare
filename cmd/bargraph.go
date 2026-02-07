@@ -43,7 +43,7 @@ func bargraphFunction(c *cli.Context) error {
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
 	sorter := helpers.BuildSorterOrFail(sortName)
 
-	helpers.RunAggregationLoop(ext, counter, func() {
+	interrupt := helpers.RunAggregationLoop(ext, counter, func() {
 		line := 0
 
 		writer.SetKeys(counter.SubKeys()...)
@@ -62,7 +62,7 @@ func bargraphFunction(c *cli.Context) error {
 		return err
 	}
 
-	return helpers.DetermineErrorState(batcher, ext, counter)
+	return helpers.DetermineErrorState(interrupt, batcher, ext, counter)
 }
 
 func bargraphCommand() *cli.Command {

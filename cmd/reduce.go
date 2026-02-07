@@ -72,6 +72,8 @@ func reduceFunction(c *cli.Context) error {
 	formatters := buildFormatterSetOrFail(aggr, formatNames...)
 
 	// run the aggregation
+	interrupted := false
+
 	if aggr.GroupColCount() > 0 || table {
 		// Table output
 		table := termrenderers.NewTable(vt, colCount, rowCount)
@@ -88,7 +90,7 @@ func reduceFunction(c *cli.Context) error {
 			table.WriteRow(0, rowBuf...)
 		}
 
-		helpers.RunAggregationLoop(extractor, aggr, func() {
+		interrupted = helpers.RunAggregationLoop(extractor, aggr, func() {
 			// write data
 			for i, group := range aggr.Groups(sorter) {
 				rowBuf := make([]string, aggr.ColCount())
@@ -110,7 +112,7 @@ func reduceFunction(c *cli.Context) error {
 		})
 	} else {
 		// Simple output
-		helpers.RunAggregationLoop(extractor, aggr, func() {
+		interrupted = helpers.RunAggregationLoop(extractor, aggr, func() {
 			items := aggr.Data("")
 			colNames := aggr.DataCols()
 			for idx, expr := range items {
@@ -127,7 +129,7 @@ func reduceFunction(c *cli.Context) error {
 		return err
 	}
 
-	return helpers.DetermineErrorState(batcher, extractor, aggr)
+	return helpers.DetermineErrorState(interrupted, batcher, extractor, aggr)
 }
 
 func parseKeyValInitial(s, defaultInitial string) (key, initial, val string) {

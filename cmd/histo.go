@@ -81,7 +81,7 @@ func histoFunction(c *cli.Context) error {
 		return err
 	}
 
-	return helpers.DetermineErrorState2(interrupt, batcher, ext, counter)
+	return helpers.DetermineErrorState(interrupt, batcher, ext, counter)
 }
 
 // HistogramCommand Exported command

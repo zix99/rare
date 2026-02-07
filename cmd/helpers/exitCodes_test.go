@@ -24,14 +24,17 @@ func (s *mockExitState) MatchedLines() uint64 {
 
 func TestDetermineErrorState(t *testing.T) {
 	s := mockExitState{0, 0, 1}
-	assert.NoError(t, DetermineErrorState(&s, &s, &s))
+	assert.NoError(t, DetermineErrorState(false, &s, &s, &s))
 
 	s = mockExitState{0, 0, 0}
-	assert.Error(t, DetermineErrorState(&s, &s, &s))
+	assert.Error(t, DetermineErrorState(false, &s, &s, &s))
 
 	s = mockExitState{0, 1, 1}
-	assert.Error(t, DetermineErrorState(&s, &s, &s))
+	assert.Error(t, DetermineErrorState(false, &s, &s, &s))
 
 	s = mockExitState{1, 0, 1}
-	assert.Error(t, DetermineErrorState(&s, &s, &s))
+	assert.Error(t, DetermineErrorState(false, &s, &s, &s))
+
+	s = mockExitState{0, 0, 1}
+	assert.Error(t, DetermineErrorState(true, &s, &s, &s))
 }

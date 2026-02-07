@@ -24,20 +24,7 @@ type (
 	}
 )
 
-func DetermineErrorState(b BatcherErrors, e ExtractorSummary, agg AggregationErrors) error {
-	if b.ReadErrors() > 0 {
-		return cli.Exit("Read errors", ExitCodeReadError)
-	}
-	if agg != nil && agg.ParseErrors() > 0 {
-		return cli.Exit("Parse errors", ExitCodeInvalidUsage)
-	}
-	if e.MatchedLines() == 0 {
-		return cli.Exit("", ExitCodeNoData)
-	}
-	return nil
-}
-
-func DetermineErrorState2(interrupt bool, b BatcherErrors, e ExtractorSummary, agg AggregationErrors) error {
+func DetermineErrorState(interrupt bool, b BatcherErrors, e ExtractorSummary, agg AggregationErrors) error {
 	if interrupt {
 		return cli.Exit("", ExitCodeSigInt)
 	}
