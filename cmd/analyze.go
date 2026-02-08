@@ -65,7 +65,7 @@ func analyzeFunction(c *cli.Context) error {
 	batcher := helpers.BuildBatcherFromArguments(c)
 	ext := helpers.BuildExtractorFromArguments(c, batcher)
 
-	helpers.RunAggregationLoop(ext, aggr, func() {
+	interrupt := helpers.RunAggregationLoop(ext, aggr, func() {
 		line := writeAggrOutput(writer, aggr, extra, quantiles)
 		writer.WriteForLine(line+1, helpers.BuildExtractorSummary(ext, aggr.ParseErrors()))
 		writer.WriteForLine(line+2, batcher.StatusString())
@@ -73,7 +73,7 @@ func analyzeFunction(c *cli.Context) error {
 
 	writer.Close()
 
-	return helpers.DetermineErrorState(batcher, ext, aggr)
+	return helpers.DetermineErrorState(interrupt, batcher, ext, aggr)
 }
 
 func analyzeCommand() *cli.Command {

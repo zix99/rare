@@ -38,7 +38,7 @@ func sparkFunction(c *cli.Context) error {
 	writer.Scaler = helpers.BuildScalerOrFail(scalerName)
 	writer.Formatter = helpers.BuildFormatterOrFail(formatName)
 
-	helpers.RunAggregationLoop(ext, counter, func() {
+	interrupt := helpers.RunAggregationLoop(ext, counter, func() {
 
 		// Trim unused data from the data store (keep memory tidy!)
 		if !noTruncate {
@@ -69,7 +69,7 @@ func sparkFunction(c *cli.Context) error {
 		return err
 	}
 
-	return helpers.DetermineErrorState(batcher, ext, counter)
+	return helpers.DetermineErrorState(interrupt, batcher, ext, counter)
 }
 
 func sparkCommand() *cli.Command {

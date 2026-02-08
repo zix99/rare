@@ -40,7 +40,7 @@ func tabulateFunction(c *cli.Context) error {
 		writer.SetFormatter(helpers.BuildFormatterOrFail(formatExp))
 	}
 
-	helpers.RunAggregationLoop(ext, counter, func() {
+	interrupt := helpers.RunAggregationLoop(ext, counter, func() {
 		writer.WriteTable(counter, rowSorter, colSorter)
 
 		writer.WriteFooter(0, helpers.BuildExtractorSummary(ext, counter.ParseErrors(),
@@ -54,7 +54,7 @@ func tabulateFunction(c *cli.Context) error {
 		return err
 	}
 
-	return helpers.DetermineErrorState(batcher, ext, counter)
+	return helpers.DetermineErrorState(interrupt, batcher, ext, counter)
 }
 
 func tabulateCommand() *cli.Command {
