@@ -11,11 +11,11 @@ jobs:
       GO111MODULE: on
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v7
         with:
           go-version: 1.23
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v7
       - name: Get
         run: go get -t -v ./...
       - name: Vet
