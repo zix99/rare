@@ -73,7 +73,7 @@ brew install rare
 
 ### go install
 
-**Note:** Go install won't apply some of the optimizations *goreleaser* applies in the other releases (eg. pgo, stripping unused data).
+**Note:** `go install` won't apply the optimizations that *goreleaser* has in the static releases (eg. pgo and stripping unused features).
 
 ```sh
 go install github.com/zix99/rare@latest
@@ -94,7 +94,7 @@ sudo port install rare
 
 Clone the repo, and:
 
-Requires GO 1.23 or higher
+Requires GO 1.27 or higher
 
 ```sh
 go mod download
