@@ -71,6 +71,14 @@ brew tap zix99/rare
 brew install rare
 ```
 
+### go install
+
+**Note:** Go install won't apply some of the optimizations *goreleaser* applies in the other releases (eg. pgo, stripping unused data).
+
+```sh
+go install github.com/zix99/rare@latest
+```
+
 ### Community Contributed
 
 The below install methods have been contributed by the community, and aren't maintained directly.
