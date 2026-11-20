@@ -65,6 +65,15 @@ brew tap zix99/rare
 brew install rare
 ```
 
+### go install
+
+!!! info "Optimization Note"
+    `go install` won't apply the optimizations that *goreleaser* has in the static releases (eg. pgo and stripping unused features).
+
+```sh
+go install github.com/zix99/rare@latest
+```
+
 ### Community Contributed
 
 !!! note
@@ -81,7 +90,7 @@ sudo port install rare
 
 Clone the repo, and:
 
-Requires GO 1.23 or higher
+Requires GO 1.27 or higher
 
 ```sh
 go mod download

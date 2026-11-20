@@ -34,15 +34,15 @@ func (s *compiledRegexp) SubexpNameTable() map[string]int {
 	return s.groupNames
 }
 
-//go:linkname regexp_doExecute regexp.(*Regexp).doExecute
-func regexp_doExecute(*regexp.Regexp, io.RuneReader, []byte, string, int, int, []int) []int
+//go:linkname regexp_find regexp.(*Regexp).find
+func regexp_find(*regexp.Regexp, io.RuneReader, []byte, string, int, int, []int) []int
 
 func (s *compiledRegexp) FindSubmatchIndexDst(b []byte, dst []int) []int {
 	// HACK: By accessing the underlying function of FindSubmatchIndex, we're able to avoid
 	// an allocation done by the initial call, which seems to save 25-33% performance generally
 	// and also later gc cleanups and about 15% heap allocations
 	// Though hacky, this should be safe for a pinned version, and will have plenty of tests around it
-	ret := regexp_doExecute(s.Regexp, nil, b, "", 0, s.bufSize, dst)
+	ret := regexp_find(s.Regexp, nil, b, "", 0, s.bufSize, dst)
 	if ret == nil {
 		return nil
 	}
